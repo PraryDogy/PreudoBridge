@@ -1,12 +1,16 @@
+import os
+
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QLabel
 
 from cfg import Dynamic, JsonData
-from system.items import DataItem, MainWinItem
+from system.items import DataItem, DirItem, MainWinItem
 from system.multiprocess import DirScaner, ProcessWorker
-from system.tasks import UThreadPool, DirScaner as DirScanerS
+from system.tasks import DirScaner as DirScanerS
+from system.tasks import UThreadPool
+
 from .grid import Grid, NoItemsLabel, Thumb
-import os
+
 
 class LoadingWidget(QLabel):
     def __init__(self, text="Загрузка…", parent=None):
@@ -62,12 +66,9 @@ class GridStandart(Grid):
         self.scroll_timer.start(self.scroll_timer_ms)
 
     def start_dir_scaner_s(self):
-        self.finder_task = DirScanerS(
-            self.main_win_item, self.sort_item, JsonData.show_hidden
-        )
-        self.finder_task.sigs.finished_.connect(
-            self.finalize_dir_scaner
-        )
+        dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
+        self.finder_task = DirScanerS(dir_item)
+        self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
         UThreadPool.start(self.finder_task)
 
     def start_dir_scaner(self):
@@ -75,20 +76,16 @@ class GridStandart(Grid):
         def timeout_task():
             self.finder_timer.stop()
             self.finder_task.terminate()
-            poll_task_fin(
-                {"path": "", "data_items": []}
-            )
-
-        def poll_task_fin(result: dict):
-            self.finalize_dir_scaner(result)
+            dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
+            self.finalize_dir_scaner(dir_item)
 
         def poll_task():
             self.finder_timer.stop()
             q = self.finder_task.proc_q
 
-            while not q.empty():
-                result = q.get()
-                poll_task_fin(result)
+            if not q.empty():
+                dir_item: DirItem = q.get()
+                self.finalize_dir_scaner(dir_item)
 
             if not self.finder_task.is_alive():
                 self.timeout_timer.stop()
@@ -96,10 +93,8 @@ class GridStandart(Grid):
             else:
                 self.finder_timer.start(self.finder_timer_ms)
 
-        self.finder_task = ProcessWorker(
-            target=DirScaner.start,
-            args=(self.main_win_item, self.sort_item, JsonData.show_hidden)
-        )
+        dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
+        self.finder_task = ProcessWorker(target=DirScaner.start, args=(dir_item, ))
 
         self.finder_timer = QTimer(self)
         self.finder_timer.setSingleShot(True)
@@ -113,35 +108,25 @@ class GridStandart(Grid):
         self.finder_timer.start(self.finder_timer_ms)
         self.timeout_timer.start(self.timeout_timer_ms)
 
-    def finalize_dir_scaner(self, result: dict):
-        """
-        {
-            "path": путь к сканируемой директории,
-            "data_items": список DataItem,
-        }
-        """
-        fixed_path = result["path"]
-        data_items = result["data_items"]
-
-        if fixed_path:
-            self.main_win_item.main_dir = fixed_path
-        else:
+    def finalize_dir_scaner(self, dir_item: DirItem):
+        if not os.path.exists(self.main_win_item.main_dir):
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None
             self.load_finished.emit()
             self.loading_label.hide()
             return
 
-        Thumb.calc_size()
-        if len(data_items) == 0:
+        if len(dir_item.data_items) == 0:
             self.create_no_items_label(NoItemsLabel.no_files)
             self.load_finished.emit()
             self.loading_label.hide()
             return
 
+        Thumb.calc_size()
+
         self.path_bar_update.emit(self.main_win_item.main_dir)
-        self.total_count_update.emit((len(self.selected_thumbs), len(data_items)))
-        self.create_thumbs(data_items)
+        self.total_count_update.emit((len(self.selected_thumbs), len(dir_item.data_items)))
+        self.create_thumbs(dir_item.data_items)
 
     def create_thumbs(self, data_items: list[DataItem]):
         self.col_count = self.get_clmn_count()

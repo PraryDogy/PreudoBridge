@@ -14,7 +14,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import JsonData, Static
 from system.database import Clmns, Dbase
-from system.items import DataItem, MainWinItem, SortItem
+from system.items import DataItem, DirItem
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
 from system.tasks import Utils
 
@@ -58,30 +58,21 @@ class ProcessWorker(BaseProcessWorker):
 
 class DirScaner:
     @staticmethod
-    def start(main_win_item: MainWinItem, sort_item: SortItem, show_hidden: bool, q: Queue):
-        """
-        Добавляет в очередь {"path": str filepath, "data_items": list DataItem}
-        """
-        items = []
-        hidden_syms = () if show_hidden else Static.hidden_symbols
+    def start(dir_item: DirItem, q: Queue):
+        hidden_syms = () if dir_item.show_hidden else Static.hidden_symbols
 
-        fixed_path = PathFinder(main_win_item.main_dir).get_result()
-        if fixed_path is None:
-            q.put({"path": None, "data_items": []})
-            return
-
-        for entry in os.scandir(fixed_path):
+        for entry in os.scandir(dir_item.main_win_item.main_dir):
             if entry.name.startswith(hidden_syms):
                 continue
             if not os.access(entry.path, 4):
                 continue
 
-            item = DataItem(entry.path)
-            item.set_properties()
-            items.append(item)
+            data_item = DataItem(entry.path)
+            data_item.set_properties()
+            dir_item.data_items.append(data_item)
 
-        items = DataItem.sort_(items, sort_item)
-        q.put({"path": fixed_path, "data_items": items})
+        dir_item.data_items = DataItem.sort_(dir_item.data_items, data_item.sort_item)
+        q.put(dir_item)
 
 
 class ImgLoader:

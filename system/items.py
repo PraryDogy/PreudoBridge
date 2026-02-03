@@ -303,3 +303,12 @@ class CopyItem:
         CopyItem.is_search = False
         CopyItem.src_dir = ""
         CopyItem.dst_dir = ""
+
+
+class DirItem:
+    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, show_hidden: bool):
+        super().__init__()
+        self.main_win_item = main_win_item
+        self.sort_item = sort_item
+        self.show_hidden = show_hidden
+        self.data_items: list[DataItem] = []

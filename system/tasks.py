@@ -17,7 +17,7 @@ from cfg import Dynamic, JsonData, Static
 from system.shared_utils import PathFinder, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
-from .items import DataItem, MainWinItem, SortItem
+from .items import DataItem, DirItem
 from .utils import Utils
 
 
@@ -432,36 +432,23 @@ class AnyTaskLoader(URunnable):
 class DirScaner(URunnable):
 
     class Sigs(QObject):
-        finished_ = pyqtSignal(dict)
+        finished_ = pyqtSignal(DirItem)
 
-    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, show_hidden: bool):
-        """
-        Возвращает через сигнал:
-        - {"path": путь директории, "data_items": список DataItem}
-        """
-
+    def __init__(self, dir_item: DirItem):
         super().__init__()
         self.sigs = DirScaner.Sigs()
-        self.main_win_item = main_win_item
-        self.sort_item = sort_item
-        self.show_hidden = show_hidden
+        self.dir_item =  dir_item
 
     def task(self):
         try:
             self.task_()
         except Exception as e:
-            self.sigs.finished_.emit({"path": None, "data_items": []})
+            self.sigs.finished_.emit(self.dir_item)
 
     def task_(self):
-        items = []
-        hidden_syms = () if self.show_hidden else Static.hidden_symbols
+        hidden_syms = () if self.dir_item.show_hidden else Static.hidden_symbols
 
-        fixed_path = PathFinder(self.main_win_item.main_dir).get_result()
-        if fixed_path is None:
-            self.sigs.finished_.emit({"path": None, "data_items": []})
-            return
-
-        for entry in os.scandir(fixed_path):
+        for entry in os.scandir(self.dir_item.main_win_item.main_dir):
             if entry.name.startswith(hidden_syms):
                 continue
             if not os.access(entry.path, 4):
@@ -469,10 +456,10 @@ class DirScaner(URunnable):
 
             item = DataItem(entry.path)
             item.set_properties()
-            items.append(item)
+            self.dir_item.data_items.append(item)
 
-        items = DataItem.sort_(items, self.sort_item)
-        self.sigs.finished_.emit({"path": fixed_path, "data_items": items})
+        self.dir_item.data_items = DataItem.sort_(self.dir_item.data_items, self.dir_item.sort_item)
+        self.sigs.finished_.emit(self.dir_item)
 
     def terminate(self):
         """
