@@ -57,8 +57,17 @@ class ProcessWorker(BaseProcessWorker):
 
 
 class DirScaner:
+
     @staticmethod
     def start(dir_item: DirItem, q: Queue):
+        try:
+            DirScaner._start(dir_item, q)
+        except Exception as e:
+            print("system > multiprocess DirScaner error", e)
+            q.put(dir_item)
+
+    @staticmethod
+    def _start(dir_item: DirItem, q: Queue):
         hidden_syms = () if dir_item.show_hidden else Static.hidden_symbols
 
         for entry in os.scandir(dir_item.main_win_item.main_dir):
@@ -71,7 +80,7 @@ class DirScaner:
             data_item.set_properties()
             dir_item.data_items.append(data_item)
 
-        dir_item.data_items = DataItem.sort_(dir_item.data_items, data_item.sort_item)
+        dir_item.data_items = DataItem.sort_(dir_item.data_items, dir_item.sort_item)
         q.put(dir_item)
 
 

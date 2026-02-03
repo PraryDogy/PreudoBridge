@@ -3,7 +3,7 @@ import os
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QLabel
 
-from cfg import Dynamic, JsonData
+from cfg import Dynamic, JsonData, Static
 from system.items import DataItem, DirItem, MainWinItem
 from system.multiprocess import DirScaner, ProcessWorker
 from system.tasks import DirScaner as DirScanerS
@@ -38,8 +38,7 @@ class GridStandart(Grid):
 
         self.loading_label = LoadingWidget()
 
-        if os.path.expanduser("~"):
-            print("expand user")
+        if self.main_win_item.main_dir.startswith(Dynamic.sys_vol):
             self.start_dir_scaner = self.start_dir_scaner_s
         else:
             QTimer.singleShot(1, self.show_loading_label)
