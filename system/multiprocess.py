@@ -271,9 +271,7 @@ class JpgConverter:
 
 
 class ImgRes:
-
     undef_text = "Неизвестно"
-
     @staticmethod
     def psd_read(path: str):
         try:
