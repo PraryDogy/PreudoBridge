@@ -156,7 +156,6 @@ class ImgLoader:
     @staticmethod
     def execute_exist_images(data_items: list[DataItem], q: Queue):
         for i in data_items:
-            print("exits", i.src)
             img_array = Utils.read_thumb(i.thumb_path)
             i.img_array = img_array
             q.put(i)
@@ -164,7 +163,6 @@ class ImgLoader:
     @staticmethod
     def execute_new_images(data_items: list[DataItem], q: Queue):
         for i in data_items:
-            print("new", i.src)
             img_array = ImgUtils.read_img(i.src)
             img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
             Utils.write_thumb(i.thumb_path, img_array)

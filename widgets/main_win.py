@@ -448,7 +448,7 @@ class MainWin(WinBase):
             self.grid.deleteLater()
 
             # это лочит главный гуи когда СМБ не отвечает
-            # self.tree_menu.expand_path(self.main_win_item.main_dir)
+            expand_path = lambda: self.tree_menu.expand_path(self.main_win_item.main_dir)
 
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
@@ -456,6 +456,8 @@ class MainWin(WinBase):
                 self.grid.grid_wid.hide()
                 self.grid.load_finished.connect(self.grid.grid_wid.show)
                 self.grid.load_finished.connect(self.grid.setFocus)
+                self.grid.load_finished.connect(expand_path)
+                
                 classes = (TableView, Grid)
                 self.grid.sort_item = self.sort_item
                 self.disable_wids(False)
