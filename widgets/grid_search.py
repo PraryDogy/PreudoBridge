@@ -156,7 +156,7 @@ class GridSearch(Grid):
         # QTimer.singleShot(100, self.update_gui)
         self.is_grid_search = True
         Thumb.calc_size()
-
+        self.search_item.root_dir = self.main_win_item.main_dir
         self.search_task = SearchTaskWorker(target=SearchTask.start, args=(self.search_item, ))
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
