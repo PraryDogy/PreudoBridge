@@ -467,6 +467,7 @@ class MainWin(WinBase):
                 self.grid = TableView(self.main_win_item)
                 self.grid.load_finished.connect(self.grid.show)
                 self.grid.load_finished.connect(self.grid.setFocus)
+                self.grid.load_finished.connect(expand_path)
                 classes = (Grid, TableView)
                 self.disable_wids(True)
 
