@@ -266,7 +266,6 @@ class Grid(UScrollArea):
     test = []
     spacing_value = 5
     img_timer_ms = 500
-    dir_watcher_ms = 300
     new_files_key = "new_files"
     del_files_key = "del files"
     new_folder_text = "Новая папка"
@@ -331,9 +330,13 @@ class Grid(UScrollArea):
         qimage = Utils.render_svg(path, 512)
         return Utils.scaled(qimage, size)
 
-    def dirs_watcher_start(self):
+    def dirs_watcher_start(self, fast_ms=300, slow_ms=1000):
 
         def poll_task():
+            if ClipboardItem.src_urls:
+                ms = slow_ms
+            else:
+                ms = fast_ms
             self.dir_watcher_timer.stop()
             q = self.dir_watcher_task.proc_q
             events: list[FileSystemEvent] = []
@@ -341,10 +344,10 @@ class Grid(UScrollArea):
                 events.append(q.get())
             for i in events:
                 QTimer.singleShot(0, lambda event=i: self.apply_changes(event))
-            self.dir_watcher_timer.start(self.dir_watcher_ms)
-
+            self.dir_watcher_timer.start(ms)
             QTimer.singleShot(0, self.sort_thumbs)
             QTimer.singleShot(0, self.rearrange_thumbs)
+
 
         self.dir_watcher_task = ProcessWorker(
             target=DirWatcher.start,
@@ -354,7 +357,7 @@ class Grid(UScrollArea):
         self.dir_watcher_timer.timeout.connect(poll_task)
         self.dir_watcher_timer.setSingleShot(True)
 
-        self.dir_watcher_timer.start(self.dir_watcher_ms)
+        self.dir_watcher_timer.start(fast_ms)
         self.dir_watcher_task.start()
 
     def apply_changes(self, e: FileSystemEvent):
