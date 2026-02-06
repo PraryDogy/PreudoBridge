@@ -70,11 +70,9 @@ class DirScaner:
     def _start(dir_item: DirItem, q: Queue):
         path = dir_item._main_win_item.main_dir
         if not os.path.exists(path):
-            print("fi path", path)
             path_finder = PathFinder(path)
             path = path_finder.get_result()
-            print("fixed path", path)
-
+        dir_item.fixed_path = path
         if path is None:
             q.put(dir_item)
             return

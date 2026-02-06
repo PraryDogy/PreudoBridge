@@ -307,6 +307,7 @@ class DirItem:
         self._main_win_item = _main_win_item
         self._sort_item = _sort_item
         self._show_hidden = _show_hidden
+        self.fixed_path = ""
 
 
 class JpgConvertItem:

@@ -109,7 +109,7 @@ class GridStandart(Grid):
         self.timeout_timer.start(self.timeout_timer_ms)
 
     def finalize_dir_scaner(self, dir_item: DirItem):
-        if not os.path.exists(self.main_win_item.main_dir):
+        if dir_item.fixed_path is None:
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None
             self.load_finished.emit()
