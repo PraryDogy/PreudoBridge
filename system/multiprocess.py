@@ -68,18 +68,25 @@ class DirScaner:
 
     @staticmethod
     def _start(dir_item: DirItem, q: Queue):
-        hidden_syms = () if dir_item._show_hidden else Static.hidden_symbols
+        path = dir_item._main_win_item.main_dir
+        if not os.path.exists(path):
+            print("fi path", path)
+            path_finder = PathFinder(path)
+            path = path_finder.get_result()
+            print("fixed path", path)
 
-        for entry in os.scandir(dir_item._main_win_item.main_dir):
+        if path is None:
+            q.put(dir_item)
+            return
+        hidden_syms = () if dir_item._show_hidden else Static.hidden_symbols
+        for entry in os.scandir(path):
             if entry.name.startswith(hidden_syms):
                 continue
             if not os.access(entry.path, 4):
                 continue
-
             data_item = DataItem(entry.path)
             data_item.set_properties()
             dir_item.data_items.append(data_item)
-
         dir_item.data_items = DataItem.sort_(dir_item.data_items, dir_item._sort_item)
         q.put(dir_item)
 
