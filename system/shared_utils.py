@@ -408,10 +408,8 @@ class PathFinder:
         paths.sort(key=len, reverse=True)
 
         for i in paths:
-            print(i, os.path.exists(i))
             if os.path.exists(i):
                 return i
-            
         return None
             
     def get_mounted_disks(self) -> list[str]:
