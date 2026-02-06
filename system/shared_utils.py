@@ -393,12 +393,8 @@ class PathFinder:
             os.path.join(self.Macintosh_HD, "Volumes"),
             os.path.join(self.Macintosh_HD, "System", "Volumes")
         )
-
-        template = r'/([^\'"\s]+)'
-        result = re.search(template, self.input_path)
-        if result:
-            result = result.group(0)
-        fixed_path = os.sep + result.strip(os.sep)
+        fixed_path = self.input_path.strip(" \t\r\n'\"")
+        fixed_path = os.sep + fixed_path.strip(os.sep)
         if fixed_path.startswith("/Users"):
             fixed_path = f"{self.Macintosh_HD}{fixed_path}"
 
@@ -407,14 +403,15 @@ class PathFinder:
 
         if os.path.exists(fixed_path):
             return fixed_path
-       
+
         paths = self.add_to_start(fixed_path)
         paths.sort(key=len, reverse=True)
 
         for i in paths:
+            print(i, os.path.exists(i))
             if os.path.exists(i):
                 return i
-
+            
         return None
             
     def get_mounted_disks(self) -> list[str]:
