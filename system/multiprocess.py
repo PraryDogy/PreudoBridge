@@ -14,7 +14,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 from cfg import Static
 from system.database import Clmns, Dbase
 from system.items import (CopyItem, DataItem, DirItem, JpgConvertItem,
-                          MultipleInfoItem, SearchItem)
+                          MultipleInfoItem, PathFixerItem, SearchItem)
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
 from system.tasks import Utils
 
@@ -221,16 +221,16 @@ class PathFixer:
     @staticmethod
     def start(path: str, q: Queue):
         if not path:
-            result = (None, None)
+            result = PathFixerItem(None, None)
         elif os.path.exists(path):
-            result = (path, os.path.isdir(path))
+            result = PathFixerItem(path, os.path.isdir(path))
         else:
             path_finder = PathFinder(path)
             fixed_path = path_finder.get_result()
             if fixed_path is not None:
-                result = (fixed_path, os.path.isdir(fixed_path))
+                result = PathFixerItem(fixed_path, os.path.isdir(fixed_path))
             else:
-                result = (None, None)
+                result = PathFixerItem(None, None)
         q.put(result)
 
 

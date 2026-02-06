@@ -9,7 +9,8 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
                              QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import ClipboardItem, DataItem, MainWinItem, SearchItem, SortItem
+from system.items import (ClipboardItem, DataItem, MainWinItem, PathFixerItem,
+                          SearchItem, SortItem)
 from system.multiprocess import PathFixer, ProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
@@ -330,14 +331,14 @@ class MainWin(WinBase):
             q = self.path_fixer_task.proc_q
 
             if not q.empty():
-                fixed_path, is_dir = q.get()
-                if fixed_path is None:
+                fixer_item: PathFixerItem = q.get()
+                if fixer_item.fixed_path is None:
                     return
-                if is_dir:
-                    self.main_win_item.main_dir = fixed_path
+                if fixer_item.is_dir:
+                    self.main_win_item.main_dir = fixer_item.fixed_path
                 else:
-                    self.main_win_item.main_dir = os.path.dirname(fixed_path)
-                    self.main_win_item.set_go_to(fixed_path)
+                    self.main_win_item.main_dir = os.path.dirname(fixer_item.fixed_path)
+                    self.main_win_item.set_go_to(fixer_item.fixed_path)
                 self.top_bar.new_history_item(self.main_win_item.main_dir)
                 self.load_st_grid()
 
