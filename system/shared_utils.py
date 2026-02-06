@@ -1,5 +1,7 @@
 import io
 import os
+import re
+import struct
 import subprocess
 import tempfile
 from datetime import datetime, timedelta
@@ -10,7 +12,6 @@ import numpy as np
 import pillow_heif
 import rawpy
 import rawpy._rawpy
-import struct
 import tifffile
 from PIL import Image, ImageOps
 
@@ -388,14 +389,18 @@ class PathFinder:
         self.mounted_disks.remove(self.Macintosh_HD)
 
     def get_result(self):
-        bad_paths: list[str] = (
+        bad_paths = (
             os.path.join(self.Macintosh_HD, "Volumes"),
             os.path.join(self.Macintosh_HD, "System", "Volumes")
         )
-        fixed_path = os.sep + self.input_path.strip(os.sep)
 
+        template = r'/([^\'"\s]+)'
+        result = re.search(template, self.input_path)
+        if result:
+            result = result.group(0)
+        fixed_path = os.sep + result.strip(os.sep)
         if fixed_path.startswith("/Users"):
-            fixed_path = os.path.join(os.sep, "Volumes", self.Macintosh_HD, fixed_path)
+            fixed_path = f"{self.Macintosh_HD}{fixed_path}"
 
         if fixed_path in bad_paths:
             return None
