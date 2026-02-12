@@ -334,6 +334,7 @@ class SearchItem:
         super().__init__()
         self.search_list: list[str] = []
         self.search_list_low: list[str] = []
+        self.missed_files: list[str] = []
 
         self.root_dir: str
         self.conn: sqlalchemy.Connection
