@@ -511,9 +511,11 @@ class SearchTask:
     @staticmethod
     def start(search_item: SearchItem, proc_q: Queue, gui_q: Queue):
         engine = Dbase.create_engine()
+        search_item.conn = Dbase.get_conn(engine)
+
         search_item.proc_q = proc_q
         search_item.gui_q = gui_q
-        search_item.conn = Dbase.get_conn(engine)
+        search_item.missed_files = search_item.search_list
 
         SearchTask.setup(search_item)
 
@@ -558,10 +560,10 @@ class SearchTask:
             if entry.is_dir():
                 dir_list.append(entry.path)
             if SearchTask.process_entry(entry, search_item):
-                SearchTask.process_img(entry, search_item)
+                SearchTask.process_data_item(entry, search_item)
 
     @staticmethod
-    def process_img(entry: os.DirEntry, search_item: SearchItem):
+    def process_data_item(entry: os.DirEntry, search_item: SearchItem):
 
         def execute_stmt_list(stmt_list: list):
             for i in stmt_list:
