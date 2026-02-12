@@ -600,5 +600,6 @@ class SearchTask:
                 insert(data_item, img_array)
             data_item.img_array = img_array
 
-        search_item.proc_q.put(data_item)
+        data = (data_item, search_item.missed_files)
+        search_item.proc_q.put(data)
         sleep(SearchTask.sleep_s)

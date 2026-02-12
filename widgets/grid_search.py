@@ -119,7 +119,7 @@ class GridSearch(Grid):
                 self.col = 0
                 self.row += 1
 
-        def fin(search_item: SearchItem):
+        def fin(missed_files: list[str]):
             self.finished_.emit()
             
             if not self.cell_to_wid:
@@ -128,36 +128,38 @@ class GridSearch(Grid):
                 self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.grid_layout.addWidget(no_images, 0, 0)
 
-            print(search_item.missed_files)
-            # if missed_files_list:
-                # self.win_missed_files = WinMissedFiles(missed_files_list)
-                # self.win_missed_files.center(self.window())
-                # self.win_missed_files.show()
+            if missed_files:
+                self.win_missed_files = WinMissedFiles(missed_files)
+                self.win_missed_files.center(self.window())
+                self.win_missed_files.show()
         
-        def poll_task():
+        def poll_task(missed_files: list[str]):
             self.search_timer.stop()
             q = self.search_task.proc_q
-            data_items = []
+            data_items: list[DataItem] = []
             while not q.empty():
-                res = q.get()
-                data_items.append(res)
+                data_item, tmp_missed_files = q.get()
+                missed_files.clear()
+                missed_files.extend(tmp_missed_files)
+                data_items.append(data_item)
             if data_items:
                 for i in data_items:
                     create_thumb(i)
                 self.rearrange_thumbs()
-
             if not self.search_task.is_alive() and q.empty():
+                fin(missed_files)
                 self.search_task.terminate()
             else:
                 self.search_timer.start(self.search_timer_ms)
 
+        missed_files: list[str] = []
         self.is_grid_search = True
         Thumb.calc_size()
         self.search_item.root_dir = self.main_win_item.main_dir
         self.search_task = SearchTaskWorker(target=SearchTask.start, args=(self.search_item, ))
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
-        self.search_timer.timeout.connect(poll_task)
+        self.search_timer.timeout.connect(lambda: poll_task(missed_files))
 
         self.search_task.start()
         self.search_timer.start(self.search_timer_ms)

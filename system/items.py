@@ -1,6 +1,7 @@
 
 import os
 import re
+from dataclasses import dataclass
 from multiprocessing import Queue
 from typing import Literal
 
