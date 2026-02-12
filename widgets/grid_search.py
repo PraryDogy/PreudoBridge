@@ -120,6 +120,8 @@ class GridSearch(Grid):
                 self.row += 1
 
         def fin(missed_files_list: list[str]):
+            print("finished")
+            self.finished_.emit()
             
             if not self.cell_to_wid:
                 no_images = QLabel(GridSearch.no_result_text)
@@ -140,15 +142,15 @@ class GridSearch(Grid):
                 res = q.get()
                 if isinstance(res, DataItem):
                     data_items.append(res)
-                else:
-                    fin(res)
-                    self.finished_.emit()
+                # else:
+                    # fin(res)
             if data_items:
                 for i in data_items:
                     create_thumb(i)
                 self.rearrange_thumbs()
 
             if not self.search_task.is_alive():
+                fin(res)
                 self.search_task.terminate()
             else:
                 self.search_timer.start(self.search_timer_ms)

@@ -507,7 +507,6 @@ class SearchTaskWorker(BaseProcessWorker):
 
 class SearchTask:
     sleep_s = 0
-    ratio = 0.85
 
     @staticmethod
     def start(search_item: SearchItem, proc_q: Queue, gui_q: Queue):

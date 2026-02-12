@@ -94,6 +94,8 @@ class MainWin(WinBase):
     list_text = "Список"
     grid_text = "Плитка"
     attention = "Внимание"
+    search_text = "Идет поиск"
+    search_fin_text = "Поиск завершен"
     cache_download_descr ="Будет кэшировано все содержимое этой папки. Продолжить?"
 
     def __init__(self, dir: str = None):
@@ -404,17 +406,28 @@ class MainWin(WinBase):
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
 
     def load_search_grid(self):
-        QTimer.singleShot(1500, lambda: self.top_bar.search_wid.setDisabled(False))
+        QTimer.singleShot(
+            1500,
+            lambda: self.top_bar.search_wid.setDisabled(False)
+        )
         self.top_bar.search_wid.setDisabled(True)
         self.grid.deleteLater()
         self.grid = GridSearch(
-            self.main_win_item, self.sort_item, self.search_item, self, True
+            main_win_item=self.main_win_item,
+            sort_item=self.sort_item,
+            search_item=self.search_item,
+            parent=self,
+            is_grid_search=True,
         )
+        self.setWindowTitle(self.search_text)
         Utils.fill_missing_methods(TableView, Grid)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.filters_menu.reset()
         self.scroll_up.hide()
         self.setup_grid_signals()
+        self.grid.finished_.connect(
+            lambda: self.setWindowTitle(self.search_fin_text)
+        )
         QTimer.singleShot(100, self.grid.setFocus)
 
     def open_info_win(self, data_items: list[DataItem]):
