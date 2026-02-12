@@ -120,7 +120,6 @@ class GridSearch(Grid):
                 self.row += 1
 
         def fin(missed_files_list: list[str]):
-            print("finished")
             self.finished_.emit()
             
             if not self.cell_to_wid:
@@ -142,6 +141,7 @@ class GridSearch(Grid):
                 res = q.get()
                 if isinstance(res, DataItem):
                     data_items.append(res)
+                # тут наш таск должен отправлять список упущенных файлов
                 # else:
                     # fin(res)
             if data_items:
@@ -150,7 +150,7 @@ class GridSearch(Grid):
                 self.rearrange_thumbs()
 
             if not self.search_task.is_alive():
-                fin(res)
+                fin([])
                 self.search_task.terminate()
             else:
                 self.search_timer.start(self.search_timer_ms)
