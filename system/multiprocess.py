@@ -584,7 +584,7 @@ class SearchTask:
         # если мы нашли айтем из списка, то удаляем его из списка
         # не найденных айтемов
         for i in search_item.missed_files:
-            if i in entry.name:
+            if i.lower() in entry.name.lower():
                 search_item.missed_files.remove(i)
 
         data_item = DataItem(entry.path)
