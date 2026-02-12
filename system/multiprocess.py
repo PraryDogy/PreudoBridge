@@ -580,6 +580,8 @@ class SearchTask:
         stmt_list: list = []
         stmt_limit = 10
 
+        # если мы нашли айтем из списка, то удаляем его из списка
+        # не найденных айтемов
         for i in search_item.missed_files:
             if i in entry.name:
                 search_item.missed_files.remove(i)
