@@ -580,6 +580,10 @@ class SearchTask:
         stmt_list: list = []
         stmt_limit = 10
 
+        for i in search_item.missed_files:
+            if i in entry.name:
+                search_item.missed_files.remove(i)
+
         data_item = DataItem(entry.path)
         data_item.set_properties()
         if data_item.type_ != Static.folder_type:
