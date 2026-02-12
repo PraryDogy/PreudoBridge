@@ -520,6 +520,7 @@ class SearchTask:
         SearchTask.setup(search_item)
 
         SearchTask.scandir_recursive(search_item)
+        search_item.proc_q.put(search_item)
         Dbase.close_conn(search_item.conn)
 
     @staticmethod

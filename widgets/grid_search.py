@@ -119,7 +119,7 @@ class GridSearch(Grid):
                 self.col = 0
                 self.row += 1
 
-        def fin(missed_files_list: list[str]):
+        def fin(search_item: SearchItem):
             self.finished_.emit()
             
             if not self.cell_to_wid:
@@ -128,10 +128,11 @@ class GridSearch(Grid):
                 self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.grid_layout.addWidget(no_images, 0, 0)
 
-            if missed_files_list:
-                self.win_missed_files = WinMissedFiles(missed_files_list)
-                self.win_missed_files.center(self.window())
-                self.win_missed_files.show()
+            print(search_item.missed_files)
+            # if missed_files_list:
+                # self.win_missed_files = WinMissedFiles(missed_files_list)
+                # self.win_missed_files.center(self.window())
+                # self.win_missed_files.show()
         
         def poll_task():
             self.search_timer.stop()
@@ -139,23 +140,17 @@ class GridSearch(Grid):
             data_items = []
             while not q.empty():
                 res = q.get()
-                if isinstance(res, DataItem):
-                    data_items.append(res)
-                # тут наш таск должен отправлять список упущенных файлов
-                # else:
-                    # fin(res)
+                data_items.append(res)
             if data_items:
                 for i in data_items:
                     create_thumb(i)
                 self.rearrange_thumbs()
 
-            if not self.search_task.is_alive():
-                fin([])
+            if not self.search_task.is_alive() and q.empty():
                 self.search_task.terminate()
             else:
                 self.search_timer.start(self.search_timer_ms)
 
-        # QTimer.singleShot(100, self.update_gui)
         self.is_grid_search = True
         Thumb.calc_size()
         self.search_item.root_dir = self.main_win_item.main_dir
