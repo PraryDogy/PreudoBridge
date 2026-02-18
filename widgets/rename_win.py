@@ -2,10 +2,9 @@ import os
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from ._base_widgets import MinMaxDisabledWin, ULineEdit
+from ._base_widgets import MinMaxDisabledWin, SmallBtn, ULineEdit
 
 
 class RenameWin(MinMaxDisabledWin):
@@ -43,12 +42,12 @@ class RenameWin(MinMaxDisabledWin):
 
         h_lay.addStretch()
 
-        self.ok_btn = QPushButton(RenameWin.ok_text)
+        self.ok_btn = SmallBtn(RenameWin.ok_text)
         self.ok_btn.clicked.connect(self.finish_rename)
         self.ok_btn.setFixedWidth(90)
         h_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        cancel_btn = QPushButton(RenameWin.cancel_text)
+        cancel_btn = SmallBtn(RenameWin.cancel_text)
         cancel_btn.clicked.connect(self.deleteLater)
         cancel_btn.setFixedWidth(90)
         h_lay.addWidget(cancel_btn)

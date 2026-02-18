@@ -1,11 +1,10 @@
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QListWidget,
-                             QListWidgetItem, QPushButton, QTabWidget,
-                             QVBoxLayout, QWidget)
+                             QListWidgetItem, QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, Static
 
-from ._base_widgets import UMenu, UTextEdit
+from ._base_widgets import SmallBtn, UMenu, UTextEdit
 
 
 class UItem(QListWidgetItem):
@@ -74,9 +73,9 @@ class FiltersMenu(QWidget):
         btn_layout = QHBoxLayout()
         btn_layout.setContentsMargins(0, 0, 0, 3)
         btn_layout.setSpacing(10)
-        self.apply_btn = QPushButton("Применить")
+        self.apply_btn = SmallBtn("Применить")
         self.apply_btn.setFixedWidth(95)
-        self.clear_btn = QPushButton("Очистить")
+        self.clear_btn = SmallBtn("Очистить")
         self.clear_btn.setFixedWidth(95)
         self.apply_btn.clicked.connect(
             lambda: (

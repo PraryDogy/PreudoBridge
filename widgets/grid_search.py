@@ -2,15 +2,14 @@ import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QDragEnterEvent, QDropEvent
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from cfg import Static
 from system.items import DataItem, MainWinItem, SearchItem, SortItem
 from system.multiprocess import SearchTask, SearchTaskWorker
 
-from ._base_widgets import (MinMaxDisabledWin, NotifyWid, USvgSqareWidget,
-                            UTextEdit)
+from ._base_widgets import (MinMaxDisabledWin, NotifyWid, SmallBtn,
+                            USvgSqareWidget, UTextEdit)
 from .grid import Grid, Thumb
 
 
@@ -59,7 +58,7 @@ class WinMissedFiles(MinMaxDisabledWin):
         h_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         h_wid.setLayout(h_lay)
 
-        ok_btn = QPushButton(WinMissedFiles.ok_text)
+        ok_btn = SmallBtn(WinMissedFiles.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)

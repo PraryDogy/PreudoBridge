@@ -1,14 +1,13 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from cfg import Static
 from system.items import ClipboardItem, CopyItem
 from system.multiprocess import CopyTask, CopyWorker
 
-from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
+from ._base_widgets import MinMaxDisabledWin, SmallBtn, USvgSqareWidget
 from .progressbar_win import ProgressbarWin
 
 
@@ -60,17 +59,17 @@ class ReplaceFilesWin(MinMaxDisabledWin):
 
         btn_lay.addStretch()
 
-        replace_all_btn = QPushButton(self.replace_all_text)
+        replace_all_btn = SmallBtn(self.replace_all_text)
         replace_all_btn.setFixedWidth(95)
         replace_all_btn.clicked.connect(lambda: self.replace_all_cmd())
         btn_lay.addWidget(replace_all_btn)
 
-        replace_one_btn = QPushButton(self.replace_one_text)
+        replace_one_btn = SmallBtn(self.replace_one_text)
         replace_one_btn.setFixedWidth(95)
         replace_one_btn.clicked.connect(lambda: self.replace_one_cmd())
         btn_lay.addWidget(replace_one_btn)
 
-        stop_btn = QPushButton(self.stop_text)
+        stop_btn = SmallBtn(self.stop_text)
         stop_btn.setFixedWidth(95)
         stop_btn.clicked.connect(lambda: self.stop_cmd())
         btn_lay.addWidget(stop_btn)
@@ -122,7 +121,7 @@ class ErrorWin(MinMaxDisabledWin):
         test_two.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         h_lay.addWidget(test_two)
 
-        ok_btn = QPushButton(ErrorWin.ok_text)
+        ok_btn = SmallBtn(ErrorWin.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         main_lay.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)

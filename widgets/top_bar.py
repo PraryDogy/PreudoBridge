@@ -3,14 +3,13 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QSpacerItem, QVBoxLayout, QWidget)
+                             QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem, SearchItem
 
-from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
-                            USvgSqareWidget, UTextEdit)
-from .rename_win import RenameWin
+from ._base_widgets import (MinMaxDisabledWin, SmallBtn, UFrame, ULineEdit,
+                            UMenu, USvgSqareWidget, UTextEdit)
 
 
 class BarTopBtn(QWidget):
@@ -129,12 +128,12 @@ class ListWin(MinMaxDisabledWin):
 
         btns_lay.addStretch()
 
-        ok_btn = QPushButton(ListWin.ok_text)
+        ok_btn = SmallBtn(ListWin.ok_text)
         ok_btn.clicked.connect(self.ok_cmd)
         ok_btn.setFixedWidth(100)
         btns_lay.addWidget(ok_btn)
 
-        can_btn = QPushButton(ListWin.cancel_text)
+        can_btn = SmallBtn(ListWin.cancel_text)
         can_btn.clicked.connect(self.deleteLater)
         can_btn.setFixedWidth(100)
         btns_lay.addWidget(can_btn)

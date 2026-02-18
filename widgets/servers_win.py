@@ -5,13 +5,14 @@ import subprocess
 from PyQt5.QtCore import QModelIndex, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QHeaderView,
-                             QListWidget, QListWidgetItem, QMenu, QPushButton,
-                             QTableView, QVBoxLayout, QWidget)
+                             QListWidget, QListWidgetItem, QMenu, QTableView,
+                             QVBoxLayout, QWidget)
 
 from cfg import Static
-
-from ._base_widgets import MinMaxDisabledWin, ULineEdit, UMenu
 from system.shared_utils import SharedUtils
+
+from ._base_widgets import MinMaxDisabledWin, SmallBtn, ULineEdit
+
 
 class ServersWidget(QTableView):
     remove = pyqtSignal(object)
@@ -130,16 +131,16 @@ class ServersWin(MinMaxDisabledWin):
         btn_layout.setSpacing(5)
 
         # + и - слева
-        btn_add = QPushButton("+")
+        btn_add = SmallBtn("+")
         btn_add.setFixedWidth(50)
         btn_add.clicked.connect(self.add_server)
 
-        btn_remove = QPushButton("–")
+        btn_remove = SmallBtn("–")
         btn_remove.setFixedWidth(50)
         btn_remove.clicked.connect(lambda: self.remove_btn_cmd())
 
         # Connect справа
-        btn_connect = QPushButton(self.connect_text)
+        btn_connect = SmallBtn(self.connect_text)
         btn_connect.setFixedWidth(90)
         btn_connect.clicked.connect(self.connect_cmd)
 

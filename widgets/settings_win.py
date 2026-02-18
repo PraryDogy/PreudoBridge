@@ -6,14 +6,14 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QCheckBox, QFrame, QGridLayout, QGroupBox,
-                             QHBoxLayout, QLabel, QPushButton, QSizePolicy,
-                             QVBoxLayout, QWidget)
+                             QHBoxLayout, QLabel, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
 from system.tasks import CustomSizeCacheCleaner, DataSizeCounter, UThreadPool
 
-from ._base_widgets import MinMaxDisabledWin, ULabel, USlider, USvgSqareWidget
+from ._base_widgets import (MinMaxDisabledWin, SmallBtn, ULabel, USlider,
+                            USvgSqareWidget)
 # возможно в main win
 from .warn_win import WinWarn
 
@@ -150,7 +150,7 @@ class WaitWin(MinMaxDisabledWin):
         btn_lay = QHBoxLayout()
         v_lay.addLayout(btn_lay)
 
-        cancel_btn = QPushButton(self.cancel)
+        cancel_btn = SmallBtn(self.cancel)
         cancel_btn.clicked.connect(self.cancel_cmd)
         btn_lay.addWidget(cancel_btn)
 
@@ -216,13 +216,13 @@ class ClearCacheWin(MinMaxDisabledWin):
         self.v_lay.addLayout(btn_lay)
 
         # Кнопка ОК
-        ok_btn = QPushButton(self.ok_text)
+        ok_btn = SmallBtn(self.ok_text)
         ok_btn.clicked.connect(self.start_task)
         ok_btn.setFixedWidth(self.btn_w)
         btn_lay.addWidget(ok_btn)
 
         # Кнопка Отмена
-        cancel_btn = QPushButton(self.cancel_text)
+        cancel_btn = SmallBtn(self.cancel_text)
         cancel_btn.clicked.connect(self.deleteLater)
         cancel_btn.setFixedWidth(self.btn_w)
         btn_lay.addWidget(cancel_btn)

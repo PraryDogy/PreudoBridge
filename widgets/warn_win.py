@@ -1,14 +1,15 @@
+import os
+
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QLabel, QPushButton, QSizePolicy, QSpacerItem,
-                             QWidget, QHBoxLayout, QVBoxLayout)
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSpacerItem, QVBoxLayout,
+                             QWidget)
 
-from system.shared_utils import SharedUtils
-
-from ._base_widgets import MinMaxDisabledWin
-import os
 from cfg import Static
+
+from ._base_widgets import MinMaxDisabledWin, SmallBtn
+
 
 class BaseWinWarn(MinMaxDisabledWin):
     svg_warning = os.path.join(Static.internal_icons_dir, "warning.svg")
@@ -71,7 +72,7 @@ class WinWarn(BaseWinWarn):
 
     def __init__(self, title: str, text: str, char_limit: int = 40):
         super().__init__(title, text, char_limit)
-        ok_btn = QPushButton(text=self.text_ok)
+        ok_btn = SmallBtn(text=self.text_ok)
         ok_btn.setFixedWidth(90)
         ok_btn.clicked.connect(self.deleteLater)
         self.central_layout.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -95,11 +96,11 @@ class WinQuestion(BaseWinWarn):
         btn_lay.setSpacing(10)
         btn_wid.setLayout(btn_lay)
 
-        ok_btn = QPushButton(self.text_ok)
+        ok_btn = SmallBtn(self.text_ok)
         ok_btn.clicked.connect(self.ok_clicked.emit)
         ok_btn.setFixedWidth(90)
 
-        cancel_btn = QPushButton(self.text_cancel)
+        cancel_btn = SmallBtn(self.text_cancel)
         cancel_btn.setFixedWidth(90)
         cancel_btn.clicked.connect(self.deleteLater)
 

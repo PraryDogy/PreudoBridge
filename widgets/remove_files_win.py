@@ -1,15 +1,13 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from cfg import Dynamic, Static
 from system.items import MainWinItem
-from system.shared_utils import SharedUtils
 from system.tasks import FileRemover, UThreadPool
 
-from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
+from ._base_widgets import MinMaxDisabledWin, SmallBtn, USvgSqareWidget
 
 
 class RemoveFilesWin(MinMaxDisabledWin):
@@ -56,12 +54,12 @@ class RemoveFilesWin(MinMaxDisabledWin):
         h_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         h_wid.setLayout(h_lay)
 
-        ok_btn = QPushButton(RemoveFilesWin.ok_text)
+        ok_btn = SmallBtn(RemoveFilesWin.ok_text)
         ok_btn.clicked.connect(self.cmd_)
         ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)
 
-        can_btn = QPushButton(RemoveFilesWin.cancel_text)
+        can_btn = SmallBtn(RemoveFilesWin.cancel_text)
         can_btn.clicked.connect(self.deleteLater)
         can_btn.setFixedWidth(90)
         h_lay.addWidget(can_btn)
