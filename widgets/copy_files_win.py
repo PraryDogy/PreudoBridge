@@ -18,6 +18,7 @@ class ReplaceFilesWin(MinMaxDisabledWin):
     replace_all_text = "Заменить все"
     stop_text = "Стоп"
     icon_size = 50
+    btn_w = 100
 
     replace_one_press = pyqtSignal()
     replace_all_press = pyqtSignal()
@@ -55,26 +56,27 @@ class ReplaceFilesWin(MinMaxDisabledWin):
         btn_lay = QHBoxLayout()
         btn_lay.setContentsMargins(0, 0, 0, 0)
         btn_lay.setSpacing(10)
+        btn_lay.setAlignment(Qt.AlignmentFlag.AlignRight)
         btn_wid.setLayout(btn_lay)
 
-        btn_lay.addStretch()
+        # btn_lay.addStretch()
 
         replace_all_btn = SmallBtn(self.replace_all_text)
-        replace_all_btn.setFixedWidth(95)
+        replace_all_btn.setFixedWidth(self.btn_w)
         replace_all_btn.clicked.connect(lambda: self.replace_all_cmd())
         btn_lay.addWidget(replace_all_btn)
 
         replace_one_btn = SmallBtn(self.replace_one_text)
-        replace_one_btn.setFixedWidth(95)
+        replace_one_btn.setFixedWidth(self.btn_w)
         replace_one_btn.clicked.connect(lambda: self.replace_one_cmd())
         btn_lay.addWidget(replace_one_btn)
 
         stop_btn = SmallBtn(self.stop_text)
-        stop_btn.setFixedWidth(95)
+        stop_btn.setFixedWidth(self.btn_w)
         stop_btn.clicked.connect(lambda: self.stop_cmd())
         btn_lay.addWidget(stop_btn)
         
-        btn_lay.addStretch()
+        # btn_lay.addStretch()
         self.adjustSize()
 
     def replace_one_cmd(self):
