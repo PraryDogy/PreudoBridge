@@ -491,7 +491,10 @@ class CopyTask:
                 fdst.write(buf)
                 copy_item.current_size += len(buf) // 1024
                 proc_q.put(copy_item)
-        shutil.copystat(src, dest, follow_symlinks=True)
+        try:
+            shutil.copystat(src, dest, follow_symlinks=True)
+        except OSError:
+            print("copy stat error CopyTask")
 
 
 class SearchTaskWorker(BaseProcessWorker):
