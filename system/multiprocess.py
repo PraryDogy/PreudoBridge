@@ -273,16 +273,7 @@ class JpgConverter:
             img_array = ImgUtils.read_img(path)
             image = Image.fromarray(img_array.astype(np.uint8))
             save_path = os.path.splitext(path)[0] + ".jpg"
-
-            try:
-                img = Image.open(path)
-                iccProfile = img.info.get('icc_profile')
-                iccBytes = io.BytesIO(iccProfile)
-                profile = ImageCms.ImageCmsProfile(iccBytes).tobytes()
-            except Exception as e:
-                print("error profile read")
-                profile = None
-
+            profile = ImgUtils.read_icc(path)
             if profile:
                 image.save(save_path, quality=100, icc_profile=profile)
             else:

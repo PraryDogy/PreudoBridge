@@ -13,7 +13,7 @@ import pillow_heif
 import rawpy
 import rawpy._rawpy
 import tifffile
-from PIL import Image, ImageOps
+from PIL import Image, ImageCms, ImageOps
 
 
 class SharedUtils:
@@ -339,6 +339,17 @@ class ImgUtils:
             return cmd()
         except Exception as e:
             print("fit image error", e)
+            return None
+
+    @classmethod
+    def read_icc(cls, path: str):
+        try:
+            img = Image.open(path)
+            iccProfile = img.info.get('icc_profile')
+            iccBytes = io.BytesIO(iccProfile)
+            return ImageCms.ImageCmsProfile(iccBytes).tobytes()
+        except Exception as e:
+            print("error profile read")
             return None
 
     @classmethod
