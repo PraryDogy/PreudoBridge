@@ -191,9 +191,20 @@ class ReadImg:
     @staticmethod
     def start(src: str, desaturate: bool, q: Queue):
         img_array = ImgUtils.read_img(src)
-        if desaturate:
-            img_array = Utils.desaturate_image(img_array, 0.2)
+        # img = Image.fromarray(img_array)
+        # icc_profile = ImgUtils.read_icc(src)
+        # # создаём профили
+        # src_profile = ImageCms.ImageCmsProfile(io.BytesIO(icc_profile))
+        # dst_profile = ImageCms.createProfile("sRGB")
+        # # трансформация
+        # transform = ImageCms.buildTransform(src_profile, dst_profile, "RGB", "RGB")
+        # img_srgb = ImageCms.applyTransform(img, transform)
+        # # PIL → ndarray
+        # img_array = np.array(img_srgb)
         q.put((src, img_array))
+
+        # if desaturate:
+            # img_array = Utils.desaturate_image(img_array, 0.2)
 
 
 class _DirChangedHandler(FileSystemEventHandler):

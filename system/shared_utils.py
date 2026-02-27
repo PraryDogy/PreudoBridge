@@ -344,13 +344,13 @@ class ImgUtils:
     @classmethod
     def read_icc(cls, path: str):
         try:
-            img = Image.open(path)
-            iccProfile = img.info.get('icc_profile')
-            iccBytes = io.BytesIO(iccProfile)
-            return ImageCms.ImageCmsProfile(iccBytes).tobytes()
+            with Image.open(path) as img:
+                icc_profile = img.info.get('icc_profile')
+                if icc_profile:
+                    return icc_profile  # уже байты
         except Exception as e:
-            print("error profile read")
-            return None
+            print("error profile read:", e)
+        return None
 
     @classmethod
     def read_img(cls, path: str) -> np.ndarray | None:
