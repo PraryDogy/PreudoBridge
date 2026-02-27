@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
 
 from cfg import Static
 from system.multiprocess import ProcessWorker, ReadImg
+from system.tasks import UThreadPool, ImgArrayQImage
 from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
@@ -327,6 +328,10 @@ class ImgViewWin(WinBase):
             i.raise_()
 
     def load_image(self):
+        def fin(src: str, qimage: QImage):
+            qpixmap = QPixmap.fromImage(qimage)
+            self.cached_images[src] = qpixmap
+            self.restart_img_wid(qpixmap)
 
         def poll_task():
             q = self.read_img_task.proc_q
@@ -335,9 +340,11 @@ class ImgViewWin(WinBase):
                 if img_array is None:
                     self.show_text_label(self.error_text)
                 elif src == self.current_path:
-                    qimage = Utils.qimage_from_array(img_array)
-                    ImgViewWin.cached_images[src] = qimage
-                    self.restart_img_wid(QPixmap.fromImage(qimage))
+                    qimage_task = ImgArrayQImage(img_array)
+                    qimage_task.sigs.finished_.connect(
+                            lambda qimage: fin(src, qimage)
+                    )
+                    UThreadPool.start(qimage_task)
 
             if not self.read_img_task.is_alive():
                 self.read_img_task.terminate()

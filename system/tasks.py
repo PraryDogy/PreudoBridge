@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import zipfile
 
+import numpy as np
 import sqlalchemy
 from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage
@@ -491,3 +492,19 @@ class DirScaner(URunnable):
         Метод заглушка аналогично multiprocessing.Process.terminate()
         """
         ...
+
+
+class ImgArrayQImage(URunnable):
+    
+    class Sigs(QObject):
+        finished_ = pyqtSignal(QImage)
+
+    def __init__(self, img_array: np.ndarray):
+        super().__init__()
+        self.sigs = ImgArrayQImage.Sigs()
+        self.img_array = img_array
+
+    def task(self):
+        self.sigs.finished_.emit(
+            Utils.qimage_from_array(self.img_array)
+        )
