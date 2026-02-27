@@ -329,9 +329,8 @@ class ImgViewWin(WinBase):
 
     def load_image(self):
         def fin(src: str, qimage: QImage):
-            qpixmap = QPixmap.fromImage(qimage)
-            self.cached_images[src] = qpixmap
-            self.restart_img_wid(qpixmap)
+            self.cached_images[src] = qimage
+            self.restart_img_wid(QPixmap.fromImage(qimage))
 
         def poll_task():
             q = self.read_img_task.proc_q
@@ -340,11 +339,11 @@ class ImgViewWin(WinBase):
                 if img_array is None:
                     self.show_text_label(self.error_text)
                 elif src == self.current_path:
-                    qimage_task = ImgArrayQImage(img_array)
-                    qimage_task.sigs.finished_.connect(
+                    self.qimage_task = ImgArrayQImage(img_array)
+                    self.qimage_task.sigs.finished_.connect(
                             lambda qimage: fin(src, qimage)
                     )
-                    UThreadPool.start(qimage_task)
+                    UThreadPool.start(self.qimage_task)
 
             if not self.read_img_task.is_alive():
                 self.read_img_task.terminate()
