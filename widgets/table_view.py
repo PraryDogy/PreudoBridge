@@ -308,6 +308,7 @@ class TableView(QTableView):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
         self.convert_win = ImgConvertWin(urls)
         self.convert_win.center(self.window())
+        self.convert_win.finished.connect(self.load_st_grid.emit)
         self.convert_win.show()
 
     def rename_row(self, url: str):
@@ -463,18 +464,13 @@ class TableView(QTableView):
         ClipboardItem.set_src(self.main_win_item.main_dir)
         ClipboardItem.set_is_search(False)
         ClipboardItem.src_urls.clear()
-        # if CopyItem._is_cut:
-        #     self.clearSelection()
         for i in urls:
             ClipboardItem.src_urls.append(i)
-            # if CopyItem._is_cut:
-            #     ind = self.url_to_index[i]
-            #     self._model.cut_rows.add(i)
-                # self._model.dataChanged.emit(ind, ind)
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
         self.rem_win.center(self.window())
+        self.rem_win.finished_.connect(self.load_st_grid.emit)
         self.rem_win.show()
 
     def select_row(self, index: QModelIndex):

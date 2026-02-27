@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, pyqtSignal
 
 from cfg import Static
 from system.items import JpgConvertItem
@@ -13,6 +13,7 @@ class ImgConvertWin(ProgressbarWin):
     jpg_timer_ms = 400
     title_text = "Создаю копии jpg"
     prepairing = "Подготовка..."
+    finished = pyqtSignal()
 
     def __init__(self, urls: list[str]):
         super().__init__(self.title_text, os.path.join(Static.internal_icons_dir, "files.svg"))
@@ -54,6 +55,7 @@ class ImgConvertWin(ProgressbarWin):
             self.progressbar.setValue(self.progressbar.maximum())
             self.below_label.setText(f'{len(self.urls)} из {len(self.urls)}')
             self.jpg_task.terminate()
+            self.finished.emit()
             self.deleteLater()
         else:
             self.jpg_timer.start(self.jpg_timer_ms)
