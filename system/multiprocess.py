@@ -1,11 +1,13 @@
+import io
 import os
 import shutil
 from multiprocessing import Process, Queue
 from pathlib import Path
 from time import sleep
 
+import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageCms
 from sqlalchemy import Connection as Conn
 from sqlalchemy import select
 from watchdog.events import FileSystemEventHandler
@@ -242,7 +244,11 @@ class PathFixer:
 class JpgConverter:
     @staticmethod
     def start(jpg_item: JpgConvertItem, q: Queue):
-        jpg_item._urls = [i for i in jpg_item._urls if i.endswith(ImgUtils.ext_all)]
+        jpg_item._urls = [
+            i
+            for i in jpg_item._urls
+            if i.endswith(ImgUtils.ext_all)
+        ]
         jpg_item._urls.sort(key=lambda p: os.path.getsize(p))
 
         filename = ""
@@ -265,10 +271,22 @@ class JpgConverter:
     def _save_jpg(path: str) -> None:
         try:
             img_array = ImgUtils.read_img(path)
-            img = Image.fromarray(img_array.astype(np.uint8))
-            img = img.convert("RGB")
+            image = Image.fromarray(img_array.astype(np.uint8))
             save_path = os.path.splitext(path)[0] + ".jpg"
-            img.save(save_path, format="JPEG", quality=99)
+
+            try:
+                img = Image.open(path)
+                iccProfile = img.info.get('icc_profile')
+                iccBytes = io.BytesIO(iccProfile)
+                profile = ImageCms.ImageCmsProfile(iccBytes).tobytes()
+            except Exception as e:
+                print("error profile read")
+                profile = None
+
+            if profile:
+                image.save(save_path, quality=100, icc_profile=profile)
+            else:
+                image.save(save_path, quality=100)
             return save_path
         except Exception:
             Utils.print_error()

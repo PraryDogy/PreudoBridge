@@ -185,16 +185,7 @@ class ImgUtils:
     @classmethod
     def _read_psb(cls, path: str):
         return cls._read_quicklook(path)
-        # try:
-        #     img = psd_tools.PSDImage.open(path)
-        #     img = img.composite()
-        #     img = img.convert("RGB")
-        #     array_img = np.array(img)
-        #     return array_img
-        # except Exception as e:
-        #     print("read psb, psd tools error", e)
-        #     return None
-        
+
     @classmethod
     def _read_quicklook(cls, path: str, size: int = 5000) -> np.ndarray:
         tmp_dir = Path(tempfile.gettempdir())
