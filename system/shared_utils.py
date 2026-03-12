@@ -184,28 +184,35 @@ class ImgUtils:
 
     @classmethod
     def _read_quicklook(cls, path: str, size: int = 5000, timeout: int = 120):
+        # Создаем уникальную временную папку для конкретного вызова
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            tmp_dir = Path(tmp_dir_name)
+            try:
+                subprocess.run(
+                    ["qlmanage", "-t", "-s", str(size), "-o", str(tmp_dir), path],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=timeout
+                )
+            except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
+                # Возвращаем "пустую" картинку при ошибке или таймауте
+                return np.zeros((100, 100, 3), dtype=np.uint8)
 
-        tmp_dir = Path(tempfile.gettempdir())
-        try:
-            subprocess.run(
-                ["qlmanage", "-t", "-s", str(size), "-o", str(tmp_dir), path],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=timeout
-            )
-        except subprocess.TimeoutExpired:
-            w, h = 100, 100
-            return np.zeros((h, w, 3), dtype=np.uint8)
-        generated_files = list(tmp_dir.glob(Path(path).stem + "*.png"))
-        if not generated_files:
-            return None
-        generated = generated_files[0]
-        with Image.open(generated) as img:
-            arr = np.array(img)
-        if os.path.exists(generated):
-            generated.unlink()
-        return arr
+            # Ищем файл только в нашей изолированной папке
+            generated_files = list(tmp_dir.glob("*.png"))
+            if not generated_files:
+                return None
+            
+            generated = generated_files[0]
+            with Image.open(generated) as img:
+                arr = np.array(img.convert("RGB")) # Конвертируем, чтобы точно был 3-канальный массив
+
+            # Удалять файл вручную не нужно! 
+            # Контекстный менеджер 'with tempfile.TemporaryDirectory()' 
+            # сам удалит папку и всё содержимое при выходе из блока.
+            
+            return arr
 
     @classmethod
     def _read_icns(cls, path: str):
