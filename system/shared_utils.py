@@ -230,16 +230,15 @@ class ImgUtils:
     def _read_png(cls, path: str):
         try:
             img = Image.open(path)
-            if img.mode != "RGBA":
-                img = img.convert("RGBA")  # сохраняем альфа-канал
-            array_img = np.array(img)
-            alpha = array_img[:, :, 3]
-            array_img[alpha == 0, :3] = 255 
-            array_img = cv2.cvtColor(array_img, cv2.COLOR_RGBA2BGR)
+            if img.mode == "RGBA":
+                background = Image.new("RGBA", img.size, (255, 255, 255, 255))
+                img = Image.alpha_composite(background, img)
+                img = img.convert("RGB")
+            array_img = np.array(img)            
             img.close()
             return array_img
         except Exception as e:
-            print("read png, PIL error", e)
+            print(f"read png, PIL error: {e}")
             return None
 
     @classmethod
