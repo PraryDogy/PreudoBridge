@@ -195,7 +195,8 @@ class ImgUtils:
                 timeout=timeout
             )
         except subprocess.TimeoutExpired:
-            return None
+            w, h = 100, 100
+            return np.zeros((h, w, 3), dtype=np.uint8)
         generated_files = list(tmp_dir.glob(Path(path).stem + "*.png"))
         if not generated_files:
             return None
