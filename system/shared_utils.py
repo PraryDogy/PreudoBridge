@@ -183,21 +183,22 @@ class ImgUtils:
         return None
 
     @classmethod
-    def _read_psb(cls, path: str):
-        return cls._read_quicklook(path)
+    def _read_quicklook(cls, path: str, size: int = 5000, timeout: int = 120):
 
-    @classmethod
-    def _read_quicklook(cls, path: str, size: int = 5000) -> np.ndarray:
         tmp_dir = Path(tempfile.gettempdir())
-        subprocess.run(
-            ["qlmanage", "-t", "-s", str(size), "-o", str(tmp_dir), path],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL  # отключаем вывод ошибок
-        )
+        try:
+            subprocess.run(
+                ["qlmanage", "-t", "-s", str(size), "-o", str(tmp_dir), path],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=timeout
+            )
+        except subprocess.TimeoutExpired:
+            return None
         generated_files = list(tmp_dir.glob(Path(path).stem + "*.png"))
         if not generated_files:
-            raise FileNotFoundError("QuickLook не создал PNG")
+            return None
         generated = generated_files[0]
         with Image.open(generated) as img:
             arr = np.array(img)
@@ -229,7 +230,6 @@ class ImgUtils:
         except Exception as e:
             print("read png, PIL error", e)
             return None
-
 
     @classmethod
     def _read_jpg(cls, path: str) -> np.ndarray | None:
@@ -359,7 +359,7 @@ class ImgUtils:
         read_any_dict: dict[str, callable] = {}
 
         for i in cls.ext_psd:
-            read_any_dict[i] = cls._read_psb
+            read_any_dict[i] = cls._read_quicklook
         for i in cls.ext_tiff:
             read_any_dict[i] = cls._read_tiff
         for i in cls.ext_raw:
