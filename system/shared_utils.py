@@ -155,6 +155,11 @@ class ImgUtils:
     )
 
     @classmethod
+    def _get_broken_image(cls):
+        img = Path("./images/broken_image.jpg")
+        return cls._read_jpg(img)
+
+    @classmethod
     def _read_tiff(cls, path: str) -> np.ndarray | None:
         def process_image(img: np.ndarray) -> np.ndarray:
             if img.ndim == 3:
@@ -179,8 +184,8 @@ class ImgUtils:
             try:
                 return process_image(loader(path))
             except Exception as e:
-                print(f"read tiff error with {loader.__name__}: {e}")
-        return None
+                print(f"read tiff error", path, e)
+        return cls._get_broken_image()
 
     @classmethod
     def _read_quicklook(cls, path: str, size: int = 5000, timeout: int = 120):
@@ -197,12 +202,12 @@ class ImgUtils:
                 )
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
                 # Возвращаем "пустую" картинку при ошибке или таймауте
-                return np.zeros((100, 100, 3), dtype=np.uint8)
+                return cls._get_broken_image()
 
             # Ищем файл только в нашей изолированной папке
             generated_files = list(tmp_dir.glob("*.png"))
             if not generated_files:
-                return None
+                return cls._get_broken_image()
             
             generated = generated_files[0]
             with Image.open(generated) as img:
@@ -239,7 +244,7 @@ class ImgUtils:
             return array_img
         except Exception as e:
             print(f"read png, PIL error: {e}")
-            return None
+            return cls._get_broken_image()
 
     @classmethod
     def _read_jpg(cls, path: str) -> np.ndarray | None:
@@ -258,7 +263,7 @@ class ImgUtils:
                 return img
             except Exception as e:
                 print("read jpg, cv2 error, try cv2 read", e)
-                return None
+                return cls._get_broken_image()
 
     @classmethod
     def _read_raw(cls, path: str) -> np.ndarray | None:
@@ -297,7 +302,7 @@ class ImgUtils:
             return array_img
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
             print("read raw error", e)
-            return None
+            return cls._get_broken_image()
 
     @classmethod
     def _read_movie(cls, path: str, time_sec=1) -> np.ndarray | None:
@@ -310,10 +315,10 @@ class ImgUtils:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 return frame
             else:
-                return None
+                return cls._get_broken_image()
         except Exception as e:
             print("read movie error", e)
-            return None
+            return cls._get_broken_image()
 
     @classmethod
     def _read_any(cls, path: str) -> np.ndarray | None:
@@ -349,7 +354,7 @@ class ImgUtils:
             return cmd()
         except Exception as e:
             print("fit image error", e)
-            return None
+            return cls._get_broken_image()
 
     @classmethod
     def read_icc(cls, path: str):
