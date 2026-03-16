@@ -22,13 +22,13 @@ from system.tasks import Utils
 
 
 class BaseProcessWorker:
+    _registry = []
+
     def __init__(self, target: callable, args: tuple):
         super().__init__()
-
-        self.proc = Process(
-            target=target,
-            args=(*args, )
-        )
+        self.proc = Process(target=target, args=(*args, ))
+        self._queues: list[Queue] = [a for a in args if hasattr(a, 'put')]
+        BaseProcessWorker._registry.append(self)
 
     def start(self):
         self.proc.start()
@@ -43,10 +43,22 @@ class BaseProcessWorker:
         """
         self.proc.terminate()
         self.proc.join(timeout=0.2)
-        queues: tuple[Queue] = (i for i in dir(self) if hasattr(i, "put"))
-        for i in queues:
-                i.close()
-                i.join_thread()
+
+        for q in self._queues:
+            q.close()
+            q.cancel_join_thread()
+
+        if self.proc.is_alive():
+            self.proc.kill()
+
+        if self in BaseProcessWorker._registry:
+            BaseProcessWorker._registry.remove(self)
+
+    @staticmethod
+    def stop_all():
+        for worker in BaseProcessWorker._registry.copy():
+            worker: BaseProcessWorker
+            worker.terminate_join()
 
 
 class ProcessWorker(BaseProcessWorker):
