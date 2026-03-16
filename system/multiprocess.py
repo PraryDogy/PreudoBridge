@@ -87,6 +87,7 @@ class DirScaner:
             path_finder = PathFinder(path)
             path = path_finder.get_result()
         dir_item.fixed_path = path
+        # dir_item.fixed_path = None
         if path is None:
             q.put(dir_item)
             return
