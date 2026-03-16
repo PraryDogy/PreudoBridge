@@ -453,7 +453,7 @@ class Grid(UScrollArea):
                     update_thumb(data_item)
 
             if not img_task.is_alive() and q.empty():
-                img_task.terminate()
+                img_task.terminate_join()
             else:
                 img_timer.start(self.img_timer_ms)
 
@@ -1274,20 +1274,20 @@ class Grid(UScrollArea):
 
     def deleteLater(self):
         if self.dir_watcher_task:
-            self.dir_watcher_task.terminate()
+            self.dir_watcher_task.terminate_join()
         for proc, timer in self.proc_timer_dict.items():
             timer.stop()
-            proc.terminate()
+            proc.terminate_join()
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         return super().deleteLater()
     
     def closeEvent(self, a0):
         if self.dir_watcher_task:
-            self.dir_watcher_task.terminate()
+            self.dir_watcher_task.terminate_join()
         for proc, timer in self.proc_timer_dict.items():
             timer.stop()
-            proc.terminate()
+            proc.terminate_join()
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         return super().closeEvent(a0)

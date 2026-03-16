@@ -346,12 +346,12 @@ class ImgViewWin(WinBase):
                     UThreadPool.start(self.qimage_task)
 
             if not self.read_img_task.is_alive():
-                self.read_img_task.terminate()
+                self.read_img_task.terminate_join()
             else:
                 QTimer.singleShot(100, poll_task)
         
         if self.read_img_task:
-            self.read_img_task.terminate()
+            self.read_img_task.terminate_join()
 
         self.read_img_task = ProcessWorker(
             target=ReadImg.start,

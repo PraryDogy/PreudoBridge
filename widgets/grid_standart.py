@@ -75,7 +75,7 @@ class GridStandart(Grid):
 
         def timeout_task():
             self.finder_timer.stop()
-            self.finder_task.terminate()
+            self.finder_task.terminate_join()
             dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
             self.finalize_dir_scaner(dir_item)
 
@@ -89,7 +89,7 @@ class GridStandart(Grid):
 
             if not self.finder_task.is_alive():
                 self.timeout_timer.stop()
-                self.finder_task.terminate()
+                self.finder_task.terminate_join()
             else:
                 self.finder_timer.start(self.finder_timer_ms)
 
@@ -218,10 +218,10 @@ class GridStandart(Grid):
     
     def deleteLater(self):
         self.loading_label.hide()
-        self.finder_task.terminate()
+        self.finder_task.terminate_join()
         return super().deleteLater()
     
     def closeEvent(self, a0):
         self.loading_label.hide()
-        self.finder_task.terminate()
+        self.finder_task.terminate_join()
         return super().closeEvent(a0)

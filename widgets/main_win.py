@@ -345,7 +345,7 @@ class MainWin(WinBase):
                 self.load_st_grid()
 
             if not self.path_fixer_task.is_alive():
-                self.path_fixer_task.terminate()
+                self.path_fixer_task.terminate_join()
             else:
                 QTimer.singleShot(100, poll_task)
 

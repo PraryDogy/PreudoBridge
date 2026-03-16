@@ -261,7 +261,7 @@ class CopyFilesWin(ProgressbarWin):
 
     def stop_task(self):
         self.copy_timer.stop()
-        self.copy_task.terminate()
+        self.copy_task.terminate_join()
 
     def closeEvent(self, a0):
         ClipboardItem.reset()

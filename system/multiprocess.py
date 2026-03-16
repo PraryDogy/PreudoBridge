@@ -36,7 +36,7 @@ class BaseProcessWorker:
     def is_alive(self):
         return self.proc.is_alive()
     
-    def terminate(self):
+    def terminate_join(self):
         """
         Корректно terminate с join
         Завершает все очереди Queue

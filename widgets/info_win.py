@@ -120,7 +120,7 @@ class InfoWin(MinMaxDisabledWin):
                 resol_label.setText(resol)
                 self.set_transparent()
             if not self.img_res_task.is_alive():
-                self.img_res_task.terminate()
+                self.img_res_task.terminate_join()
             else:
                 QTimer.singleShot(100, lambda: poll_task(resol_label))
 
@@ -187,7 +187,7 @@ class InfoWin(MinMaxDisabledWin):
                 self.set_transparent()
             
             if not self.info_task.is_alive():
-                self.info_task.terminate()
+                self.info_task.terminate_join()
             else:
                 QTimer.singleShot(100, poll_task)
 
@@ -231,7 +231,7 @@ class InfoWin(MinMaxDisabledWin):
                 self.set_transparent()
             
             if not self.info_task.is_alive():
-                self.info_task.terminate()
+                self.info_task.terminate_join()
             else:
                 QTimer.singleShot(100, poll_task)
 
@@ -276,8 +276,8 @@ class InfoWin(MinMaxDisabledWin):
         
     def deleteLater(self):
         try:
-            self.img_res_task.terminate()
-            self.info_task.terminate()
+            self.img_res_task.terminate_join()
+            self.info_task.terminate_join()
         except AttributeError:
             ...
         return super().deleteLater()

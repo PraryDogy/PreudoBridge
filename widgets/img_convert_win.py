@@ -54,7 +54,7 @@ class ImgConvertWin(ProgressbarWin):
         if not self.jpg_task.is_alive() or finished:
             self.progressbar.setValue(self.progressbar.maximum())
             self.below_label.setText(f'{len(self.urls)} из {len(self.urls)}')
-            self.jpg_task.terminate()
+            self.jpg_task.terminate_join()
             self.finished.emit()
             self.deleteLater()
         else:
@@ -65,10 +65,10 @@ class ImgConvertWin(ProgressbarWin):
 
     def closeEvent(self, a0):
         self.jpg_timer.stop()
-        self.jpg_task.terminate()
+        self.jpg_task.terminate_join()
         return super().closeEvent(a0)
 
     def deleteLater(self):
         self.jpg_timer.stop()
-        self.jpg_task.terminate()
+        self.jpg_task.terminate_join()
         return super().deleteLater()

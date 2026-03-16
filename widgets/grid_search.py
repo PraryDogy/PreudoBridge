@@ -147,7 +147,7 @@ class GridSearch(Grid):
                 self.rearrange_thumbs()
             if not self.search_task.is_alive() and q.empty():
                 fin(missed_files)
-                self.search_task.terminate()
+                self.search_task.terminate_join()
             else:
                 self.search_timer.start(self.search_timer_ms)
 
@@ -206,12 +206,12 @@ class GridSearch(Grid):
     
     def closeEvent(self, a0):
         if self.search_task and self.search_task.is_alive():
-            self.search_task.terminate()
+            self.search_task.terminate_join()
         return super().closeEvent(a0)
 
     def deleteLater(self):
         if self.search_task and self.search_task.is_alive():
-            self.search_task.terminate()
+            self.search_task.terminate_join()
         return super().deleteLater()
     
     def dragEnterEvent(self, a0: QDragEnterEvent):
