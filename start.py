@@ -74,6 +74,7 @@ else:
 
 from cfg import JsonData
 from system.database import Dbase
+from system.multiprocess import ProcessWorker
 from system.tasks import OnStartTask, UThreadPool
 from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
@@ -108,6 +109,7 @@ class App(QApplication):
         return False
 
     def on_exit(self):
+        ProcessWorker.stop_all()
         JsonData.write_json_data()
 
 if __name__ == "__main__":
