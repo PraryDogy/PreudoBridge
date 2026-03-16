@@ -487,7 +487,7 @@ class DirScaner(URunnable):
         self.dir_item.data_items = DataItem.sort_(self.dir_item.data_items, self.dir_item._sort_item)
         self.sigs.finished_.emit(self.dir_item)
 
-    def terminate(self):
+    def terminate_join(self):
         """
         Метод заглушка аналогично multiprocessing.Process.terminate()
         """

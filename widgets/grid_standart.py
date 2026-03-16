@@ -218,16 +218,10 @@ class GridStandart(Grid):
     
     def deleteLater(self):
         self.loading_label.hide()
-        try:
-            self.finder_task.terminate_join()
-        except AttributeError:
-            ...
+        self.finder_task.terminate_join()
         return super().deleteLater()
     
     def closeEvent(self, a0):
         self.loading_label.hide()
-        try:
-            self.finder_task.terminate_join()
-        except AttributeError:
-            ...
+        self.finder_task.terminate_join()
         return super().closeEvent(a0)
