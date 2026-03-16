@@ -394,7 +394,7 @@ class ImgUtils:
             cls._read_any = fn
             return cls._read_any(path)
         else:
-            return None
+            return cls._get_broken_image()
 
 
 class PathFinder:
