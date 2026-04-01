@@ -8,11 +8,11 @@ from cfg import Static
 from system.shared_utils import SharedUtils
 from system.utils import Utils
 
-METADATA = sqlalchemy.MetaData()
-TABLE_NAME = "cache"
+_METADATA = sqlalchemy.MetaData()
+_TABLE_NAME = "cache"
 
-CACHE = sqlalchemy.Table(
-    TABLE_NAME, METADATA,
+_CACHE = sqlalchemy.Table(
+    _TABLE_NAME, _METADATA,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("name", sqlalchemy.Text),
     sqlalchemy.Column("type", sqlalchemy.Text),
@@ -26,17 +26,18 @@ CACHE = sqlalchemy.Table(
 )
 
 
-class Clmns:
-    id = CACHE.c.id
-    name = CACHE.c.name
-    type = CACHE.c.type
-    size = CACHE.c.size
-    birth = CACHE.c.birth
-    mod = CACHE.c.mod
-    last_read = CACHE.c.last_read
-    rating = CACHE.c.rating
-    partial_hash = CACHE.c.partial_hash
-    thumb_path = CACHE.c.thumb_path
+class CacheTable:
+    table = _CACHE
+    id = _CACHE.c.id
+    name = _CACHE.c.name
+    type = _CACHE.c.type
+    size = _CACHE.c.size
+    birth = _CACHE.c.birth
+    mod = _CACHE.c.mod
+    last_read = _CACHE.c.last_read
+    rating = _CACHE.c.rating
+    partial_hash = _CACHE.c.partial_hash
+    thumb_path = _CACHE.c.thumb_path
 
 
 class Dbase:
@@ -61,17 +62,17 @@ class Dbase:
 
         try:
             os.makedirs(Static.app_dir, exist_ok=True)
-            METADATA.create_all(engine)
+            _METADATA.create_all(engine)
             conn = Dbase.engine.connect()
-            q = sqlalchemy.select(CACHE)
+            q = sqlalchemy.select(_CACHE)
             conn.execute(q).first()
             conn.close()
         except Exception as e:
             print(f"Ошибка при открытии БД: {e}")
             if "no such column" in str(e):
                 print("Не хватает колонок в существующей таблице, создаю новую")
-                METADATA.drop_all(engine)
-                METADATA.create_all(engine)
+                _METADATA.drop_all(engine)
+                _METADATA.create_all(engine)
             else:
                 log_file = os.path.join(Static.app_dir, "log.txt")
                 with open(log_file, "w", encoding="utf-8") as f:

@@ -14,7 +14,7 @@ from PyQt5.QtGui import QImage
 from cfg import Dynamic, JsonData, Static
 from system.shared_utils import ImgUtils, SharedUtils
 
-from .database import CACHE, Clmns, Dbase
+from .database import _CACHE, CacheTable, Dbase
 from .items import DataItem, DirItem
 from .utils import Utils
 
@@ -87,7 +87,7 @@ class RatingTask(URunnable):
     def task(self):
         with Dbase.engine.begin() as conn:
             stmt = (
-                sqlalchemy.update(CACHE)
+                sqlalchemy.update(_CACHE)
             )
             if self.data_item.type_ == Static.folder_type:
                 stmt = (
@@ -97,7 +97,7 @@ class RatingTask(URunnable):
             else:
                 stmt = (
                     stmt
-                    .where(Clmns.partial_hash==self.data_item.partial_hash)
+                    .where(CacheTable.partial_hash==self.data_item.partial_hash)
                 )
             stmt = (
                 stmt
@@ -174,94 +174,68 @@ class CacheCleaner(URunnable):
     class Sigs(QObject):
         finished_ = pyqtSignal(int)
 
-    def __init__(self, bytes_limit: int = 200 * 1024 * 1024):
+    def __init__(self, bytes_to_remove: int = 200 * 1024 * 1024):
         "Удаляет заданный размер данных"
     
         super().__init__()
         self.sigs = CacheCleaner.Sigs()
-        self.bytes_limit = bytes_limit
-        self.conn = Dbase.get_conn(Dbase.engine)
-        self.stmt_limit = 200
+        self.bytes_to_remove = bytes_to_remove
         self.removed_size = 0
 
     def task(self):
         try:
-            self._task()
-            Dbase.close_conn(self.conn)
+            thumb_paths = self.get_thumb_paths()
         except Exception as e:
             print("tasks, ClearData error", e)
         self.sigs.finished_.emit(self.removed_size)
 
-    def _task(self):
-        with Dbase.engine.begin():
-            stmt = (
-                sqlalchemy.select(
-                    Clmns.thumb_path,
-                    sqlalchemy.func.sum(CACHE.size),
-                    sqlalchemy.over(order_by=CACHE.last_read.asc())
+    def get_thumb_paths(self):
+        selected_bytes = 0
+        batch_size = 20
+        offset = 0
+        thumb_paths = set()
+
+        def get_stmt(batch_size: int, offset: int):
+            return (
+                sqlalchemy.select(CacheTable.thumb_path, CacheTable.size)
+                .where(
+                    CacheTable.rating == 0,
+                    CacheTable.thumb_path.isnot(None),
+                    CacheTable.thumb_path != ""
                 )
-                .order_by(Clmns.last_read.asc())
-                .where(sqlalchemy.and_(
-                    Clmns.rating == 0,
-                    Clmns.thumb_path.isnot(None),
-                    Clmns.thumb_path != ""
-                ))
+                .order_by(CacheTable.last_read.asc())
+                .limit(batch_size)
+                .offset(offset)
             )
 
-
-        return
-        while self.removed_size < self.bytes_limit:
-            limited_select = self.get_limited_select()
-            if not limited_select:
-                break
-            thumb_path_list = []
-            for thumb_path in limited_select:
-                if not self.is_should_run():
-                    self.remove_from_db(thumb_path_list)
-                    return
-                if thumb_path and os.path.exists(thumb_path):
-                    thumb_size = os.path.getsize(thumb_path)
-                    if self.remove_file(thumb_path):
-                        self.removed_size += thumb_size
-                        thumb_path_list.append(thumb_path)
-            if not thumb_path_list:
-                break
-            self.remove_from_db(thumb_path_list)
-
-        self.remove_from_db(thumb_path_list)
-
-    def get_limited_select(self):
-        stmt = (
-            sqlalchemy.select(Clmns.thumb_path)
-            .order_by(Clmns.last_read.asc())
-            .limit(self.stmt_limit)
-            .where(sqlalchemy.and_(
-                Clmns.rating == 0,
-                Clmns.thumb_path.isnot(None),
-                Clmns.thumb_path != ""
-            ))
-        )
-        return Dbase.execute(self.conn, stmt).scalars()
+        with Dbase.engine.connect() as conn:
+            while selected_bytes < self.bytes_to_remove:
+                stmt = get_stmt(batch_size, offset)
+                rows = conn.execute(stmt).fetchall()
+                if not rows:
+                    break  # больше строк нет
+                for path, size in rows:
+                    if selected_bytes >= self.bytes_to_remove:
+                        break
+                    thumb_paths.add(path)
+                    selected_bytes += size
+                offset += batch_size
+        return thumb_paths
     
-    def remove_file(self, thumb_path):
-        try:
-            root = os.path.dirname(thumb_path)
-            os.remove(thumb_path)
-            if os.path.exists(root) and not os.listdir(root):
-                shutil.rmtree(root)
-            return True
-        except Exception as e:
-            print("tasks, ClearData error", e)
-            return None
+    def remove_thumbs(self, thumb_paths: set):
+        for i in thumb_paths:
+            try:
+                os.remove(i)
+            except Exception as e:
+                print("Cache cleaner remove thumb error")
 
-    def remove_from_db(self, thumb_path_list: list[int]):
-        conds = sqlalchemy.and_(
-            Clmns.thumb_path.in_(thumb_path_list),
-            Clmns.rating==0
-        )
-        stmt = sqlalchemy.delete(CACHE).where(conds)
-        Dbase.execute(self.conn, stmt)
-        Dbase.commit(self.conn)
+    def remove_rows(self, thumb_paths: set):
+        with Dbase.engine.begin() as conn:
+            stmt = (
+                sqlalchemy.delete(_CACHE)
+                .where(CacheTable.thumb_path.in_(thumb_paths))
+            )
+            conn.execute(stmt)
 
 
 class OnStartTask(URunnable):

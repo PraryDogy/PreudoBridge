@@ -12,7 +12,7 @@ from PyQt5.QtGui import QImage
 from cfg import Static
 from system.shared_utils import ImgUtils
 
-from .database import CACHE, Clmns
+from .database import _CACHE, CacheTable
 from .utils import Utils
 
 
@@ -151,11 +151,11 @@ class DataItem:
         Возвращает условия для поиска папки в базе данных
         """
         conds = [
-            Clmns.name == data_item.filename,
-            Clmns.type == data_item.type_,
-            Clmns.size == data_item.size,
-            Clmns.birth == data_item.birth,
-            Clmns.mod == data_item.mod,
+            CacheTable.name == data_item.filename,
+            CacheTable.type == data_item.type_,
+            CacheTable.size == data_item.size,
+            CacheTable.birth == data_item.birth,
+            CacheTable.mod == data_item.mod,
         ]
         return sqlalchemy.and_(*conds)
 
@@ -164,10 +164,10 @@ class DataItem:
         """
         Обновляет last_read
         """
-        stmt = sqlalchemy.update(CACHE)
+        stmt = sqlalchemy.update(_CACHE)
         stmt = stmt.where(*DataItem.get_folder_conds(data_item))
         stmt = stmt.values(**{
-            Clmns.last_read.name: Utils.get_now()
+            CacheTable.last_read.name: Utils.get_now()
         })
         return stmt
     
@@ -176,42 +176,42 @@ class DataItem:
         """
         Обновляет last_read
         """
-        stmt = sqlalchemy.update(CACHE)
+        stmt = sqlalchemy.update(_CACHE)
         stmt = stmt.where(
-            Clmns.partial_hash == data_item.partial_hash
+            CacheTable.partial_hash == data_item.partial_hash
         )
         stmt = stmt.values(**{
-            Clmns.last_read.name: Utils.get_now()
+            CacheTable.last_read.name: Utils.get_now()
         })
         return stmt
     
     @classmethod
     def insert_folder_stmt(cls, data_item: "DataItem"):
-        stmt = sqlalchemy.insert(CACHE)
+        stmt = sqlalchemy.insert(_CACHE)
         stmt = stmt.values(**{
-            Clmns.name.name: data_item.filename,
-            Clmns.type.name: data_item.type_,
-            Clmns.size.name: data_item.size,
-            Clmns.birth.name: data_item.birth,
-            Clmns.mod.name: data_item.mod,
-            Clmns.last_read.name: Utils.get_now(),
-            Clmns.rating.name: 0,
+            CacheTable.name.name: data_item.filename,
+            CacheTable.type.name: data_item.type_,
+            CacheTable.size.name: data_item.size,
+            CacheTable.birth.name: data_item.birth,
+            CacheTable.mod.name: data_item.mod,
+            CacheTable.last_read.name: Utils.get_now(),
+            CacheTable.rating.name: 0,
         })
         return stmt
     
     @classmethod
     def insert_file_stmt(cls, data_item: "DataItem"):
-        stmt = sqlalchemy.insert(CACHE)
+        stmt = sqlalchemy.insert(_CACHE)
         stmt = stmt.values(**{
-            Clmns.name.name: data_item.filename,
-            Clmns.type.name: data_item.type_,
-            Clmns.size.name: data_item.size,
-            Clmns.birth.name: data_item.birth,
-            Clmns.mod.name: data_item.mod,
-            Clmns.last_read.name: Utils.get_now(),
-            Clmns.rating.name: 0,
-            Clmns.partial_hash.name: data_item.partial_hash,
-            Clmns.thumb_path.name: data_item.thumb_path
+            CacheTable.name.name: data_item.filename,
+            CacheTable.type.name: data_item.type_,
+            CacheTable.size.name: data_item.size,
+            CacheTable.birth.name: data_item.birth,
+            CacheTable.mod.name: data_item.mod,
+            CacheTable.last_read.name: Utils.get_now(),
+            CacheTable.rating.name: 0,
+            CacheTable.partial_hash.name: data_item.partial_hash,
+            CacheTable.thumb_path.name: data_item.thumb_path
         })
         return stmt
 

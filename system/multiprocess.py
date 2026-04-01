@@ -12,7 +12,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Static
-from system.database import Clmns, Dbase
+from system.database import CacheTable, Dbase
 from system.items import (CopyItem, DataItem, DirItem, JpgConvertItem,
                           MultipleInfoItem, PathFixerItem, SearchItem)
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
@@ -189,11 +189,11 @@ class ImgLoader:
 
     @staticmethod
     def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
-        stmt = select(Clmns.rating)
+        stmt = select(CacheTable.rating)
         if data_item.type_ == Static.folder_type:
             stmt = stmt.where(*DataItem.get_folder_conds(data_item))
         else:
-            stmt = stmt.where(Clmns.partial_hash==data_item.partial_hash)
+            stmt = stmt.where(CacheTable.partial_hash==data_item.partial_hash)
         res = Dbase.execute(conn, stmt).scalar()
         return res
     
