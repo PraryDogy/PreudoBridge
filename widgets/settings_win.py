@@ -197,7 +197,7 @@ class ClearCacheWin(MinMaxDisabledWin):
         UThreadPool.start(self.tks)
 
     def clear_cache_fin(self):
-        self.fin_win = ClearCacheFinishWin(bytes)
+        self.fin_win = ClearCacheFinishWin()
         self.fin_win.center(self.window())
         self.fin_win.show()
 

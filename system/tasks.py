@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import subprocess
+import traceback
 import zipfile
 
 import numpy as np
@@ -190,7 +191,7 @@ class CacheCleaner(URunnable):
 
         def get_stmt(batch_size: int, offset: int):
             return (
-                sqlalchemy.select(CacheTable.thumb_path, CacheTable.size)
+                sqlalchemy.select(CacheTable.thumb_path)
                 .where(
                     CacheTable.rating == 0,
                     CacheTable.thumb_path.isnot(None),
@@ -204,14 +205,15 @@ class CacheCleaner(URunnable):
         with Dbase.main_engine.connect() as conn:
             while selected_bytes < self.bytes_to_remove:
                 stmt = get_stmt(batch_size, offset)
-                rows = conn.execute(stmt).fetchall()
+                rows = conn.execute(stmt).scalars().all()
                 if not rows:
-                    break  # больше строк нет
-                for path, size in rows:
+                    break
+                for thumb_path in rows:
                     if selected_bytes >= self.bytes_to_remove:
                         break
-                    thumb_paths.add(path)
-                    selected_bytes += size
+                    if os.path.exists(thumb_path):
+                        thumb_paths.add(thumb_path)
+                        selected_bytes += os.path.getsize(thumb_path)
                 offset += batch_size
         return thumb_paths
     
