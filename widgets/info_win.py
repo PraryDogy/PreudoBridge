@@ -114,7 +114,7 @@ class InfoWin(MinMaxDisabledWin):
     def single_img(self):
 
         def poll_task(resol_label: SelectableLabel):
-            q = self.img_res_task.proc_q
+            q = self.img_res_task.process_queue
             if not q.empty():
                 resol = q.get()
                 resol_label.setText(resol)
@@ -175,7 +175,7 @@ class InfoWin(MinMaxDisabledWin):
     def multiple_items(self):
 
         def poll_task():
-            q = self.info_task.proc_q
+            q = self.info_task.process_queue
             if not q.empty():
                 info_item: MultipleInfoItem = q.get()
                 total_size = self.findChildren(SelectableLabel)[3]
@@ -219,7 +219,7 @@ class InfoWin(MinMaxDisabledWin):
     def single_folder(self):
 
         def poll_task():
-            q = self.info_task.proc_q
+            q = self.info_task.process_queue
             if not q.empty():
                 info_item: MultipleInfoItem = q.get()
                 total_size = self.findChildren(SelectableLabel)[5]

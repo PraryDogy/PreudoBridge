@@ -81,7 +81,7 @@ class GridStandart(Grid):
 
         def poll_task():
             self.finder_timer.stop()
-            q = self.finder_task.proc_q
+            q = self.finder_task.process_queue
 
             if not q.empty():
                 dir_item: DirItem = q.get()

@@ -1,13 +1,11 @@
-import io
 import os
 import shutil
 from multiprocessing import Process, Queue
 from pathlib import Path
 from time import sleep
 
-import cv2
 import numpy as np
-from PIL import Image, ImageCms
+from PIL import Image
 from sqlalchemy import Connection as Conn
 from sqlalchemy import select
 from watchdog.events import FileSystemEventHandler
@@ -26,30 +24,30 @@ class BaseProcessWorker:
 
     def __init__(self, target: callable, args: tuple):
         super().__init__()
-        self.proc = Process(target=target, args=(*args, ))
+        self.process = Process(target=target, args=(*args, ))
         self._queues: list[Queue] = [a for a in args if hasattr(a, 'put')]
         BaseProcessWorker._registry.append(self)
 
     def start(self):
-        self.proc.start()
+        self.process.start()
 
     def is_alive(self):
-        return self.proc.is_alive()
+        return self.process.is_alive()
     
     def terminate_join(self):
         """
         Корректно terminate с join
         Завершает все очереди Queue
         """
-        self.proc.terminate()
-        self.proc.join(timeout=0.2)
+        self.process.terminate()
+        self.process.join(timeout=0.2)
 
         for q in self._queues:
             q.close()
             q.cancel_join_thread()
 
-        if self.proc.is_alive():
-            self.proc.kill()
+        if self.process.is_alive():
+            self.process.kill()
 
         if self in BaseProcessWorker._registry:
             BaseProcessWorker._registry.remove(self)
@@ -66,22 +64,22 @@ class ProcessWorker(BaseProcessWorker):
         Передает в BaseProcessWorker args + self.proc (Queue)
     """
     def __init__(self, target: callable, args: tuple):
-        self.proc_q = Queue()
-        super().__init__(target, (*args, self.proc_q))
+        self.process_queue = Queue()
+        super().__init__(target, (*args, self.process_queue))
 
 
 class DirScaner:
 
     @staticmethod
-    def start(dir_item: DirItem, q: Queue):
+    def start(dir_item: DirItem, queue: Queue):
         try:
-            DirScaner._start(dir_item, q)
+            DirScaner._start(dir_item, queue)
         except Exception as e:
             print("system > multiprocess DirScaner error", e)
-            q.put(dir_item)
+            queue.put(dir_item)
 
     @staticmethod
-    def _start(dir_item: DirItem, q: Queue):
+    def _start(dir_item: DirItem, queue: Queue):
         path = dir_item._main_win_item.main_dir
         if not os.path.exists(path):
             path_finder = PathFinder(path)
@@ -89,7 +87,7 @@ class DirScaner:
         dir_item.fixed_path = path
         # dir_item.fixed_path = None
         if path is None:
-            q.put(dir_item)
+            queue.put(dir_item)
             return
         hidden_syms = () if dir_item._show_hidden else Static.hidden_symbols
         for entry in os.scandir(path):
@@ -101,12 +99,12 @@ class DirScaner:
             data_item.set_properties()
             dir_item.data_items.append(data_item)
         dir_item.data_items = DataItem.sort_(dir_item.data_items, dir_item._sort_item)
-        q.put(dir_item)
+        queue.put(dir_item)
 
 
 class ImgLoader:
     @staticmethod
-    def start(data_items: list[DataItem], q: Queue):
+    def start(data_items: list[DataItem], queue: Queue):
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
@@ -148,10 +146,10 @@ class ImgLoader:
                     else:
                         exist_ratings.append(data_item)
 
-        ImgLoader.execute_ratings(exist_ratings, q)
-        ImgLoader.execute_svg_files(svg_files, q)
-        ImgLoader.execute_exist_images(exist_images, q)
-        ImgLoader.execute_new_images(new_images, q)
+        ImgLoader.execute_ratings(exist_ratings, queue)
+        ImgLoader.execute_svg_files(svg_files, queue)
+        ImgLoader.execute_exist_images(exist_images, queue)
+        ImgLoader.execute_new_images(new_images, queue)
         ImgLoader.execute_stmt_list(stmt_list, conn)
     
     @staticmethod
@@ -161,33 +159,33 @@ class ImgLoader:
         Dbase.commit(conn)
 
     @staticmethod
-    def execute_svg_files(data_items: list[DataItem], q: Queue):
+    def execute_svg_files(data_items: list[DataItem], queue: Queue):
         for i in data_items:
             img_array = ImgUtils.read_img(i.src)
             img_array = ImgUtils.resize(img_array, 512)
             i.img_array = img_array
-            q.put(i)
+            queue.put(i)
 
     @staticmethod
-    def execute_ratings(data_items: list[DataItem], q: Queue):
+    def execute_ratings(data_items: list[DataItem], queue: Queue):
         for i in data_items:
-            q.put(i)
+            queue.put(i)
 
     @staticmethod
-    def execute_exist_images(data_items: list[DataItem], q: Queue):
+    def execute_exist_images(data_items: list[DataItem], queue: Queue):
         for i in data_items:
             img_array = Utils.read_thumb(i.thumb_path)
             i.img_array = img_array
-            q.put(i)
+            queue.put(i)
 
     @staticmethod
-    def execute_new_images(data_items: list[DataItem], q: Queue):
+    def execute_new_images(data_items: list[DataItem], queue: Queue):
         for i in data_items:
             img_array = ImgUtils.read_img(i.src)
             img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
             Utils.write_thumb(i.thumb_path, img_array)
             i.img_array = img_array
-            q.put(i)
+            queue.put(i)
 
     @staticmethod
     def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
@@ -202,9 +200,9 @@ class ImgLoader:
 
 class ReadImg:
     @staticmethod
-    def start(src: str, desaturate: bool, q: Queue):
+    def start(src: str, desaturate: bool, queue: Queue):
         img_array = ImgUtils.read_img(src)
-        q.put((src, img_array))
+        queue.put((src, img_array))
 
 
 class _DirChangedHandler(FileSystemEventHandler):
@@ -218,11 +216,11 @@ class _DirChangedHandler(FileSystemEventHandler):
 
 class DirWatcher:
     @staticmethod
-    def start(path: str, q: Queue):
+    def start(path: str, queue: Queue):
         if not path or not os.path.exists(path):
             return
         observer = Observer()
-        handler = _DirChangedHandler(lambda e: q.put(e))
+        handler = _DirChangedHandler(lambda e: queue.put(e))
         observer.schedule(handler, path, recursive=False)
         observer.start()
         try:
@@ -237,7 +235,7 @@ class DirWatcher:
 
 class PathFixer:
     @staticmethod
-    def start(path: str, q: Queue):
+    def start(path: str, queue: Queue):
         if not path:
             result = PathFixerItem(None, None)
         elif os.path.exists(path):
@@ -249,12 +247,12 @@ class PathFixer:
                 result = PathFixerItem(fixed_path, os.path.isdir(fixed_path))
             else:
                 result = PathFixerItem(None, None)
-        q.put(result)
+        queue.put(result)
 
 
 class JpgConverter:
     @staticmethod
-    def start(jpg_item: JpgConvertItem, q: Queue):
+    def start(jpg_item: JpgConvertItem, queue: Queue):
         jpg_item._urls = [
             i
             for i in jpg_item._urls
@@ -273,10 +271,10 @@ class JpgConverter:
                 jpg_item.current_count = count
                 jpg_item.current_filename = filename
                 jpg_item.msg = ""
-                q.put(jpg_item)
+                queue.put(jpg_item)
 
         jpg_item.msg = "finished"
-        q.put(jpg_item)
+        queue.put(jpg_item)
 
     @staticmethod
     def _save_jpg(path: str) -> None:
@@ -318,7 +316,7 @@ class ImgRes:
         return resol
 
     @staticmethod
-    def start(path: str, q: Queue):
+    def start(path: str, queue: Queue):
         """
         Возвращает str "ширина изображения x высота изображения
         """
@@ -326,14 +324,14 @@ class ImgRes:
             resol = ImgRes.psd_read(path)
         else:
             resol = ImgRes.read(path)
-        q.put(resol)
+        queue.put(resol)
 
 
 class MultipleInfo:
     err = " Произошла ошибка"
 
     @staticmethod
-    def start(data_items: list[DataItem], show_hidden: bool, q: Queue):
+    def start(data_items: list[DataItem], show_hidden: bool, queue: Queue):
         info_item = MultipleInfoItem()
 
         try:
@@ -343,14 +341,14 @@ class MultipleInfo:
             info_item.total_files = format(info_item.total_files, ",").replace(",", " ")
             info_item.total_folders = len(list(info_item._folders_set))
             info_item.total_folders = format(info_item.total_folders, ",").replace(",", " ")
-            q.put(info_item)
+            queue.put(info_item)
 
         except Exception as e:
             print("tasks, MultipleInfoFiles error", e)
             info_item.total_size = MultipleInfo.err
             info_item.total_files = MultipleInfo.err
             info_item.total_folders = MultipleInfo.err
-            q.put(info_item)
+            queue.put(info_item)
 
     @staticmethod
     def _task(items: list[dict], info_item: MultipleInfoItem, show_hidden: bool):
@@ -387,14 +385,14 @@ class MultipleInfo:
 
 class CopyWorker(BaseProcessWorker):
     def __init__(self, target, args):
-        self.proc_q = Queue()
-        self.gui_q = Queue()
-        super().__init__(target, (*args, self.proc_q, self.gui_q))
+        self.process_queue = Queue()
+        self.gui_queue = Queue()
+        super().__init__(target, (*args, self.process_queue, self.gui_queue))
 
 
 class CopyTask:
     @staticmethod
-    def start(copy_item: CopyItem, proc_q: Queue, gui_q: Queue):
+    def start(copy_item: CopyItem, process_queue: Queue, gui_queue: Queue):
 
         if copy_item.is_search or copy_item.src_dir != copy_item.dst_dir:
             src_dst_urls = CopyTask.get_another_dir_urls(copy_item)
@@ -418,11 +416,11 @@ class CopyTask:
 
             if not replace_all and dest.exists() and src.name == dest.name:
                 copy_item.msg = "need_replace"
-                proc_q.put(copy_item)
+                process_queue.put(copy_item)
                 while True:
                     sleep(1)
-                    if not gui_q.empty():
-                        new_copy_item: CopyItem = gui_q.get()
+                    if not gui_queue.empty():
+                        new_copy_item: CopyItem = gui_queue.get()
                         if new_copy_item.msg == "replace_one":
                             break
                         elif new_copy_item.msg == "replace_all":
@@ -435,11 +433,11 @@ class CopyTask:
             try:
                 if os.path.exists(dest) and dest.is_file():
                     os.remove(dest)
-                CopyTask.copy_file_with_progress(proc_q, copy_item, src, dest)
+                CopyTask.copy_file_with_progress(process_queue, copy_item, src, dest)
             except Exception as e:
                 print("CopyTask copy error", e)
                 copy_item.msg = "error"
-                proc_q.put(copy_item)
+                process_queue.put(copy_item)
                 return
             if copy_item.is_cut and not copy_item.is_search:
                 os.remove(src)
@@ -454,7 +452,7 @@ class CopyTask:
                         print("copy task error dir remove", e)
         
         copy_item.msg = "finished"
-        proc_q.put(copy_item)
+        process_queue.put(copy_item)
 
     @staticmethod
     def get_another_dir_urls(copy_item: CopyItem):
@@ -501,7 +499,7 @@ class CopyTask:
         return src_dst_urls
     
     @staticmethod
-    def copy_file_with_progress(proc_q: Queue, copy_item: CopyItem, src: Path, dest: Path):
+    def copy_file_with_progress(process_queue: Queue, copy_item: CopyItem, src: Path, dest: Path):
         block = 4 * 1024 * 1024  # 4 MB
         with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
             while True:
@@ -510,7 +508,7 @@ class CopyTask:
                     break
                 fdst.write(buf)
                 copy_item.current_size += len(buf) // 1024
-                proc_q.put(copy_item)
+                process_queue.put(copy_item)
         try:
             shutil.copystat(src, dest, follow_symlinks=True)
         except OSError:
@@ -523,27 +521,27 @@ class SearchTaskWorker(BaseProcessWorker):
     - proq_q, gui_q: передаются автоматически
     """
     def __init__(self, target, args):
-        self.proc_q = Queue()
-        self.gui_q = Queue()
-        super().__init__(target, (*args, self.proc_q, self.gui_q))
+        self.process_queue = Queue()
+        self.gui_queue = Queue()
+        super().__init__(target, (*args, self.process_queue, self.gui_queue))
 
 
 class SearchTask:
     sleep_s = 0
 
     @staticmethod
-    def start(search_item: SearchItem, proc_q: Queue, gui_q: Queue):
+    def start(search_item: SearchItem, process_queue: Queue, gui_queue: Queue):
         engine = Dbase.create_engine()
         search_item.conn = Dbase.get_conn(engine)
 
-        search_item.proc_q = proc_q
-        search_item.gui_q = gui_q
+        search_item.process_queue = process_queue
+        search_item.gui_queue = gui_queue
         search_item.missed_files = search_item.search_list
 
         SearchTask.setup(search_item)
 
         SearchTask.scandir_recursive(search_item)
-        search_item.proc_q.put(search_item)
+        search_item.process_queue.put(search_item)
         Dbase.close_conn(search_item.conn)
 
     @staticmethod
@@ -624,5 +622,5 @@ class SearchTask:
             data_item.img_array = img_array
 
         data = (data_item, search_item.missed_files)
-        search_item.proc_q.put(data)
+        search_item.process_queue.put(data)
         sleep(SearchTask.sleep_s)

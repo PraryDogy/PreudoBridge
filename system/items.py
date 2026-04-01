@@ -339,8 +339,8 @@ class SearchItem:
 
         self.root_dir: str
         self.conn: sqlalchemy.Connection
-        self.proc_q: Queue
-        self.gui_q: Queue
+        self.process_queue: Queue
+        self.gui_queue: Queue
 
 
 class CopyItem:

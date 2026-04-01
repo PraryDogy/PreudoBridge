@@ -338,7 +338,7 @@ class Grid(UScrollArea):
             else:
                 ms = fast_ms
             self.dir_watcher_timer.stop()
-            q = self.dir_watcher_task.proc_q
+            q = self.dir_watcher_task.process_queue
             events: list[FileSystemEvent] = []
             while not q.empty():
                 events.append(q.get())
@@ -446,7 +446,7 @@ class Grid(UScrollArea):
 
         def poll_task(img_task: ProcessWorker, img_timer: QTimer):
             img_timer.stop()
-            q = img_task.proc_q
+            q = img_task.process_queue
             while not q.empty():
                 data_item: DataItem = q.get()
                 if data_item.img_array is not None:
