@@ -200,6 +200,7 @@ class ClearCacheWin(MinMaxDisabledWin):
         self.fin_win = ClearCacheFinishWin()
         self.fin_win.center(self.window())
         self.fin_win.show()
+        self.deleteLater()
 
     def value_changed(self, value: int):
         self.value = value
