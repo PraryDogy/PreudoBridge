@@ -169,7 +169,7 @@ class DataSizeCounter(URunnable):
         return {"total": total, "count": count}
 
 
-class CustomSizeCacheCleaner(URunnable):
+class CacheCleaner(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal(int)
@@ -178,7 +178,7 @@ class CustomSizeCacheCleaner(URunnable):
         "Удаляет заданный размер данных"
     
         super().__init__()
-        self.sigs = CustomSizeCacheCleaner.Sigs()
+        self.sigs = CacheCleaner.Sigs()
         self.bytes_limit = bytes_limit
         self.conn = Dbase.get_conn(Dbase.engine)
         self.stmt_limit = 200
@@ -193,6 +193,23 @@ class CustomSizeCacheCleaner(URunnable):
         self.sigs.finished_.emit(self.removed_size)
 
     def _task(self):
+        with Dbase.engine.begin():
+            stmt = (
+                sqlalchemy.select(
+                    Clmns.thumb_path,
+                    sqlalchemy.func.sum(CACHE.size),
+                    sqlalchemy.over(order_by=CACHE.last_read.asc())
+                )
+                .order_by(Clmns.last_read.asc())
+                .where(sqlalchemy.and_(
+                    Clmns.rating == 0,
+                    Clmns.thumb_path.isnot(None),
+                    Clmns.thumb_path != ""
+                ))
+            )
+
+
+        return
         while self.removed_size < self.bytes_limit:
             limited_select = self.get_limited_select()
             if not limited_select:
@@ -214,16 +231,15 @@ class CustomSizeCacheCleaner(URunnable):
         self.remove_from_db(thumb_path_list)
 
     def get_limited_select(self):
-        conds = sqlalchemy.and_(
-            Clmns.rating == 0,
-            Clmns.thumb_path.isnot(None),
-            Clmns.thumb_path != ""
-        )
         stmt = (
             sqlalchemy.select(Clmns.thumb_path)
             .order_by(Clmns.last_read.asc())
             .limit(self.stmt_limit)
-            .where(conds)
+            .where(sqlalchemy.and_(
+                Clmns.rating == 0,
+                Clmns.thumb_path.isnot(None),
+                Clmns.thumb_path != ""
+            ))
         )
         return Dbase.execute(self.conn, stmt).scalars()
     

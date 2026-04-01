@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame, QGridLayout, QGroupBox,
 
 from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
-from system.tasks import CustomSizeCacheCleaner, DataSizeCounter, UThreadPool
+from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 
 from ._base_widgets import (MinMaxDisabledWin, SmallBtn, ULabel, USlider,
                             USvgSqareWidget)
@@ -233,7 +233,7 @@ class ClearCacheWin(MinMaxDisabledWin):
 
     def start_task(self):
         bytes = Static.limit_mappings[self.value]["bytes"]
-        self.tks = CustomSizeCacheCleaner(bytes)
+        self.tks = CacheCleaner(bytes)
         self.wait_win = WaitWin()
 
         self.tks.sigs.finished_.connect(
