@@ -85,25 +85,16 @@ class RatingTask(URunnable):
         self.sigs = RatingTask.Sigs()
 
     def task(self):
-        with Dbase.engine.begin() as conn:
+        with Dbase.main_engine.begin() as conn:
             stmt = (
                 sqlalchemy.update(CacheTable.table)
-            )
-            if self.data_item.type_ == Static.folder_type:
-                stmt = (
-                    stmt
-                    .where(*DataItem.get_folder_conds(self.data_item))
-                )
-            else:
-                stmt = (
-                    stmt
-                    .where(CacheTable.partial_hash==self.data_item.partial_hash)
-                )
-            stmt = (
-                stmt
                 .values(rating=self.new_rating)
             )
-            Dbase.execute(conn, stmt)
+            if self.data_item.type_ == Static.folder_type:
+                stmt = stmt.where(*DataItem.get_folder_conds(self.data_item))
+            else:
+                stmt = stmt.where(CacheTable.partial_hash==self.data_item.partial_hash)
+            conn.execute(stmt)
         self.sigs.finished_.emit()
 
 class FileRemover(URunnable):
@@ -210,7 +201,7 @@ class CacheCleaner(URunnable):
                 .offset(offset)
             )
 
-        with Dbase.engine.connect() as conn:
+        with Dbase.main_engine.connect() as conn:
             while selected_bytes < self.bytes_to_remove:
                 stmt = get_stmt(batch_size, offset)
                 rows = conn.execute(stmt).fetchall()
@@ -235,7 +226,7 @@ class CacheCleaner(URunnable):
         return removed_thumbs
 
     def remove_rows(self, removed_thumbs: set):
-        with Dbase.engine.begin() as conn:
+        with Dbase.main_engine.begin() as conn:
             stmt = (
                 sqlalchemy.delete(CacheTable.table)
                 .where(CacheTable.thumb_path.in_(removed_thumbs))

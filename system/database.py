@@ -41,7 +41,7 @@ class CacheTable:
 
 
 class Dbase:
-    engine: sqlalchemy.Engine
+    main_engine: sqlalchemy.Engine
     
     @classmethod
     def create_engine(cls):
@@ -58,12 +58,12 @@ class Dbase:
             echo=False,
             connect_args={"check_same_thread": False, "timeout": 30}
         )
-        Dbase.engine = engine
+        Dbase.main_engine = engine
 
         try:
             os.makedirs(Static.app_dir, exist_ok=True)
             _METADATA.create_all(engine)
-            conn = Dbase.engine.connect()
+            conn = Dbase.main_engine.connect()
             q = sqlalchemy.select(_CACHE)
             conn.execute(q).first()
             conn.close()
