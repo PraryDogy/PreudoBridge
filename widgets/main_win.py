@@ -14,7 +14,7 @@ from system.items import (ClipboardItem, DataItem, MainWinItem, PathFixerItem,
 from system.multiprocess import PathFixer, ProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import AutoCacheCleaner, RatingTask, UThreadPool
+from system.tasks import RatingTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -206,14 +206,9 @@ class MainWin(WinBase):
 
         self.setup_signals()
         self.load_st_grid()
-        self.on_start()
 
         if not JsonData.favs:
             self.tabs_widget.setCurrentIndex(0)
-
-    def on_start(self):
-        self.cache_cleaner = AutoCacheCleaner()
-        UThreadPool.start(self.cache_cleaner)
 
     def setup_signals(self):
         # splitter
