@@ -11,10 +11,10 @@ import sqlalchemy
 from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage
 
-from cfg import Dynamic, JsonData, Static
+from cfg import Dynamic, Static
 from system.shared_utils import ImgUtils, SharedUtils
 
-from .database import _CACHE, CacheTable, Dbase
+from .database import CacheTable, Dbase
 from .items import DataItem, DirItem
 from .utils import Utils
 
@@ -87,7 +87,7 @@ class RatingTask(URunnable):
     def task(self):
         with Dbase.engine.begin() as conn:
             stmt = (
-                sqlalchemy.update(_CACHE)
+                sqlalchemy.update(CacheTable.table)
             )
             if self.data_item.type_ == Static.folder_type:
                 stmt = (
@@ -237,7 +237,7 @@ class CacheCleaner(URunnable):
     def remove_rows(self, removed_thumbs: set):
         with Dbase.engine.begin() as conn:
             stmt = (
-                sqlalchemy.delete(_CACHE)
+                sqlalchemy.delete(CacheTable.table)
                 .where(CacheTable.thumb_path.in_(removed_thumbs))
             )
             conn.execute(stmt)
