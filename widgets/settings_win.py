@@ -15,7 +15,7 @@ from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 from ._base_widgets import (MinMaxDisabledWin, SmallBtn, ULabel, USlider,
                             USvgSqareWidget)
 # возможно в main win
-from .warn_win import WinWarn
+from .warn_win import WinQuestion, WinWarn
 
 
 class DataLimitSlider(QWidget):
@@ -56,36 +56,6 @@ class DataLimitSlider(QWidget):
         self.value_changed.emit(value)
 
 
-class DataLimitWid(QGroupBox):
-    clear_data_clicked = pyqtSignal()
-    slider_w = 200
-    limit_text = "Максимальный размер кэша"
-
-    def __init__(self):
-        super().__init__()
-
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(5, 5, 5, 15)
-        v_lay.setSpacing(10)
-        self.setLayout(v_lay)
-
-        self.total_wid = QLabel(f"{self.limit_text}")
-        v_lay.addWidget(self.total_wid)
-
-        hor_wid = QWidget()
-        v_lay.addWidget(hor_wid)
-        hor_lay = QHBoxLayout()
-        hor_lay.setContentsMargins(0, 0, 0, 0)
-        hor_wid.setLayout(hor_lay)
-
-        self.slider = DataLimitSlider(Static.limit_mappings, JsonData.data_limit)
-        self.slider.value_changed.connect(lambda v: self.snap_to_step(v))
-        v_lay.addWidget(self.slider, alignment=Qt.AlignmentFlag.AlignCenter)
-        
-    def snap_to_step(self, value):
-        JsonData.data_limit = value
-
-
 class DataSizeWid(QGroupBox):
     data_size_text = "Размер кэша:"
     files_text = "Кол-во файлов:"
@@ -124,99 +94,9 @@ class DataSizeWid(QGroupBox):
         UThreadPool.start(self.task_)
 
 
-class ClearCacheFinishWin(WinWarn):
-    title = "Очистка данных"
-    label_text = "Готово"
-
-    def __init__(self):
-        super().__init__(self.title, self.label_text)
-
-
-class ClearCacheWin(MinMaxDisabledWin):
-    descr_text = "Выберите, сколько данных нужно очистить."
-    ok_text = "Ок"
-    cancel_text = "Отмена"
-    title = "Очистка данных"
-    btn_w = 90
-    bytes_cleaned = pyqtSignal(int)
-
-    def __init__(self):
-        super().__init__()
-        self.set_modality()
-        self.setWindowTitle(self.title)
-        self.value = 0
-
-        self.v_lay = QVBoxLayout()
-        self.v_lay.setContentsMargins(10, 10, 10, 5)
-        self.v_lay.setSpacing(10)
-        self.centralWidget().setLayout(self.v_lay)
-
-        # GroupBox для содержимого (кроме кнопок)
-        content_group = QGroupBox()
-        content_lay = QVBoxLayout()
-        content_lay.setContentsMargins(5, 5, 5, 5)
-        content_lay.setSpacing(5)
-        content_group.setLayout(content_lay)
-        self.v_lay.addWidget(content_group)
-
-        # Лейбл с описанием
-        descr_lbl = QLabel(self.descr_text)
-        content_lay.addWidget(descr_lbl)
-
-        # Слайдер DataLimit
-        slider_widget = DataLimitSlider(Static.limit_mappings, 0, 50)
-        slider_widget.value_changed.connect(lambda v: self.value_changed(v))
-        content_lay.addWidget(slider_widget)
-
-        # Горизонтальный лейаут для кнопок
-        btn_lay = QHBoxLayout()
-        btn_lay.setContentsMargins(0, 0, 0, 0)
-        btn_lay.setSpacing(15)
-        self.v_lay.addLayout(btn_lay)
-
-        # Кнопка ОК
-        ok_btn = SmallBtn(self.ok_text)
-        ok_btn.clicked.connect(self.start_task)
-        ok_btn.setFixedWidth(self.btn_w)
-        btn_lay.addWidget(ok_btn)
-
-        # Кнопка Отмена
-        cancel_btn = SmallBtn(self.cancel_text)
-        cancel_btn.clicked.connect(self.deleteLater)
-        cancel_btn.setFixedWidth(self.btn_w)
-        btn_lay.addWidget(cancel_btn)
-
-        # Центрируем кнопки
-        btn_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.adjustSize()
-
-    def start_task(self):
-        bytes = Static.limit_mappings[self.value]["bytes"]
-        self.tks = CacheCleaner(bytes_to_remove=bytes)
-        self.tks.sigs.finished_.connect(self.clear_cache_fin)
-        UThreadPool.start(self.tks)
-
-    def clear_cache_fin(self):
-        self.fin_win = ClearCacheFinishWin()
-        self.fin_win.center(self.window())
-        self.fin_win.show()
-        self.deleteLater()
-
-    def value_changed(self, value: int):
-        self.value = value
-
-    def keyPressEvent(self, a0):
-        if a0.key() == Qt.Key.Key_Escape:
-            self.deleteLater()
-        return super().keyPressEvent(a0)
-
-
-class JsonFile(QGroupBox):
-    json_text = "Показать"
+class ClickableLabels(QGroupBox):
     json_descr_text = "Системные файлы приложения."
-    show_text = "Открыть"
     show_descr = "Очистка данных."
-    bytes_cleaned = pyqtSignal(int)
     btn_w = 110
 
     def __init__(self):
@@ -240,10 +120,29 @@ class JsonFile(QGroupBox):
         v_lay.addWidget(label_two, alignment=Qt.AlignmentFlag.AlignLeft)
 
     def open_clear_win(self):
-        self.clear_win = ClearCacheWin()
+        self.clear_win = WinQuestion(
+            title="Внимание!",
+            text=(
+                "Все кэшированные изображения будут удалены. "
+                "Настройки останутся не тронутыми."
+                )
+        )
         self.clear_win.center(self.window())
-        self.clear_win.move(self.clear_win.x(), self.clear_win.y() - 80)
         self.clear_win.show()
+
+    def open_clear_fin(self):
+        self.clear_win.deleteLater()
+        self.clear_fin_win = WinWarn(
+            title="Внимание",
+            text="Очистка завершена."
+        )
+        self.clear_fin_win.center(self.window())
+        self.clear_fin_win.show()
+
+    def clear_cmd(self):
+        self.clear_task = CacheCleaner()
+        self.clear_task.sigs.finished_.connect(self.open_clear_fin)
+        UThreadPool.start(self.clear_task)
 
 
 class About(QGroupBox):
@@ -468,17 +367,11 @@ class SettingsWin(MinMaxDisabledWin):
         themes_wid.theme_changed.connect(self.theme_changed_cmd)
         main_lay.addWidget(themes_wid)
 
-        data_limit_wid = DataLimitWid()
-        data_limit_wid.clear_data_clicked.connect(self.remove_db.emit)
-        main_lay.addWidget(data_limit_wid)
-
         data_size_wid = DataSizeWid()
         main_lay.addWidget(data_size_wid)
 
-        json_wid = JsonFile()
-        json_wid.bytes_cleaned.connect(
-            lambda bytes: json_wid.clear_win.deleteLater())
-        main_lay.addWidget(json_wid)
+        clickable_labels = ClickableLabels()
+        main_lay.addWidget(clickable_labels)
 
         about_wid = About()
         main_lay.addWidget(about_wid)

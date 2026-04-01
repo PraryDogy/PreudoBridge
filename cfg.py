@@ -27,15 +27,6 @@ class Static:
 
     app_exts = (".app", ".APP")
 
-    limit_mappings = {
-        0: {"bytes": 200 * 1024 * 1024, "text": "200 МБ"},
-        1: {"bytes": 500 * 1024 * 1024, "text": "500 МБ"},
-        2: {"bytes": 1000 * 1024 * 1024, "text": "1 ГБ"},
-        3: {"bytes": 2000 * 1024 * 1024, "text": "2 ГБ"},
-        4: {"bytes": 5000 * 1024 * 1024, "text": "5 ГБ"},
-        5: {"bytes": 10000 * 1024 * 1024, "text": "10 ГБ"},
-    }
-
     max_thumb_size = 210
     thumb_heights = [130, 150, 185, 270]
     thumb_widths = [145, 145, 180, 230]
@@ -52,7 +43,6 @@ class JsonData:
     go_to_now = False
     dark_mode = None    
     show_text = False
-    data_limit = len(Static.limit_mappings) -1
 
     @classmethod
     def get_data(cls):
