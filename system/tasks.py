@@ -182,36 +182,35 @@ class AutoCacheCleaner(URunnable):
         super().__init__()
         self.sigs = AutoCacheCleaner.Sigs()
         self.limit = Static.limit_mappings[JsonData.data_limit]["bytes"] * 0.9
-        self.conn = Dbase.get_conn(Dbase.engine)
         self.stmt_limit = 200
 
     def task(self):
         try:
             self._task()
-            Dbase.close_conn(self.conn)
         except Exception as e:
             print("tasks, ClearData error", e)
 
     def _task(self):
         data = self.get_hashdir_size()
         total_size = data["total"]
-        while total_size > self.limit:
-            limited_select = self.get_limited_select()
-            if not limited_select:
-                break
-            thumb_path_list = []
-            for thumb_path in limited_select:
-                if not self.is_should_run():
-                    self.remove_from_db(thumb_path_list)
-                    return
-                if thumb_path and os.path.exists(thumb_path):
-                    thumb_size = os.path.getsize(thumb_path)
-                    if self.remove_file(thumb_path):
-                        total_size -= thumb_size
-                        thumb_path_list.append(thumb_path)
-            if not thumb_path_list:
-                break
-            self.remove_from_db(thumb_path_list)
+        with Dbase.engine.begin() as conn:
+            while total_size > self.limit:
+                limited_select = self.get_limited_select(conn)
+                if not limited_select:
+                    break
+                thumb_path_list = []
+                for thumb_path in limited_select:
+                    if not self.is_should_run():
+                        self.remove_from_db(thumb_path_list, conn)
+                        return
+                    if thumb_path and os.path.exists(thumb_path):
+                        thumb_size = os.path.getsize(thumb_path)
+                        if self.remove_file(thumb_path):
+                            total_size -= thumb_size
+                            thumb_path_list.append(thumb_path)
+                if not thumb_path_list:
+                    break
+                self.remove_from_db(thumb_path_list, conn)
 
     def get_hashdir_size(self):
         total = 0
@@ -227,7 +226,7 @@ class AutoCacheCleaner(URunnable):
                     count += 1
         return {"total": total, "count": count}
     
-    def get_limited_select(self):
+    def get_limited_select(self, conn: sqlalchemy.Connection):
         conds = sqlalchemy.and_(
             Clmns.rating == 0,
             Clmns.thumb_path.isnot(None),
@@ -239,7 +238,7 @@ class AutoCacheCleaner(URunnable):
             .limit(self.stmt_limit)
             .where(conds)
         )
-        return Dbase.execute(self.conn, stmt).scalars()
+        return conn.execute(stmt).scalars()
     
     def remove_file(self, thumb_path):
         try:
@@ -252,14 +251,19 @@ class AutoCacheCleaner(URunnable):
             print("tasks, ClearData error", e)
             return None
 
-    def remove_from_db(self, thumb_path_list: list[int]):
-        conds = sqlalchemy.and_(
-            Clmns.thumb_path.in_(thumb_path_list),
-            Clmns.rating==0
+    def remove_from_db(
+            self,
+            thumb_path_list: list[int], 
+            conn: sqlalchemy.Connection
+        ):
+        stmt = (
+            sqlalchemy.delete(CACHE)
+            .where(sqlalchemy.and_(
+                Clmns.thumb_path.in_(thumb_path_list),
+                Clmns.rating==0
+            ))
         )
-        stmt = sqlalchemy.delete(CACHE).where(conds)
-        Dbase.execute(self.conn, stmt)
-        Dbase.commit(self.conn)
+        conn.execute(self.conn, stmt)
 
 
 class CustomSizeCacheCleaner(URunnable):
