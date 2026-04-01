@@ -123,8 +123,8 @@ class ClickableLabels(QGroupBox):
         self.clear_win = ConfirmWindow(
             text=(
                 "Все кэшированные изображения будут удалены. "
-                "Настройки останутся не тронутыми."
-                )
+                "Настройки останутся без изменений."
+            )
         )
         self.clear_win.center(self.window())
         self.clear_win.ok_clicked.connect(self.clear_cmd)
@@ -132,9 +132,8 @@ class ClickableLabels(QGroupBox):
 
     def open_clear_fin(self):
         self.clear_win.deleteLater()
-        self.clear_fin_win = WinWarn(
-            text="Очистка завершена."
-        )
+        self.clear_fin_win = WinWarn("Очистка завершена.")
+        self.clear_fin_win.setFixedSize(250, 100)
         self.clear_fin_win.center(self.window())
         self.clear_fin_win.show()
 
