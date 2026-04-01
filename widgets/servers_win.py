@@ -4,13 +4,15 @@ from dataclasses import dataclass
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QListWidget,
-                             QListWidgetItem, QSpacerItem, QWidget)
-
-# from cfg import Cfg
-from system.servers import Servers
+                             QListWidgetItem, QSpacerItem, QVBoxLayout,
+                             QWidget)
 
 from ._base_widgets import MinMaxDisabledWin, SmallBtn, ULineEdit, UMenu
 from .warn_win import WinQuestion
+
+# from cfg import Cfg
+# from system.servers import Servers
+
 
 
 @dataclass(slots=True)
@@ -21,7 +23,7 @@ class ServerItem:
 
 
 class ServerListItem(QListWidgetItem):
-    def __init__(self, parent: VListWidget, text: str, server_item: ServerItem):
+    def __init__(self, parent: QListWidget, text: str, server_item: ServerItem):
         super().__init__(parent=parent, text=text)
         self.server_item = server_item
 
@@ -77,19 +79,19 @@ class ServerList(QListWidget):
 
         self.menu_ = UMenu(a0)
 
-        connect = QAction(Lng.connect[Cfg.lng_index], self.menu_)
+        connect = QAction("Подключиться", self.menu_)
         connect.triggered.connect(self.connect_server.emit)
         self.menu_.addAction(connect)
 
         self.menu_.addSeparator()
 
-        edit = QAction(Lng.edit[Cfg.lng_index], self.menu_)
+        edit = QAction("Редактировать", self.menu_)
         edit.triggered.connect(
             lambda: self.edit_server.emit(list_item.server_item)
         )
         self.menu_.addAction(edit)
 
-        rem = QAction(Lng.delete[Cfg.lng_index], self.menu_)
+        rem = QAction("Удалить", self.menu_)
         rem.triggered.connect(
             lambda: self.remove_cmd(list_item.server_item)
         )
@@ -112,30 +114,33 @@ class LoginWin(MinMaxDisabledWin):
 
         super().__init__()
         self.setFixedWidth(self.ww)
+        self.central_layout = QVBoxLayout()
+        self.central_layout.setContentsMargins(5, 5, 5, 5)
+        self.centralWidget().setLayout(self.central_layout)
         self.central_layout.setSpacing(5)
 
-        server_label = ServerLabel(text=Lng.server[Cfg.lng_index].capitalize())
+        server_label = ServerLabel(text="Сервер")
         self.central_layout.addWidget(server_label)
 
         self.server = ULineEdit()
-        self.server.setPlaceholderText(Lng.server[Cfg.lng_index])
+        self.server.setPlaceholderText("Сервер")
         self.central_layout.addWidget(self.server)
 
-        login_label = ServerLabel(text=Lng.login[Cfg.lng_index].capitalize())
+        login_label = ServerLabel(text="Логин")
         self.central_layout.addWidget(login_label)
 
         self.login = ULineEdit()
-        self.login.setPlaceholderText(f"{Lng.login[Cfg.lng_index]}")
+        self.login.setPlaceholderText("Логин")
         self.central_layout.addWidget(self.login)
 
         self.central_layout.addSpacerItem(QSpacerItem(0, 10))
 
-        pass_label = ServerLabel(text=Lng.password[Cfg.lng_index].capitalize())
+        pass_label = ServerLabel(text="Пароль")
         self.central_layout.addWidget(pass_label)
 
         self.pass_ = ULineEdit()
         self.pass_.setEchoMode(ULineEdit.EchoMode.Password)
-        self.pass_.setPlaceholderText(f"{Lng.password[Cfg.lng_index]}")
+        self.pass_.setPlaceholderText("Пароль")
         self.central_layout.addWidget(self.pass_)
 
         self.central_layout.addSpacerItem(QSpacerItem(0, 10))
@@ -146,12 +151,12 @@ class LoginWin(MinMaxDisabledWin):
 
         self.btn_layout.addStretch()
 
-        self.ok_btn = SmallBtn(Lng.ok[Cfg.lng_index])
+        self.ok_btn = SmallBtn("Ок")
         self.ok_btn.clicked.connect(self.ok_cmd)
         self.ok_btn.setFixedWidth(90)
         self.btn_layout.addWidget(self.ok_btn)
 
-        self.cancel_btn = SmallBtn(Lng.cancel[Cfg.lng_index])
+        self.cancel_btn = SmallBtn("Отмена")
         self.cancel_btn.setFixedWidth(90)
         self.cancel_btn.clicked.connect(self.deleteLater)
         self.btn_layout.addWidget(self.cancel_btn)
@@ -204,13 +209,15 @@ class LoginWin(MinMaxDisabledWin):
 class ServersWin(MinMaxDisabledWin):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(Lng.connect_to_server[Cfg.lng_index])
+        self.setWindowTitle("Подключиться к серверу")
         self.setFixedSize(350, 250)
 
+        self.central_layout = QVBoxLayout()
+        self.centralWidget().setLayout(self.central_layout)
         self.central_layout.setContentsMargins(5, 5, 5, 5)
         self.central_layout.setSpacing(10)
 
-        favs = ServerLabel(Lng.favorites[Cfg.lng_index])
+        favs = ServerLabel("Избранное")
         self.central_layout.addWidget(favs)
 
         self.v_list = ServerList()
@@ -229,12 +236,12 @@ class ServersWin(MinMaxDisabledWin):
 
         btn_layout.addStretch()
 
-        btn_add = SmallBtn(Lng.add[Cfg.lng_index])
+        btn_add = SmallBtn("Добавить")
         btn_add.setFixedWidth(90)
         btn_add.clicked.connect(self.show_login_win)
         btn_layout.addWidget(btn_add)
 
-        btn_connect = SmallBtn(Lng.connect[Cfg.lng_index])
+        btn_connect = SmallBtn("Подкл.")
         btn_connect.setFixedWidth(90)
         btn_connect.clicked.connect(self.connect_cmd)
         btn_layout.addWidget(btn_connect)
@@ -245,6 +252,7 @@ class ServersWin(MinMaxDisabledWin):
 
     # Загрузка данных из JSON
     def init_data(self):
+        return
         for server, login, pass_ in Servers.items:
             server_item = ServerItem(
                 server=server,
@@ -265,6 +273,7 @@ class ServersWin(MinMaxDisabledWin):
     def show_login_win(self, server_item: ServerItem = None):
 
         def ok_pressed(new_server_item: ServerItem):
+            return
             if server_item:
                 self.remove_cmd(server_item)
             Servers.items.append([
@@ -282,10 +291,11 @@ class ServersWin(MinMaxDisabledWin):
 
         self.login_win = LoginWin(server_item)
         self.login_win.ok_pressed.connect(ok_pressed)
-        self.login_win.center_to_parent(self.window())
+        self.login_win.center(self.window())
         self.login_win.show()
 
     def remove_cmd(self, server_item: ServerItem):
+        return
         Servers.items.remove([
             server_item.server,
             server_item.login,
