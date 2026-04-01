@@ -184,10 +184,6 @@ class CacheCleaner(URunnable):
         self.sigs.finished_.emit()
 
     def get_thumb_paths(self):
-        selected_bytes = 0
-        batch_size = 20
-        offset = 0
-        thumb_paths = set()
 
         def get_stmt(batch_size: int, offset: int):
             return (
@@ -201,7 +197,22 @@ class CacheCleaner(URunnable):
                 .limit(batch_size)
                 .offset(offset)
             )
+        
+        def remove_non_exists(non_exist_paths: list[str]):
+            with Dbase.main_engine.begin() as conn:
+                stmt = (
+                    sqlalchemy.delete(CacheTable.table)
+                    .where(CacheTable.thumb_path.in_(
+                        non_exist_paths
+                    ))
+                )
+                conn.execute(stmt)
 
+        selected_bytes = 0
+        batch_size = 20
+        offset = 0
+        thumb_paths = set()
+        non_exist_paths = []
         with Dbase.main_engine.connect() as conn:
             while selected_bytes < self.bytes_to_remove:
                 stmt = get_stmt(batch_size, offset)
@@ -214,7 +225,10 @@ class CacheCleaner(URunnable):
                     if os.path.exists(thumb_path):
                         thumb_paths.add(thumb_path)
                         selected_bytes += os.path.getsize(thumb_path)
+                    else:
+                        non_exist_paths.append(thumb_path)
                 offset += batch_size
+        remove_non_exists(non_exist_paths)
         return thumb_paths
     
     def remove_thumbs(self, thumb_paths: set):
@@ -225,6 +239,10 @@ class CacheCleaner(URunnable):
                 removed_thumbs.add(i)
             except Exception as e:
                 print("Cache cleaner remove thumb error")
+            try:
+                os.rmdir(os.path.dirname(i))
+            except OSError:
+                pass
         return removed_thumbs
 
     def remove_rows(self, removed_thumbs: set):
