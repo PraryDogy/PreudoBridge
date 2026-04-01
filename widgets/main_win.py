@@ -35,7 +35,6 @@ from .sort_bar import SortBar
 from .table_view import TableView
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
-from .warn_win import WinQuestion
 
 
 class TabsWidget(QTabWidget):

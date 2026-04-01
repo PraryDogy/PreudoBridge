@@ -15,7 +15,7 @@ from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 from ._base_widgets import (MinMaxDisabledWin, SmallBtn, ULabel, USlider,
                             USvgSqareWidget)
 # возможно в main win
-from .warn_win import WinQuestion, WinWarn
+from .warn_win import ConfirmWindow, WinWarn
 
 
 class DataLimitSlider(QWidget):
@@ -120,8 +120,7 @@ class ClickableLabels(QGroupBox):
         v_lay.addWidget(label_two, alignment=Qt.AlignmentFlag.AlignLeft)
 
     def open_clear_win(self):
-        self.clear_win = WinQuestion(
-            title="Внимание!",
+        self.clear_win = ConfirmWindow(
             text=(
                 "Все кэшированные изображения будут удалены. "
                 "Настройки останутся не тронутыми."
@@ -134,7 +133,6 @@ class ClickableLabels(QGroupBox):
     def open_clear_fin(self):
         self.clear_win.deleteLater()
         self.clear_fin_win = WinWarn(
-            title="Внимание",
             text="Очистка завершена."
         )
         self.clear_fin_win.center(self.window())

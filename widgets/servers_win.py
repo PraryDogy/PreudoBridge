@@ -3,7 +3,7 @@ import os
 import subprocess
 from dataclasses import dataclass
 
-from PyQt5.QtCore import Qt, pyqtSignal, QSize
+from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QListWidget,
@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QListWidget,
 from cfg import Static
 
 from ._base_widgets import MinMaxDisabledWin, SmallBtn, ULineEdit, UMenu
-from .warn_win import WinQuestion
+from .warn_win import ConfirmWindow
 
 # from cfg import Cfg
 # from system.servers import Servers
@@ -81,8 +81,7 @@ class ServerList(QListWidget):
         super().__init__(parent)
 
     def remove_cmd(self, server_item: ServerItem):
-        self.win_warn = WinQuestion(
-            title="Внимание",
+        self.win_warn = ConfirmWindow(
             text="Вы уверены, что хотите удалить данные сервера?"
         )
         self.win_warn.ok_clicked.connect(
