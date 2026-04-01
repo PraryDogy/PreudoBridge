@@ -371,8 +371,9 @@ class ImgUtils:
 
     @classmethod
     def resize(cls, image: np.ndarray, size: int) -> np.ndarray:
-
-        def cmd():
+        try:
+            if image is None:
+                return cls.resize(cls._get_broken_image(), size)
             h, w = image.shape[:2]
             if w > h:  # Горизонтальное изображение
                 new_w = size
@@ -383,12 +384,9 @@ class ImgUtils:
             else:  # Квадратное изображение
                 new_w, new_h = size, size
             return cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
-        
-        try:
-            return cmd()
         except Exception as e:
             print("fit image error", e)
-            return cls._get_broken_image()
+            return cls.resize(cls._get_broken_image(), size)
 
     @classmethod
     def read_icc(cls, path: str):
