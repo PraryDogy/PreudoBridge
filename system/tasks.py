@@ -164,7 +164,7 @@ class DataSizeCounter(URunnable):
 class CacheCleaner(URunnable):
 
     class Sigs(QObject):
-        finished_ = pyqtSignal(int)
+        finished_ = pyqtSignal()
 
     def __init__(self, bytes_to_remove: int = 200 * 1024 * 1024):
         "Удаляет заданный размер данных"
@@ -172,7 +172,6 @@ class CacheCleaner(URunnable):
         super().__init__()
         self.sigs = CacheCleaner.Sigs()
         self.bytes_to_remove = bytes_to_remove
-        self.removed_size = 0
 
     def task(self):
         try:
@@ -181,7 +180,7 @@ class CacheCleaner(URunnable):
             self.remove_rows(removed_thumbs)
         except Exception as e:
             print("tasks, ClearData error", e)
-        self.sigs.finished_.emit(self.removed_size)
+        self.sigs.finished_.emit()
 
     def get_thumb_paths(self):
         selected_bytes = 0

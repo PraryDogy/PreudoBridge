@@ -124,53 +124,12 @@ class DataSizeWid(QGroupBox):
         UThreadPool.start(self.task_)
 
 
-class WaitWin(MinMaxDisabledWin):
-    canceled = pyqtSignal()
-    title = "Очистка данных"
-    descr = "Подождите, идет очистка данных."
-    cancel = "Отмена"
-
-    def __init__(self):
-        super().__init__()
-        self.set_modality()
-        self.setWindowTitle(self.title)
-
-        # Основной вертикальный лейаут
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
-        self.centralWidget().setLayout(v_lay)
-
-        # Лейбл с описанием
-        descr_lbl = QLabel(self.descr)
-        descr_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.addWidget(descr_lbl)
-
-        # Горизонтальный лейаут для кнопки отмены
-        btn_lay = QHBoxLayout()
-        v_lay.addLayout(btn_lay)
-
-        cancel_btn = SmallBtn(self.cancel)
-        cancel_btn.clicked.connect(self.cancel_cmd)
-        btn_lay.addWidget(cancel_btn)
-
-        btn_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.adjustSize()
-
-    def cancel_cmd(self):
-        self.canceled.emit()
-        self.deleteLater()
-
-
 class ClearCacheFinishWin(WinWarn):
     title = "Очистка данных"
-    label_text = "Очищенно данных: "
+    label_text = "Готово"
 
-    def __init__(self, bytes: int):
-        super().__init__(
-            self.title,
-            self.label_text + SharedUtils.get_f_size(bytes)
-        )
+    def __init__(self):
+        super().__init__(self.title, self.label_text)
 
 
 class ClearCacheWin(MinMaxDisabledWin):
@@ -233,26 +192,14 @@ class ClearCacheWin(MinMaxDisabledWin):
 
     def start_task(self):
         bytes = Static.limit_mappings[self.value]["bytes"]
-        self.tks = CacheCleaner(bytes)
-        self.wait_win = WaitWin()
-
-        self.tks.sigs.finished_.connect(
-            lambda bytes: self.clear_cache_fin(bytes)
-        )
-        self.wait_win.canceled.connect(
-            lambda: self.tks.set_should_run(False)
-        )
-
-        self.wait_win.center(self.window())
-        self.wait_win.show()
+        self.tks = CacheCleaner(bytes_to_remove=bytes)
+        self.tks.sigs.finished_.connect(self.clear_cache_fin)
         UThreadPool.start(self.tks)
 
-    def clear_cache_fin(self, bytes: int):
-        self.wait_win.deleteLater()
+    def clear_cache_fin(self):
         self.fin_win = ClearCacheFinishWin(bytes)
         self.fin_win.center(self.window())
         self.fin_win.show()
-        self.bytes_cleaned.emit(bytes)
 
     def value_changed(self, value: int):
         self.value = value
@@ -295,9 +242,6 @@ class JsonFile(QGroupBox):
         self.clear_win = ClearCacheWin()
         self.clear_win.center(self.window())
         self.clear_win.move(self.clear_win.x(), self.clear_win.y() - 80)
-        self.clear_win.bytes_cleaned.connect(
-            lambda bytes: self.bytes_cleaned.emit(bytes)
-        )
         self.clear_win.show()
 
 
