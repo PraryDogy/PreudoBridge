@@ -84,17 +84,26 @@ class RatingTask(URunnable):
         self.main_dir = main_dir
         self.sigs = RatingTask.Sigs()
 
-    def task(self):        
-        conn = Dbase.get_conn(Dbase.engine)
-        stmt = sqlalchemy.update(CACHE)
-        if self.data_item.type_ == Static.folder_type:
-            stmt = stmt.where(*DataItem.get_folder_conds(self.data_item))
-        else:
-            stmt = stmt.where(Clmns.partial_hash==self.data_item.partial_hash)
-        stmt = stmt.values(rating=self.new_rating)
-        Dbase.execute(conn, stmt)
-        Dbase.commit(conn)
-        Dbase.close_conn(conn)
+    def task(self):
+        with Dbase.engine.begin() as conn:
+            stmt = (
+                sqlalchemy.update(CACHE)
+            )
+            if self.data_item.type_ == Static.folder_type:
+                stmt = (
+                    stmt
+                    .where(*DataItem.get_folder_conds(self.data_item))
+                )
+            else:
+                stmt = (
+                    stmt
+                    .where(Clmns.partial_hash==self.data_item.partial_hash)
+                )
+            stmt = (
+                stmt
+                .values(rating=self.new_rating)
+            )
+            Dbase.execute(conn, stmt)
         self.sigs.finished_.emit()
 
 class FileRemover(URunnable):
