@@ -1,11 +1,16 @@
+import json
+import os
 import subprocess
 from dataclasses import dataclass
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QSize
+from PyQt5.QtGui import QIcon
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QListWidget,
                              QListWidgetItem, QSpacerItem, QVBoxLayout,
                              QWidget)
+
+from cfg import Static
 
 from ._base_widgets import MinMaxDisabledWin, SmallBtn, ULineEdit, UMenu
 from .warn_win import WinQuestion
@@ -13,6 +18,25 @@ from .warn_win import WinQuestion
 # from cfg import Cfg
 # from system.servers import Servers
 
+
+class Servers:
+    items = []
+    filepath = os.path.join(Static.app_dir, "servers.json")
+
+    @classmethod
+    def json_to_app(cls):
+        try:
+            with open(cls.filepath, "r", encoding="utf-8") as f:
+                server_list: list = json.load(f)
+            for i in server_list:
+                Servers.items.append(i)
+        except Exception as e:
+            print("Servers json to app error", e)
+    
+    @classmethod
+    def write_json_data(cls):
+        with open(cls.filepath, "w", encoding="utf-8") as file:
+            json.dump(cls.items, file, indent=4, ensure_ascii=False)
 
 
 @dataclass(slots=True)
@@ -23,9 +47,13 @@ class ServerItem:
 
 
 class ServerListItem(QListWidgetItem):
+    iconpath = "./images/next.svg"
     def __init__(self, parent: QListWidget, text: str, server_item: ServerItem):
-        super().__init__(parent=parent, text=text)
+        super().__init__(text, parent)
         self.server_item = server_item
+        icon = QIcon(self.iconpath)
+        self.setIcon(icon)
+        self.setSizeHint(QSize(0, 25))
 
 
 class EyeSvg(QSvgWidget):
@@ -63,7 +91,7 @@ class ServerList(QListWidget):
         self.win_warn.ok_clicked.connect(
             self.win_warn.deleteLater
         )
-        self.win_warn.center_to_parent(self.window())
+        self.win_warn.center(self.window())
         self.win_warn.show()
 
     def mouseDoubleClickEvent(self, e):
@@ -77,7 +105,7 @@ class ServerList(QListWidget):
         if not list_item:
             return
 
-        self.menu_ = UMenu(a0)
+        self.menu_ = UMenu()
 
         connect = QAction("Подключиться", self.menu_)
         connect.triggered.connect(self.connect_server.emit)
@@ -97,7 +125,7 @@ class ServerList(QListWidget):
         )
         self.menu_.addAction(rem)
 
-        self.menu_.show_menu()
+        self.menu_.show_under_cursor()
 
 
 class ServerLabel(QLabel):
@@ -142,6 +170,9 @@ class LoginWin(MinMaxDisabledWin):
         self.pass_.setEchoMode(ULineEdit.EchoMode.Password)
         self.pass_.setPlaceholderText("Пароль")
         self.central_layout.addWidget(self.pass_)
+        self.pass_.setStyleSheet(
+            "padding-right: 33px;"
+        )
 
         self.central_layout.addSpacerItem(QSpacerItem(0, 10))
 
@@ -173,7 +204,7 @@ class LoginWin(MinMaxDisabledWin):
         self.eye_svg = EyeSvg()
         self.eye_svg.setParent(self.pass_)
         self.eye_svg.move(
-            self.ww - 50,
+            self.ww - 40,
             5
         )
         self.eye_svg.show()
@@ -209,6 +240,7 @@ class LoginWin(MinMaxDisabledWin):
 class ServersWin(MinMaxDisabledWin):
     def __init__(self):
         super().__init__()
+        Servers.json_to_app()
         self.setWindowTitle("Подключиться к серверу")
         self.setFixedSize(350, 250)
 
@@ -252,7 +284,6 @@ class ServersWin(MinMaxDisabledWin):
 
     # Загрузка данных из JSON
     def init_data(self):
-        return
         for server, login, pass_ in Servers.items:
             server_item = ServerItem(
                 server=server,
@@ -273,7 +304,6 @@ class ServersWin(MinMaxDisabledWin):
     def show_login_win(self, server_item: ServerItem = None):
 
         def ok_pressed(new_server_item: ServerItem):
-            return
             if server_item:
                 self.remove_cmd(server_item)
             Servers.items.append([
@@ -295,7 +325,6 @@ class ServersWin(MinMaxDisabledWin):
         self.login_win.show()
 
     def remove_cmd(self, server_item: ServerItem):
-        return
         Servers.items.remove([
             server_item.server,
             server_item.login,
