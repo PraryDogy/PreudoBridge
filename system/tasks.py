@@ -97,6 +97,7 @@ class RatingTask(URunnable):
             conn.execute(stmt)
         self.sigs.finished_.emit()
 
+
 class FileRemover(URunnable):
 
     class Sigs(QObject):
