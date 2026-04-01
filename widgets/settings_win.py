@@ -128,6 +128,7 @@ class ClickableLabels(QGroupBox):
                 )
         )
         self.clear_win.center(self.window())
+        self.clear_win.ok_clicked.connect(self.clear_cmd)
         self.clear_win.show()
 
     def open_clear_fin(self):
