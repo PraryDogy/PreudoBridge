@@ -338,7 +338,7 @@ class MultipleInfo:
 
         try:
             MultipleInfo._task(data_items, info_item, show_hidden)
-            info_item.total_size = SharedUtils.get_f_size(info_item.total_size),
+            info_item.total_size = SharedUtils.get_f_size(info_item.total_size)
             info_item.total_files = len(list(info_item._files_set))
             info_item.total_files = format(info_item.total_files, ",").replace(",", " ")
             info_item.total_folders = len(list(info_item._folders_set))
