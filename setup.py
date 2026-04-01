@@ -68,12 +68,12 @@ SHORT_AUTHOR_NAME = "Evlosh" # "Evlosh"
 COMPANY = "MIUZ Diamonds" # "MIUZ Diamonds"
 APP_NAME = Static.app_name
 APP_VER = str(Static.app_ver)
-ICON_PATH = "icons/icon.icns"
+ICON_PATH = "images/icon.icns"
 MAIN_FILES = ["start.py"] # SINGLE OR MULTIPLE PYTHON FILES
 
 
 DATA_FILES = [
-    include_files("icons"),
+    include_files("images"),
     include_files("scripts"),
     include_files("uti_icons"),
     ]

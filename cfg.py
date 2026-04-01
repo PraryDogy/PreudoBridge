@@ -12,7 +12,7 @@ class Static:
     external_db = os.path.join(app_dir, 'db.db')
 
     internal_scpt_dir = "./scripts"
-    internal_icons_dir = "./icons"
+    internal_images_dir = "./images"
 
     folder_type = "folder"
     rgba_gray = "rgba(128, 128, 128, 0.95)"

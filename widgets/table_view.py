@@ -146,7 +146,7 @@ class TableView(QTableView):
         self._model.directoryLoaded.connect(self.set_url_to_index_)
 
     def set_files_icon(self, size: int = 64):
-        path = os.path.join(Static.internal_icons_dir, "files.svg")
+        path = os.path.join(Static.internal_images_dir, "files.svg")
         qimage = Utils.render_svg(path, 512)
         return Utils.scaled(qimage, size)
 

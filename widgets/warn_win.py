@@ -12,7 +12,7 @@ from ._base_widgets import MinMaxDisabledWin, SmallBtn
 
 
 class BaseWinWarn(MinMaxDisabledWin):
-    svg_warning = os.path.join(Static.internal_icons_dir, "warning.svg")
+    svg_warning = os.path.join(Static.internal_images_dir, "warning.svg")
     svg_size = 40
 
     def __init__(self, title: str, text: str, char_limit: int):

@@ -43,7 +43,7 @@ class ReplaceFilesWin(MinMaxDisabledWin):
         h_lay.setSpacing(10)
         h_wid.setLayout(h_lay)
 
-        warn = USvgSqareWidget(os.path.join(Static.internal_icons_dir, "warning.svg"), self.icon_size)
+        warn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "warning.svg"), self.icon_size)
         h_lay.addWidget(warn)
 
         test_two = QLabel(self.descr_text)
@@ -116,7 +116,7 @@ class ErrorWin(MinMaxDisabledWin):
         h_lay.setSpacing(10)
         h_wid.setLayout(h_lay)
 
-        warn = USvgSqareWidget(os.path.join(Static.internal_icons_dir, "warning.svg"), ErrorWin.icon_size)
+        warn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "warning.svg"), ErrorWin.icon_size)
         h_lay.addWidget(warn)
 
         test_two = QLabel(ErrorWin.descr_text)
@@ -155,7 +155,7 @@ class CopyFilesWin(ProgressbarWin):
         else:
             title_text = "Копирую файлы"
 
-        super().__init__(title_text, os.path.join(Static.internal_icons_dir, "files.svg"))
+        super().__init__(title_text, os.path.join(Static.internal_images_dir, "files.svg"))
 
         self.dst_urls = []
 

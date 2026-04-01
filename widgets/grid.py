@@ -176,7 +176,7 @@ class Thumb(QFrame):
                 qimage = qimages[Thumb.current_image_size]
             except KeyError as e:
                 print("Thumb set uti data key error, key:", e)
-                svg = os.path.join(Static.internal_icons_dir, "warning.svg")
+                svg = os.path.join(Static.internal_images_dir, "warning.svg")
                 qimage = Utils.render_svg(svg, 512)
                 qimage = Utils.scaled(qimage, Thumb.current_image_size)
             pixmap = QPixmap.fromImage(qimage)
@@ -326,7 +326,7 @@ class Grid(UScrollArea):
             QTimer.singleShot(100, self.dirs_watcher_start)
 
     def set_files_icon(self, size: int = 64):
-        path = os.path.join(Static.internal_icons_dir, "files.svg")
+        path = os.path.join(Static.internal_images_dir, "files.svg")
         qimage = Utils.render_svg(path, 512)
         return Utils.scaled(qimage, size)
 

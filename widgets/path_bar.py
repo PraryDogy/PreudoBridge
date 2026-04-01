@@ -211,7 +211,7 @@ class PathBar(QWidget):
         self.setLayout(self.main_lay)
 
     def create_computer_icon(self):
-        qimage = QImage(os.path.join(Static.internal_icons_dir, "computer.png"))
+        qimage = QImage(os.path.join(Static.internal_images_dir, "computer.png"))
         qimage = Utils.scaled(qimage, PathItem.item_height)
         return QPixmap.fromImage(qimage)
 

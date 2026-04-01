@@ -11,7 +11,7 @@ from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 
 class CancelBtn(USvgSqareWidget):
     icon_size = 16
-    svg_icon = os.path.join(Static.internal_icons_dir, "clear.svg")
+    svg_icon = os.path.join(Static.internal_images_dir, "clear.svg")
     clicked = pyqtSignal()
 
     def __init__(self):

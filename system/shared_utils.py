@@ -156,11 +156,15 @@ class ImgUtils:
 
     @classmethod
     def _get_broken_image(cls):
-        img = Path("./icons/broken_image.jpg")
-        return cls._read_jpg(img)
+        path = Path("./images/broken_image.jpg")
+        img = Image.open(path)
+        array_img = np.array(img)
+        img.close()
+        return array_img
 
     @classmethod
-    def _read_tiff(cls, path: str) -> np.ndarray | None:
+    def _read_tiff(cls, path: str):
+
         def process_image(img: np.ndarray) -> np.ndarray:
             if img.ndim == 3:
                 # Транспонируем, если каналы на первом месте
@@ -176,9 +180,9 @@ class ImgUtils:
                 img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             return img
         readers = (
-            lambda p: tifffile.imread(p, is_ome=False),
-            lambda p: np.array(Image.open(p).convert("RGB")),
-            lambda p: cv2.imread(p)
+            lambda path: tifffile.imread(path, is_ome=False),
+            lambda path: np.array(Image.open(path).convert("RGB")),
+            lambda path: cv2.imread(path)
         )
         for loader in readers:
             try:
@@ -202,7 +206,7 @@ class ImgUtils:
                 )
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
                 # Возвращаем "пустую" картинку при ошибке или таймауте
-                return cls._get_broken_image()
+                return np.zeros((100, 100, 3), dtype=np.uint8)
 
             # Ищем файл только в нашей изолированной папке
             generated_files = list(tmp_dir.glob("*.png"))
@@ -226,10 +230,17 @@ class ImgUtils:
     @classmethod
     def _read_svg(cls, path: str):
         # ленивый импорт происходит здесь, чтобы через py2app не падало приложение
-        import cairosvg
-        png_data = cairosvg.svg2png(url=path)
-        nparr = np.frombuffer(png_data, np.uint8)
-        return cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED)
+        try:
+            import cairosvg
+            png_data = cairosvg.svg2png(url=path)
+            nparr = np.frombuffer(png_data, np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED)
+            if img is None:
+                return cls._get_broken_image()
+            return img
+        except Exception as e:
+            print("read svg error", e)
+            return cls._get_broken_image()
 
     @classmethod
     def _read_png(cls, path: str):
@@ -247,7 +258,7 @@ class ImgUtils:
             return cls._get_broken_image()
 
     @classmethod
-    def _read_jpg(cls, path: str) -> np.ndarray | None:
+    def _read_jpg(cls, path: str):
         try:
             img = Image.open(path)
             img = ImageOps.exif_transpose(img) 
@@ -256,17 +267,11 @@ class ImgUtils:
             img.close()
             return array_img
         except Exception as e:
-            print("read jpg, PIL error, try cv2 read", e)
-            try:
-                img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-                # img = np.array(img)
-                return img
-            except Exception as e:
-                print("read jpg, cv2 error, try cv2 read", e)
-                return cls._get_broken_image()
+            print("read jpg error", e)
+            return cls._get_broken_image()
 
     @classmethod
-    def _read_raw(cls, path: str) -> np.ndarray | None:
+    def _read_raw(cls, path: str):
         try:
             # https://github.com/letmaik/rawpy
             # Извлечение встроенного эскиза/превью из RAW-файла и преобразование в изображение:
@@ -305,7 +310,7 @@ class ImgUtils:
             return cls._get_broken_image()
 
     @classmethod
-    def _read_movie(cls, path: str, time_sec=1) -> np.ndarray | None:
+    def _read_movie(cls, path: str, time_sec=1):
         try:
             cap = cv2.VideoCapture(path)
             cap.set(cv2.CAP_PROP_POS_MSEC, time_sec * 1000)
@@ -321,8 +326,37 @@ class ImgUtils:
             return cls._get_broken_image()
 
     @classmethod
-    def _read_any(cls, path: str) -> np.ndarray | None:
+    def _read_any(cls, path: str) -> np.ndarray:
         ...
+
+    @classmethod
+    def read_img(cls, path: str):
+        _, ext = os.path.splitext(path)
+        ext = ext.lower()
+        read_any_dict: dict[str, callable] = {}
+
+        for i in cls.ext_psd:
+            read_any_dict[i] = cls._read_quicklook
+        for i in cls.ext_tiff:
+            read_any_dict[i] = cls._read_tiff
+        for i in cls.ext_raw:
+            read_any_dict[i] = cls._read_raw
+        for i in cls.ext_jpeg:
+            read_any_dict[i] = cls._read_jpg
+        for i in cls.ext_png:
+            read_any_dict[i] = cls._read_png
+        for i in cls.ext_video:
+            read_any_dict[i] = cls._read_movie
+        for i in cls.ext_icns:
+            read_any_dict[i] = cls._read_icns
+        for i in cls.ext_svg:
+            read_any_dict[i] = cls._read_svg
+        fn = read_any_dict.get(ext)
+        if fn:
+            cls._read_any = fn
+            return cls._read_any(path)
+        else:
+            return cls._get_broken_image()
 
     @classmethod
     def get_psd_size(cls, path):
@@ -366,36 +400,6 @@ class ImgUtils:
         except Exception as e:
             print("error profile read:", e)
         return None
-
-    @classmethod
-    def read_img(cls, path: str) -> np.ndarray | None:
-        _, ext = os.path.splitext(path)
-        ext = ext.lower()
-        read_any_dict: dict[str, callable] = {}
-
-        for i in cls.ext_psd:
-            read_any_dict[i] = cls._read_quicklook
-        for i in cls.ext_tiff:
-            read_any_dict[i] = cls._read_tiff
-        for i in cls.ext_raw:
-            read_any_dict[i] = cls._read_raw
-        for i in cls.ext_jpeg:
-            read_any_dict[i] = cls._read_jpg
-        for i in cls.ext_png:
-            read_any_dict[i] = cls._read_png
-        for i in cls.ext_video:
-            read_any_dict[i] = cls._read_movie
-        for i in cls.ext_icns:
-            read_any_dict[i] = cls._read_icns
-        for i in cls.ext_svg:
-            read_any_dict[i] = cls._read_svg
-        fn = read_any_dict.get(ext)
-        if fn:
-            cls._read_any = fn
-            return cls._read_any(path)
-        else:
-            return cls._get_broken_image()
-
 
 class PathFinder:
     def __init__(self, input_path: str):
