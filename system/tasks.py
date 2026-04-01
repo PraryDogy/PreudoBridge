@@ -167,69 +167,41 @@ class CacheCleaner(URunnable):
     class Sigs(QObject):
         finished_ = pyqtSignal()
 
-    def __init__(self, bytes_to_remove: int = 200 * 1024 * 1024):
-        "Удаляет заданный размер данных"
-    
+    def __init__(self):
         super().__init__()
         self.sigs = CacheCleaner.Sigs()
-        self.bytes_to_remove = bytes_to_remove
 
     def task(self):
         try:
-            thumb_paths = self.get_thumb_paths()
-            removed_thumbs = self.remove_thumbs(thumb_paths)
-            self.remove_rows(removed_thumbs)
+            thumb_paths, non_exist_paths = self.get_thumb_paths()
+            if thumb_paths:
+                removed_thumbs = self.remove_thumbs(thumb_paths)
+                self.remove_rows(removed_thumbs)
+            if non_exist_paths:
+                self.remove_non_exist(non_exist_paths)
         except Exception as e:
             print("tasks, ClearData error", e)
         self.sigs.finished_.emit()
 
     def get_thumb_paths(self):
-
-        def get_stmt(batch_size: int, offset: int):
-            return (
+        thumb_paths = set()
+        non_exist_paths = set()
+        with Dbase.main_engine.connect() as conn:
+            stmt = (
                 sqlalchemy.select(CacheTable.thumb_path)
                 .where(
                     CacheTable.rating == 0,
                     CacheTable.thumb_path.isnot(None),
                     CacheTable.thumb_path != ""
                 )
-                .order_by(CacheTable.last_read.asc())
-                .limit(batch_size)
-                .offset(offset)
             )
-        
-        def remove_non_exists(non_exist_paths: list[str]):
-            with Dbase.main_engine.begin() as conn:
-                stmt = (
-                    sqlalchemy.delete(CacheTable.table)
-                    .where(CacheTable.thumb_path.in_(
-                        non_exist_paths
-                    ))
-                )
-                conn.execute(stmt)
-
-        selected_bytes = 0
-        batch_size = 20
-        offset = 0
-        thumb_paths = set()
-        non_exist_paths = []
-        with Dbase.main_engine.connect() as conn:
-            while selected_bytes < self.bytes_to_remove:
-                stmt = get_stmt(batch_size, offset)
-                rows = conn.execute(stmt).scalars().all()
-                if not rows:
-                    break
-                for thumb_path in rows:
-                    if selected_bytes >= self.bytes_to_remove:
-                        break
-                    if os.path.exists(thumb_path):
-                        thumb_paths.add(thumb_path)
-                        selected_bytes += os.path.getsize(thumb_path)
-                    else:
-                        non_exist_paths.append(thumb_path)
-                offset += batch_size
-        remove_non_exists(non_exist_paths)
-        return thumb_paths
+            rows = conn.execute(stmt).scalars().all()
+            for thumb_path in rows:
+                if os.path.exists(thumb_path):
+                    thumb_paths.add(thumb_path)
+                else:
+                    non_exist_paths.add(thumb_path)
+        return thumb_paths, non_exist_paths
     
     def remove_thumbs(self, thumb_paths: set):
         removed_thumbs = set()
@@ -250,6 +222,16 @@ class CacheCleaner(URunnable):
             stmt = (
                 sqlalchemy.delete(CacheTable.table)
                 .where(CacheTable.thumb_path.in_(removed_thumbs))
+            )
+            conn.execute(stmt)
+
+    def remove_non_exist(self, non_exist_paths: list[str]):
+        with Dbase.main_engine.begin() as conn:
+            stmt = (
+                sqlalchemy.delete(CacheTable.table)
+                .where(CacheTable.thumb_path.in_(
+                    non_exist_paths
+                ))
             )
             conn.execute(stmt)
 
