@@ -198,7 +198,7 @@ class AutoCacheCleaner(URunnable):
                 limited_select = self.get_limited_select(conn)
                 if not limited_select:
                     break
-                thumb_path_list = []
+                thumb_path_list: list[str] = []
                 for thumb_path in limited_select:
                     if not self.is_should_run():
                         self.remove_from_db(thumb_path_list, conn)
@@ -237,7 +237,7 @@ class AutoCacheCleaner(URunnable):
                 Clmns.thumb_path != ""
             ))
         )
-        return conn.execute(stmt).scalars()
+        return list(conn.execute(stmt).scalars())
     
     def remove_file(self, thumb_path):
         try:
@@ -252,7 +252,7 @@ class AutoCacheCleaner(URunnable):
 
     def remove_from_db(
             self,
-            thumb_path_list: list[int], 
+            thumb_path_list: list[str],
             conn: sqlalchemy.Connection
         ):
         stmt = (
@@ -262,7 +262,7 @@ class AutoCacheCleaner(URunnable):
                 Clmns.rating==0
             ))
         )
-        conn.execute(self.conn, stmt)
+        conn.execute(stmt)
 
 
 class CustomSizeCacheCleaner(URunnable):
