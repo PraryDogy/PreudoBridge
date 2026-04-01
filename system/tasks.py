@@ -185,6 +185,8 @@ class CacheCleaner(URunnable):
     def task(self):
         try:
             thumb_paths = self.get_thumb_paths()
+            removed_thumbs = self.remove_thumbs(thumb_paths)
+            self.remove_rows(removed_thumbs)
         except Exception as e:
             print("tasks, ClearData error", e)
         self.sigs.finished_.emit(self.removed_size)
@@ -223,17 +225,20 @@ class CacheCleaner(URunnable):
         return thumb_paths
     
     def remove_thumbs(self, thumb_paths: set):
+        removed_thumbs = set()
         for i in thumb_paths:
             try:
                 os.remove(i)
+                removed_thumbs.add(i)
             except Exception as e:
                 print("Cache cleaner remove thumb error")
+        return removed_thumbs
 
-    def remove_rows(self, thumb_paths: set):
+    def remove_rows(self, removed_thumbs: set):
         with Dbase.engine.begin() as conn:
             stmt = (
                 sqlalchemy.delete(_CACHE)
-                .where(CacheTable.thumb_path.in_(thumb_paths))
+                .where(CacheTable.thumb_path.in_(removed_thumbs))
             )
             conn.execute(stmt)
 
