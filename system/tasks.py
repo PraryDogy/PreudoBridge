@@ -225,7 +225,7 @@ class CacheCleaner(URunnable):
             )
             conn.execute(stmt)
 
-    def remove_non_exist(self, non_exist_paths: list[str]):
+    def remove_non_exist(self, non_exist_paths: set[str]):
         with Dbase.main_engine.begin() as conn:
             stmt = (
                 sqlalchemy.delete(CacheTable.table)
