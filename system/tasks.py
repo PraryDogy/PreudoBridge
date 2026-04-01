@@ -227,16 +227,15 @@ class AutoCacheCleaner(URunnable):
         return {"total": total, "count": count}
     
     def get_limited_select(self, conn: sqlalchemy.Connection):
-        conds = sqlalchemy.and_(
-            Clmns.rating == 0,
-            Clmns.thumb_path.isnot(None),
-            Clmns.thumb_path != ""
-        )
         stmt = (
             sqlalchemy.select(Clmns.thumb_path)
             .order_by(Clmns.last_read.asc())
             .limit(self.stmt_limit)
-            .where(conds)
+            .where(sqlalchemy.and_(
+                Clmns.rating == 0,
+                Clmns.thumb_path.isnot(None),
+                Clmns.thumb_path != ""
+            ))
         )
         return conn.execute(stmt).scalars()
     
