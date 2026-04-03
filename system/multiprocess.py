@@ -158,13 +158,33 @@ class ImgLoader:
             queue.put(i)
 
     @staticmethod
-    def execute_exist_images(data_items: list[DataItem], queue: Queue):
+    def execute_exist_images(
+        data_items: list[DataItem],
+        queue: Queue,
+        conn: sqlalchemy.Connection
+    ):
         if not data_items:
             return
         for i in data_items:
             img_array = Utils.read_thumb(i.thumb_path)
             i.img_array = img_array
             queue.put(i)
+
+        now = Utils.get_now()
+        _bprm = sqlalchemy.bindparam
+        _hashname = CacheTable.partial_hash.name
+        _readname = CacheTable.last_read.name
+        values = [
+            {_hashname: data_item.partial_hash, _readname: now}
+            for data_item in data_items
+        ]
+        stmt = (
+            sqlalchemy.update(CacheTable.table)
+            .where(CacheTable.partial_hash == _bprm(_hashname))
+            .values({CacheTable.last_read.name: _bprm(_readname)})
+        )
+        conn.execute(stmt, values)
+
 
     @staticmethod
     def execute_new_images(
@@ -175,6 +195,7 @@ class ImgLoader:
         if not data_items:
             return
         values = []
+        now = Utils.get_now()
         for data_item in data_items:
             img_array = ImgUtils.read_img(data_item.src)
             img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
@@ -187,7 +208,7 @@ class ImgLoader:
                 CacheTable.size.name: data_item.size,
                 CacheTable.birth.name: data_item.birth,
                 CacheTable.mod.name: data_item.mod,
-                CacheTable.last_read.name: Utils.get_now(),
+                CacheTable.last_read.name: now,
                 CacheTable.rating.name: 0,
                 CacheTable.partial_hash.name: data_item.partial_hash,
                 CacheTable.thumb_path.name: data_item.thumb_path
@@ -200,18 +221,33 @@ class ImgLoader:
 
     # ОБНОВЛЯТЬ LAST_READ у EXIST IMAGES
     @classmethod
-    def update_file_stmt(cls, data_item: "DataItem"):
-        """
-        Обновляет last_read
-        """
-        stmt = sqlalchemy.update(CacheTable.table)
-        stmt = stmt.where(
-            CacheTable.partial_hash == data_item.partial_hash
-        )
-        stmt = stmt.values(**{
-            CacheTable.last_read.name: Utils.get_now()
-        })
-        return stmt
+    def update_file_stmt(cls, data_items: list[DataItem]):
+        now = Utils.get_now()
+        with Dbase.create_engine().begin() as conn:
+            values = [
+                {
+                    CacheTable.partial_hash.name: data_item.partial_hash,
+                    CacheTable.last_read.name: now
+                }
+                for data_item in data_items
+            ]
+            stmt = (
+                sqlalchemy.update(CacheTable.table)
+                .where(CacheTable.partial_hash == sqlalchemy.bindparam(CacheTable.partial_hash.name))
+                .values({
+                    CacheTable.last_read.name: sqlalchemy.bindparam(CacheTable.last_read.name)
+                })
+            )
+            conn.execute(stmt, values)
+
+            # for data_item in data_items:
+            #     stmt = sqlalchemy.update(CacheTable.table)
+            #     stmt = stmt.where(
+            #         CacheTable.partial_hash == data_item.partial_hash
+            #     )
+            #     stmt = stmt.values(**{
+            #         CacheTable.last_read.name: Utils.get_now()
+            #     })
 
 
 class ReadImg:
