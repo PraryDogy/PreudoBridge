@@ -355,7 +355,7 @@ class Themes(QGroupBox):
             f.selected(f is selected_frame)
 
 
-class SettingsWin(WinMinCloseOnly):
+class WinSettings(WinMinCloseOnly):
     remove_db = pyqtSignal()
     load_st_grid = pyqtSignal()
     title_text = "Настройки"
@@ -364,7 +364,7 @@ class SettingsWin(WinMinCloseOnly):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(SettingsWin.title_text)
+        self.setWindowTitle(WinSettings.title_text)
         self.set_modality()
         # self.setFixedSize(470, 510)
         self.setFixedWidth(470)

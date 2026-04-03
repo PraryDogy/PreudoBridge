@@ -10,7 +10,7 @@ from ._base_widgets import UMenu
 from .actions import ItemActions
 
 
-class TreeMenu(QTreeView):
+class MenuTree(QTreeView):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal()
     open_in_new_window = pyqtSignal(str)

@@ -208,7 +208,7 @@ class NextImgBtn(SwitchImgBtn):
         super().__init__(os.path.join(Static.internal_images_dir, "next.svg"), parent)
 
 
-class ImgViewWin(WinBase):
+class WinImgView(WinBase):
     cached_images: dict[str, QImage] = {}
     move_to_wid = pyqtSignal(object)
     move_to_url = pyqtSignal(str)
@@ -291,8 +291,8 @@ class ImgViewWin(WinBase):
         self.set_title()
         self.text_label.hide()
 
-        if self.current_path in ImgViewWin.cached_images:
-            qimage = ImgViewWin.cached_images[self.current_path]
+        if self.current_path in WinImgView.cached_images:
+            qimage = WinImgView.cached_images[self.current_path]
             pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)
 
@@ -478,24 +478,24 @@ class ImgViewWin(WinBase):
 
     def deleteLater(self):
 
-        ImgViewWin.ww = self.size().width()
-        ImgViewWin.hh = self.size().height()
-        ImgViewWin.xx = self.x()
-        ImgViewWin.yy = self.y()
+        WinImgView.ww = self.size().width()
+        WinImgView.hh = self.size().height()
+        WinImgView.xx = self.x()
+        WinImgView.yy = self.y()
 
-        ImgViewWin.cached_images.clear()
+        WinImgView.cached_images.clear()
     
         self.closed.emit()
         return super().deleteLater()
 
     def closeEvent(self, a0):
 
-        ImgViewWin.ww = self.size().width()
-        ImgViewWin.hh = self.size().height()
-        ImgViewWin.xx = self.x()
-        ImgViewWin.yy = self.y()
+        WinImgView.ww = self.size().width()
+        WinImgView.hh = self.size().height()
+        WinImgView.xx = self.x()
+        WinImgView.yy = self.y()
 
-        ImgViewWin.cached_images.clear()
+        WinImgView.cached_images.clear()
 
         self.closed.emit()
         return super().closeEvent(a0)

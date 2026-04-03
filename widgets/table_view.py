@@ -20,8 +20,8 @@ from ._base_widgets import UMenu
 from .actions import GridActions, ItemActions
 # main win
 from .grid import Thumb
-from .remove_files_win import RemoveFilesWin
-from .rename_win import RenameWin
+from .win_remove_files import WinRemoveFiles
+from .win_rename import WinRename
 from .win_img_convert import WinImgConvert
 
 
@@ -212,7 +212,7 @@ class TableView(QTableView):
                 QTimer.singleShot(100, lambda: self.select_path(dest))
             except Exception as e:
                 Utils.print_error()
-        self.rename_win = RenameWin(self.new_folder_text)
+        self.rename_win = WinRename(self.new_folder_text)
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(lambda name: fin(name))
         self.rename_win.show()
@@ -319,7 +319,7 @@ class TableView(QTableView):
             os.rename(url, new_url)
             QTimer.singleShot(500, lambda: self.select_path(new_url))
 
-        self.rename_win = RenameWin(os.path.basename(url))
+        self.rename_win = WinRename(os.path.basename(url))
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
@@ -468,7 +468,7 @@ class TableView(QTableView):
             ClipboardItem.src_urls.append(i)
 
     def remove_files_cmd(self, urls: list[str]):
-        self.rem_win = RemoveFilesWin(self.main_win_item, urls)
+        self.rem_win = WinRemoveFiles(self.main_win_item, urls)
         self.rem_win.center(self.window())
         self.rem_win.finished_.connect(self.load_st_grid.emit)
         self.rem_win.show()

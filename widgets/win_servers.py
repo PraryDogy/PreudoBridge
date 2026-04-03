@@ -133,7 +133,7 @@ class ServerLabel(QLabel):
         self.setStyleSheet("padding-left: 1px;")
 
 
-class LoginWin(WinMinCloseOnly):
+class WinLogin(WinMinCloseOnly):
     ok_pressed = pyqtSignal(ServerItem)
     ww = 300
 
@@ -236,7 +236,7 @@ class LoginWin(WinMinCloseOnly):
         return super().keyPressEvent(a0)
 
 
-class ServersWin(WinMinCloseOnly):
+class WinServers(WinMinCloseOnly):
     def __init__(self):
         super().__init__()
         Servers.json_to_app()
@@ -318,7 +318,7 @@ class ServersWin(WinMinCloseOnly):
             )
             self.v_list.addItem(list_item)
 
-        self.login_win = LoginWin(server_item)
+        self.login_win = WinLogin(server_item)
         self.login_win.ok_pressed.connect(ok_pressed)
         self.login_win.center(self.window())
         self.login_win.show()

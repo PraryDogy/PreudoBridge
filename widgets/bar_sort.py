@@ -165,7 +165,7 @@ class CustomSlider(USlider):
         self.setValue(value)
 
 
-class SortBar(QWidget):
+class BarSort(QWidget):
     load_st_grid = pyqtSignal()
     sort_thumbs = pyqtSignal()
     resize_thumbs = pyqtSignal()
@@ -183,7 +183,7 @@ class SortBar(QWidget):
         """
 
         super().__init__()
-        self.setFixedHeight(SortBar.height_)
+        self.setFixedHeight(BarSort.height_)
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 

@@ -7,7 +7,7 @@ from system.tasks import FileRemover, UThreadPool
 from .warn_win import ConfirmWindow
 
 
-class RemoveFilesWin(ConfirmWindow):
+class WinRemoveFiles(ConfirmWindow):
     finished_ = pyqtSignal(list)
     remove_perm = "Удалить безвозвратно"
     move_to_trash = "Переместить в корзину"
@@ -15,9 +15,9 @@ class RemoveFilesWin(ConfirmWindow):
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
 
         if Dynamic.sys_vol in urls[0]:
-            t = f"{RemoveFilesWin.move_to_trash}?"
+            t = f"{WinRemoveFiles.move_to_trash}?"
         else:
-            t = f"{RemoveFilesWin.remove_perm}?"
+            t = f"{WinRemoveFiles.remove_perm}?"
 
         super().__init__(text=t)
         self.setFixedSize(270, 100)

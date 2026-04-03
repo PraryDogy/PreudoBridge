@@ -8,7 +8,7 @@ from system.items import ClipboardItem, CopyItem
 from system.multiprocess import CopyTask, CopyWorker
 
 from ._base_widgets import WinMinCloseOnly, SmallBtn, USvgSqareWidget
-from .progressbar_win import ProgressbarWin
+from .win_progressbar import WinProgressbar
 
 
 class WinReplaceFiles(WinMinCloseOnly):
@@ -141,7 +141,7 @@ class WinError(WinMinCloseOnly):
         return super().keyPressEvent(a0)
 
 
-class WinCopyFiles(ProgressbarWin):
+class WinCopyFiles(WinProgressbar):
     finished_ = pyqtSignal(list)
     preparing_text = "Подготовка"
     progressbar_width = 300

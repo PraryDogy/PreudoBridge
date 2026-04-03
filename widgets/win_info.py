@@ -58,7 +58,7 @@ class SelectableLabel(ULabel):
         menu.show_under_cursor()
 
 
-class InfoWin(WinMinCloseOnly):
+class WinInfo(WinMinCloseOnly):
     finished_ = pyqtSignal()
     title_text = "Инфо"
     calc_text = "Вычисляю..."
@@ -75,7 +75,7 @@ class InfoWin(WinMinCloseOnly):
 
     def __init__(self, data_items: list[DataItem]):
         super().__init__()
-        self.setWindowTitle(InfoWin.title_text)
+        self.setWindowTitle(WinInfo.title_text)
         self.set_modality()
 
         self.left = Qt.AlignmentFlag.AlignLeft

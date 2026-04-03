@@ -77,7 +77,7 @@ from system.database import Dbase
 from system.multiprocess import ProcessWorker
 from system.tasks import OnStartTask, UThreadPool
 from widgets._base_widgets import WinBase
-from widgets.main_win import MainWin
+from widgets.win_main import WinMain
 
 
 class App(QApplication):
@@ -92,7 +92,7 @@ class App(QApplication):
 
     def load_data(self):
         def fin():
-            self.main_win = MainWin()
+            self.main_win = WinMain()
             self.main_win.show()
             self.aboutToQuit.connect(lambda: self.main_win.on_exit())
             self.installEventFilter(self)

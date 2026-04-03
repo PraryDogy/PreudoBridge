@@ -69,7 +69,8 @@ class BarTopBtn(QWidget):
             self.clicked.emit()
         super().mouseReleaseEvent(e)
 
-class ListWin(WinMinCloseOnly):
+
+class WinSearchList(WinMinCloseOnly):
     title_text = "Поиск"
     search_place_text = "Место поиска:"
     descr_text = "Список файлов (по одному в строке):"
@@ -106,7 +107,7 @@ class ListWin(WinMinCloseOnly):
         first_lay = QVBoxLayout()
         first_row.setLayout(first_lay)
 
-        first_title = QLabel(ListWin.search_place_text)
+        first_title = QLabel(WinSearchList.search_place_text)
         first_lay.addWidget(first_title)
 
         main_dir_label = QLabel(self.wrap_text(self.main_win_item.main_dir))
@@ -115,7 +116,7 @@ class ListWin(WinMinCloseOnly):
         return first_row
 
     def create_input_label(self):
-        return QLabel(ListWin.descr_text)
+        return QLabel(WinSearchList.descr_text)
 
     def create_input_text_edit(self):
         self.input_ = UTextEdit()
@@ -128,12 +129,12 @@ class ListWin(WinMinCloseOnly):
 
         btns_lay.addStretch()
 
-        ok_btn = SmallBtn(ListWin.ok_text)
+        ok_btn = SmallBtn(WinSearchList.ok_text)
         ok_btn.clicked.connect(self.ok_cmd)
         ok_btn.setFixedWidth(100)
         btns_lay.addWidget(ok_btn)
 
-        can_btn = SmallBtn(ListWin.cancel_text)
+        can_btn = SmallBtn(WinSearchList.cancel_text)
         can_btn.clicked.connect(self.deleteLater)
         can_btn.setFixedWidth(100)
         btns_lay.addWidget(can_btn)
@@ -144,8 +145,8 @@ class ListWin(WinMinCloseOnly):
 
     def wrap_text(self, text: str):
         chunks = [
-            text[i:i + ListWin.search_place_limit] 
-            for i in range(0, len(text), ListWin.search_place_limit)
+            text[i:i + WinSearchList.search_place_limit] 
+            for i in range(0, len(text), WinSearchList.search_place_limit)
         ]
         return '\n'.join(chunks)
 
@@ -248,7 +249,7 @@ class SearchWidget(ULineEdit):
             self.search_list = search_list
             QTimer.singleShot(1000, self.start_search)
 
-        self.list_win = ListWin(self.main_win_item, self.search_item)
+        self.list_win = WinSearchList(self.main_win_item, self.search_item)
         self.list_win.finished_.connect(lambda search_list: fin(search_list))
         self.list_win.center(self.window())
         self.list_win.show()
@@ -264,7 +265,7 @@ class SearchWidget(ULineEdit):
         return super().keyPressEvent(a0)
 
 
-class TopBar(QWidget):
+class BarTop(QWidget):
     level_up = pyqtSignal()
     # 0 отобразить сеткой, 1 отобразить списком
     change_view = pyqtSignal()
@@ -429,7 +430,7 @@ class TopBar(QWidget):
             # старые пути, если пользователь изменил направление навигации.
             self.history_items = self.history_items[:self.current_index + 1]
 
-        if len(self.history_items) > TopBar.history_items_limit:
+        if len(self.history_items) > BarTop.history_items_limit:
             self.history_items.pop(0)
             self.current_index -= 1
 

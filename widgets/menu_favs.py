@@ -13,7 +13,7 @@ from system.utils import Utils
 from ._base_widgets import UMenu
 from .actions import ItemActions
 # в main_win
-from .rename_win import RenameWin
+from .win_rename import WinRename
 
 
 class FavItem(QLabel):
@@ -35,7 +35,7 @@ class FavItem(QLabel):
         self.setContentsMargins(10, 0, 10, 0)
 
     def rename_cmd(self):
-        self.win_rename = RenameWin(self.name)
+        self.win_rename = WinRename(self.name)
         self.win_rename.finished_.connect(self.rename_finished_cmd)
         self.win_rename.center(self.window())
         self.win_rename.show()
@@ -156,7 +156,7 @@ class MenuFavs(QListWidget):
         if src not in JsonData.favs:
             cmd_ = lambda name: self.on_finished_rename(src, name)
             name = os.path.basename(src)
-            self.win_set_name = RenameWin(name)
+            self.win_set_name = WinRename(name)
             self.win_set_name.finished_.connect(cmd_)
             self.win_set_name.center(self.window())
             self.win_set_name.show()

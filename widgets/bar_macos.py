@@ -10,8 +10,8 @@ from cfg import Static
 from system.utils import Utils
 
 from ._base_widgets import WinMinCloseOnly, UMenu
-from .servers_win import ServersWin
-from .settings_win import SettingsWin
+from .win_servers import WinServers
+from .win_settings import WinSettings
 
 
 class SelectableLabel(QLabel):

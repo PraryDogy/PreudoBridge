@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from ._base_widgets import WinMinCloseOnly, SmallBtn, ULineEdit
 
 
-class RenameWin(WinMinCloseOnly):
+class WinRename(WinMinCloseOnly):
     finished_ = pyqtSignal(str)
     placeholder_text = "Введите текст"
     ok_text = "Ок"
@@ -19,7 +19,7 @@ class RenameWin(WinMinCloseOnly):
     def __init__(self, text: str):
         super().__init__()
         self.set_modality()
-        self.setWindowTitle(RenameWin.title_text)
+        self.setWindowTitle(WinRename.title_text)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 5)
@@ -27,8 +27,8 @@ class RenameWin(WinMinCloseOnly):
         self.centralWidget().setLayout(v_lay)
 
         self.input_wid = ULineEdit() 
-        self.input_wid.setFixedWidth(RenameWin.input_width)
-        self.input_wid.setPlaceholderText(RenameWin.placeholder_text)
+        self.input_wid.setFixedWidth(WinRename.input_width)
+        self.input_wid.setPlaceholderText(WinRename.placeholder_text)
         self.input_wid.setText(text)
         self.input_wid.textChanged.connect(self.text_changed)
         v_lay.addWidget(self.input_wid)
@@ -42,12 +42,12 @@ class RenameWin(WinMinCloseOnly):
 
         h_lay.addStretch()
 
-        self.ok_btn = SmallBtn(RenameWin.ok_text)
+        self.ok_btn = SmallBtn(WinRename.ok_text)
         self.ok_btn.clicked.connect(self.finish_rename)
         self.ok_btn.setFixedWidth(90)
         h_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        cancel_btn = SmallBtn(RenameWin.cancel_text)
+        cancel_btn = SmallBtn(WinRename.cancel_text)
         cancel_btn.clicked.connect(self.deleteLater)
         cancel_btn.setFixedWidth(90)
         h_lay.addWidget(cancel_btn)

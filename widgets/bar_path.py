@@ -183,7 +183,7 @@ class PathItem(QWidget):
         return super().mouseReleaseEvent(a0)
 
 
-class PathBar(QWidget):
+class BarPath(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal()
     info_win = pyqtSignal(list)
@@ -200,7 +200,7 @@ class PathBar(QWidget):
         super().__init__()
         self.computer: QPixmap = self.create_computer_icon()
         self.main_win_item = main_win_item
-        self.setFixedHeight(PathBar.bar_height)
+        self.setFixedHeight(BarPath.bar_height)
         self.setAcceptDrops(True)
         self.current_path: str = None
 
@@ -245,8 +245,8 @@ class PathBar(QWidget):
         last_item = path_items.get(len(root))
 
         text_ = last_item.text_wid.text()
-        if len(text_) > PathBar.last_item_limit:
-            path_item.text_wid.setText(text_[:PathBar.last_item_limit] + "...")
+        if len(text_) > BarPath.last_item_limit:
+            path_item.text_wid.setText(text_[:BarPath.last_item_limit] + "...")
 
         last_item.del_arrow()
         last_item.expand()

@@ -24,8 +24,8 @@ from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions
 # в main win
 from .win_img_convert import WinImgConvert
-from .remove_files_win import RemoveFilesWin
-from .rename_win import RenameWin
+from .win_remove_files import WinRemoveFiles
+from .win_rename import WinRename
 
 FONT_SIZE = 11
 BORDER_RADIUS = 4
@@ -689,7 +689,7 @@ class Grid(UScrollArea):
                     self.del_thumb(i)
                 self.rearrange_thumbs()
 
-        self.rem_win = RemoveFilesWin(self.main_win_item, urls)
+        self.rem_win = WinRemoveFiles(self.main_win_item, urls)
         self.rem_win.finished_.connect(update_search_grid)
         self.rem_win.center(self.window())
         self.rem_win.show()
@@ -803,7 +803,7 @@ class Grid(UScrollArea):
             new_url = os.path.join(root, text)
             os.rename(thumb.data.src, new_url)
 
-        self.rename_win = RenameWin(thumb.data.filename)
+        self.rename_win = WinRename(thumb.data.filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
@@ -921,7 +921,7 @@ class Grid(UScrollArea):
                 QTimer.singleShot(1050, lambda: select(dest))
             except Exception as e:
                 Utils.print_error()
-        self.rename_win = RenameWin(self.new_folder_text)
+        self.rename_win = WinRename(self.new_folder_text)
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(lambda name: fin(name))
         self.rename_win.show()

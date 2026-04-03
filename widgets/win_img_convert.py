@@ -6,10 +6,10 @@ from cfg import Static
 from system.items import JpgConvertItem
 from system.multiprocess import JpgConverter, ProcessWorker
 
-from .progressbar_win import ProgressbarWin
+from .win_progressbar import WinProgressbar
 
 
-class WinImgConvert(ProgressbarWin):
+class WinImgConvert(WinProgressbar):
     jpg_timer_ms = 400
     title_text = "Создаю копии jpg"
     prepairing = "Подготовка..."

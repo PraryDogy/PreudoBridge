@@ -19,22 +19,22 @@ from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
 from .bar_macos import BarMacos
+from .bar_path import BarPath
+from .bar_top import BarTop
 from .grid import Grid
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
-from .img_view_win import ImgViewWin
-from .info_win import InfoWin
 from .menu_favs import MenuFavs
-from .path_bar import PathBar
-from .rating_menu import FiltersMenu
-from .servers_win import ServersWin
-from .settings_win import SettingsWin
-from .sort_bar import SortBar
+from .menu_rating_filters import MenuRatingFilters
+from .bar_sort import BarSort
 from .table_view import TableView
-from .top_bar import TopBar
-from .tree_menu import TreeMenu
+from .menu_tree import MenuTree
 from .win_copy_files import WinCopyFiles
 from .win_go_to import WinGoTo
+from .win_img_view import WinImgView
+from .win_info import WinInfo
+from .win_servers import WinServers
+from .win_settings import WinSettings
 
 
 class TabsWidget(QTabWidget):
@@ -75,7 +75,7 @@ class ScrollUpBtn(QLabel):
         return super().mouseReleaseEvent(ev)
 
 
-class MainWin(WinBase):
+class WinMain(WinBase):
     resize_ms = 100
     grid_insert_num = 3
     min_width_ = 800
@@ -99,24 +99,24 @@ class MainWin(WinBase):
 
     def __init__(self, dir: str = None):
         super().__init__()
-        self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
+        self.setMinimumSize(WinMain.min_width_, WinMain.min_height_)
         self.resize(Static.base_ww, Static.base_hh)
     
-        self.main_win_list: list[MainWin] = []
+        self.main_win_list: list[WinMain] = []
         self.search_item = SearchItem()
         self.main_win_item: MainWinItem = MainWinItem()
         self.sort_item: SortItem = SortItem()
         self.img_view_win = None
         self.win_copy = None
 
-        if MainWin.first_load:
+        if WinMain.first_load:
             self.change_theme()
-            MainWin.first_load = False
+            WinMain.first_load = False
 
         if dir:
             self.main_win_item.main_dir = dir
         else:
-            dir = SharedUtils.add_sys_vol(MainWin.base_dir, Dynamic.sys_vol)
+            dir = SharedUtils.add_sys_vol(WinMain.base_dir, Dynamic.sys_vol)
             self.main_win_item.main_dir = dir
 
         self.resize_timer = QTimer(self)
@@ -139,16 +139,16 @@ class MainWin(WinBase):
 
         # --- Левый виджет ---
         self.left_wid = QSplitter()
-        self.left_wid.setHandleWidth(MainWin.splitter_handle_width)
+        self.left_wid.setHandleWidth(WinMain.splitter_handle_width)
         self.left_wid.setOrientation(Qt.Orientation.Vertical)
 
         self.tabs_widget = TabsWidget()
-        self.tree_menu = TreeMenu(self.main_win_item)
+        self.tree_menu = MenuTree(self.main_win_item)
         self.favs_menu = MenuFavs(self.main_win_item)
-        self.tabs_widget.addTab(self.tree_menu, MainWin.folders_text)
-        self.tabs_widget.addTab(self.favs_menu, MainWin.favs_text)
+        self.tabs_widget.addTab(self.tree_menu, WinMain.folders_text)
+        self.tabs_widget.addTab(self.favs_menu, WinMain.favs_text)
 
-        self.filters_menu = FiltersMenu()
+        self.filters_menu = MenuRatingFilters()
 
         self.left_wid.addWidget(self.tabs_widget)
         self.left_wid.addWidget(self.filters_menu)
@@ -161,12 +161,12 @@ class MainWin(WinBase):
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
 
-        self.top_bar = TopBar(self.main_win_item, self.search_item)
+        self.top_bar = BarTop(self.main_win_item, self.search_item)
         self.grid = Grid(self.main_win_item, False)
         Utils.fill_missing_methods(GridSearch, Grid)
         self.grid_spacer = QWidget()
-        self.path_bar = PathBar(self.main_win_item)
-        self.sort_bar = SortBar(self.sort_item, self.main_win_item)
+        self.path_bar = BarPath(self.main_win_item)
+        self.sort_bar = BarSort(self.sort_item, self.main_win_item)
 
         # Разделители
         top_bar_sep = USep()
@@ -176,7 +176,7 @@ class MainWin(WinBase):
         # --- Добавление в layout ---
         self.r_lay.insertWidget(0, self.top_bar)
         self.r_lay.insertWidget(1, top_bar_sep)
-        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+        self.r_lay.insertWidget(WinMain.grid_insert_num, self.grid)
         self.r_lay.insertWidget(4, self.grid_spacer)
         self.r_lay.insertWidget(5, grid_sep)
         self.r_lay.insertWidget(6, self.path_bar)
@@ -185,12 +185,12 @@ class MainWin(WinBase):
 
         # --- Настройка Splitter ---
         self.splitter = QSplitter()
-        self.splitter.setHandleWidth(MainWin.splitter_handle_width)
+        self.splitter.setHandleWidth(WinMain.splitter_handle_width)
         self.splitter.addWidget(self.left_wid)
         self.splitter.addWidget(right_wid)
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 1)
-        self.splitter.setSizes([MainWin.left_menu_w, self.width() - MainWin.left_menu_w])
+        self.splitter.setSizes([WinMain.left_menu_w, self.width() - WinMain.left_menu_w])
         main_lay.addWidget(self.splitter)
 
         # --- Инициализация элементов ---
@@ -211,7 +211,7 @@ class MainWin(WinBase):
 
     def setup_signals(self):
         # splitter
-        self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
+        self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(WinMain.resize_ms))
 
         # tree_menu
         self.tree_menu.load_st_grid_sig.connect(self.load_st_grid)
@@ -269,7 +269,7 @@ class MainWin(WinBase):
             app.setPalette(UPallete.light())
             app.setStyle("Fusion")
         
-        if not MainWin.first_load:
+        if not WinMain.first_load:
             self.grid.reload_rubber()
 
     def open_img_view(self, data: dict):
@@ -289,7 +289,7 @@ class MainWin(WinBase):
             )
             UThreadPool.start(self.rating_task)
 
-        self.img_view_win = ImgViewWin(
+        self.img_view_win = WinImgView(
             data["start_url"], data["url_to_wid"], data["is_selection"]
         )
 
@@ -299,13 +299,13 @@ class MainWin(WinBase):
         self.img_view_win.closed.connect(closed)
         self.img_view_win.info_win.connect(self.open_info_win)
 
-        if ImgViewWin.ww == 0:
+        if WinImgView.ww == 0:
             self.img_view_win.resize(Static.base_ww, Static.base_hh)
             self.img_view_win.center(self.window())
             
         else:
-            self.img_view_win.resize(ImgViewWin.ww, ImgViewWin.hh)
-            self.img_view_win.move(ImgViewWin.xx, ImgViewWin.yy)
+            self.img_view_win.resize(WinImgView.ww, WinImgView.hh)
+            self.img_view_win.move(WinImgView.xx, WinImgView.yy)
 
         self.img_view_win.show()
 
@@ -351,7 +351,7 @@ class MainWin(WinBase):
         QTimer.singleShot(100, poll_task)
 
     def open_settings(self, *args):
-        self.sett_win = SettingsWin()
+        self.sett_win = WinSettings()
         self.sett_win.show_texts_sig.connect(lambda: self.top_bar.toggle_texts())
         self.sett_win.load_st_grid.connect(self.load_st_grid)
         self.sett_win.theme_changed.connect(lambda: QTimer.singleShot(100, self.change_theme))
@@ -375,10 +375,10 @@ class MainWin(WinBase):
 
     def open_in_new_win(self, data: tuple):
         new_main_dir, go_to = data
-        new_win = MainWin(new_main_dir)
+        new_win = WinMain(new_main_dir)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
-        new_win.move(x + MainWin.new_win_offset, y + MainWin.new_win_offset)
+        new_win.move(x + WinMain.new_win_offset, y + WinMain.new_win_offset)
         new_win.show()
 
     def setup_grid_signals(self):
@@ -415,7 +415,7 @@ class MainWin(WinBase):
         )
         self.setWindowTitle(self.search_text)
         Utils.fill_missing_methods(TableView, Grid)
-        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+        self.r_lay.insertWidget(WinMain.grid_insert_num, self.grid)
         self.filters_menu.reset()
         self.scroll_up.hide()
         self.setup_grid_signals()
@@ -425,7 +425,7 @@ class MainWin(WinBase):
         QTimer.singleShot(100, self.grid.setFocus)
 
     def open_info_win(self, data_items: list[DataItem]):
-        self.info_win = InfoWin(data_items)
+        self.info_win = WinInfo(data_items)
         self.info_win.center(self.img_view_win if self.img_view_win else self)
         self.info_win.show()
         
@@ -483,7 +483,7 @@ class MainWin(WinBase):
             self.grid.setParent(self)
             self.grid.set_first_col_width()
             self.setup_grid_signals()
-            self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+            self.r_lay.insertWidget(WinMain.grid_insert_num, self.grid)
             self.grid_spacer.resize(0, 0)
 
         def start_load_grid():
@@ -517,7 +517,7 @@ class MainWin(WinBase):
         self.load_st_grid()
 
     def open_servers_win(self):
-        self.servers_win = ServersWin()
+        self.servers_win = WinServers()
         self.servers_win.center(self)
         self.servers_win.show()
 
@@ -534,11 +534,11 @@ class MainWin(WinBase):
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.scroll_up.move(
-            self.width() - MainWin.scroll_up_width_offset,
-            self.height() - MainWin.scroll_up_height_offset
+            self.width() - WinMain.scroll_up_width_offset,
+            self.height() - WinMain.scroll_up_height_offset
         )
         self.resize_timer.stop()
-        self.resize_timer.start(MainWin.resize_ms)
+        self.resize_timer.start(WinMain.resize_ms)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if len(WinBase.wins) > 1:

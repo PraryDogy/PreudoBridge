@@ -13,7 +13,7 @@ class UItem(QListWidgetItem):
         self.rating: int
 
 
-class FiltersMenu(QWidget):
+class MenuRatingFilters(QWidget):
     filter_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
     enable_text = "Включить"

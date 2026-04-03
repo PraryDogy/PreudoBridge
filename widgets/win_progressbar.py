@@ -22,7 +22,7 @@ class CancelBtn(USvgSqareWidget):
         return super().mouseReleaseEvent(a0)
 
 
-class ProgressbarWin(WinMinCloseOnly):
+class WinProgressbar(WinMinCloseOnly):
 
     progressbar_width = 300
     icon_size = 50
