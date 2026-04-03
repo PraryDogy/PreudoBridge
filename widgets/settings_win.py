@@ -82,8 +82,9 @@ class DataSizeWid(QGroupBox):
     def start_task(self):
 
         def fin(data):
-            self.lbl_top_right.setText(SharedUtils.get_f_size(data["total"]))
-            self.lbl_bottom_right.setText(str(data["count"]))
+            self.lbl_top_right.setText(
+                SharedUtils.get_f_size(data["total"])
+            )
 
         self.task_ = DataSizeCounter()
         self.task_.sigs.finished_.connect(fin)
