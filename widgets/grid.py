@@ -429,7 +429,7 @@ class Grid(UScrollArea):
         def update_thumb(data_item: DataItem):
             try:
                 thumb = self.url_to_wid[data_item.src]
-
+                thumb.data_item.partial_hash = data_item.partial_hash
                 if data_item.img_array is not None:
                     qimages = {}
                     original_qimage = Utils.qimage_from_array(data_item.img_array)
@@ -440,7 +440,6 @@ class Grid(UScrollArea):
                             qimages[size] = resized_qimage
                         thumb.data_item.qimages = qimages
                         thumb.set_image()
-
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
 
