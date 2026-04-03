@@ -90,7 +90,7 @@ class DataSizeWidget(GroupWid):
         UThreadPool.start(self.task_)
 
 
-class ClickableWidgets(QGroupBox):
+class ClickableWidgets(GroupWid):
     json_descr_text = "Системные файлы приложения."
     show_descr = "Очистка данных."
     btn_w = 110
@@ -98,22 +98,29 @@ class ClickableWidgets(QGroupBox):
     def __init__(self):
         super().__init__()
 
-        # основной вертикальный лейаут
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(0, 0, 0, 0)
-        v_lay.setSpacing(0)
-        self.setLayout(v_lay)
+        self.system_files_wid = GroupChild()
+        self.system_files_wid.mouseReleaseEvent = (
+            lambda e: subprocess.call(["open", Static.app_dir])
+        )
+        self.layout_.addWidget(self.system_files_wid)
+        system_files_descr = QLabel(self.json_descr_text)
+        self.system_files_wid.layout_.addWidget(system_files_descr)
+        self.system_files_wid.layout_.addStretch()
+        system_files_arrow = SvgArrow()
+        self.system_files_wid.layout_.addWidget(system_files_arrow)
 
+        self.layout_.addWidget(HSep())
 
-        label_one = ULabel(self.json_descr_text)
-        label_one.clicked.connect(lambda: subprocess.call(["open", Static.app_dir]))
-        label_one.setFixedHeight(25)
-        v_lay.addWidget(label_one, alignment=Qt.AlignmentFlag.AlignLeft)
-
-        label_two = ULabel(self.show_descr)
-        label_two.clicked.connect(self.open_clear_win)
-        label_two.setFixedHeight(25)
-        v_lay.addWidget(label_two, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.clear_widget = GroupChild()
+        self.clear_widget.mouseReleaseEvent = (
+            lambda e: self.open_clear_win()
+        )
+        self.layout_.addWidget(self.clear_widget)
+        clear_descr = QLabel(self.show_descr)
+        self.clear_widget.layout_.addWidget(clear_descr)
+        self.clear_widget.layout_.addStretch()
+        clear_arrow = SvgArrow()
+        self.clear_widget.layout_.addWidget(clear_arrow)
 
     def open_clear_win(self):
         self.clear_win = ConfirmWindow(
@@ -346,7 +353,7 @@ class SettingsWin(MinMaxDisabledWin):
         super().__init__()
         self.setWindowTitle(SettingsWin.title_text)
         self.set_modality()
-        self.setFixedSize(500, 480)
+        self.setFixedSize(450, 480)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 0, 10, 10)
