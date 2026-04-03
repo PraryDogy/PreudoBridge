@@ -12,7 +12,7 @@ from PyQt5.QtGui import QImage
 from cfg import Static
 from system.shared_utils import ImgUtils
 
-from .database import _CACHE, CacheTable
+from .database import CacheTable
 from .utils import Utils
 
 
