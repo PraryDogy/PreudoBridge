@@ -135,11 +135,10 @@ class ClickableLabels(QGroupBox):
 
 class About(QGroupBox):
     svg_size = 70
-    text_ = "\n".join(
-        [
-            f"{Static.app_name} {Static.app_ver}",
+    text_ = (
+            f"{Static.app_name} {Static.app_ver}"
+            "\n"
             f"{datetime.now().year} Evgeny Loshakev"
-        ]
     )
     def __init__(self):
         super().__init__()
