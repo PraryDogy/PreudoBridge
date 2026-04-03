@@ -170,7 +170,7 @@ class AboutWidget(QGroupBox):
 
 
 class UCheckBox(QCheckBox):
-    hh = 30
+    hh = 35
 
     def __init__(self, text: str):
         super().__init__(
@@ -179,7 +179,7 @@ class UCheckBox(QCheckBox):
         self.setFixedHeight(self.hh)
 
 
-class CheckboxWidgets(QGroupBox):
+class CheckboxWidgets(GroupWid):
     load_st_grid = pyqtSignal()
     show_texts_sig = pyqtSignal()
     text_ = "Отобазить скрытые файлы"
@@ -193,26 +193,21 @@ class CheckboxWidgets(QGroupBox):
     def __init__(self):
         super().__init__()
 
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(self.left_margin, 0, 0, 0)
-        self.setLayout(v_lay)
-
         self.show_hidden = UCheckBox(self.text_)
-        self.show_hidden.setFixedHeight(30)
-        v_lay.addWidget(self.show_hidden)
+        self.layout_.addWidget(self.show_hidden)
 
-        v_lay.addWidget(HSep())
+        self.layout_.addWidget(HSep())
 
         self.enable_go_to = UCheckBox(self.go_to_text)
         self.enable_go_to.setFixedHeight(
-            int(self.enable_go_to.hh * 1.2)
+            int(self.enable_go_to.hh * 1.5)
         )
-        v_lay.addWidget(self.enable_go_to)
+        self.layout_.addWidget(self.enable_go_to)
 
-        v_lay.addWidget(HSep())
+        self.layout_.addWidget(HSep())
 
         self.show_texts = UCheckBox(self.show_texts_text)
-        v_lay.addWidget(self.show_texts)
+        self.layout_.addWidget(self.show_texts)
 
         if JsonData.show_hidden:
             self.show_hidden.setChecked(True)
@@ -371,7 +366,8 @@ class SettingsWin(MinMaxDisabledWin):
         super().__init__()
         self.setWindowTitle(SettingsWin.title_text)
         self.set_modality()
-        self.setFixedSize(470, 510)
+        # self.setFixedSize(470, 510)
+        self.setFixedWidth(470)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 0, 10, 10)
@@ -398,6 +394,8 @@ class SettingsWin(MinMaxDisabledWin):
 
         about_wid = AboutWidget()
         main_lay.addWidget(about_wid)
+
+        self.adjustSize()
 
     def theme_changed_cmd(self):
         self.theme_changed.emit()
