@@ -7,8 +7,6 @@ from time import sleep
 import numpy as np
 import sqlalchemy
 from PIL import Image
-from sqlalchemy import Connection as Conn
-from sqlalchemy import select
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
