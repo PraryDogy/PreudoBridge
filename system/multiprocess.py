@@ -106,20 +106,21 @@ class DirScaner:
 class ImgLoader:
     @staticmethod
     def start(data_items: list[DataItem], queue: Queue):
+        data_items.sort(key=lambda x: x.size)
+
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
-        data_items.sort(key=lambda x: x.size)
+        fast_update_items: list[DataItem] = []
         new_images: list[DataItem] = []
         exist_images: list[DataItem] = []
-        fast_update_items: list[DataItem] = []
         svg_files: list[DataItem] = []
 
         for data_item in data_items:
             if data_item.image_is_loaded:
                 continue
             fast_update_items.append(data_item)
-            data_item.set_partial_hash()
+            data_item.set_hash_and_thumb_path()
             data_item.rating = ImgLoader.get_item_rating(data_item, conn)
             if data_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(data_item)
@@ -156,6 +157,7 @@ class ImgLoader:
     def execute_new_images(data_items: list[DataItem], queue: Queue):
         stmt_list = []
         for i in data_items:
+            continue
             img_array = ImgUtils.read_img(i.src)
             img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
             Utils.write_thumb(i.thumb_path, img_array)
@@ -581,7 +583,7 @@ class SearchTask:
         data_item = DataItem(entry.path)
         data_item.set_properties()
         if data_item.type_ != Static.folder_type:
-            data_item.set_partial_hash()
+            data_item.set_hash_and_thumb_path()
         if entry.name.endswith(ImgUtils.ext_all):
             if os.path.exists(data_item.thumb_path):
                 img_array = Utils.read_thumb(data_item.thumb_path)

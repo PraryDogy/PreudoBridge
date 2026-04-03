@@ -77,7 +77,7 @@ class DataItem:
         self.qimages: dict[Literal["src"] | int, QImage] = {}
         self.img_array: np.ndarray = None
 
-    def set_partial_hash(self):
+    def set_hash_and_thumb_path(self):
         try:
             self.partial_hash = Utils.get_partial_hash(self.src)
             if self.type_ in ImgUtils.ext_all:

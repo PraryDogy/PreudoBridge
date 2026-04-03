@@ -129,7 +129,7 @@ class ImgLoader:
                     stmt_list.append(DataItem.update_folder_stmt(data_item))
                     exist_ratings.append(data_item)
             else:
-                data_item.set_partial_hash()
+                data_item.set_hash_and_thumb_path()
                 rating = ImgLoader.get_item_rating(data_item, conn)
                 if rating is None:
                     stmt_list.append(DataItem.insert_file_stmt(data_item))
@@ -611,7 +611,7 @@ class SearchTask:
         data_item = DataItem(entry.path)
         data_item.set_properties()
         if data_item.type_ != Static.folder_type:
-            data_item.set_partial_hash()
+            data_item.set_hash_and_thumb_path()
         if entry.name.endswith(ImgUtils.ext_all):
             if os.path.exists(data_item.thumb_path):
                 img_array = Utils.read_thumb(data_item.thumb_path)
