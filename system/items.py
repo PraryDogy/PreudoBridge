@@ -164,7 +164,7 @@ class DataItem:
         """
         Обновляет last_read
         """
-        stmt = sqlalchemy.update(_CACHE)
+        stmt = sqlalchemy.update(CacheTable.table)
         stmt = stmt.where(*DataItem.get_folder_conds(data_item))
         stmt = stmt.values(**{
             CacheTable.last_read.name: Utils.get_now()
@@ -176,7 +176,7 @@ class DataItem:
         """
         Обновляет last_read
         """
-        stmt = sqlalchemy.update(_CACHE)
+        stmt = sqlalchemy.update(CacheTable.table)
         stmt = stmt.where(
             CacheTable.partial_hash == data_item.partial_hash
         )
@@ -187,7 +187,7 @@ class DataItem:
     
     @classmethod
     def insert_folder_stmt(cls, data_item: "DataItem"):
-        stmt = sqlalchemy.insert(_CACHE)
+        stmt = sqlalchemy.insert(CacheTable.table)
         stmt = stmt.values(**{
             CacheTable.name.name: data_item.filename,
             CacheTable.type.name: data_item.type_,
@@ -201,7 +201,7 @@ class DataItem:
     
     @classmethod
     def insert_file_stmt(cls, data_item: "DataItem"):
-        stmt = sqlalchemy.insert(_CACHE)
+        stmt = sqlalchemy.insert(CacheTable.table)
         stmt = stmt.values(**{
             CacheTable.name.name: data_item.filename,
             CacheTable.type.name: data_item.type_,
