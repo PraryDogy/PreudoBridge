@@ -38,6 +38,8 @@ class GroupChild(QWidget):
         super().__init__()
         self.setFixedHeight(self.hh)
         self.layout_ = QHBoxLayout()
+        self.layout_.setContentsMargins(0, 0, 0, 0)
+        self.layout_.setSpacing(0)
         self.setLayout(self.layout_)
 
 
@@ -64,12 +66,16 @@ class DataSizeWidget(GroupWid):
         super().__init__()
         self.hor_wid = GroupChild()
         self.layout_.addWidget(self.hor_wid)
+        self.hor_wid.layout_.setSpacing(10)
     
         self.description_label = QLabel(self.data_size_text)
         self.hor_wid.layout_.addWidget(self.description_label)
 
         self.size_label = QLabel(self.calculating)
         self.hor_wid.layout_.addWidget(self.size_label)
+
+        self.hor_wid.layout_.addStretch()
+
         self.start_task()
 
     def start_task(self):
