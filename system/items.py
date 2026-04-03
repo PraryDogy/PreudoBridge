@@ -102,9 +102,6 @@ class DataItem:
         else:
             _, self.type_ = os.path.splitext(self.src)
 
-        # _, ext = os.path.splitext(self.src)
-        # self.type_ = ext if ext else Static.folder_type
-
         try:
             stat = os.stat(self.src)
             self.mod = int(stat.st_mtime)
@@ -158,18 +155,6 @@ class DataItem:
             CacheTable.mod == data_item.mod,
         ]
         return sqlalchemy.and_(*conds)
-
-    @classmethod
-    def update_folder_stmt(cls, data_item: "DataItem"):
-        """
-        Обновляет last_read
-        """
-        stmt = sqlalchemy.update(CacheTable.table)
-        stmt = stmt.where(*DataItem.get_folder_conds(data_item))
-        stmt = stmt.values(**{
-            CacheTable.last_read.name: Utils.get_now()
-        })
-        return stmt
     
     @classmethod
     def update_file_stmt(cls, data_item: "DataItem"):
@@ -184,21 +169,7 @@ class DataItem:
             CacheTable.last_read.name: Utils.get_now()
         })
         return stmt
-    
-    @classmethod
-    def insert_folder_stmt(cls, data_item: "DataItem"):
-        stmt = sqlalchemy.insert(CacheTable.table)
-        stmt = stmt.values(**{
-            CacheTable.name.name: data_item.filename,
-            CacheTable.type.name: data_item.type_,
-            CacheTable.size.name: data_item.size,
-            CacheTable.birth.name: data_item.birth,
-            CacheTable.mod.name: data_item.mod,
-            CacheTable.last_read.name: Utils.get_now(),
-            CacheTable.rating.name: 0,
-        })
-        return stmt
-    
+        
     @classmethod
     def insert_file_stmt(cls, data_item: "DataItem"):
         stmt = sqlalchemy.insert(CacheTable.table)

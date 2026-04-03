@@ -128,6 +128,7 @@ class ImgLoader:
                 if os.path.exists(data_item.thumb_path):
                     exist_images.append(data_item)
                 else:
+                    print('new imags')
                     new_images.append(data_item)
         ImgLoader.fast_update(fast_update_items, queue)
         ImgLoader.execute_exist_images(exist_images, queue)
@@ -140,6 +141,8 @@ class ImgLoader:
 
     @staticmethod
     def execute_svg_files(data_items: list[DataItem], queue: Queue):
+        if not data_items:
+            return
         for i in data_items:
             img_array = ImgUtils.read_img(i.src)
             img_array = ImgUtils.resize(img_array, 512)
@@ -148,6 +151,8 @@ class ImgLoader:
 
     @staticmethod
     def execute_exist_images(data_items: list[DataItem], queue: Queue):
+        if not data_items:
+            return
         for i in data_items:
             img_array = Utils.read_thumb(i.thumb_path)
             i.img_array = img_array
@@ -155,14 +160,32 @@ class ImgLoader:
 
     @staticmethod
     def execute_new_images(data_items: list[DataItem], queue: Queue):
-        stmt_list = []
-        for i in data_items:
-            continue
-            img_array = ImgUtils.read_img(i.src)
+        if not data_items:
+            return
+        values = []
+        for data_item in data_items:
+            img_array = ImgUtils.read_img(data_item.src)
             img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
-            Utils.write_thumb(i.thumb_path, img_array)
-            i.img_array = img_array
-            queue.put(i)
+            data_item.img_array = img_array
+            Utils.write_thumb(data_item.thumb_path, img_array)
+            queue.put(data_item)
+            values.append({
+                CacheTable.name.name: data_item.filename,
+                CacheTable.type.name: data_item.type_,
+                CacheTable.size.name: data_item.size,
+                CacheTable.birth.name: data_item.birth,
+                CacheTable.mod.name: data_item.mod,
+                CacheTable.last_read.name: Utils.get_now(),
+                CacheTable.rating.name: 0,
+                CacheTable.partial_hash.name: data_item.partial_hash,
+                CacheTable.thumb_path.name: data_item.thumb_path
+            })
+        stmt = (
+            sqlalchemy.insert(CacheTable.table)
+            .values(values)
+        )
+        with Dbase.create_engine().begin() as conn:
+            conn.execute(stmt)
 
     @staticmethod
     def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
