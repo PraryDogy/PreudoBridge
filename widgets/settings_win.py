@@ -72,14 +72,14 @@ class DataSizeWid(QGroupBox):
         # Создаем QLabel и сохраняем в переменные
         self.lbl_top_left = QLabel(self.data_size_text)
         self.lbl_top_right = QLabel(self.calculating)
-        self.lbl_bottom_left = QLabel(self.files_text)
-        self.lbl_bottom_right = QLabel(self.calculating)
+        # self.lbl_bottom_left = QLabel(self.files_text)
+        # self.lbl_bottom_right = QLabel(self.calculating)
 
         # Добавляем в сетку
         layout.addWidget(self.lbl_top_left, 0, 0)
         layout.addWidget(self.lbl_top_right, 0, 1)
-        layout.addWidget(self.lbl_bottom_left, 1, 0)
-        layout.addWidget(self.lbl_bottom_right, 1, 1)
+        # layout.addWidget(self.lbl_bottom_left, 1, 0)
+        # layout.addWidget(self.lbl_bottom_right, 1, 1)
 
         self.start_task()
 
