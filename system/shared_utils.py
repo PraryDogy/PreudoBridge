@@ -229,6 +229,7 @@ class ImgUtils:
         
     @classmethod
     def _read_svg(cls, path: str):
+        print("read svg")
         # ленивый импорт происходит здесь, чтобы через py2app не падало приложение
         try:
             import cairosvg

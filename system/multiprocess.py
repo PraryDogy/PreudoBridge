@@ -199,11 +199,21 @@ class ImgLoader:
         )
         conn.execute(stmt)
 
-    @staticmethod
-    def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
-        stmt = select(CacheTable.rating)
-        stmt = stmt.where(CacheTable.partial_hash==data_item.partial_hash)
-        return Dbase.execute(conn, stmt).scalar() or 0
+    # ОБНОВЛЯТЬ LAST_READ у EXIST IMAGES
+    @classmethod
+    def update_file_stmt(cls, data_item: "DataItem"):
+        """
+        Обновляет last_read
+        """
+        stmt = sqlalchemy.update(CacheTable.table)
+        stmt = stmt.where(
+            CacheTable.partial_hash == data_item.partial_hash
+        )
+        stmt = stmt.values(**{
+            CacheTable.last_read.name: Utils.get_now()
+        })
+        return stmt
+
 
 class ReadImg:
     @staticmethod
