@@ -141,7 +141,6 @@ class About(QGroupBox):
             f"{datetime.now().year} Evgeny Loshakev"
         ]
     )
-
     def __init__(self):
         super().__init__()
 
@@ -149,14 +148,17 @@ class About(QGroupBox):
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        svg_ = USvgSqareWidget(os.path.join(Static.internal_images_dir, "icon.svg"), About.svg_size)
+        images = Static.internal_images_dir
+        svg_ = USvgSqareWidget(
+            os.path.join(images, "icon.svg"), About.svg_size
+        )
         h_lay.addWidget(svg_)
 
         descr = QLabel(About.text_)
         h_lay.addWidget(descr)
 
 
-class CheckboxGroup(QGroupBox):
+class CheckboxWidgets(QGroupBox):
     load_st_grid = pyqtSignal()
     show_texts_sig = pyqtSignal()
     text_ = "Отобазить скрытые файлы"
@@ -216,7 +218,7 @@ class CheckboxGroup(QGroupBox):
         self.show_texts_sig.emit()
 
 
-class SvgFrame(QWidget):
+class ThemeBtn(QWidget):
     clicked = pyqtSignal()
 
     def __init__(self, svg_path: str, label_text: str):
@@ -263,13 +265,9 @@ class SvgFrame(QWidget):
 
     def selected(self, enable=True):
         if enable:
-            self.svg_container.setStyleSheet(
-                self.border_style()
-            )
+            self.svg_container.setStyleSheet(self.border_style())
         else:
-            self.svg_container.setStyleSheet(
-                self.regular_style()
-            )
+            self.svg_container.setStyleSheet(self.regular_style())
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -292,9 +290,16 @@ class Themes(QGroupBox):
 
         self.frames = []
 
-        self.system_theme = SvgFrame(os.path.join(Static.internal_images_dir, "theme_sys.svg"), self.system_text)
-        self.dark_theme = SvgFrame(os.path.join(Static.internal_images_dir, "theme_dark.svg"), self.dark_text)
-        self.light_theme = SvgFrame(os.path.join(Static.internal_images_dir, "theme_light.svg"), self.light_text)
+        images = Static.internal_images_dir
+        self.system_theme = ThemeBtn(
+            os.path.join(images, "theme_sys.svg"), self.system_text
+        )
+        self.dark_theme = ThemeBtn(
+            os.path.join(images, "theme_dark.svg"), self.dark_text
+        )
+        self.light_theme = ThemeBtn(
+            os.path.join(images, "theme_light.svg"), self.light_text
+        )
 
         for f in (self.system_theme, self.dark_theme, self.light_theme):
             h_lay.addWidget(f)
@@ -309,7 +314,7 @@ class Themes(QGroupBox):
             self.set_selected(self.light_theme)
 
     def on_frame_clicked(self):
-        sender: SvgFrame = self.sender()
+        sender: ThemeBtn = self.sender()
         self.set_selected(sender)
 
         if sender == self.system_theme:
@@ -321,7 +326,7 @@ class Themes(QGroupBox):
 
         self.theme_changed.emit()
 
-    def set_selected(self, selected_frame: SvgFrame):
+    def set_selected(self, selected_frame: ThemeBtn):
         for f in self.frames:
             f.selected(f is selected_frame)
 
@@ -347,7 +352,7 @@ class SettingsWin(MinMaxDisabledWin):
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
 
-        checkbox_group = CheckboxGroup()
+        checkbox_group = CheckboxWidgets()
         checkbox_group.load_st_grid.connect(self.load_st_grid.emit)
         checkbox_group.show_texts_sig.connect(self.show_texts_sig.emit)
         main_lay.addWidget(checkbox_group)
