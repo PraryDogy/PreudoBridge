@@ -58,7 +58,7 @@ class SvgArrow(QSvgWidget):
     
 
 class DataSizeWidget(GroupWid):
-    data_size_text = "Размер кэша:"
+    data_size_text = "Данные приложения:"
     files_text = "Кол-во файлов:"
     calculating = "вычисляю..."
 
@@ -66,7 +66,7 @@ class DataSizeWidget(GroupWid):
         super().__init__()
         self.hor_wid = GroupChild()
         self.layout_.addWidget(self.hor_wid)
-        self.hor_wid.layout_.setSpacing(10)
+        self.hor_wid.layout_.setSpacing(5)
     
         self.description_label = QLabel(self.data_size_text)
         self.hor_wid.layout_.addWidget(self.description_label)
