@@ -430,6 +430,8 @@ class Grid(UScrollArea):
             try:
                 thumb = self.url_to_wid[data_item.src]
                 thumb.data_item.partial_hash = data_item.partial_hash
+                thumb.data_item.rating = data_item.rating
+                thumb.set_blue_text()
                 if data_item.img_array is not None:
                     qimages = {}
                     original_qimage = Utils.qimage_from_array(data_item.img_array)
