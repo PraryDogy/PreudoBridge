@@ -128,6 +128,7 @@ class ImgLoader:
             ImgLoader.set_ratings(data_items, queue, conn)
             ImgLoader.execute_exist_images(exist_images, queue)
             ImgLoader.execute_new_images(new_images, queue, conn)
+            # ImgLoader.execute_svg_files(svg_files, queue)
 
     @staticmethod
     def set_ratings(
