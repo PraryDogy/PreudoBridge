@@ -741,6 +741,8 @@ class Grid(UScrollArea):
         """
 
         for wid in self.selected_thumbs:
+            if wid.data_item.type_ not in ImgUtils.ext_all:
+                continue
             self.rating_task = RatingTask(self.main_win_item.main_dir, wid.data_item, rating)
             cmd_ = lambda d=wid.data_item: self.set_thumb_rating(d, rating)
             self.rating_task.sigs.finished_.connect(cmd_)
@@ -841,6 +843,7 @@ class Grid(UScrollArea):
         if wid.data_item.type_ in ImgUtils.ext_all:
             open_in_app = ItemActions.OpenInApp(menu_, urls)
             menu_.addMenu(open_in_app)
+
         elif wid.data_item.type_ == Static.folder_type:
             new_win = ItemActions.OpenInNewWindow(menu_)
             new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.data_item.src, None)))
@@ -857,9 +860,10 @@ class Grid(UScrollArea):
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
 
-        rating_menu = ItemActions.RatingMenu(menu_, wid.data_item.rating)
-        rating_menu.new_rating.connect(self.new_rating_multiple_start)
-        menu_.addMenu(rating_menu)
+        if wid.data_item.type_ in ImgUtils.ext_all:
+            rating_menu = ItemActions.RatingMenu(menu_, wid.data_item.rating)
+            rating_menu.new_rating.connect(self.new_rating_multiple_start)
+            menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(
