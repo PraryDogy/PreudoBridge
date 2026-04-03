@@ -15,11 +15,12 @@ class RemoveFilesWin(ConfirmWindow):
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
 
         if Dynamic.sys_vol in urls[0]:
-            t = f"{RemoveFilesWin.move_to_trash} ({len(urls)})?"
+            t = f"{RemoveFilesWin.move_to_trash}?"
         else:
-            t = f"{RemoveFilesWin.remove_perm} ({len(urls)})?"
+            t = f"{RemoveFilesWin.remove_perm}?"
 
         super().__init__(text=t)
+        self.setFixedSize(270, 100)
         self.urls = urls
         self.main_win_item = main_win_item
 
