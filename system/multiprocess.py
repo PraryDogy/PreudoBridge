@@ -115,9 +115,6 @@ class ImgLoader:
         svg_files: list[DataItem] = []
 
         for data_item in data_items:
-            if data_item.image_is_loaded:
-                # НЕ РАБОТАЕТ
-                continue
             data_item.set_hash_and_thumb_path()
             if data_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(data_item)
