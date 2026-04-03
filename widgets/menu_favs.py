@@ -96,7 +96,7 @@ class FavItem(QLabel):
 
         menu_.show_under_cursor()
 
-class FavsMenu(QListWidget):
+class MenuFavs(QListWidget):
     LIST_ITEM = "list_item"
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)

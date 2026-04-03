@@ -20,9 +20,9 @@ from ._base_widgets import UMenu
 from .actions import GridActions, ItemActions
 # main win
 from .grid import Thumb
-from .img_convert_win import ImgConvertWin
 from .remove_files_win import RemoveFilesWin
 from .rename_win import RenameWin
+from .win_img_convert import WinImgConvert
 
 
 class MyFileSystemModel(QFileSystemModel):
@@ -306,7 +306,7 @@ class TableView(QTableView):
 
     def open_img_convert_win(self, urls: list[str]):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
-        self.convert_win = ImgConvertWin(urls)
+        self.convert_win = WinImgConvert(urls)
         self.convert_win.center(self.window())
         self.convert_win.finished.connect(self.load_st_grid.emit)
         self.convert_win.show()

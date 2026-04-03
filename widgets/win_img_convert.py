@@ -9,7 +9,7 @@ from system.multiprocess import JpgConverter, ProcessWorker
 from .progressbar_win import ProgressbarWin
 
 
-class ImgConvertWin(ProgressbarWin):
+class WinImgConvert(ProgressbarWin):
     jpg_timer_ms = 400
     title_text = "Создаю копии jpg"
     prepairing = "Подготовка..."

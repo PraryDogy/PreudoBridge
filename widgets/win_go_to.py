@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from ._base_widgets import WinMinCloseOnly, ULineEdit, SmallBtn
 
 
-class GoToWin(WinMinCloseOnly):
+class WinGoTo(WinMinCloseOnly):
     closed = pyqtSignal(str)
     placeholder_text = "Вставьте путь к файлу/папке"
     title_text = "Перейти к ..."
@@ -23,7 +23,7 @@ class GoToWin(WinMinCloseOnly):
         """
         super().__init__()
         self.set_modality()
-        self.setWindowTitle(GoToWin.title_text)
+        self.setWindowTitle(WinGoTo.title_text)
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 5)
         v_lay.setSpacing(5)
@@ -31,8 +31,8 @@ class GoToWin(WinMinCloseOnly):
 
         self.input_wid = ULineEdit()
         self.input_wid.textChanged.connect(self.text_changed)
-        self.input_wid.setPlaceholderText(GoToWin.placeholder_text)
-        self.input_wid.setFixedWidth(GoToWin.input_width)
+        self.input_wid.setPlaceholderText(WinGoTo.placeholder_text)
+        self.input_wid.setFixedWidth(WinGoTo.input_width)
 
         v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -46,7 +46,7 @@ class GoToWin(WinMinCloseOnly):
 
         h_lay.addStretch()
 
-        go_btn = SmallBtn(GoToWin.go_to_text)
+        go_btn = SmallBtn(WinGoTo.go_to_text)
         go_btn.setFixedWidth(100)
         go_btn.clicked.connect(self.inner_clicked)
         h_lay.addWidget(go_btn)

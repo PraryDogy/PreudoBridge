@@ -23,7 +23,7 @@ from system.utils import Utils
 from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions
 # в main win
-from .img_convert_win import ImgConvertWin
+from .win_img_convert import WinImgConvert
 from .remove_files_win import RemoveFilesWin
 from .rename_win import RenameWin
 
@@ -788,7 +788,7 @@ class Grid(UScrollArea):
             return None
 
     def open_img_convert_win(self, urls: list[str]):
-        self.convert_win = ImgConvertWin(urls)
+        self.convert_win = WinImgConvert(urls)
         self.convert_win.center(self.window())
         self.convert_win.show()
 

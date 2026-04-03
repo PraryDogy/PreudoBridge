@@ -19,14 +19,12 @@ from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
 from .bar_macos import BarMacos
-from .win_copy_files import WinCopyFiles, WinError
-from .favs_menu import FavsMenu
-from .go_win import GoToWin
 from .grid import Grid
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
 from .img_view_win import ImgViewWin
 from .info_win import InfoWin
+from .menu_favs import MenuFavs
 from .path_bar import PathBar
 from .rating_menu import FiltersMenu
 from .servers_win import ServersWin
@@ -35,6 +33,8 @@ from .sort_bar import SortBar
 from .table_view import TableView
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
+from .win_copy_files import WinCopyFiles
+from .win_go_to import WinGoTo
 
 
 class TabsWidget(QTabWidget):
@@ -144,7 +144,7 @@ class MainWin(WinBase):
 
         self.tabs_widget = TabsWidget()
         self.tree_menu = TreeMenu(self.main_win_item)
-        self.favs_menu = FavsMenu(self.main_win_item)
+        self.favs_menu = MenuFavs(self.main_win_item)
         self.tabs_widget.addTab(self.tree_menu, MainWin.folders_text)
         self.tabs_widget.addTab(self.favs_menu, MainWin.favs_text)
 
@@ -310,7 +310,7 @@ class MainWin(WinBase):
         self.img_view_win.show()
 
     def open_go_to_win(self):
-        self.go_win = GoToWin()
+        self.go_win = WinGoTo()
         self.go_win.closed.connect(self.path_finder_cmd)
         self.go_win.center(self)
         self.go_win.show()
