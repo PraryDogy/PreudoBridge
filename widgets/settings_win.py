@@ -55,7 +55,7 @@ class SvgArrow(QSvgWidget):
         return super().mouseReleaseEvent(a0)
     
 
-class DataSizeWid(GroupWid):
+class DataSizeWidget(GroupWid):
     data_size_text = "Размер кэша:"
     files_text = "Кол-во файлов:"
     calculating = "вычисляю..."
@@ -84,7 +84,7 @@ class DataSizeWid(GroupWid):
         UThreadPool.start(self.task_)
 
 
-class ClickableLabels(QGroupBox):
+class ClickableWidgets(QGroupBox):
     json_descr_text = "Системные файлы приложения."
     show_descr = "Очистка данных."
     btn_w = 110
@@ -133,7 +133,7 @@ class ClickableLabels(QGroupBox):
         UThreadPool.start(self.clear_task)
 
 
-class About(QGroupBox):
+class AboutWidget(QGroupBox):
     svg_size = 70
     text_ = (
             f"{Static.app_name} {Static.app_ver}\n"
@@ -148,11 +148,11 @@ class About(QGroupBox):
 
         images = Static.internal_images_dir
         svg_ = USvgSqareWidget(
-            os.path.join(images, "icon.svg"), About.svg_size
+            os.path.join(images, "icon.svg"), AboutWidget.svg_size
         )
         h_lay.addWidget(svg_)
 
-        descr = QLabel(About.text_)
+        descr = QLabel(AboutWidget.text_)
         h_lay.addWidget(descr)
 
 
@@ -359,13 +359,13 @@ class SettingsWin(MinMaxDisabledWin):
         themes_wid.theme_changed.connect(self.theme_changed_cmd)
         main_lay.addWidget(themes_wid)
 
-        data_size_wid = DataSizeWid()
+        data_size_wid = DataSizeWidget()
         main_lay.addWidget(data_size_wid)
 
-        clickable_labels = ClickableLabels()
+        clickable_labels = ClickableWidgets()
         main_lay.addWidget(clickable_labels)
 
-        about_wid = About()
+        about_wid = AboutWidget()
         main_lay.addWidget(about_wid)
 
     def theme_changed_cmd(self):
