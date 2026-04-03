@@ -110,34 +110,44 @@ class ImgLoader:
 
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
-
-        fast_update_items: list[DataItem] = []
         new_images: list[DataItem] = []
         exist_images: list[DataItem] = []
         svg_files: list[DataItem] = []
 
         for data_item in data_items:
             if data_item.image_is_loaded:
+                # НЕ РАБОТАЕТ
                 continue
-            fast_update_items.append(data_item)
             data_item.set_hash_and_thumb_path()
-            data_item.rating = ImgLoader.get_item_rating(data_item, conn)
             if data_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(data_item)
             else:
                 if os.path.exists(data_item.thumb_path):
                     exist_images.append(data_item)
                 else:
-                    print('new imags')
                     new_images.append(data_item)
-        ImgLoader.fast_update(fast_update_items, queue)
-        ImgLoader.execute_exist_images(exist_images, queue)
-        ImgLoader.execute_new_images(new_images, queue)
+        
+        with Dbase.create_engine().begin() as conn:
+            ImgLoader.set_ratings(data_items, queue, conn)
+            ImgLoader.execute_exist_images(exist_images, queue)
+            ImgLoader.execute_new_images(new_images, queue, conn)
 
     @staticmethod
-    def fast_update(data_items: list[DataItem], queue: Queue):
-        for i in data_items:
-            queue.put(i)
+    def set_ratings(
+        data_items: list[DataItem],
+        queue: Queue,
+        conn: sqlalchemy.Connection
+    ):
+        hashes = {i.partial_hash: i for i in data_items}
+        stmt = (
+            sqlalchemy.select(CacheTable.partial_hash, CacheTable.rating)
+            .where(CacheTable.partial_hash.in_(hashes))
+        )
+        res = conn.execute(stmt).fetchall()
+        for partial_hash, rating in res:
+            data_item = hashes[partial_hash]
+            data_item.rating = rating
+            queue.put(data_item)
 
     @staticmethod
     def execute_svg_files(data_items: list[DataItem], queue: Queue):
@@ -159,7 +169,11 @@ class ImgLoader:
             queue.put(i)
 
     @staticmethod
-    def execute_new_images(data_items: list[DataItem], queue: Queue):
+    def execute_new_images(
+        data_items: list[DataItem],
+        queue: Queue,
+        conn: sqlalchemy.Connection
+    ):
         if not data_items:
             return
         values = []
@@ -184,8 +198,7 @@ class ImgLoader:
             sqlalchemy.insert(CacheTable.table)
             .values(values)
         )
-        with Dbase.create_engine().begin() as conn:
-            conn.execute(stmt)
+        conn.execute(stmt)
 
     @staticmethod
     def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
