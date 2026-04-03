@@ -337,6 +337,7 @@ class SettingsWin(MinMaxDisabledWin):
         super().__init__()
         self.setWindowTitle(SettingsWin.title_text)
         self.set_modality()
+        self.setFixedSize(500, 480)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 0, 10, 10)
@@ -363,8 +364,6 @@ class SettingsWin(MinMaxDisabledWin):
 
         about_wid = About()
         main_lay.addWidget(about_wid)
-
-        self.adjustSize()
 
     def theme_changed_cmd(self):
         self.theme_changed.emit()
