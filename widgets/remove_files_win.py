@@ -1,13 +1,9 @@
-import os
-
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from cfg import Dynamic, Static
+from cfg import Dynamic
 from system.items import MainWinItem
 from system.tasks import FileRemover, UThreadPool
 
-from ._base_widgets import MinMaxDisabledWin, SmallBtn, USvgSqareWidget
 from .warn_win import ConfirmWindow
 
 
@@ -44,7 +40,6 @@ class RemoveFilesWin(ConfirmWindow):
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
             self.deleteLater()
-
         elif a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.cmd_()
         return super().keyPressEvent(a0)
