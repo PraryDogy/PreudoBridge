@@ -7,7 +7,8 @@ from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsDropShadowEffect,
                              QHBoxLayout, QLabel, QLineEdit, QMainWindow,
-                             QMenu, QScrollArea, QSlider, QTextEdit, QWidget, QPushButton)
+                             QMenu, QPushButton, QScrollArea, QSlider,
+                             QTextEdit, QWidget)
 
 from cfg import Static
 
@@ -424,6 +425,11 @@ class NotifyWid(QFrame):
 class SmallBtn(QPushButton):
     def __init__(self, text: str):
         super().__init__(text)
-        self.setStyleSheet("""
-        font-size: 11pt;
-        """)
+        self.setStyleSheet("""font-size: 11pt;""")
+
+
+class HSep(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.setStyleSheet("background: rgba(128, 128, 128, 0.2)")
+        self.setFixedHeight(1)

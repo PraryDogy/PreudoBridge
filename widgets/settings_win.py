@@ -2,7 +2,7 @@ import os
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QCheckBox, QFrame, QGridLayout, QGroupBox,
@@ -12,49 +12,48 @@ from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
 from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 
-from ._base_widgets import (MinMaxDisabledWin, SmallBtn, ULabel, USlider,
-                            USvgSqareWidget)
+from ._base_widgets import HSep, MinMaxDisabledWin, ULabel, USvgSqareWidget
 # возможно в main win
 from .warn_win import ConfirmWindow, WinWarn
 
 
-class DataLimitSlider(QWidget):
-    value_changed = pyqtSignal(int)
-
-    def __init__(self, data_limits: dict, initial_index: int, lbl_w = 65):
+class GroupWid(QGroupBox):
+    def __init__(self):
+        """
+        QGroupBox + self.layout_ (vertical layout)
+        """
         super().__init__()
+        self.layout_ = QVBoxLayout()
+        self.layout_.setContentsMargins(6, 2, 6, 2)
+        self.layout_.setSpacing(2)
+        self.setLayout(self.layout_)
 
-        self.data_limits = data_limits
-        self.initial_index = initial_index
 
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(v_lay)
+class GroupChild(QWidget):
+    hh = 30
+    def __init__(self):
+        """
+        QWidget fixed height + horizontal layout
+        """
+        super().__init__()
+        self.setFixedHeight(self.hh)
+        self.layout_ = QHBoxLayout()
+        self.setLayout(self.layout_)
 
-        # Горизонтальный лейаут для меток
-        hor_lay = QHBoxLayout()
-        hor_lay.setContentsMargins(0, 0, 0, 0)
-        v_lay.addLayout(hor_lay)
 
-        slider_w = 0
-        for k, v in self.data_limits.items():
-            lbl = QLabel(v["text"])
-            lbl.setFixedWidth(lbl_w)
-            lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            slider_w += lbl_w
-            hor_lay.addWidget(lbl)
+class SvgArrow(QSvgWidget):
+    clicked = pyqtSignal()
+    img = "./images/next.svg"
+    size_ = 16
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.load(self.img)
+        self.setFixedSize(self.size_, self.size_)
 
-        # Слайдер
-        minimum, maximum = 0, len(self.data_limits) - 1
-        self.slider = USlider(Qt.Orientation.Horizontal, minimum, maximum)
-        self.slider.setFixedWidth(slider_w - 10)
-        self.slider.setValue(self.initial_index)
-        self.slider.valueChanged.connect(self.snap_to_step)
-        v_lay.addWidget(self.slider, alignment=Qt.AlignmentFlag.AlignCenter)
-
-    def snap_to_step(self, value):
-        self.value_changed.emit(value)
-
+    def mouseReleaseEvent(self, a0):
+        self.clicked.emit()
+        return super().mouseReleaseEvent(a0)
+    
 
 class DataSizeWid(QGroupBox):
     data_size_text = "Размер кэша:"
