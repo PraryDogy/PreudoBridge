@@ -169,6 +169,16 @@ class AboutWidget(QGroupBox):
         h_lay.addWidget(descr)
 
 
+class UCheckBox(QCheckBox):
+    hh = 30
+
+    def __init__(self, text: str):
+        super().__init__(
+            text = " " + text
+        )
+        self.setFixedHeight(self.hh)
+
+
 class CheckboxWidgets(QGroupBox):
     load_st_grid = pyqtSignal()
     show_texts_sig = pyqtSignal()
@@ -187,13 +197,21 @@ class CheckboxWidgets(QGroupBox):
         v_lay.setContentsMargins(self.left_margin, 0, 0, 0)
         self.setLayout(v_lay)
 
-        self.show_hidden = QCheckBox(" " + self.text_)
+        self.show_hidden = UCheckBox(self.text_)
+        self.show_hidden.setFixedHeight(30)
         v_lay.addWidget(self.show_hidden)
 
-        self.enable_go_to = QCheckBox(" " + self.go_to_text)
+        v_lay.addWidget(HSep())
+
+        self.enable_go_to = UCheckBox(self.go_to_text)
+        self.enable_go_to.setFixedHeight(
+            int(self.enable_go_to.hh * 1.2)
+        )
         v_lay.addWidget(self.enable_go_to)
 
-        self.show_texts = QCheckBox(" " + self.show_texts_text)
+        v_lay.addWidget(HSep())
+
+        self.show_texts = UCheckBox(self.show_texts_text)
         v_lay.addWidget(self.show_texts)
 
         if JsonData.show_hidden:
@@ -353,7 +371,7 @@ class SettingsWin(MinMaxDisabledWin):
         super().__init__()
         self.setWindowTitle(SettingsWin.title_text)
         self.set_modality()
-        self.setFixedSize(450, 480)
+        self.setFixedSize(470, 510)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 0, 10, 10)
