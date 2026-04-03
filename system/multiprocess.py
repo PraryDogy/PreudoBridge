@@ -141,6 +141,8 @@ class ImgLoader:
             .where(CacheTable.partial_hash.in_(hashes))
         )
         res = conn.execute(stmt).fetchall()
+        if not res:
+            return
         for partial_hash, rating in res:
             data_item = hashes[partial_hash]
             data_item.rating = rating
