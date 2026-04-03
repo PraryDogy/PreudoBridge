@@ -282,10 +282,10 @@ class WinMain(WinBase):
             wid = self.grid.url_to_wid.get(url)
             if not wid:
                 return
-            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.data, rating)
+            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.data_item, rating)
             assert isinstance(self.rating_task, RatingTask)
             self.rating_task.sigs.finished_.connect(
-                lambda: self.grid.set_thumb_rating(wid.data, rating)
+                lambda: self.grid.set_thumb_rating(wid.data_item, rating)
             )
             UThreadPool.start(self.rating_task)
 

@@ -130,9 +130,9 @@ class Thumb(QFrame):
     thumb_h: int = 0
     corner: int = 0
 
-    def __init__(self, data: DataItem):
+    def __init__(self, data_item: DataItem):
         super().__init__()
-        self.data = data
+        self.data_item = data_item
 
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(0, 0, 0, 0)
@@ -182,18 +182,18 @@ class Thumb(QFrame):
             pixmap = QPixmap.fromImage(qimage)
             self.img_wid.setPixmap(pixmap)
 
-        appkit_icon = AppKitIcon(self.data.src)
+        appkit_icon = AppKitIcon(self.data_item.src)
         appkit_icon.finished_.connect(fin)
         appkit_icon.get_qimages()
 
     def set_image(self):
-        qimage = self.data.qimages[Thumb.current_image_size]
+        qimage = self.data_item.qimages[Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
-        self.data.image_is_loaded = True
+        self.data_item.image_is_loaded = True
 
     def set_blue_text(self):
-        self.blue_text_wid.set_text(self.data)
+        self.blue_text_wid.set_text(self.data_item)
 
     def resize_(self):
         """
@@ -201,14 +201,14 @@ class Thumb(QFrame):
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
-        self.text_wid.set_text(self.data)
+        self.text_wid.set_text(self.data_item)
         self.set_blue_text()
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.current_image_size, Thumb.current_image_size)
         self.img_frame.setFixedSize(Thumb.current_img_frame_size, Thumb.current_img_frame_size)
 
-        if self.data.qimages:
+        if self.data_item.qimages:
             self.set_image()
         else:
             self.set_uti_data()
@@ -364,7 +364,7 @@ class Grid(UScrollArea):
         is_selected = any(
             i
             for i in self.selected_thumbs
-            if i.data.src==e.src_path
+            if i.data_item.src==e.src_path
         )
         new_thumb = None
         event: Literal["deleted", "created", "moved", "modified"] = e.event_type
@@ -385,7 +385,7 @@ class Grid(UScrollArea):
         elif event == "modified":
             if e.src_path in self.url_to_wid:
                 wid = self.url_to_wid[e.src_path]
-                wid.data.set_properties()
+                wid.data_item.set_properties()
                 wid.set_blue_text()
         if not self.url_to_wid:
             self.create_no_items_label(NoItemsLabel.no_files)
@@ -402,8 +402,8 @@ class Grid(UScrollArea):
         visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
             stmt = (
-                thumb.data.qimages,
-                thumb.data.type_ not in ImgUtils.ext_all,
+                thumb.data_item.qimages,
+                thumb.data_item.type_ not in ImgUtils.ext_all,
                 thumb in self.loaded_thumbs
             )
             if any(stmt):
@@ -438,7 +438,7 @@ class Grid(UScrollArea):
                         for size in Static.image_sizes:
                             resized_qimage = Utils.scaled(original_qimage, size)
                             qimages[size] = resized_qimage
-                        thumb.data.qimages = qimages
+                        thumb.data_item.qimages = qimages
                         thumb.set_image()
 
             except RuntimeError as e:
@@ -459,7 +459,7 @@ class Grid(UScrollArea):
 
         img_task = ProcessWorker(
             target=ImgLoader.start,
-            args=([i.data for i in thumbs], )
+            args=([i.data_item for i in thumbs], )
         )
 
         img_timer = QTimer(self)
@@ -494,7 +494,7 @@ class Grid(UScrollArea):
         QTimer.singleShot(0, path_bar_update_delayed)
     
     def sort_thumbs(self):
-        data_items = [i.data for i in self.url_to_wid.values()]
+        data_items = [i.data_item for i in self.url_to_wid.values()]
         sorted_data_items = DataItem.sort_(data_items, self.sort_item)
         new_url_to_wid = {}
         for i in sorted_data_items:
@@ -512,18 +512,18 @@ class Grid(UScrollArea):
         visible_thumbs = 0
         for wid in self.url_to_wid.values():
             show_widget = True
-            if Dynamic.rating_filter > 0 and wid.data.rating != Dynamic.rating_filter:
+            if Dynamic.rating_filter > 0 and wid.data_item.rating != Dynamic.rating_filter:
                 show_widget = False
             if Dynamic.word_filters:
                 for i in Dynamic.word_filters:
-                    if i.lower() not in wid.data.filename.lower():
+                    if i.lower() not in wid.data_item.filename.lower():
                         show_widget = False
             if show_widget:
-                wid.data.must_hidden = False
+                wid.data_item.must_hidden = False
                 wid.show()
                 visible_thumbs += 1
             else:
-                wid.data.must_hidden = True
+                wid.data_item.must_hidden = True
                 wid.hide()
         if visible_thumbs == 0:
             self.create_no_items_label(NoItemsLabel.no_filter)
@@ -554,7 +554,7 @@ class Grid(UScrollArea):
         self.row, self.col = 0, 0
         self.col_count = self.get_clmn_count()
         for wid in self.url_to_wid.values():
-            if wid.data.must_hidden:
+            if wid.data_item.must_hidden:
                 continue
             self.grid_layout.addWidget(wid, self.row, self.col)
             self.add_widget_data(wid, self.row, self.col)
@@ -570,32 +570,32 @@ class Grid(UScrollArea):
         Устанавливает thumb.row, thumb.col
         Добавляет thumb в cell to wid, url to wid
         """
-        wid.data.row, wid.data.col = row, col
+        wid.data_item.row, wid.data_item.col = row, col
         self.cell_to_wid[row, col] = wid
-        self.url_to_wid[wid.data.src] = wid
+        self.url_to_wid[wid.data_item.src] = wid
 
     def open_thumb(self):
         if len(self.selected_thumbs) == 1:
             wid = self.selected_thumbs[0]
-            if wid.data.src.endswith(ImgUtils.ext_all):
+            if wid.data_item.src.endswith(ImgUtils.ext_all):
                 url_to_wid = {
                     url: wid
                     for url, wid in self.url_to_wid.items()
-                    if url.endswith(ImgUtils.ext_all) and not wid.data.must_hidden
+                    if url.endswith(ImgUtils.ext_all) and not wid.data_item.must_hidden
                 }
                 is_selection = False
-                self.open_img_view(wid.data.src, url_to_wid, is_selection)
-            elif wid.data.type_ == Static.folder_type:
-                self.new_history_item.emit(wid.data.src)
-                self.main_win_item.main_dir = wid.data.src
+                self.open_img_view(wid.data_item.src, url_to_wid, is_selection)
+            elif wid.data_item.type_ == Static.folder_type:
+                self.new_history_item.emit(wid.data_item.src)
+                self.main_win_item.main_dir = wid.data_item.src
                 self.load_st_grid.emit()
             else:
-                Utils.open_in_def_app(wid.data.src)
+                Utils.open_in_def_app(wid.data_item.src)
         else:
             url_to_wid = {
-                i.data.src: i
+                i.data_item.src: i
                 for i in self.selected_thumbs
-                if i.data.src.endswith(ImgUtils.ext_all) and not i.data.must_hidden
+                if i.data_item.src.endswith(ImgUtils.ext_all) and not i.data_item.must_hidden
             }
 
             if url_to_wid:
@@ -604,20 +604,20 @@ class Grid(UScrollArea):
                 self.open_img_view(start_url, url_to_wid, is_selection)
 
             folders = [
-                i.data.src
+                i.data_item.src
                 for i in self.selected_thumbs
-                if i.data.type_ == Static.folder_type
+                if i.data_item.type_ == Static.folder_type
             ]
 
             for i in folders:
                 self.open_in_new_win.emit((i, None))
 
             files = [
-                i.data.src
+                i.data_item.src
                 for i in self.selected_thumbs
-                if not i.data.src.endswith(ImgUtils.ext_all)
+                if not i.data_item.src.endswith(ImgUtils.ext_all)
                 and
-                i.data.type_ != Static.folder_type
+                i.data_item.type_ != Static.folder_type
             ]
 
             for i in files:
@@ -650,9 +650,9 @@ class Grid(UScrollArea):
         Загружает сетку GridStandart с указанным путем к файлу / папке
         """
         def cmd(main_dir: str):
-            self.open_in_new_win.emit((main_dir, wid.data.src, ))
+            self.open_in_new_win.emit((main_dir, wid.data_item.src, ))
 
-        new_main_dir = os.path.dirname(wid.data.src)
+        new_main_dir = os.path.dirname(wid.data_item.src)
         QTimer.singleShot(100, lambda: cmd(new_main_dir))
 
     def setup_urls_to_copy(self):
@@ -663,7 +663,7 @@ class Grid(UScrollArea):
         ClipboardItem.set_is_search(self.is_grid_search)
         ClipboardItem.src_urls.clear()
         for i in self.selected_thumbs:
-            ClipboardItem.src_urls.append(i.data.src)
+            ClipboardItem.src_urls.append(i.data_item.src)
 
     def remove_no_items_label(self):
         wid = self.grid_wid.findChild(NoItemsLabel)
@@ -718,13 +718,13 @@ class Grid(UScrollArea):
             return
         if wid in self.selected_thumbs:
             self.selected_thumbs.remove(wid)
-        self.cell_to_wid.pop((wid.data.row, wid.data.col))
+        self.cell_to_wid.pop((wid.data_item.row, wid.data_item.col))
         self.url_to_wid.pop(url)
         wid.deleteLater()
 
     def set_thumb_rating(self, data_item: DataItem, new_rating: int):
         wid = self.url_to_wid.get(data_item.src)
-        wid.data.rating = new_rating
+        wid.data_item.rating = new_rating
         wid.set_blue_text()
         wid.text_changed.emit()
 
@@ -736,8 +736,8 @@ class Grid(UScrollArea):
         """
 
         for wid in self.selected_thumbs:
-            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.data, rating)
-            cmd_ = lambda d=wid.data: self.set_thumb_rating(d, rating)
+            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.data_item, rating)
+            cmd_ = lambda d=wid.data_item: self.set_thumb_rating(d, rating)
             self.rating_task.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
         
@@ -755,7 +755,7 @@ class Grid(UScrollArea):
         Выделяет виджет, добавляет его в список выделенных виджетов.
         """
         if isinstance(wid, Thumb):
-            self.path_bar_update_delayed(wid.data.src)
+            self.path_bar_update_delayed(wid.data_item.src)
             self.clear_selected_widgets()
             wid.set_frame()
             self.selected_thumbs.append(wid)
@@ -799,11 +799,11 @@ class Grid(UScrollArea):
     def rename_thumb(self, thumb: Thumb):
         
         def finished(text: str):
-            root = os.path.dirname(thumb.data.src)
+            root = os.path.dirname(thumb.data_item.src)
             new_url = os.path.join(root, text)
-            os.rename(thumb.data.src, new_url)
+            os.rename(thumb.data_item.src, new_url)
 
-        self.rename_win = WinRename(thumb.data.filename)
+        self.rename_win = WinRename(thumb.data_item.filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
@@ -812,20 +812,20 @@ class Grid(UScrollArea):
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [
-            i.data.src
+            i.data_item.src
             for i in self.selected_thumbs
         ]
         urls_img = [
-            i.data.src
+            i.data_item.src
             for i in self.selected_thumbs
-            if i.data.src.endswith(ImgUtils.ext_all)
+            if i.data_item.src.endswith(ImgUtils.ext_all)
         ]
         dirs = [
-            i.data.src
+            i.data_item.src
             for i in self.selected_thumbs
-            if i.data.type_ == Static.folder_type
+            if i.data_item.type_ == Static.folder_type
         ]
-        self.path_bar_update_delayed(wid.data.src)
+        self.path_bar_update_delayed(wid.data_item.src)
 
         menu_.setMinimumWidth(215)
 
@@ -833,38 +833,38 @@ class Grid(UScrollArea):
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
-        if wid.data.type_ in ImgUtils.ext_all:
+        if wid.data_item.type_ in ImgUtils.ext_all:
             open_in_app = ItemActions.OpenInApp(menu_, urls)
             menu_.addMenu(open_in_app)
-        elif wid.data.type_ == Static.folder_type:
+        elif wid.data_item.type_ == Static.folder_type:
             new_win = ItemActions.OpenInNewWindow(menu_)
-            new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.data.src, None)))
+            new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.data_item.src, None)))
             menu_.addAction(new_win)
 
-            if wid.data.src in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.data.src)
+            if wid.data_item.src in JsonData.favs:
+                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.data_item.src)
                 fav_action = ItemActions.FavRemove(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
             else:
-                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.data.src)
+                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.data_item.src)
                 fav_action = ItemActions.FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
 
-        rating_menu = ItemActions.RatingMenu(menu_, wid.data.rating)
+        rating_menu = ItemActions.RatingMenu(menu_, wid.data_item.rating)
         rating_menu.new_rating.connect(self.new_rating_multiple_start)
         menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(
-            lambda: self.open_win_info([i.data for i in self.selected_thumbs])
+            lambda: self.open_win_info([i.data_item for i in self.selected_thumbs])
         )
         menu_.addAction(info)
 
         menu_.addSeparator()
 
-        if wid.data.type_ in ImgUtils.ext_all and not self.is_grid_search:
+        if wid.data_item.type_ in ImgUtils.ext_all and not self.is_grid_search:
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
             menu_.addAction(convert_action)
@@ -1037,15 +1037,15 @@ class Grid(UScrollArea):
             # шифт клик: если уже был выделен один / несколько виджетов
             else:
                 coords = list(self.cell_to_wid)
-                start_pos = (self.selected_thumbs[-1].data.row, self.selected_thumbs[-1].data.col)
+                start_pos = (self.selected_thumbs[-1].data_item.row, self.selected_thumbs[-1].data_item.col)
                 # шифт клик: слева направо (по возрастанию)
-                if coords.index((self.wid_under_mouse.data.row, self.wid_under_mouse.data.col)) > coords.index(start_pos):
+                if coords.index((self.wid_under_mouse.data_item.row, self.wid_under_mouse.data_item.col)) > coords.index(start_pos):
                     start = coords.index(start_pos)
-                    end = coords.index((self.wid_under_mouse.data.row, self.wid_under_mouse.data.col))
+                    end = coords.index((self.wid_under_mouse.data_item.row, self.wid_under_mouse.data_item.col))
                     coords = coords[start : end + 1]
                 # шифт клик: справа налево (по убыванию)
                 else:
-                    start = coords.index((self.wid_under_mouse.data.row, self.wid_under_mouse.data.col))
+                    start = coords.index((self.wid_under_mouse.data_item.row, self.wid_under_mouse.data_item.col))
                     end = coords.index(start_pos)
                     coords = coords[start : end]
                 # выделяем виджеты по срезу координат coords
@@ -1062,7 +1062,7 @@ class Grid(UScrollArea):
             # комманд клик: виджет не был виделен, выделить
             else:
                 self.select_multiple_thumb(self.wid_under_mouse)
-                self.path_bar_update_delayed(self.wid_under_mouse.data.src)
+                self.path_bar_update_delayed(self.wid_under_mouse.data_item.src)
         else:
             self.select_single_thumb(self.wid_under_mouse)
 
@@ -1101,11 +1101,11 @@ class Grid(UScrollArea):
         self.mime_data = QMimeData()
         img_ = QPixmap.fromImage(self.copy_files_icon)
         self.drag.setPixmap(img_)
-        urls = [QUrl.fromLocalFile(i.data.src) for i in self.selected_thumbs]        
+        urls = [QUrl.fromLocalFile(i.data_item.src) for i in self.selected_thumbs]        
         if urls:
             self.mime_data.setUrls(urls)
         if self.wid_under_mouse:
-            self.path_bar_update_delayed(self.wid_under_mouse.data.src)
+            self.path_bar_update_delayed(self.wid_under_mouse.data_item.src)
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         self.drag.setMimeData(self.mime_data)
         self.setup_urls_to_copy()
@@ -1142,7 +1142,7 @@ class Grid(UScrollArea):
             elif a0.key() == Qt.Key.Key_I:
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
-                    self.open_win_info([i.data for i in self.selected_thumbs])
+                    self.open_win_info([i.data_item for i in self.selected_thumbs])
                 else:
                     data = DataItem(self.main_win_item.main_dir)
                     data.set_properties()
@@ -1164,7 +1164,7 @@ class Grid(UScrollArea):
                     self.select_multiple_thumb(wid)
 
             elif a0.key() == Qt.Key.Key_Backspace:
-                urls = [i.data.src for i in self.selected_thumbs]
+                urls = [i.data_item.src for i in self.selected_thumbs]
                 self.remove_files(urls)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
@@ -1191,19 +1191,19 @@ class Grid(UScrollArea):
             if not self.wid_under_mouse:
                 return
             coords = (
-                self.wid_under_mouse.data.row + offset[0], 
-                self.wid_under_mouse.data.col + offset[1]
+                self.wid_under_mouse.data_item.row + offset[0], 
+                self.wid_under_mouse.data_item.col + offset[1]
             )
             next_wid = self.cell_to_wid.get(coords)
             if next_wid is None:
                 if a0.key() == Qt.Key.Key_Right:
                     coords = (
-                        self.wid_under_mouse.data.row + 1, 
+                        self.wid_under_mouse.data_item.row + 1, 
                         0
                     )
                 elif a0.key() == Qt.Key.Key_Left:
                     coords = (
-                        self.wid_under_mouse.data.row - 1,
+                        self.wid_under_mouse.data_item.row - 1,
                         self.col_count - 1
                     )
                 next_wid = self.cell_to_wid.get(coords)
@@ -1278,7 +1278,7 @@ class Grid(UScrollArea):
         for proc, timer in self.proc_timer_dict.items():
             timer.stop()
             proc.terminate_join()
-        urls = [i.data.src for i in self.selected_thumbs]
+        urls = [i.data_item.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         return super().deleteLater()
     

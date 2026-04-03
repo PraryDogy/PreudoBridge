@@ -283,8 +283,8 @@ class WinImgView(WinBase):
 
     def set_title(self):
         text_ = os.path.basename(self.current_path)
-        if self.thumb.data.rating > 0:
-            text_ = f"{RATINGS[self.thumb.data.rating]} | {text_}"
+        if self.thumb.data_item.rating > 0:
+            text_ = f"{RATINGS[self.thumb.data_item.rating]} | {text_}"
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
@@ -296,8 +296,8 @@ class WinImgView(WinBase):
             pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)
 
-        elif self.thumb.data.image_is_loaded:
-            qimage = self.thumb.data.qimages["src"]
+        elif self.thumb.data_item.image_is_loaded:
+            qimage = self.thumb.data_item.qimages["src"]
             pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)
             self.load_image()
@@ -403,7 +403,7 @@ class WinImgView(WinBase):
         self.mouse_move_timer.start(2000)
 
     def win_info_cmd(self, src: str):
-        self.info_win.emit([self.thumb.data, ])
+        self.info_win.emit([self.thumb.data_item, ])
 
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
@@ -526,7 +526,7 @@ class WinImgView(WinBase):
 
         menu.addSeparator()
 
-        rating_menu = ItemActions.RatingMenu(menu, self.thumb.data.rating)
+        rating_menu = ItemActions.RatingMenu(menu, self.thumb.data_item.rating)
         rating_menu.new_rating.connect(lambda value: self.new_rating.emit((value, self.current_path)))
         menu.addMenu(rating_menu)
 
