@@ -10,7 +10,7 @@ from system.items import DataItem, MultipleInfoItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
-from ._base_widgets import MinMaxDisabledWin, UMenu
+from ._base_widgets import WinMinCloseOnly, UMenu
 from .actions import CopyText, RevealInFinder
 
 
@@ -58,7 +58,7 @@ class SelectableLabel(ULabel):
         menu.show_under_cursor()
 
 
-class InfoWin(MinMaxDisabledWin):
+class InfoWin(WinMinCloseOnly):
     finished_ = pyqtSignal()
     title_text = "Инфо"
     calc_text = "Вычисляю..."

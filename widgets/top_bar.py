@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem, SearchItem
 
-from ._base_widgets import (MinMaxDisabledWin, SmallBtn, UFrame, ULineEdit,
+from ._base_widgets import (WinMinCloseOnly, SmallBtn, UFrame, ULineEdit,
                             UMenu, USvgSqareWidget, UTextEdit)
 
 
@@ -69,7 +69,7 @@ class BarTopBtn(QWidget):
             self.clicked.emit()
         super().mouseReleaseEvent(e)
 
-class ListWin(MinMaxDisabledWin):
+class ListWin(WinMinCloseOnly):
     title_text = "Поиск"
     search_place_text = "Место поиска:"
     descr_text = "Список файлов (по одному в строке):"

@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QMenuBar,
 from cfg import Static
 from system.utils import Utils
 
-from ._base_widgets import MinMaxDisabledWin, UMenu
+from ._base_widgets import WinMinCloseOnly, UMenu
 from .servers_win import ServersWin
 from .settings_win import SettingsWin
 
@@ -66,7 +66,7 @@ class SelectableLabel(QLabel):
         context_menu.show_umenu()
 
 
-class AboutWin(MinMaxDisabledWin):
+class AboutWin(WinMinCloseOnly):
     """
     Окно "О программе" с информацией о версии, авторе и контактами.
     

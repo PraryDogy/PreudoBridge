@@ -2,10 +2,10 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
-from ._base_widgets import MinMaxDisabledWin, ULineEdit, SmallBtn
+from ._base_widgets import WinMinCloseOnly, ULineEdit, SmallBtn
 
 
-class GoToWin(MinMaxDisabledWin):
+class GoToWin(WinMinCloseOnly):
     closed = pyqtSignal(str)
     placeholder_text = "Вставьте путь к файлу/папке"
     title_text = "Перейти к ..."

@@ -12,7 +12,7 @@ from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
 from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 
-from ._base_widgets import HSep, MinMaxDisabledWin, ULabel, USvgSqareWidget
+from ._base_widgets import HSep, WinMinCloseOnly, ULabel, USvgSqareWidget
 # возможно в main win
 from .warn_win import ConfirmWindow, WinWarn
 
@@ -355,7 +355,7 @@ class Themes(QGroupBox):
             f.selected(f is selected_frame)
 
 
-class SettingsWin(MinMaxDisabledWin):
+class SettingsWin(WinMinCloseOnly):
     remove_db = pyqtSignal()
     load_st_grid = pyqtSignal()
     title_text = "Настройки"

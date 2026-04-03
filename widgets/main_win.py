@@ -19,7 +19,7 @@ from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
 from .bar_macos import BarMacos
-from .copy_files_win import CopyFilesWin, ErrorWin
+from .win_copy_files import WinCopyFiles, WinError
 from .favs_menu import FavsMenu
 from .go_win import GoToWin
 from .grid import Grid
@@ -438,7 +438,7 @@ class MainWin(WinBase):
                 self.load_st_grid()
 
         ClipboardItem.set_dest(self.main_win_item.main_dir)
-        self.win_copy = CopyFilesWin()
+        self.win_copy = WinCopyFiles()
         self.win_copy.finished_.connect(paste_final)
         self.win_copy.center(self.window())
         self.win_copy.show()

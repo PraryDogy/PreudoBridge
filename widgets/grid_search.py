@@ -8,7 +8,7 @@ from cfg import Static
 from system.items import DataItem, MainWinItem, SearchItem, SortItem
 from system.multiprocess import SearchTask, SearchTaskWorker
 
-from ._base_widgets import (MinMaxDisabledWin, NotifyWid, SmallBtn,
+from ._base_widgets import (WinMinCloseOnly, NotifyWid, SmallBtn,
                             USvgSqareWidget, UTextEdit)
 from .grid import Grid, Thumb
 
@@ -17,7 +17,7 @@ class DirsWatched:
     def set_should_run(self): ...
 
 
-class WinMissedFiles(MinMaxDisabledWin):
+class WinMissedFiles(WinMinCloseOnly):
     title_text = "Внимание!"
     descr_text = "Не найдены файлы:"
     svg_size = 50

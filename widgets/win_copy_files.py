@@ -7,11 +7,11 @@ from cfg import Static
 from system.items import ClipboardItem, CopyItem
 from system.multiprocess import CopyTask, CopyWorker
 
-from ._base_widgets import MinMaxDisabledWin, SmallBtn, USvgSqareWidget
+from ._base_widgets import WinMinCloseOnly, SmallBtn, USvgSqareWidget
 from .progressbar_win import ProgressbarWin
 
 
-class ReplaceFilesWin(MinMaxDisabledWin):
+class WinReplaceFiles(WinMinCloseOnly):
     descr_text = "Заменить существующие файлы?"
     title_text = "Замена"
     replace_one_text = "Заменить"
@@ -92,7 +92,7 @@ class ReplaceFilesWin(MinMaxDisabledWin):
         a0.ignore()
     
 
-class ErrorWin(MinMaxDisabledWin):
+class WinError(WinMinCloseOnly):
     descr_text = "Произошла ошибка при копировании"
     title_text = "Ошибка"
     ok_text = "Ок"
@@ -101,7 +101,7 @@ class ErrorWin(MinMaxDisabledWin):
     def __init__(self):
         super().__init__()
         self.set_modality()
-        self.setWindowTitle(ErrorWin.title_text)
+        self.setWindowTitle(WinError.title_text)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 5, 10, 10)
@@ -116,14 +116,14 @@ class ErrorWin(MinMaxDisabledWin):
         h_lay.setSpacing(10)
         h_wid.setLayout(h_lay)
 
-        warn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "warning.svg"), ErrorWin.icon_size)
+        warn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "warning.svg"), WinError.icon_size)
         h_lay.addWidget(warn)
 
-        test_two = QLabel(ErrorWin.descr_text)
+        test_two = QLabel(WinError.descr_text)
         test_two.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         h_lay.addWidget(test_two)
 
-        ok_btn = SmallBtn(ErrorWin.ok_text)
+        ok_btn = SmallBtn(WinError.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         main_lay.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -141,7 +141,7 @@ class ErrorWin(MinMaxDisabledWin):
         return super().keyPressEvent(a0)
 
 
-class CopyFilesWin(ProgressbarWin):
+class WinCopyFiles(ProgressbarWin):
     finished_ = pyqtSignal(list)
     preparing_text = "Подготовка"
     progressbar_width = 300
@@ -194,7 +194,7 @@ class CopyFilesWin(ProgressbarWin):
             copy_item: CopyItem = self.copy_task.process_queue.get()
 
             if copy_item.msg == "error":
-                self.error_win = ErrorWin()
+                self.error_win = WinError()
                 self.error_win.center(self.window())
                 self.error_win.show()
                 self.stop_task()
@@ -202,7 +202,7 @@ class CopyFilesWin(ProgressbarWin):
                 return
             
             elif copy_item.msg == "need_replace":
-                self.replace_win = ReplaceFilesWin()
+                self.replace_win = WinReplaceFiles()
                 self.replace_win.center(self)
                 self.replace_win.replace_all_press.connect(self.replace_all)
                 self.replace_win.replace_one_press.connect(self.replace_one)

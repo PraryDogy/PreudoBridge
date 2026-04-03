@@ -4,10 +4,10 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from ._base_widgets import MinMaxDisabledWin, SmallBtn, ULineEdit
+from ._base_widgets import WinMinCloseOnly, SmallBtn, ULineEdit
 
 
-class RenameWin(MinMaxDisabledWin):
+class RenameWin(WinMinCloseOnly):
     finished_ = pyqtSignal(str)
     placeholder_text = "Введите текст"
     ok_text = "Ок"

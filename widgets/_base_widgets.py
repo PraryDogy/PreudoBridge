@@ -349,7 +349,7 @@ class WinBase(QMainWindow):
         return super().closeEvent(a0)
 
 
-class MinMaxDisabledWin(WinBase):
+class WinMinCloseOnly(WinBase):
     def __init__(self):
         """
         Окно без кнопок свернуть и развернуть.  

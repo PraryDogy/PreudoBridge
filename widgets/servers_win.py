@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QListWidget,
 
 from cfg import Static
 
-from ._base_widgets import MinMaxDisabledWin, SmallBtn, ULineEdit, UMenu
+from ._base_widgets import WinMinCloseOnly, SmallBtn, ULineEdit, UMenu
 from .warn_win import ConfirmWindow
 
 # from cfg import Cfg
@@ -133,7 +133,7 @@ class ServerLabel(QLabel):
         self.setStyleSheet("padding-left: 1px;")
 
 
-class LoginWin(MinMaxDisabledWin):
+class LoginWin(WinMinCloseOnly):
     ok_pressed = pyqtSignal(ServerItem)
     ww = 300
 
@@ -236,7 +236,7 @@ class LoginWin(MinMaxDisabledWin):
         return super().keyPressEvent(a0)
 
 
-class ServersWin(MinMaxDisabledWin):
+class ServersWin(WinMinCloseOnly):
     def __init__(self):
         super().__init__()
         Servers.json_to_app()

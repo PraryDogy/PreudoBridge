@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
 
 from cfg import Static
 
-from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
+from ._base_widgets import WinMinCloseOnly, USvgSqareWidget
 
 
 class CancelBtn(USvgSqareWidget):
@@ -22,7 +22,7 @@ class CancelBtn(USvgSqareWidget):
         return super().mouseReleaseEvent(a0)
 
 
-class ProgressbarWin(MinMaxDisabledWin):
+class ProgressbarWin(WinMinCloseOnly):
 
     progressbar_width = 300
     icon_size = 50

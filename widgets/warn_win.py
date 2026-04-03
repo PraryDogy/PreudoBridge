@@ -2,10 +2,10 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 
-from ._base_widgets import MinMaxDisabledWin, SmallBtn
+from ._base_widgets import WinMinCloseOnly, SmallBtn
 
 
-class ConfirmWindow(MinMaxDisabledWin):
+class ConfirmWindow(WinMinCloseOnly):
     ok_clicked = pyqtSignal()
     ww = 360
     svg_icon = "./images/warning.svg"
