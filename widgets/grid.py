@@ -434,11 +434,16 @@ class Grid(UScrollArea):
                 thumb.set_blue_text()
                 if data_item.img_array is not None:
                     qimages = {}
-                    original_qimage = Utils.qimage_from_array(data_item.img_array)
+                    original_qimage = Utils.qimage_from_array(
+                        image=data_item.img_array
+                    )
                     if original_qimage is not None:
                         qimages["src"] = original_qimage
                         for size in Static.image_sizes:
-                            resized_qimage = Utils.scaled(original_qimage, size)
+                            resized_qimage = Utils.scaled(
+                                qimage=original_qimage,
+                                size=size
+                            )
                             qimages[size] = resized_qimage
                         thumb.data_item.qimages = qimages
                         thumb.set_image()
@@ -450,8 +455,7 @@ class Grid(UScrollArea):
             q = img_task.process_queue
             while not q.empty():
                 data_item: DataItem = q.get()
-                if data_item.img_array is not None:
-                    update_thumb(data_item)
+                update_thumb(data_item)
 
             if not img_task.is_alive() and q.empty():
                 img_task.terminate_join()

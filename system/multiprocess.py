@@ -112,88 +112,30 @@ class ImgLoader:
         data_items.sort(key=lambda x: x.size)
         new_images: list[DataItem] = []
         exist_images: list[DataItem] = []
+        fast_update_items: list[DataItem] = []
         svg_files: list[DataItem] = []
-        exist_ratings: list[DataItem] = []
-
-        # stmt_list: list = []
-
-        insert_folders: list[DataItem] = []
-        update_folders: list[DataItem] = []
-        insert_files: list[DataItem] = []
-        update_files: list[DataItem] = []
-
 
         for data_item in data_items:
-            print(data_item.filename, data_item.rating)
             if data_item.image_is_loaded:
                 continue
+            fast_update_items.append(data_item)
+            data_item.set_partial_hash()
+            data_item.rating = ImgLoader.get_item_rating(data_item, conn)
             if data_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(data_item)
-            elif data_item.type_ == Static.folder_type:
-                rating = ImgLoader.get_item_rating(data_item, conn)
-                if rating is None:
-                    insert_folders.append(data_item)
-                    # stmt_list.append(DataItem.insert_folder_stmt(data_item))
-                else:
-                    data_item.rating = rating
-                    update_folders.append(data_item)
-                    # stmt_list.append(DataItem.update_folder_stmt(data_item))
-                    exist_ratings.append(data_item)
             else:
-                data_item.set_partial_hash()
-                rating = ImgLoader.get_item_rating(data_item, conn)
-                if rating is None:
-                    insert_files.append(data_item)
-                    # stmt_list.append(DataItem.insert_file_stmt(data_item))
-                    if data_item.type_ in ImgUtils.ext_all:
-                        new_images.append(data_item)
+                if os.path.exists(data_item.thumb_path):
+                    exist_images.append(data_item)
                 else:
-                    data_item.rating = rating
-                    update_files.append(data_item)
-                    # stmt_list.append(DataItem.update_file_stmt(data_item))
-                    if data_item.type_ in ImgUtils.ext_all:
-                        if data_item.thumb_path and os.path.exists(data_item.thumb_path):
-                            exist_images.append(data_item)
-                        else:
-                            new_images.append(data_item)
-                    else:
-                        exist_ratings.append(data_item)
-
-        ImgLoader.execute_ratings(exist_ratings, queue)
-        ImgLoader.execute_svg_files(svg_files, queue)
+                    new_images.append(data_item)
+        ImgLoader.fast_update(fast_update_items, queue)
         ImgLoader.execute_exist_images(exist_images, queue)
         ImgLoader.execute_new_images(new_images, queue)
-        # ImgLoader.execute_stmt_list(stmt_list, conn)
-        ImgLoader.insert_folders(insert_folders)
 
     @staticmethod
-    def insert_folders(data_items: list[DataItem]):
-        if not data_items:
-            return
-        values = []
-        for data_item in data_items:
-            print(data_item.filename)
-            values.append({
-                CacheTable.name.name: data_item.filename,
-                CacheTable.type.name: data_item.type_,
-                CacheTable.size.name: data_item.size,
-                CacheTable.birth.name: data_item.birth,
-                CacheTable.mod.name: data_item.mod,
-                CacheTable.last_read.name: Utils.get_now(),
-                CacheTable.rating.name: 0,
-            })
-        with Dbase.create_engine().begin() as conn:
-            stmt = (
-                sqlalchemy.insert(CacheTable.table)
-                .values(values)
-            )
-            conn.execute(stmt)
-    
-    # @staticmethod
-    # def execute_stmt_list(stmt_list: list, conn: Conn):
-    #     for i in stmt_list:
-    #         Dbase.execute(conn, i)
-    #     Dbase.commit(conn)
+    def fast_update(data_items: list[DataItem], queue: Queue):
+        for i in data_items:
+            queue.put(i)
 
     @staticmethod
     def execute_svg_files(data_items: list[DataItem], queue: Queue):
@@ -201,11 +143,6 @@ class ImgLoader:
             img_array = ImgUtils.read_img(i.src)
             img_array = ImgUtils.resize(img_array, 512)
             i.img_array = img_array
-            queue.put(i)
-
-    @staticmethod
-    def execute_ratings(data_items: list[DataItem], queue: Queue):
-        for i in data_items:
             queue.put(i)
 
     @staticmethod
@@ -217,6 +154,7 @@ class ImgLoader:
 
     @staticmethod
     def execute_new_images(data_items: list[DataItem], queue: Queue):
+        stmt_list = []
         for i in data_items:
             img_array = ImgUtils.read_img(i.src)
             img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
@@ -227,13 +165,8 @@ class ImgLoader:
     @staticmethod
     def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
         stmt = select(CacheTable.rating)
-        if data_item.type_ == Static.folder_type:
-            stmt = stmt.where(*DataItem.get_folder_conds(data_item))
-        else:
-            stmt = stmt.where(CacheTable.partial_hash==data_item.partial_hash)
-        res = Dbase.execute(conn, stmt).scalar()
-        return res
-    
+        stmt = stmt.where(CacheTable.partial_hash==data_item.partial_hash)
+        return Dbase.execute(conn, stmt).scalar() or 0
 
 class ReadImg:
     @staticmethod
