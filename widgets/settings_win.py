@@ -5,7 +5,7 @@ from datetime import datetime
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QCheckBox, QFrame, QGridLayout, QGroupBox,
+from PyQt5.QtWidgets import (QCheckBox, QFrame, QSpacerItem, QGroupBox,
                              QHBoxLayout, QLabel, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
