@@ -55,33 +55,27 @@ class SvgArrow(QSvgWidget):
         return super().mouseReleaseEvent(a0)
     
 
-class DataSizeWid(QGroupBox):
+class DataSizeWid(GroupWid):
     data_size_text = "Размер кэша:"
     files_text = "Кол-во файлов:"
     calculating = "вычисляю..."
 
     def __init__(self):
         super().__init__()
-        
-        layout = QGridLayout()
-        layout.setContentsMargins(5, 5, 5, 5)
-        self.setLayout(layout)
-        layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.hor_wid = GroupChild()
+        self.layout_.addWidget(self.hor_wid)
+    
+        self.description_label = QLabel(self.data_size_text)
+        self.hor_wid.layout_.addWidget(self.description_label)
 
-        # Создаем QLabel и сохраняем в переменные
-        self.lbl_top_left = QLabel(self.data_size_text)
-        self.lbl_top_right = QLabel(self.calculating)
-
-        # Добавляем в сетку
-        layout.addWidget(self.lbl_top_left, 0, 0)
-        layout.addWidget(self.lbl_top_right, 0, 1)
-
+        self.size_label = QLabel(self.calculating)
+        self.hor_wid.layout_.addWidget(self.size_label)
         self.start_task()
 
     def start_task(self):
 
         def fin(data):
-            self.lbl_top_right.setText(
+            self.size_label.setText(
                 SharedUtils.get_f_size(data["total"])
             )
 
