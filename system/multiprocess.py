@@ -123,7 +123,6 @@ class ImgLoader:
             ImgLoader.set_ratings(data_items, queue, conn)
             ImgLoader.execute_exist_images(exist_images, queue, conn)
             ImgLoader.execute_new_images(new_images, queue, conn)
-            # ImgLoader.execute_svg_files(svg_files, queue)
 
     @staticmethod
     def set_ratings(
@@ -200,36 +199,6 @@ class ImgLoader:
             .values(values)
         )
         conn.execute(stmt)
-
-    # ОБНОВЛЯТЬ LAST_READ у EXIST IMAGES
-    @classmethod
-    def update_file_stmt(cls, data_items: list[DataItem]):
-        now = Utils.get_now()
-        with Dbase.create_engine().begin() as conn:
-            values = [
-                {
-                    CacheTable.partial_hash.name: data_item.partial_hash,
-                    CacheTable.last_read.name: now
-                }
-                for data_item in data_items
-            ]
-            stmt = (
-                sqlalchemy.update(CacheTable.table)
-                .where(CacheTable.partial_hash == sqlalchemy.bindparam(CacheTable.partial_hash.name))
-                .values({
-                    CacheTable.last_read.name: sqlalchemy.bindparam(CacheTable.last_read.name)
-                })
-            )
-            conn.execute(stmt, values)
-
-            # for data_item in data_items:
-            #     stmt = sqlalchemy.update(CacheTable.table)
-            #     stmt = stmt.where(
-            #         CacheTable.partial_hash == data_item.partial_hash
-            #     )
-            #     stmt = stmt.values(**{
-            #         CacheTable.last_read.name: Utils.get_now()
-            #     })
 
 
 class ReadImg:
