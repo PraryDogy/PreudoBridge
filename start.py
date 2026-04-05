@@ -6,6 +6,13 @@ from PyQt5.QtCore import QEvent, QObject, Qt
 from PyQt5.QtWidgets import (QApplication, QDialog, QPushButton, QTextEdit,
                              QVBoxLayout)
 
+from cfg import JsonData
+from system.database import Dbase
+from system.multiprocess import ProcessWorker
+from system.tasks import OnStartTask, UThreadPool
+from widgets._base_widgets import WinBase
+from widgets.win_main import WinMain
+
 
 class Tools:
     @classmethod
@@ -66,19 +73,6 @@ class Tools:
             return False
 
 
-if Tools.set_plugin_path():
-    sys.excepthook = Tools.app_error_handler
-else:
-    sys.excepthook = Tools.proj_error_handler
-
-
-from cfg import JsonData
-from system.database import Dbase
-from system.multiprocess import ProcessWorker
-from system.tasks import OnStartTask, UThreadPool
-from widgets._base_widgets import WinBase
-from widgets.win_main import WinMain
-
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
@@ -110,6 +104,12 @@ class App(QApplication):
     def on_exit(self):
         ProcessWorker.stop_all()
         JsonData.write_json_data()
+
+
+if Tools.set_plugin_path():
+    sys.excepthook = Tools.app_error_handler
+else:
+    sys.excepthook = Tools.proj_error_handler
 
 if __name__ == "__main__":
     app = App(argv=sys.argv)
