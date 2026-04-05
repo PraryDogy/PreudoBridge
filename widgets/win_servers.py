@@ -51,8 +51,8 @@ class ServerListItem(QListWidgetItem):
     def __init__(self, parent: QListWidget, text: str, server_item: ServerItem):
         super().__init__(text, parent)
         self.server_item = server_item
-        icon = QIcon(self.iconpath)
-        self.setIcon(icon)
+        # icon = QIcon(self.iconpath)
+        # self.setIcon(icon)
         self.setSizeHint(QSize(0, 25))
 
 
