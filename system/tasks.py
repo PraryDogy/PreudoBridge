@@ -172,68 +172,14 @@ class CacheCleaner(URunnable):
         self.sigs = CacheCleaner.Sigs()
 
     def task(self):
-        try:
-            thumb_paths, non_exist_paths = self.get_thumb_paths()
-            if thumb_paths:
-                removed_thumbs = self.remove_thumbs(thumb_paths)
-                self.remove_rows(removed_thumbs)
-            if non_exist_paths:
-                self.remove_non_exist(non_exist_paths)
-        except Exception as e:
-            print("tasks, ClearData error", e)
+        shutil.rmtree(Static.external_thumbs_dir)
+        os.remove(Static.external_db)
+        os.makedirs(Static.external_thumbs_dir)
+        with open(Static.external_db, "w"):
+            pass
+        Dbase.init()
         self.sigs.finished_.emit()
 
-    def get_thumb_paths(self):
-        thumb_paths = set()
-        non_exist_paths = set()
-        with Dbase.main_engine.connect() as conn:
-            stmt = (
-                sqlalchemy.select(CacheTable.thumb_path)
-                .where(
-                    CacheTable.rating == 0,
-                    CacheTable.thumb_path.isnot(None),
-                    CacheTable.thumb_path != ""
-                )
-            )
-            rows = conn.execute(stmt).scalars().all()
-            for thumb_path in rows:
-                if os.path.exists(thumb_path):
-                    thumb_paths.add(thumb_path)
-                else:
-                    non_exist_paths.add(thumb_path)
-        return thumb_paths, non_exist_paths
-    
-    def remove_thumbs(self, thumb_paths: set):
-        removed_thumbs = set()
-        for i in thumb_paths:
-            try:
-                os.remove(i)
-                removed_thumbs.add(i)
-            except Exception as e:
-                print("Cache cleaner remove thumb error")
-            try:
-                os.rmdir(os.path.dirname(i))
-            except OSError:
-                pass
-        return removed_thumbs
-
-    def remove_rows(self, removed_thumbs: set):
-        with Dbase.main_engine.begin() as conn:
-            stmt = (
-                sqlalchemy.delete(CacheTable.table)
-                .where(CacheTable.thumb_path.in_(removed_thumbs))
-            )
-            conn.execute(stmt)
-
-    def remove_non_exist(self, non_exist_paths: set[str]):
-        with Dbase.main_engine.begin() as conn:
-            stmt = (
-                sqlalchemy.delete(CacheTable.table)
-                .where(CacheTable.thumb_path.in_(
-                    non_exist_paths
-                ))
-            )
-            conn.execute(stmt)
 
 
 class OnStartTask(URunnable):
