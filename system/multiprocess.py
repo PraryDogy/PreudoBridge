@@ -105,9 +105,6 @@ class ImgLoader:
     @staticmethod
     def start(data_items: list[DataItem], queue: Queue):
         data_items.sort(key=lambda x: x.size)
-
-        engine = Dbase.create_engine()
-        conn = Dbase.get_conn(engine)
         new_images: list[DataItem] = []
         exist_images: list[DataItem] = []
         svg_files: list[DataItem] = []
