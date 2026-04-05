@@ -155,21 +155,7 @@ class DataItem:
             CacheTable.mod == data_item.mod,
         ]
         return sqlalchemy.and_(*conds)
-    
-    @classmethod
-    def update_file_stmt(cls, data_item: "DataItem"):
-        """
-        Обновляет last_read
-        """
-        stmt = sqlalchemy.update(CacheTable.table)
-        stmt = stmt.where(
-            CacheTable.partial_hash == data_item.partial_hash
-        )
-        stmt = stmt.values(**{
-            CacheTable.last_read.name: Utils.get_now()
-        })
-        return stmt
-        
+            
     @classmethod
     def insert_file_stmt(cls, data_item: "DataItem"):
         stmt = sqlalchemy.insert(CacheTable.table)
