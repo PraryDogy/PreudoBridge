@@ -597,11 +597,26 @@ class SearchTask:
 
         def insert(data_item: DataItem, img_array: np.ndarray):
             os.makedirs(os.path.dirname(data_item.thumb_path), exist_ok=True)
-            if Utils.write_thumb(data_item.thumb_path, img_array):
-                stmt_list.append(DataItem.insert_file_stmt(data_item))
-                if len(stmt_list) == stmt_limit:
-                    execute_stmt_list(stmt_list)
-                    stmt_list.clear()
+            Utils.write_thumb(data_item.thumb_path, img_array)
+
+            stmt = (
+                sqlalchemy.insert(CacheTable.table)
+                .values({
+                    CacheTable.name.name: data_item.filename,
+                    CacheTable.type.name: data_item.type_,
+                    CacheTable.size.name: data_item.size,
+                    CacheTable.birth.name: data_item.birth,
+                    CacheTable.mod.name: data_item.mod,
+                    CacheTable.last_read.name: Utils.get_now(),
+                    CacheTable.rating.name: 0,
+                    CacheTable.partial_hash.name: data_item.partial_hash,
+                    CacheTable.thumb_path.name: data_item.thumb_path
+                })
+            )
+            stmt_list.append(stmt)
+            if len(stmt_list) == stmt_limit:
+                execute_stmt_list(stmt_list)
+                stmt_list.clear()
 
         stmt_list: list = []
         stmt_limit = 10

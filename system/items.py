@@ -156,22 +156,6 @@ class DataItem:
         ]
         return sqlalchemy.and_(*conds)
             
-    @classmethod
-    def insert_file_stmt(cls, data_item: "DataItem"):
-        stmt = sqlalchemy.insert(CacheTable.table)
-        stmt = stmt.values(**{
-            CacheTable.name.name: data_item.filename,
-            CacheTable.type.name: data_item.type_,
-            CacheTable.size.name: data_item.size,
-            CacheTable.birth.name: data_item.birth,
-            CacheTable.mod.name: data_item.mod,
-            CacheTable.last_read.name: Utils.get_now(),
-            CacheTable.rating.name: 0,
-            CacheTable.partial_hash.name: data_item.partial_hash,
-            CacheTable.thumb_path.name: data_item.thumb_path
-        })
-        return stmt
-
 
 class MainWinItem:
     def __init__(self):
