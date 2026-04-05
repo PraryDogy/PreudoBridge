@@ -163,29 +163,12 @@ class ImgLoader:
         queue: Queue,
         conn: sqlalchemy.Connection
     ):
-        return
         if not data_items:
             return
         for i in data_items:
             img_array = Utils.read_thumb(i.thumb_path)
             i.img_array = img_array
             queue.put(i)
-
-        now = Utils.get_now()
-        _bprm = sqlalchemy.bindparam
-        _hashname = CacheTable.partial_hash.name
-        _readname = CacheTable.last_read.name
-        values = [
-            {_hashname: data_item.partial_hash, _readname: now}
-            for data_item in data_items
-        ]
-        stmt = (
-            sqlalchemy.update(CacheTable.table)
-            .where(CacheTable.partial_hash == _bprm(_hashname))
-            .values({CacheTable.last_read.name: _bprm(_readname)})
-        )
-        conn.execute(stmt, values)
-
 
     @staticmethod
     def execute_new_images(
