@@ -589,38 +589,6 @@ class SearchTask:
 
     @staticmethod
     def process_data_item(entry: os.DirEntry, search_item: SearchItem):
-
-        def execute_stmt_list(stmt_list: list):
-            for i in stmt_list:
-                Dbase.execute(search_item.conn, i)
-            Dbase.commit(search_item.conn)
-
-        def insert(data_item: DataItem, img_array: np.ndarray):
-            os.makedirs(os.path.dirname(data_item.thumb_path), exist_ok=True)
-            Utils.write_thumb(data_item.thumb_path, img_array)
-
-            stmt = (
-                sqlalchemy.insert(CacheTable.table)
-                .values({
-                    CacheTable.name.name: data_item.filename,
-                    CacheTable.type.name: data_item.type_,
-                    CacheTable.size.name: data_item.size,
-                    CacheTable.birth.name: data_item.birth,
-                    CacheTable.mod.name: data_item.mod,
-                    CacheTable.last_read.name: Utils.get_now(),
-                    CacheTable.rating.name: 0,
-                    CacheTable.partial_hash.name: data_item.partial_hash,
-                    CacheTable.thumb_path.name: data_item.thumb_path
-                })
-            )
-            stmt_list.append(stmt)
-            if len(stmt_list) == stmt_limit:
-                execute_stmt_list(stmt_list)
-                stmt_list.clear()
-
-        stmt_list: list = []
-        stmt_limit = 10
-
         # если мы нашли айтем из списка, то удаляем его из списка
         # не найденных айтемов
         for i in search_item.missed_files:
@@ -637,9 +605,32 @@ class SearchTask:
             else:
                 img_array = ImgUtils.read_img(entry.path)
                 img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
-                insert(data_item, img_array)
-            data_item.img_array = img_array
 
+                os.makedirs(
+                    os.path.dirname(data_item.thumb_path),
+                    exist_ok=True
+                )
+                Utils.write_thumb(
+                    data_item.thumb_path,
+                    img_array
+                )
+                stmt = (
+                    sqlalchemy.insert(CacheTable.table)
+                    .values({
+                        CacheTable.name.name: data_item.filename,
+                        CacheTable.type.name: data_item.type_,
+                        CacheTable.size.name: data_item.size,
+                        CacheTable.birth.name: data_item.birth,
+                        CacheTable.mod.name: data_item.mod,
+                        CacheTable.last_read.name: Utils.get_now(),
+                        CacheTable.rating.name: 0,
+                        CacheTable.partial_hash.name: data_item.partial_hash,
+                        CacheTable.thumb_path.name: data_item.thumb_path
+                    })
+                )
+                search_item.conn.execute(stmt)
+                search_item.conn.commit()
+            data_item.img_array = img_array
         data = (data_item, search_item.missed_files)
         search_item.process_queue.put(data)
         sleep(SearchTask.sleep_s)
