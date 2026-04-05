@@ -163,6 +163,7 @@ class ImgLoader:
         queue: Queue,
         conn: sqlalchemy.Connection
     ):
+        return
         if not data_items:
             return
         for i in data_items:
