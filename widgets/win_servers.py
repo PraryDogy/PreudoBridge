@@ -239,7 +239,6 @@ class WinLogin(WinMinCloseOnly):
 class WinServers(WinMinCloseOnly):
     def __init__(self):
         super().__init__()
-        Servers.json_to_app()
         self.setWindowTitle("Подключиться к серверу")
         self.setFixedSize(350, 250)
 
@@ -362,4 +361,6 @@ class WinServers(WinMinCloseOnly):
         if a0.key() == Qt.Key.Key_Escape:
             self.deleteLater()
         return super().keyPressEvent(a0)
-    
+
+
+Servers.json_to_app()

@@ -79,7 +79,6 @@ from system.tasks import OnStartTask, UThreadPool
 from widgets._base_widgets import WinBase
 from widgets.win_main import WinMain
 
-
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
