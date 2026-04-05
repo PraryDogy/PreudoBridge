@@ -184,6 +184,7 @@ class ImgLoader:
             img_array = ImgUtils.read_img(data_item.src)
             img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
             data_item.img_array = img_array
+            os.makedirs(os.path.dirname(data_item.thumb_path), exist_ok=True)
             Utils.write_thumb(data_item.thumb_path, img_array)
             queue.put(data_item)
             values.append({
@@ -629,6 +630,7 @@ class SearchTask:
             Dbase.commit(search_item.conn)
 
         def insert(data_item: DataItem, img_array: np.ndarray):
+            os.makedirs(os.path.dirname(data_item.thumb_path), exist_ok=True)
             if Utils.write_thumb(data_item.thumb_path, img_array):
                 stmt_list.append(DataItem.insert_file_stmt(data_item))
                 if len(stmt_list) == stmt_limit:

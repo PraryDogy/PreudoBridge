@@ -108,19 +108,16 @@ class Utils:
         try:
             if len(thumb_array.shape) == 2:  # grayscale
                 img = thumb_array
+                return cv2.imwrite(thumb_path, img)
             elif thumb_array.shape[2] == 3:  # BGR
                 img = cv2.cvtColor(thumb_array, cv2.COLOR_BGR2RGB)
+                return cv2.imwrite(thumb_path, img)
             elif thumb_array.shape[2] == 4:  # BGRA (с альфой)
-                img = cv2.cvtColor(thumb_array, cv2.COLOR_BGRA2RGBA)  # сохраняем альфу
+                img = cv2.cvtColor(thumb_array, cv2.COLOR_BGRA2RGBA)
+                return cv2.imwrite(thumb_path, img, [cv2.IMWRITE_PNG_COMPRESSION, 3])
             else:
                 print(f"write_thumb: неподдерживаемое число каналов {thumb_array.shape}")
                 return False
-
-            os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
-            if thumb_array.shape[2] == 4:
-                return cv2.imwrite(thumb_path, img, [cv2.IMWRITE_PNG_COMPRESSION, 3])
-            else:
-                return cv2.imwrite(thumb_path, img)
         except Exception as e:
             print(f"write_thumb: ошибка записи thumb на диск: {e}")
             return False
