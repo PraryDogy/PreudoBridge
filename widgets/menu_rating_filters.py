@@ -31,34 +31,6 @@ class MenuRatingFilters(QWidget):
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs)
 
-        # --- вкладка 1: список ---
-        self.tab_list = QWidget()
-        tab1_layout = QVBoxLayout(self.tab_list)
-        tab1_layout.setContentsMargins(0, 0, 0, 0)
-        self.list = QListWidget()
-        self.list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.list.setFixedHeight(self.height_)
-        item_size = QSize(self.list.width(), self.item_width)
-
-        zero_item = UItem()
-        zero_item.rating = 0
-        zero_item.setText(Static.long_line_symbol)
-        zero_item.setSizeHint(item_size)
-        self.list.addItem(zero_item)
-
-        for i in range(1, 6):
-            item = UItem()
-            item.rating = i
-            item.setText(Static.star_symbol * i)
-            item.setSizeHint(item_size)
-            self.list.addItem(item)
-
-        self.list.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.list.customContextMenuRequested.connect(self.show_context_menu)
-        self.list.itemClicked.connect(self.handle_item_click)
-        tab1_layout.addWidget(self.list)
-        self.tabs.addTab(self.tab_list, "Рейтинг")
-
         # --- вкладка 2: фильтр текста ---
         self.tab_filter = QWidget()
         tab2_layout = QVBoxLayout(self.tab_filter)
@@ -92,6 +64,34 @@ class MenuRatingFilters(QWidget):
         tab2_layout.addLayout(btn_layout)
 
         self.tabs.addTab(self.tab_filter, "Фильтры")
+
+        # --- вкладка 1: список ---
+        self.tab_list = QWidget()
+        tab1_layout = QVBoxLayout(self.tab_list)
+        tab1_layout.setContentsMargins(0, 0, 0, 0)
+        self.list = QListWidget()
+        self.list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.list.setFixedHeight(self.height_)
+        item_size = QSize(self.list.width(), self.item_width)
+
+        zero_item = UItem()
+        zero_item.rating = 0
+        zero_item.setText(Static.long_line_symbol)
+        zero_item.setSizeHint(item_size)
+        self.list.addItem(zero_item)
+
+        for i in range(1, 6):
+            item = UItem()
+            item.rating = i
+            item.setText(Static.star_symbol * i)
+            item.setSizeHint(item_size)
+            self.list.addItem(item)
+
+        self.list.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.list.customContextMenuRequested.connect(self.show_context_menu)
+        self.list.itemClicked.connect(self.handle_item_click)
+        tab1_layout.addWidget(self.list)
+        self.tabs.addTab(self.tab_list, "Рейтинг")
 
     def clear_btn_cmd(self):
         self.line_edit.clear()
