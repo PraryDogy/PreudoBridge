@@ -388,6 +388,7 @@ class Grid(UScrollArea):
                 wid.data_item.set_properties()
                 wid.set_blue_text()
         if not self.url_to_wid:
+            self.remove_no_items_label()
             self.create_no_items_label(NoItemsLabel.no_files)
         else:
             self.remove_no_items_label()
@@ -531,6 +532,7 @@ class Grid(UScrollArea):
                 wid.data_item.must_hidden = True
                 wid.hide()
         if visible_thumbs == 0:
+            self.remove_no_items_label()
             self.create_no_items_label(NoItemsLabel.no_filter)
         else:
             self.remove_no_items_label()
