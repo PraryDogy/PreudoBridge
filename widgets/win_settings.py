@@ -99,9 +99,7 @@ class ClickableWidgets(GroupWid):
         super().__init__()
 
         self.system_files_wid = GroupChild()
-        self.system_files_wid.mouseReleaseEvent = (
-            lambda e: subprocess.call(["open", Static.app_dir])
-        )
+        self.system_files_wid.mouseReleaseEvent = self.open_system_files
         self.layout_.addWidget(self.system_files_wid)
         system_files_descr = QLabel(self.json_descr_text)
         self.system_files_wid.layout_.addWidget(system_files_descr)
@@ -121,6 +119,9 @@ class ClickableWidgets(GroupWid):
         self.clear_widget.layout_.addStretch()
         clear_arrow = SvgArrow()
         self.clear_widget.layout_.addWidget(clear_arrow)
+
+    def open_system_files(self, *args):
+        subprocess.Popen(["open", Static.app_dir])
 
     def open_clear_win(self):
         self.clear_win = ConfirmWindow(
