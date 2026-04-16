@@ -117,7 +117,6 @@ class WinMain(WinBase):
             self.main_win_item.current_dir = dir
             self.main_win_item.fs_id = FsId.get_fs_id(dir)
         else:
-            dir = SharedUtils.add_sys_vol(WinMain.base_dir, Dynamic.sys_vol)
             self.main_win_item.current_dir = dir
             self.main_win_item.fs_id = FsId.get_fs_id(dir)
 

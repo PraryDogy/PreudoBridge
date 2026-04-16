@@ -17,23 +17,7 @@ from PIL import Image, ImageCms, ImageOps
 
 
 class SharedUtils:
-
-    @classmethod
-    def is_mounted(cls, server: str):
-        output = subprocess.check_output(["mount"]).decode()
-        return server in output
-            
-    @classmethod
-    def add_sys_vol(cls, path: str, sys_vol: str):
-        """
-        Добавляет /Volumes/Macintosh HD (или иное имя системного диска),
-        если директория локальная - т.е. начинается с /Users/Username/...
-        sys_vol - системный диск, обычно это /Volumes/Macintosh HD
-        """
-        if path.startswith(os.path.expanduser("~")):
-            return sys_vol + path
-        return path
-                    
+                                
     @classmethod
     def get_f_size(cls, bytes_size: int, round_value: int = 2) -> str:
         def format_size(size: float) -> str:

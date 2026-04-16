@@ -1264,10 +1264,6 @@ class Grid(UScrollArea):
             i.toLocalFile().rstrip(os.sep)
             for i in a0.mimeData().urls()
         ]
-        urls = [
-            SharedUtils.add_sys_vol(i, Dynamic.sys_vol)
-            for i in urls
-        ]
         src = os.path.dirname(urls[0])
         if src == self.main_win_item.current_dir:
             print("нельзя копировать в себя через DropEvent")

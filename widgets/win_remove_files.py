@@ -13,8 +13,7 @@ class WinRemoveFiles(ConfirmWindow):
     move_to_trash = "Переместить в корзину"
 
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
-
-        if Dynamic.sys_vol in urls[0]:
+        if "uuid" in main_win_item.fs_id:
             t = f"{WinRemoveFiles.move_to_trash}?"
         else:
             t = f"{WinRemoveFiles.remove_perm}?"
