@@ -184,10 +184,10 @@ class Utils:
         return image
 
 
-class FileSystemId:
+class FsId:
 
     @classmethod
-    def get(cls, path: str):
+    def get_fs_id(cls, path: str):
         path = os.path.abspath(path)
         mounts = cls._get_mounts()
         best = None

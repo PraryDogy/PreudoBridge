@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData, Static
 from system.items import MainWinItem
+from system.utils import FsId
 
 from ._base_widgets import UMenu
 from .actions import ItemActions
@@ -45,6 +46,7 @@ class MenuTree(QTreeView):
             self.setCurrentIndex(index)
             self.new_history_item.emit(path)
             self.main_win_item.current_dir = path
+            self.main_win_item.fs_id = FsId.get_fs_id(path)
             self.load_st_grid_sig.emit()
         # self.expand(index)
 

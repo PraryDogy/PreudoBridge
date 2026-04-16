@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
 from cfg import Dynamic, JsonData, Static
 from system.items import ClipboardItem, DataItem, MainWinItem
 from system.shared_utils import ImgUtils, SharedUtils
-from system.utils import Utils
+from system.utils import Utils, FsId
 
 from ._base_widgets import UMenu
 from .actions import GridActions, ItemActions
@@ -233,6 +233,7 @@ class TableView(QTableView):
                 self.open_img_view(start_url, url_to_wid, is_selection)
             elif os.path.isdir(urls[0]):
                 self.main_win_item.current_dir = urls[0]
+                self.main_win_item.fs_id = FsId.get_fs_id(urls[0])
                 self.new_history_item.emit(urls[0])
                 self.load_st_grid.emit()
             else:

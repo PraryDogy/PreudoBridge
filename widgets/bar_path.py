@@ -6,11 +6,12 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import JsonData, Static
 from system.items import DataItem, MainWinItem
-from system.utils import Utils
+from system.shared_utils import ImgUtils
+from system.utils import FsId, Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget
 from .actions import ItemActions
-from system.shared_utils import ImgUtils
+
 
 class Icons:
     computer: QPixmap
@@ -164,6 +165,7 @@ class PathItem(QWidget):
         if a0.button() == Qt.MouseButton.LeftButton:
             if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.current_dir:
                 self.main_win_item.current_dir = self.item_dir
+                self.main_win_item.fs_id = FsId.get_fs_id(self.item_dir)
                 self.new_history_item.emit(self.item_dir)
                 self.load_st_grid.emit()
         return super().mouseReleaseEvent(a0)
