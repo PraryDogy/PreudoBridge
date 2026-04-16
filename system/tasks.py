@@ -265,6 +265,8 @@ class AnyTaskLoader(URunnable):
 
 
 class DirScaner(URunnable):
+    folder_icon = os.path.join(Static.internal_images_dir, "folder.png")
+    image_icon = os.path.join(Static.internal_images_dir, "image.png")
 
     class Sigs(QObject):
         finished_ = pyqtSignal(DirItem)
