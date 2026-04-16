@@ -11,7 +11,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Static
-from system.database import CacheTable, Dbase
+from system.database import DataTable, Dbase
 from system.items import (CopyItem, DataItem, DirItem, JpgConvertItem,
                           MainWinItem, MultipleInfoItem, PathFixerItem,
                           SearchItem)
@@ -69,10 +69,24 @@ class ProcessWorker(BaseProcessWorker):
 
 
 class ImgLoader:
+
     @staticmethod
     def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
-        return
         data_items.sort(key=lambda x: x.size)
+        abs_path = main_win_item.abs_current_dir
+        rel_path = abs_path.strip(os.sep).split(os.sep)
+        main_win_item.rel_current_dir = os.sep + os.sep.join(rel_path[2:])
+
+
+        
+        with Dbase.create_engine().begin() as conn:
+            ImgLoader.process_removed_images(
+                data_items=data_items,
+                main_win_item=main_win_item,
+                conn=conn
+            )
+
+        return
         new_images: list[DataItem] = []
         exist_images: list[DataItem] = []
         svg_files: list[DataItem] = []
@@ -93,6 +107,27 @@ class ImgLoader:
             ImgLoader.execute_new_images(new_images, queue, conn)
 
     @staticmethod
+    def process_removed_images(
+        data_items: list[DataItem],
+        main_win_item: MainWinItem,
+        conn: sqlalchemy.Connection
+    ):
+        clmns = (
+            DataTable.id,
+            DataTable.thumb_path,
+            DataTable.filename,
+            DataTable.size,
+            DataTable.mod
+        )
+        stmt = (
+            sqlalchemy.select(*clmns)
+            .where(DataTable.rel_parent==main_win_item.rel_current_dir)
+            .where(DataTable.fs_id==main_win_item.fs_id)
+        )
+        db_images = conn.execute(stmt)
+        finder_images = ((i.filename, i.size, i.mod) for i in data_items)
+
+    @staticmethod
     def set_ratings(
         data_items: list[DataItem],
         queue: Queue,
@@ -100,8 +135,8 @@ class ImgLoader:
     ):
         hashes = {i.partial_hash: i for i in data_items}
         stmt = (
-            sqlalchemy.select(CacheTable.partial_hash, CacheTable.rating)
-            .where(CacheTable.partial_hash.in_(hashes))
+            sqlalchemy.select(DataTable.partial_hash, DataTable.rating)
+            .where(DataTable.partial_hash.in_(hashes))
         )
         res = conn.execute(stmt).fetchall()
         if not res:
@@ -152,18 +187,18 @@ class ImgLoader:
             Utils.write_thumb(data_item.thumb_path, img_array)
             queue.put(data_item)
             values.append({
-                CacheTable.name.name: data_item.filename,
-                CacheTable.type.name: data_item.type_,
-                CacheTable.size.name: data_item.size,
-                CacheTable.birth.name: data_item.birth,
-                CacheTable.mod.name: data_item.mod,
-                CacheTable.last_read.name: now,
-                CacheTable.rating.name: 0,
-                CacheTable.partial_hash.name: data_item.partial_hash,
-                CacheTable.thumb_path.name: data_item.thumb_path
+                DataTable.name.name: data_item.filename,
+                DataTable.type.name: data_item.type_,
+                DataTable.size.name: data_item.size,
+                DataTable.birth.name: data_item.birth,
+                DataTable.mod.name: data_item.mod,
+                DataTable.last_read.name: now,
+                DataTable.rating.name: 0,
+                DataTable.partial_hash.name: data_item.partial_hash,
+                DataTable.thumb_path.name: data_item.thumb_path
             })
         stmt = (
-            sqlalchemy.insert(CacheTable.table)
+            sqlalchemy.insert(DataTable.table)
             .values(values)
         )
         conn.execute(stmt)

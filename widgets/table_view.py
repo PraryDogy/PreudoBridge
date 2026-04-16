@@ -124,10 +124,10 @@ class TableView(QTableView):
         if JsonData.show_hidden:
             self._model.setFilter(self._model.filter() | QDir.Hidden)
 
-        if main_win_item.current_dir is not None:
+        if main_win_item.abs_current_dir is not None:
             self.setModel(self._model)
-            self._model.setRootPath(self.main_win_item.current_dir)
-            self.setRootIndex(self._model.index(self.main_win_item.current_dir))
+            self._model.setRootPath(self.main_win_item.abs_current_dir)
+            self.setRootIndex(self._model.index(self.main_win_item.abs_current_dir))
         else:
             self.setModel(None)
             no_images = QLabel(self.not_exists_text, parent=self)
@@ -177,7 +177,7 @@ class TableView(QTableView):
             QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
         self.setCurrentIndex(QModelIndex())
-        self.path_bar_update.emit(self.main_win_item.current_dir)
+        self.path_bar_update.emit(self.main_win_item.abs_current_dir)
         self.total_count_update.emit((0, row_count))
         self.load_finished.emit()
 
@@ -206,7 +206,7 @@ class TableView(QTableView):
 
     def new_folder(self):
         def fin(name: str):
-            dest = os.path.join(self.main_win_item.current_dir, name)
+            dest = os.path.join(self.main_win_item.abs_current_dir, name)
             try:
                 os.mkdir(dest)
                 QTimer.singleShot(100, lambda: self.select_path(dest))
@@ -232,7 +232,7 @@ class TableView(QTableView):
 
                 self.open_img_view(start_url, url_to_wid, is_selection)
             elif os.path.isdir(urls[0]):
-                self.main_win_item.current_dir = urls[0]
+                self.main_win_item.abs_current_dir = urls[0]
                 self.main_win_item.fs_id = FsId.get_fs_id(urls[0])
                 self.new_history_item.emit(urls[0])
                 self.load_st_grid.emit()
@@ -462,7 +462,7 @@ class TableView(QTableView):
         return Qt.ItemIsEnabled  # отключаем выбор/редактирование
 
     def setup_urls_to_copy(self, urls: list[str]):
-        ClipboardItem.set_src(self.main_win_item.current_dir)
+        ClipboardItem.set_src(self.main_win_item.abs_current_dir)
         ClipboardItem.set_is_search(False)
         ClipboardItem.src_urls.clear()
         for i in urls:
@@ -494,8 +494,8 @@ class TableView(QTableView):
             total = len(urls)
             self.item_context(menu_, selected_path, urls, names, total)
         else:
-            selected_path = self.main_win_item.current_dir
-            urls = [self.main_win_item.current_dir]
+            selected_path = self.main_win_item.abs_current_dir
+            urls = [self.main_win_item.abs_current_dir]
             names = [os.path.basename(i) for i in urls]
             total = len(urls)
             self.grid_context(menu_, selected_path, urls, names, total)
@@ -516,7 +516,7 @@ class TableView(QTableView):
             elif a0.key() == Qt.Key.Key_I:
                 urls = self.get_selected_urls()
                 if not urls:
-                    urls = [self.main_win_item.current_dir, ]
+                    urls = [self.main_win_item.abs_current_dir, ]
                 self.open_win_info(urls)
                 # return
 
@@ -565,7 +565,7 @@ class TableView(QTableView):
             for i in a0.mimeData().urls()
         ]
         src = os.path.dirname(urls[0])
-        if src == self.main_win_item.current_dir:
+        if src == self.main_win_item.abs_current_dir:
             print("нельзя копировать в себя через DropEvent")
             return
         else:

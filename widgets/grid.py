@@ -365,7 +365,7 @@ class Grid(UScrollArea):
 
         self.dir_watcher_task = ProcessWorker(
             target=DirWatcher.start,
-            args=(self.main_win_item.current_dir, )
+            args=(self.main_win_item.abs_current_dir, )
         )
         self.dir_watcher_timer = QTimer(self)
         self.dir_watcher_timer.timeout.connect(poll_task)
@@ -608,7 +608,7 @@ class Grid(UScrollArea):
                 self.open_img_view(wid.data_item.abs_path, url_to_wid, is_selection)
             elif wid.data_item.type_ == Static.folder_type:
                 self.new_history_item.emit(wid.data_item.abs_path)
-                self.main_win_item.current_dir = wid.data_item.abs_path
+                self.main_win_item.abs_current_dir = wid.data_item.abs_path
                 self.main_win_item.fs_id = FsId.get_fs_id(wid.data_item.abs_path)
                 self.load_st_grid.emit()
             else:
@@ -681,7 +681,7 @@ class Grid(UScrollArea):
         """
         Для cmd x, cmd c, вырезать, копировать
         """
-        ClipboardItem.set_src(self.main_win_item.current_dir)
+        ClipboardItem.set_src(self.main_win_item.abs_current_dir)
         ClipboardItem.set_is_search(self.is_grid_search)
         ClipboardItem.src_urls.clear()
         for i in self.selected_thumbs:
@@ -760,7 +760,7 @@ class Grid(UScrollArea):
         for wid in self.selected_thumbs:
             if wid.data_item.type_ not in ImgUtils.ext_all:
                 continue
-            self.rating_task = RatingTask(self.main_win_item.current_dir, wid.data_item, rating)
+            self.rating_task = RatingTask(self.main_win_item.abs_current_dir, wid.data_item, rating)
             cmd_ = lambda d=wid.data_item: self.set_thumb_rating(d, rating)
             self.rating_task.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
@@ -941,7 +941,7 @@ class Grid(UScrollArea):
                 self.select_multiple_thumb(self.url_to_wid[url])
 
         def fin(name: str):
-            dest = os.path.join(self.main_win_item.current_dir, name)
+            dest = os.path.join(self.main_win_item.abs_current_dir, name)
             try:
                 os.mkdir(dest)
                 QTimer.singleShot(1050, lambda: select(dest))
@@ -953,10 +953,10 @@ class Grid(UScrollArea):
         self.rename_win.show()
 
     def context_grid(self, menu_: UMenu):
-        self.path_bar_update_delayed(self.main_win_item.current_dir)
-        names = [os.path.basename(self.main_win_item.current_dir)]
-        urls = [self.main_win_item.current_dir]
-        data = DataItem(self.main_win_item.current_dir)
+        self.path_bar_update_delayed(self.main_win_item.abs_current_dir)
+        names = [os.path.basename(self.main_win_item.abs_current_dir)]
+        urls = [self.main_win_item.abs_current_dir]
+        data = DataItem(self.main_win_item.abs_current_dir)
         data.set_properties()
 
         if not self.is_grid_search and not Dynamic.rating_filter != 0:
@@ -971,14 +971,14 @@ class Grid(UScrollArea):
             )
             menu_.addAction(info)
 
-        if self.main_win_item.current_dir in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.current_dir)
+        if self.main_win_item.abs_current_dir in JsonData.favs:
+            cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.abs_current_dir)
             fav_action = GridActions.FavRemove(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
 
         else:
-            cmd_ = lambda: self.fav_cmd(+1, self.main_win_item.current_dir)
+            cmd_ = lambda: self.fav_cmd(+1, self.main_win_item.abs_current_dir)
             fav_action = GridActions.FavAdd(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
@@ -1054,7 +1054,7 @@ class Grid(UScrollArea):
 
         elif self.wid_under_mouse is None:
             self.clear_selected_widgets()
-            self.path_bar_update_delayed(self.main_win_item.current_dir)
+            self.path_bar_update_delayed(self.main_win_item.abs_current_dir)
         
         elif a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
             # шифт клик: если не было выделенных виджетов
@@ -1170,7 +1170,7 @@ class Grid(UScrollArea):
                     self.wid_under_mouse = self.selected_thumbs[-1]
                     self.open_win_info([i.data_item for i in self.selected_thumbs])
                 else:
-                    data = DataItem(self.main_win_item.current_dir)
+                    data = DataItem(self.main_win_item.abs_current_dir)
                     data.set_properties()
                     self.open_win_info([data, ])
 
@@ -1285,7 +1285,7 @@ class Grid(UScrollArea):
             for i in a0.mimeData().urls()
         ]
         src = os.path.dirname(urls[0])
-        if src == self.main_win_item.current_dir:
+        if src == self.main_win_item.abs_current_dir:
             print("нельзя копировать в себя через DropEvent")
             return
         else:

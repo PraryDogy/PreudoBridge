@@ -80,11 +80,11 @@ class GridStandart(Grid):
             return
 
         if dir_item.fixed_path:
-            self.main_win_item.current_dir = dir_item.fixed_path
+            self.main_win_item.abs_current_dir = dir_item.fixed_path
             self.main_win_item.fs_id = FsId.get_fs_id(dir_item.fixed_path)
         Thumb.calc_size()
 
-        self.path_bar_update.emit(self.main_win_item.current_dir)
+        self.path_bar_update.emit(self.main_win_item.abs_current_dir)
         self.total_count_update.emit(
             (len(self.selected_thumbs), len(dir_item.data_items))
         )

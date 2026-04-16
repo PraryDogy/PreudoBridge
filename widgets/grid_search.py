@@ -154,7 +154,7 @@ class GridSearch(Grid):
         missed_files: list[str] = []
         self.is_grid_search = True
         Thumb.calc_size()
-        self.search_item.root_dir = self.main_win_item.current_dir
+        self.search_item.root_dir = self.main_win_item.abs_current_dir
         self.search_task = SearchTaskWorker(target=SearchTask.start, args=(self.search_item, ))
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
@@ -165,7 +165,7 @@ class GridSearch(Grid):
 
     def update_gui(self):
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
-        self.path_bar_update.emit(self.main_win_item.current_dir)
+        self.path_bar_update.emit(self.main_win_item.abs_current_dir)
 
     def sort_thumbs(self):
         self.search_task.pause = True

@@ -111,7 +111,7 @@ class WinSearchList(WinMinCloseOnly):
         first_title = QLabel(WinSearchList.search_place_text)
         first_lay.addWidget(first_title)
 
-        main_dir_label = QLabel(self.wrap_text(self.main_win_item.current_dir))
+        main_dir_label = QLabel(self.wrap_text(self.main_win_item.abs_current_dir))
         first_lay.addWidget(main_dir_label)
 
         return first_row
@@ -458,7 +458,7 @@ class BarTop(QWidget):
         if 0 <= new_index < len(self.history_items):
             self.current_index = new_index
             new_main_dir = self.history_items[self.current_index]
-            self.main_win_item.current_dir = new_main_dir
+            self.main_win_item.abs_current_dir = new_main_dir
             self.main_win_item.fs_id = FsId.get_fs_id(new_main_dir)
             self.load_st_grid.emit()
 

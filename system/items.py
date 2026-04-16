@@ -12,7 +12,7 @@ from PyQt5.QtGui import QImage
 from cfg import Static
 from system.shared_utils import ImgUtils
 
-from .database import CacheTable
+from .database import DataTable
 from .utils import Utils
 
 
@@ -65,12 +65,6 @@ class DataItem:
         self.type_: str
         self.mod: float
         self.size: int
-
-        # thumb path выстраивается на основе fs_id
-        # мы превращаем fs_id в hash и относительный путь к файлу
-        # в hash
-        self.fs_id: str
-        self.thumb_path: str
 
         # в процессе работы и gui
         self.image_is_loaded: bool = False
@@ -155,11 +149,11 @@ class DataItem:
         Возвращает условия для поиска папки в базе данных
         """
         conds = [
-            CacheTable.name == data_item.filename,
-            CacheTable.type == data_item.type_,
-            CacheTable.size == data_item.size,
-            CacheTable.birth == data_item.birth,
-            CacheTable.mod == data_item.mod,
+            DataTable.name == data_item.filename,
+            DataTable.type == data_item.type_,
+            DataTable.size == data_item.size,
+            DataTable.birth == data_item.birth,
+            DataTable.mod == data_item.mod,
         ]
         return sqlalchemy.and_(*conds)
             
@@ -168,7 +162,8 @@ class MainWinItem:
     def __init__(self):
         self.urls_to_select: list[str]
         self.go_to: str
-        self.current_dir: str
+        self.abs_current_dir: str
+        self.rel_current_dir: str
         self.view_mode: int 
         self.fs_id: str
 

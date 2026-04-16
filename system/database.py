@@ -24,7 +24,7 @@ _DATA = sqlalchemy.Table(
 )
 
 
-class CacheTable:
+class DataTable:
     table = _DATA
     id = _DATA.c.id
     filename = _DATA.c.filename

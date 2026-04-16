@@ -114,10 +114,10 @@ class WinMain(WinBase):
             WinMain.first_load = False
 
         if dir:
-            self.main_win_item.current_dir = dir
+            self.main_win_item.abs_current_dir = dir
             self.main_win_item.fs_id = FsId.get_fs_id(dir)
         else:
-            self.main_win_item.current_dir = self.base_dir
+            self.main_win_item.abs_current_dir = self.base_dir
             self.main_win_item.fs_id = FsId.get_fs_id(self.base_dir)
         self.main_win_item.view_mode = 0
         self.main_win_item.go_to = None
@@ -197,8 +197,8 @@ class WinMain(WinBase):
         main_lay.addWidget(self.splitter)
 
         # --- Инициализация элементов ---
-        self.top_bar.new_history_item(self.main_win_item.current_dir)
-        self.path_bar.update(self.main_win_item.current_dir)
+        self.top_bar.new_history_item(self.main_win_item.abs_current_dir)
+        self.path_bar.update(self.main_win_item.abs_current_dir)
         self.sort_bar.sort_menu_update()
         self.tabs_widget.setCurrentIndex(1)
 
@@ -285,7 +285,7 @@ class WinMain(WinBase):
             wid = self.grid.url_to_wid.get(url)
             if not wid:
                 return
-            self.rating_task = RatingTask(self.main_win_item.current_dir, wid.data_item, rating)
+            self.rating_task = RatingTask(self.main_win_item.abs_current_dir, wid.data_item, rating)
             assert isinstance(self.rating_task, RatingTask)
             self.rating_task.sigs.finished_.connect(
                 lambda: self.grid.set_thumb_rating(wid.data_item, rating)
@@ -334,13 +334,13 @@ class WinMain(WinBase):
                 if fixer_item.fixed_path is None:
                     return
                 if fixer_item.is_dir:
-                    self.main_win_item.current_dir = fixer_item.fixed_path
+                    self.main_win_item.abs_current_dir = fixer_item.fixed_path
                     self.main_win_item.fs_id = FsId.get_fs_id(fixer_item.fixed_path)
                 else:
-                    self.main_win_item.current_dir = os.path.dirname(fixer_item.fixed_path)
+                    self.main_win_item.abs_current_dir = os.path.dirname(fixer_item.fixed_path)
                     self.main_win_item.fs_id = FsId.get_fs_id(fixer_item.fixed_path)
                     self.main_win_item.go_to = fixer_item.fixed_path
-                self.top_bar.new_history_item(self.main_win_item.current_dir)
+                self.top_bar.new_history_item(self.main_win_item.abs_current_dir)
                 self.load_st_grid()
 
             if not self.path_fixer_task.is_alive():
@@ -364,14 +364,14 @@ class WinMain(WinBase):
         self.sett_win.show()
 
     def level_up(self):
-        new_main_dir = os.path.dirname(self.main_win_item.current_dir)
-        old_main_dir = self.main_win_item.current_dir
+        new_main_dir = os.path.dirname(self.main_win_item.abs_current_dir)
+        old_main_dir = self.main_win_item.abs_current_dir
 
         if new_main_dir != os.sep:
             self.top_bar.new_history_item(new_main_dir)
             self.main_win_item.urls_to_select.clear()
             self.main_win_item.go_to = old_main_dir
-            self.main_win_item.current_dir = new_main_dir
+            self.main_win_item.abs_current_dir = new_main_dir
             self.main_win_item.fs_id = FsId.get_fs_id(new_main_dir)
             self.load_st_grid()
 
@@ -443,7 +443,7 @@ class WinMain(WinBase):
             if isinstance(self.grid, TableView):
                 self.load_st_grid()
 
-        ClipboardItem.set_dest(self.main_win_item.current_dir)
+        ClipboardItem.set_dest(self.main_win_item.abs_current_dir)
         self.win_copy = WinCopyFiles()
         self.win_copy.finished_.connect(paste_final)
         self.win_copy.center(self.window())
@@ -458,11 +458,11 @@ class WinMain(WinBase):
     def load_st_grid(self):
 
         def end_load_grid():
-            self.favs_menu.select_fav(self.main_win_item.current_dir)
+            self.favs_menu.select_fav(self.main_win_item.abs_current_dir)
             self.grid.deleteLater()
 
             # это лочит главный гуи когда СМБ не отвечает
-            expand_path = lambda: self.tree_menu.expand_path(self.main_win_item.current_dir)
+            expand_path = lambda: self.tree_menu.expand_path(self.main_win_item.abs_current_dir)
 
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
@@ -498,8 +498,8 @@ class WinMain(WinBase):
             self.scroll_up.hide()
             self.grid.deleteLater()
 
-            t = os.path.basename(self.main_win_item.current_dir)
-            fav = JsonData.favs.get(self.main_win_item.current_dir, "")
+            t = os.path.basename(self.main_win_item.abs_current_dir)
+            fav = JsonData.favs.get(self.main_win_item.abs_current_dir, "")
             if fav and fav != t:
                 t = f"{t} ({fav})"
             self.setWindowTitle(t)
