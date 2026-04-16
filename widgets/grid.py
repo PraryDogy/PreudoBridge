@@ -194,7 +194,11 @@ class Thumb(QFrame):
     def set_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
             icons = Thumb.image_icons
-        elif self.data_item.abs_path.count(os.sep) == 2:
+        elif (
+            self.data_item.abs_path.count(os.sep) == 2
+            and
+            self.data_item.abs_path.startswith("/Volumes")
+        ):
             icons = Thumb.disk_icons
         else:
             icons = Thumb.folder_icons
