@@ -128,6 +128,8 @@ class Thumb(QFrame):
     thumb_w: int = 0
     thumb_h: int = 0
     corner: int = 0
+    image_icons: dict[Literal["src"] | int, QPixmap] = {}
+    folder_icons: dict[Literal["src"] | int, QPixmap] = {}
 
     def __init__(self, data_item: DataItem):
         super().__init__()
@@ -169,16 +171,20 @@ class Thumb(QFrame):
         Thumb.corner = Static.corner_sizes[ind]
 
     def set_icon(self):
-        if self.data_item.abs_path.endswith(ImgUtils.ext_all):
-            icon = "image.png"
-        elif self.data_item.abs_path.count(os.sep) == 2:
-            icon = "disk.png"
-        else:
-            icon = "folder.png"
-        icon = os.path.join(Static.internal_images_dir, icon)
-        qimage = QImage(icon)
-        qimage = Utils.scaled(qimage, Thumb.current_image_size)
-        self.img_wid.setPixmap(QPixmap.fromImage(qimage))
+        if not self.data_item.icons:
+            if self.data_item.abs_path.endswith(ImgUtils.ext_all):
+                icon = "image.png"
+            elif self.data_item.abs_path.count(os.sep) == 2:
+                icon = "disk.png"
+            else:
+                icon = "folder.png"
+            icon = os.path.join(Static.internal_images_dir, icon)
+            qimage = QImage(icon)
+            qimage = Utils.scaled(qimage, Thumb.current_image_size)
+
+
+
+            self.img_wid.setPixmap(QPixmap.fromImage(qimage))
 
     def set_image(self):
         qimage = self.data_item.qimages[Thumb.current_image_size]
@@ -245,6 +251,17 @@ class Thumb(QFrame):
         effect = QGraphicsOpacityEffect(self)
         effect.setOpacity(value)
         self.setGraphicsEffect(effect)
+
+    @classmethod
+    def setup_icons(cls):
+        folder_icon = QImage(
+            os.path.join(Static.internal_images_dir, "folder.png")
+        )
+        image_icon = QImage(
+            os.path.join(Static.internal_images_dir, "image.png")
+        )
+        cls.folder_icons["src"] = QPixmap.fromImage(folder_icon)
+        cls.image_icons["src"] = QPixmap.fromImage(image_icon)
 
 
 class NoItemsLabel(QLabel):

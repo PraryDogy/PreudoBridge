@@ -81,6 +81,8 @@ class DataItem:
         # словарь заполняется на основе Static.image_sizes
         # так же дополняется ключом "src" с исходным qimage
         self.qimages: dict[Literal["src"] | int, QImage] = {}
+
+        # нужно чтоб перекинуть с мультипроцесса в основной поток 
         self.img_array: np.ndarray = None
 
     # def set_hash_and_thumb_path(self, fs_id: str):
