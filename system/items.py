@@ -165,7 +165,7 @@ class MainWinItem:
         self.abs_current_dir: str
         self.rel_current_dir: str
         self.view_mode: int 
-        self.fs_id: str
+        self.fs_id: dict[Literal["mount_point", "fs_id"], str]
 
     def set_view_mode(self, value: int):
         self.view_mode = value

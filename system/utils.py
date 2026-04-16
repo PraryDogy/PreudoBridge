@@ -209,10 +209,16 @@ class FsId:
             return None
         device, mount_point, line = best
         if "smbfs" in line:
-            return cls._parse_smb(device)
+            return {
+                "mount_point": mount_point,
+                "fs_id": cls._parse_smb(device)
+            }
         uuid = cls._get_volume_uuid(device)
         if uuid:
-            return uuid
+            return {
+                "mount_point": mount_point,
+                "fs_id": uuid
+            }
         return None
 
     @classmethod

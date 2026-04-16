@@ -74,11 +74,20 @@ class ImgLoader:
     def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
         data_items.sort(key=lambda x: x.size)
         abs_path = main_win_item.abs_current_dir
-        rel_path = abs_path.strip(os.sep).split(os.sep)
-        main_win_item.rel_current_dir = os.sep + os.sep.join(rel_path[2:])
+        rel_path = os.path.relpath(
+            abs_path,
+            main_win_item.fs_id["mount_point"]
+        )
+        if rel_path == ".":
+            rel_path == os.sep
+        elif not rel_path.startswith(os.sep):
+            rel_path = os.sep + rel_path
+        main_win_item.rel_current_dir = rel_path
+
+        print(main_win_item.rel_current_dir, main_win_item.fs_id["fs_id"])
+        return
 
 
-        
         with Dbase.create_engine().begin() as conn:
             ImgLoader.process_removed_images(
                 data_items=data_items,
