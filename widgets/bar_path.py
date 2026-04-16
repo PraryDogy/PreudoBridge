@@ -7,10 +7,16 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 from cfg import JsonData, Static
 from system.items import DataItem, MainWinItem
 from system.utils import Utils
-from system.appkit_icon import AppKitIcon
 
 from ._base_widgets import UMenu, USvgSqareWidget
 from .actions import ItemActions
+from system.shared_utils import ImgUtils
+
+class Icons:
+    computer: QPixmap
+    disk: QPixmap
+    folder: QPixmap
+    image: QPixmap
 
 
 class PathItem(QWidget):
@@ -22,7 +28,6 @@ class PathItem(QWidget):
     info_win = pyqtSignal(list)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-    type_to_pixmap: dict = {}
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
@@ -53,27 +58,8 @@ class PathItem(QWidget):
         self.collapse()
         item_layout.addWidget(self.text_wid)
 
-        self.set_icon(lambda appkit_icon, pixmap: self.set_type_to_pixmap(appkit_icon, pixmap))
-
-    def set_type_to_pixmap(self, appkit_icon: AppKitIcon, pixmap: QPixmap):
-        self.type_to_pixmap[appkit_icon.uti_filetype] = pixmap
-        self.img_wid.setPixmap(pixmap)
-
-    def set_icon(self, callback):
-        
-        def fin(appkit_icon: AppKitIcon, qimages: dict):
-            qimage = qimages[Static.image_sizes[0]]
-            qimage = Utils.scaled(qimage, PathItem.item_height)
-            pixmap = QPixmap.fromImage(qimage)
-            callback(appkit_icon, pixmap)
-
-        appkit_icon = AppKitIcon(self.item_dir)
-        if appkit_icon.uti_filetype in self.type_to_pixmap:
-            pixmap = self.type_to_pixmap[appkit_icon.uti_filetype]
-            callback(appkit_icon, pixmap)
-        else:
-            appkit_icon.finished_.connect(lambda qimages: fin(appkit_icon, qimages))
-            appkit_icon.get_qimages()
+    def set_icon(self, qpixmap: QPixmap):
+        self.img_wid.setPixmap(qpixmap)
 
     def add_arrow(self):
         """
@@ -181,7 +167,7 @@ class PathItem(QWidget):
                 self.new_history_item.emit(self.item_dir)
                 self.load_st_grid.emit()
         return super().mouseReleaseEvent(a0)
-
+    
 
 class BarPath(QWidget):
     new_history_item = pyqtSignal(str)
@@ -198,7 +184,7 @@ class BarPath(QWidget):
         - Группа виджетов PathItem (читай описание PathItem)  
         """
         super().__init__()
-        self.computer: QPixmap = self.create_computer_icon()
+        self.computer: QPixmap = self.create_icons()
         self.main_win_item = main_win_item
         self.setFixedHeight(BarPath.bar_height)
         self.setAcceptDrops(True)
@@ -210,10 +196,18 @@ class BarPath(QWidget):
         self.main_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_lay)
 
-    def create_computer_icon(self):
-        qimage = QImage(os.path.join(Static.internal_images_dir, "computer.png"))
-        qimage = Utils.scaled(qimage, PathItem.item_height)
-        return QPixmap.fromImage(qimage)
+    def create_icons(self):
+        icons = {
+            "computer": "computer.png",
+            "disk": "disk.png",
+            "folder": "folder.png",
+            "image": "image.png"
+        }
+        for attr, icon in icons.items():
+            path = os.path.join(Static.internal_images_dir, icon)
+            qimage = QImage(path)
+            qimage = Utils.scaled(qimage, 15)
+            setattr(Icons, attr, QPixmap.fromImage(qimage))
 
     def update(self, dir: str):
         """
@@ -241,8 +235,16 @@ class BarPath(QWidget):
             path_items[x] = path_item
             self.main_lay.addWidget(path_item)
 
-        path_items.get(1).img_wid.setPixmap(self.computer)
+            path_item.set_icon(Icons.folder)
+
+        path_items.get(1).set_icon(Icons.computer)
+
+        if len(path_items) >= 2:
+            path_items.get(2).set_icon(Icons.disk)
+
         last_item = path_items.get(len(root))
+        if dir.endswith(ImgUtils.ext_all):
+            last_item.set_icon(Icons.image)
 
         text_ = last_item.text_wid.text()
         if len(text_) > BarPath.last_item_limit:

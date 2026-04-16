@@ -195,50 +195,16 @@ class OnStartTask(URunnable):
         self.make_all_dirs()
         self.set_Macintosh_HD()
         self.remove_old_files()
-        self.copy_uti_icons()
-        self.load_uti_icons_to_ram()
         self.load_image_apps()
         self.sigs.finished_.emit()
 
     def make_all_dirs(self):
         dirs = (
             Static.app_dir,
-            Static.external_thumbs_dir,
-            Static.external_uti_dir
+            Static.external_thumbs_dir
         )
         for i in dirs:
             os.makedirs(i, exist_ok=True)
-
-    def copy_uti_icons(self):
-        uti_folder = "./uti_icons"
-        uti_json = os.path.join(uti_folder, "uti_icons.json")
-        uti_zip = os.path.join(uti_folder, "uti_icons.zip")
-
-        with open(uti_json) as file:
-            internal_uti_icons = json.load(file)
-        external_uti_icons = [i for i in os.listdir(Static.external_uti_dir)]
-        for i in internal_uti_icons:
-            if i not in external_uti_icons:
-                external_zip = shutil.copy2(uti_zip, Static.app_dir)
-                shutil.rmtree(Static.external_uti_dir)
-                try:
-                    with zipfile.ZipFile(external_zip, "r") as zip_ref:
-                        zip_ref.extractall(Static.app_dir)
-                except zipfile.BadZipFile:
-                    print("download uti_icons.zip and place to ./uti_icons")
-                    print("https://disk.yandex.ru/d/RNqZ9xCFHiDONQ")
-                    SharedUtils.exit_force()
-                break
-
-    def load_uti_icons_to_ram(self):
-        for entry in os.scandir(Static.external_uti_dir):
-            if entry.is_file() and entry.name.endswith(".png"):
-                uti_filetype = entry.name.rsplit(".png", 1)[0]
-                qimage = QImage(entry.path)
-                Dynamic.uti_data[uti_filetype] = {}
-                for i in Static.image_sizes:
-                    resized_qimage = Utils.scaled(qimage, i)
-                    Dynamic.uti_data[uti_filetype][i] = resized_qimage
 
     def load_image_apps(self):
         patterns = [
@@ -269,7 +235,6 @@ class OnStartTask(URunnable):
         files = (
             "cfg.json",
             "db.db",
-            "uti_icons",
             "log.txt",
             "servers.json",
             "thumbnails"

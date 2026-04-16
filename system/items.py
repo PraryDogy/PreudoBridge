@@ -64,7 +64,6 @@ class DataItem:
         self.mod: float = None
         self.birth: int = None
         self.size: int = None
-        self.uti_type: str = None
         self.partial_hash: str = None
         self.thumb_path: str = None
         self.image_is_loaded: bool = False

@@ -12,7 +12,6 @@ from typing_extensions import Literal
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
-from system.appkit_icon import AppKitIcon
 from system.database import Dbase
 from system.items import ClipboardItem, DataItem, MainWinItem, SortItem
 from system.multiprocess import DirWatcher, ImgLoader, ProcessWorker

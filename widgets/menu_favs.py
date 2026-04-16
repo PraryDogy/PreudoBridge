@@ -6,7 +6,6 @@ from PyQt5.QtGui import (QContextMenuEvent, QDropEvent, QIcon, QImage,
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
-from system.appkit_icon import AppKitIcon
 from system.items import MainWinItem
 from system.utils import Utils
 
@@ -103,6 +102,7 @@ class MenuFavs(QListWidget):
     load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
     svg_size = 16
+    folder_icon: QPixmap
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -114,24 +114,15 @@ class MenuFavs(QListWidget):
         self.wids: dict[str, QListWidgetItem] = {}
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
-        self.create_folder_icon(lambda icon: self.set_folder_icon(icon))
-
-    def create_folder_icon(self, callback):
-
-        def fin(qimages: dict[int | str, QImage]):
-            qimage = qimages[Static.image_sizes[0]]
-            qimage = Utils.scaled(qimage, self.svg_size)
-            icon = QIcon(QPixmap.fromImage(qimage))
-            callback(icon)
-
-        appkit_icon = AppKitIcon(Static.app_dir)
-        appkit_icon.finished_.connect(fin)
-        appkit_icon.get_qimages()
-
-    def set_folder_icon(self, icon: QIcon):
-        # инициация ui только после получения иконки
-        self.folder_icon = icon
+        self.create_folder_icon()
         self.init_ui()
+
+    def create_folder_icon(self):
+        icon = os.path.join(Static.internal_images_dir, "folder.png")
+        qimage = QImage(icon)
+        qimage = Utils.scaled(qimage, self.svg_size)
+        pixmap = QPixmap.fromImage(qimage)
+        self.folder_icon = QIcon(pixmap)
 
     def init_ui(self):
         self.clear()

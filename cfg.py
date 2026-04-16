@@ -6,7 +6,6 @@ class Static:
     app_ver = 5.2
 
     app_dir = os.path.join(os.path.expanduser('~/Library/Application Support'), app_name)
-    external_uti_dir = os.path.join(app_dir, "uti_icons")
     external_thumbs_dir = os.path.join(app_dir, 'thumbnails')
     external_json = os.path.join(app_dir, 'cfg.json')
     external_db = os.path.join(app_dir, 'db.db')
@@ -97,5 +96,4 @@ class Dynamic:
     word_filters: list[str] = []
     pixmap_size_ind = 2
     image_apps: list[str] = []
-    uti_data: dict = {}
     sys_vol: str = None

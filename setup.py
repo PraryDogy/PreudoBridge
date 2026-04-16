@@ -75,7 +75,6 @@ MAIN_FILES = ["start.py"] # SINGLE OR MULTIPLE PYTHON FILES
 DATA_FILES = [
     include_files("images"),
     include_files("scripts"),
-    include_files("uti_icons"),
     ]
 
 
@@ -107,23 +106,7 @@ OPTIONS = {
 sys.argv.append(PY2APP)
 
 try:
-
-    print("создаю актуальный zip архив uti_icons")
-    src = Static.external_uti_dir
-    root = os.path.basename(Static.external_uti_dir)
-    app_sup = Static.app_dir
-    new_zip = shutil.make_archive(
-        Static.external_uti_dir,
-        "zip",
-        Static.app_dir,
-        os.path.basename(Static.external_uti_dir)
-    )
-    uti_icons_zip = shutil.copy2(new_zip, "./uti_icons")
-    os.remove(new_zip)
-    print("готово")
-
     remove_trash()
-
     setup(
         app=MAIN_FILES,
         name=APP_NAME,
@@ -131,14 +114,8 @@ try:
         options={PY2APP: OPTIONS},
         setup_requires=[PY2APP],
         )
-
     move_app_to_desktop(APP_NAME)
     remove_trash()
-
-    os.remove(uti_icons_zip)
-    with open(uti_icons_zip, "w"):
-        pass
-
 except Exception as e:
     print(e)
     remove_trash()
