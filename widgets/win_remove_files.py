@@ -29,7 +29,7 @@ class WinRemoveFiles(ConfirmWindow):
 
     def cmd_(self, *args):
         self.hide()
-        self.task_ = FileRemover(self.main_win_item.main_dir, self.urls)
+        self.task_ = FileRemover(self.main_win_item.current_dir, self.urls)
         self.task_.sigs.finished_.connect(self.finalize)
         QTimer.singleShot(100, lambda: UThreadPool.start(runnable=self.task_))
 

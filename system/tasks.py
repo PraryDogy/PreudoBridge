@@ -287,7 +287,7 @@ class DirScaner(URunnable):
             self.sigs.finished_.emit(self.dir_item)
 
     def task_(self):
-        for entry in os.scandir(self.dir_item._main_win_item.main_dir):
+        for entry in os.scandir(self.dir_item._main_win_item.current_dir):
             if entry.name.startswith(Static.hidden_symbols):
                 continue
             if not os.access(entry.path, 4):

@@ -79,7 +79,7 @@ class DirScaner:
 
     @staticmethod
     def _start(dir_item: DirItem, queue: Queue):
-        path = dir_item._main_win_item.main_dir
+        path = dir_item._main_win_item.current_dir
         if not os.path.exists(path):
             path_finder = PathFinder(path)
             path = path_finder.get_result()

@@ -110,7 +110,7 @@ class WinSearchList(WinMinCloseOnly):
         first_title = QLabel(WinSearchList.search_place_text)
         first_lay.addWidget(first_title)
 
-        main_dir_label = QLabel(self.wrap_text(self.main_win_item.main_dir))
+        main_dir_label = QLabel(self.wrap_text(self.main_win_item.current_dir))
         first_lay.addWidget(main_dir_label)
 
         return first_row
@@ -457,7 +457,7 @@ class BarTop(QWidget):
         if 0 <= new_index < len(self.history_items):
             self.current_index = new_index
             new_main_dir = self.history_items[self.current_index]
-            self.main_win_item.main_dir = new_main_dir
+            self.main_win_item.current_dir = new_main_dir
             self.load_st_grid.emit()
 
     def resizeEvent(self, a0):

@@ -41,10 +41,10 @@ class MenuTree(QTreeView):
 
     def one_clicked(self, index):
         path = self.c_model.filePath(index)
-        if path != self.main_win_item.main_dir:
+        if path != self.main_win_item.current_dir:
             self.setCurrentIndex(index)
             self.new_history_item.emit(path)
-            self.main_win_item.main_dir = path
+            self.main_win_item.current_dir = path
             self.load_st_grid_sig.emit()
         # self.expand(index)
 

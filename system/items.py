@@ -160,10 +160,9 @@ class MainWinItem:
     def __init__(self):
         self.urls_to_select: list[str] = []
         self.go_to: str = None
-        self.main_dir: str = None
-        self.scroll_value: int = None
+        self.current_dir: str = None
         self.view_mode: int = 0
-        self.exists: bool = True
+        self.fs_id = None
 
     def set_view_mode(self, value: int):
         self.view_mode = value

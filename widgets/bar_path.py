@@ -130,7 +130,7 @@ class PathItem(QWidget):
         QTimer.singleShot(500, self.collapse)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        urls = [self.main_win_item.main_dir]
+        urls = [self.main_win_item.current_dir]
         menu_ = UMenu(parent=self)
 
         if self.item_dir in JsonData.favs:
@@ -162,8 +162,8 @@ class PathItem(QWidget):
 
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
-            if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.main_dir:
-                self.main_win_item.main_dir = self.item_dir
+            if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.current_dir:
+                self.main_win_item.current_dir = self.item_dir
                 self.new_history_item.emit(self.item_dir)
                 self.load_st_grid.emit()
         return super().mouseReleaseEvent(a0)

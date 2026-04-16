@@ -46,13 +46,13 @@ class FavItem(QLabel):
 
     def view_fav(self):
         self.new_history_item.emit(self.src)
-        self.main_win_item.main_dir = self.src
+        self.main_win_item.current_dir = self.src
         self.load_st_grid.emit()
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.open_in_new_win.emit(self.src)
-        elif self.src != self.main_win_item.main_dir:
+        elif self.src != self.main_win_item.current_dir:
             self.view_fav()
         return super().mouseReleaseEvent(ev)
 
@@ -133,7 +133,7 @@ class MenuFavs(QListWidget):
             item: QListWidgetItem = result[self.LIST_ITEM]
             self.wids[src] = item
 
-            if self.main_win_item.main_dir == src:
+            if self.main_win_item.current_dir == src:
                 self.setCurrentItem(item)
 
     def select_fav(self, src: str):
