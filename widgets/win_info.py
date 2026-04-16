@@ -130,7 +130,7 @@ class WinInfo(WinMinCloseOnly):
             self.name_text: self.lined_text(item.filename),
             self.type_text: item.type_,
             self.size_text: SharedUtils.get_f_size(item.size),
-            self.src_text: self.lined_text(item.src),
+            self.src_text: self.lined_text(item.abs_path),
             self.birth_text: SharedUtils.get_f_date(item.birth),
             self.mod_text: SharedUtils.get_f_date(item.mod),
             self.resol_text: self.calc_text,
@@ -148,7 +148,7 @@ class WinInfo(WinMinCloseOnly):
         if resol_label:
             self.img_res_task = ProcessWorker(
                 target=ImgRes.start,
-                args=(item.src, )
+                args=(item.abs_path, )
             )
             self.img_res_task.start()
             QTimer.singleShot(100, lambda: poll_task(resol_label))
@@ -160,7 +160,7 @@ class WinInfo(WinMinCloseOnly):
             self.name_text: self.lined_text(item.filename),
             self.type_text: item.type_,
             self.size_text: SharedUtils.get_f_size(item.size),
-            self.src_text: self.lined_text(item.src),
+            self.src_text: self.lined_text(item.abs_path),
             self.birth_text: SharedUtils.get_f_date(item.birth),
             self.mod_text: SharedUtils.get_f_date(item.mod),
         }
@@ -192,7 +192,7 @@ class WinInfo(WinMinCloseOnly):
                 QTimer.singleShot(100, poll_task)
 
         row = 0
-        root = os.path.dirname(self.data_items[0].src)
+        root = os.path.dirname(self.data_items[0].abs_path)
         labels = {
             self.src_text: self.lined_text(root),
             self.size_text: self.calc_text,
@@ -208,7 +208,7 @@ class WinInfo(WinMinCloseOnly):
             row += 1
 
         items = [
-            {"src": i.src, "type_": i.type_, "size": i.size}
+            {"src": i.abs_path, "type_": i.type_, "size": i.size}
             for i in self.data_items
         ]
 
@@ -241,7 +241,7 @@ class WinInfo(WinMinCloseOnly):
             self.name_text: self.lined_text(item.filename),
             self.type_text: self.ru_folder,
             self.size_text: self.calc_text,
-            self.src_text: self.lined_text(self.data_items[0].src),
+            self.src_text: self.lined_text(self.data_items[0].abs_path),
             self.birth_text: SharedUtils.get_f_date(item.birth),
             self.mod_text: SharedUtils.get_f_date(item.mod),
             self.files_text: self.calc_text,
@@ -256,7 +256,7 @@ class WinInfo(WinMinCloseOnly):
             row += 1
 
         items = [
-            {"src": i.src, "type_": i.type_, "size": i.size}
+            {"src": i.abs_path, "type_": i.type_, "size": i.size}
             for i in self.data_items
         ]
 

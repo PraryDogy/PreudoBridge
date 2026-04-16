@@ -57,14 +57,12 @@ class SortItem:
 class DataItem:
     def __init__(self, src: str, rating: int = 0):
         super().__init__()
-        self.src: str = src
+        self.abs_path: str = src
         self.filename: str = None
         self.type_: str = None
         self.rating: int = rating
         self.mod: float = None
-        self.birth: int = None
         self.size: int = None
-        self.partial_hash: str = None
         self.thumb_path: str = None
         self.image_is_loaded: bool = False
         self.must_hidden: bool = False
@@ -76,41 +74,34 @@ class DataItem:
         self.qimages: dict[Literal["src"] | int, QImage] = {}
         self.img_array: np.ndarray = None
 
-    def set_hash_and_thumb_path(self):
-        try:
-            self.partial_hash = Utils.get_partial_hash(self.src)
-            if self.type_ in ImgUtils.ext_all:
-                thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
-                if self.type_ in (".png", ".icns"):
-                    self.thumb_path = thumb_path + ".png"
-                else:
-                    self.thumb_path = thumb_path + ".jpg"
-        except Exception as e:
-            print("items, BaseItem set partial hash error", e)
+    # def set_hash_and_thumb_path(self):
+    #     try:
+    #         self.partial_hash = Utils.get_partial_hash(self.abs_path)
+    #         if self.type_ in ImgUtils.ext_all:
+    #             thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
+    #             if self.type_ in (".png", ".icns"):
+    #                 self.thumb_path = thumb_path + ".png"
+    #             else:
+    #                 self.thumb_path = thumb_path + ".jpg"
+    #     except Exception as e:
+    #         print("items, BaseItem set partial hash error", e)
         
     def set_properties(self):
-        """
-        Обновляет данные объекта:
-        src, filename, type_, mod, birth, size, rating
-        """
-        self.src = self.src.rstrip(os.sep)
-        self.filename = os.path.basename(self.src)
+        self.abs_path = self.abs_path.rstrip(os.sep)
+        self.filename = os.path.basename(self.abs_path)
 
-        if os.path.isdir(self.src):
+        if os.path.isdir(self.abs_path):
             self.type_ = Static.folder_type
         else:
-            _, self.type_ = os.path.splitext(self.src)
+            _, self.type_ = os.path.splitext(self.abs_path)
 
         try:
-            stat = os.stat(self.src)
+            stat = os.stat(self.abs_path)
             self.mod = int(stat.st_mtime)
-            self.birth = int(stat.st_birthtime)
             self.size = int(stat.st_size)
-
         except Exception as e:
             print("items, BaseItem set properties error", e)
             self.mod = 0
-            self.birth = 0
             self.size = 0
 
     @classmethod

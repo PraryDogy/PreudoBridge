@@ -67,40 +67,6 @@ class ProcessWorker(BaseProcessWorker):
         super().__init__(target, (*args, self.process_queue))
 
 
-class DirScaner:
-
-    @staticmethod
-    def start(dir_item: DirItem, queue: Queue):
-        try:
-            DirScaner._start(dir_item, queue)
-        except Exception as e:
-            print("system > multiprocess DirScaner error", e)
-            queue.put(dir_item)
-
-    @staticmethod
-    def _start(dir_item: DirItem, queue: Queue):
-        path = dir_item._main_win_item.current_dir
-        if not os.path.exists(path):
-            path_finder = PathFinder(path)
-            path = path_finder.get_result()
-        dir_item.fixed_path = path
-        # dir_item.fixed_path = None
-        if path is None:
-            queue.put(dir_item)
-            return
-        hidden_syms = () if dir_item._show_hidden else Static.hidden_symbols
-        for entry in os.scandir(path):
-            if entry.name.startswith(hidden_syms):
-                continue
-            if not os.access(entry.path, 4):
-                continue
-            data_item = DataItem(entry.path)
-            data_item.set_properties()
-            dir_item.data_items.append(data_item)
-        dir_item.data_items = DataItem.sort_(dir_item.data_items, dir_item._sort_item)
-        queue.put(dir_item)
-
-
 class ImgLoader:
     @staticmethod
     def start(data_items: list[DataItem], queue: Queue):
@@ -148,7 +114,7 @@ class ImgLoader:
         if not data_items:
             return
         for i in data_items:
-            img_array = ImgUtils.read_img(i.src)
+            img_array = ImgUtils.read_img(i.abs_path)
             img_array = ImgUtils.resize(img_array, 512)
             i.img_array = img_array
             queue.put(i)
@@ -177,7 +143,7 @@ class ImgLoader:
         values = []
         now = Utils.get_now()
         for data_item in data_items:
-            img_array = ImgUtils.read_img(data_item.src)
+            img_array = ImgUtils.read_img(data_item.abs_path)
             img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
             data_item.img_array = img_array
             os.makedirs(os.path.dirname(data_item.thumb_path), exist_ok=True)
