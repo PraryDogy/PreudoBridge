@@ -171,20 +171,11 @@ class Thumb(QFrame):
         Thumb.corner = Static.corner_sizes[ind]
 
     def set_icon(self):
-        if not self.data_item.icons:
-            if self.data_item.abs_path.endswith(ImgUtils.ext_all):
-                icon = "image.png"
-            elif self.data_item.abs_path.count(os.sep) == 2:
-                icon = "disk.png"
-            else:
-                icon = "folder.png"
-            icon = os.path.join(Static.internal_images_dir, icon)
-            qimage = QImage(icon)
-            qimage = Utils.scaled(qimage, Thumb.current_image_size)
-
-
-
-            self.img_wid.setPixmap(QPixmap.fromImage(qimage))
+        if self.data_item.abs_path.endswith(ImgUtils.ext_all):
+            icons = self.image_icons
+        else:
+            icons = self.folder_icons
+        self.img_wid.setPixmap(icons[Thumb.current_image_size])
 
     def set_image(self):
         qimage = self.data_item.qimages[Thumb.current_image_size]
@@ -260,8 +251,14 @@ class Thumb(QFrame):
         image_icon = QImage(
             os.path.join(Static.internal_images_dir, "image.png")
         )
-        cls.folder_icons["src"] = QPixmap.fromImage(folder_icon)
-        cls.image_icons["src"] = QPixmap.fromImage(image_icon)
+        # cls.folder_icons["src"] = QPixmap.fromImage(folder_icon)
+        # cls.image_icons["src"] = QPixmap.fromImage(image_icon)
+
+        for i in Static.image_sizes:
+            resized_folder = Utils.scaled(folder_icon, i)
+            resized_image = Utils.scaled(image_icon, i)
+            cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
+            cls.image_icons[i] = QPixmap.fromImage(resized_image)
 
 
 class NoItemsLabel(QLabel):
