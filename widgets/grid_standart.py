@@ -37,7 +37,6 @@ class GridStandart(Grid):
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
         self.loading_label = LoadingWidget()
-        self.start_dir_scaner = self.start_dir_scaner_s
 
     def show_loading_label(self):
         try:
@@ -61,7 +60,7 @@ class GridStandart(Grid):
         self.scroll_timer.stop()
         self.scroll_timer.start(self.scroll_timer_ms)
 
-    def start_dir_scaner_s(self):
+    def start_dir_scaner(self):
         dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
         self.finder_task = DirScanerS(dir_item)
         self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
