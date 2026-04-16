@@ -74,10 +74,7 @@ class ImgLoader:
     def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
         data_items.sort(key=lambda x: x.size)
         abs_path = main_win_item.abs_current_dir
-        rel_path = os.path.relpath(
-            abs_path,
-            main_win_item.fs_id["mount_point"]
-        )
+        rel_path = os.path.relpath(abs_path, main_win_item.fs_id["mount_point"])
         if rel_path == ".":
             rel_path == os.sep
         elif not rel_path.startswith(os.sep):
