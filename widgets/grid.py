@@ -169,22 +169,17 @@ class Thumb(QFrame):
         Thumb.thumb_h = Static.thumb_heights[ind]
         Thumb.corner = Static.corner_sizes[ind]
 
-    def set_uti_data(self):
-
-        def fin(qimages: dict[str | int, QImage]):
-            try:
-                qimage = qimages[Thumb.current_image_size]
-            except KeyError as e:
-                print("Thumb set uti data key error, key:", e)
-                svg = os.path.join(Static.internal_images_dir, "warning.svg")
-                qimage = Utils.render_svg(svg, 512)
-                qimage = Utils.scaled(qimage, Thumb.current_image_size)
-            pixmap = QPixmap.fromImage(qimage)
-            self.img_wid.setPixmap(pixmap)
-
-        appkit_icon = AppKitIcon(self.data_item.src)
-        appkit_icon.finished_.connect(fin)
-        appkit_icon.get_qimages()
+    def set_icon(self):
+        if self.data_item.src.endswith(ImgUtils.ext_all):
+            icon = "image.png"
+        elif self.data_item.src.count(os.sep) == 2:
+            icon = "disk.png"
+        else:
+            icon = "folder.png"
+        icon = os.path.join(Static.internal_images_dir, icon)
+        qimage = QImage(icon)
+        qimage = Utils.scaled(qimage, Thumb.current_image_size)
+        self.img_wid.setPixmap(QPixmap.fromImage(qimage))
 
     def set_image(self):
         qimage = self.data_item.qimages[Thumb.current_image_size]
@@ -211,7 +206,7 @@ class Thumb(QFrame):
         if self.data_item.qimages:
             self.set_image()
         else:
-            self.set_uti_data()
+            self.set_icon()
 
     def set_frame(self):
         self.setStyleSheet(
@@ -428,35 +423,35 @@ class Grid(UScrollArea):
         """
 
         def update_thumb(data_item: DataItem):
-            try:
-                thumb = self.url_to_wid[data_item.src]
-                thumb.data_item.partial_hash = data_item.partial_hash
-                thumb.data_item.rating = data_item.rating
-                thumb.set_blue_text()
-                if data_item.img_array is not None:
-                    qimages = {}
-                    original_qimage = Utils.qimage_from_array(
-                        image=data_item.img_array
-                    )
-                    if original_qimage is not None:
-                        qimages["src"] = original_qimage
-                        for size in Static.image_sizes:
-                            resized_qimage = Utils.scaled(
-                                qimage=original_qimage,
-                                size=size
-                            )
-                            qimages[size] = resized_qimage
-                        thumb.data_item.qimages = qimages
-                        thumb.set_image()
-            except RuntimeError as e:
-                print("grid > set_thumb_image runtime err")
+            thumb = self.url_to_wid[data_item.src]
+            thumb.data_item.partial_hash = data_item.partial_hash
+            thumb.data_item.rating = data_item.rating
+            thumb.set_blue_text()
+            if data_item.img_array is not None:
+                qimages = {}
+                original_qimage = Utils.qimage_from_array(
+                    image=data_item.img_array
+                )
+                if original_qimage is not None:
+                    qimages["src"] = original_qimage
+                    for size in Static.image_sizes:
+                        resized_qimage = Utils.scaled(
+                            qimage=original_qimage,
+                            size=size
+                        )
+                        qimages[size] = resized_qimage
+                    thumb.data_item.qimages = qimages
+                    thumb.set_image()
 
         def poll_task(img_task: ProcessWorker, img_timer: QTimer):
             img_timer.stop()
             q = img_task.process_queue
             while not q.empty():
                 data_item: DataItem = q.get()
-                update_thumb(data_item)
+                try:
+                    update_thumb(data_item)
+                except RuntimeError:
+                    pass
 
             if not img_task.is_alive() and q.empty():
                 img_task.terminate_join()
@@ -707,7 +702,7 @@ class Grid(UScrollArea):
         thumb = Thumb(data)
         thumb.resize_()
         thumb.set_no_frame()
-        thumb.set_uti_data()
+        thumb.set_icon()
 
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)

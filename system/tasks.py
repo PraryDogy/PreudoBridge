@@ -332,7 +332,10 @@ class DirScaner(URunnable):
                 item.set_properties()
                 self.dir_item.data_items.append(item)
 
-        self.dir_item.data_items = DataItem.sort_(self.dir_item.data_items, self.dir_item._sort_item)
+        self.dir_item.data_items = DataItem.sort_(
+            data_items=self.dir_item.data_items,
+            sort_item=self.dir_item._sort_item
+        )
         self.sigs.finished_.emit(self.dir_item)
 
     def terminate_join(self):

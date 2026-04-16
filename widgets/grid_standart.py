@@ -106,7 +106,7 @@ class GridStandart(Grid):
             thumb = Thumb(data_item)
             thumb.resize_()
             thumb.set_no_frame()
-            thumb.set_uti_data()
+            thumb.set_icon()
 
             # Добавление в layout и внутренние структуры
             self.add_widget_data(thumb, self.row, self.col)
