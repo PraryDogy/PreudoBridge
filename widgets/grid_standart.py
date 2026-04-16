@@ -37,11 +37,7 @@ class GridStandart(Grid):
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
         self.loading_label = LoadingWidget()
-
-        if self.main_win_item.main_dir.startswith(Dynamic.sys_vol):
-            self.start_dir_scaner = self.start_dir_scaner_s
-        else:
-            QTimer.singleShot(1, self.show_loading_label)
+        self.start_dir_scaner = self.start_dir_scaner_s
 
     def show_loading_label(self):
         try:
