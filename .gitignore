@@ -166,3 +166,4 @@ cython_debug/
 db.db
 _thumbs/
 .preudobridge
+.vscode/
