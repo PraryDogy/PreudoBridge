@@ -158,8 +158,8 @@ class DataItem:
 
 class MainWinItem:
     def __init__(self):
-        self._urls_to_select: list[str] = []
-        self._go_to: str = None
+        self.urls_to_select: list[str] = []
+        self.go_to: str = None
         self.main_dir: str = None
         self.scroll_value: int = None
         self.view_mode: int = 0
@@ -173,24 +173,6 @@ class MainWinItem:
         0 вид сетка, 1 вид список
         """
         return self.view_mode
-
-    def set_urls_to_select(self, urls: list[str]):
-        self._urls_to_select = urls
-
-    def get_urls_to_select(self):
-        return self._urls_to_select
-
-    def clear_urls_to_select(self):
-        self._urls_to_select = []
-
-    def set_go_to(self, path: str):
-        self._go_to = path
-
-    def get_go_to(self):
-        return self._go_to
-
-    def clear_go_to(self):
-        self._go_to = None
 
 
 class ClipboardItem:

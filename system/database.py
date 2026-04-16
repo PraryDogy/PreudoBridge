@@ -9,35 +9,31 @@ from system.shared_utils import SharedUtils
 from system.utils import Utils
 
 _METADATA = sqlalchemy.MetaData()
-_TABLE_NAME = "cache"
+_TABLE_NAME = "data"
 
-_CACHE = sqlalchemy.Table(
+_DATA = sqlalchemy.Table(
     _TABLE_NAME, _METADATA,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("name", sqlalchemy.Text),
-    sqlalchemy.Column("type", sqlalchemy.Text),
-    sqlalchemy.Column("size", sqlalchemy.Integer),
-    sqlalchemy.Column("birth", sqlalchemy.Integer),
-    sqlalchemy.Column("mod", sqlalchemy.Integer),
-    sqlalchemy.Column("last_read", sqlalchemy.Integer),
-    sqlalchemy.Column("rating", sqlalchemy.Integer),
-    sqlalchemy.Column("partial_hash", sqlalchemy.Text),
+    sqlalchemy.Column("filename", sqlalchemy.Text),
+    sqlalchemy.Column("rel_parent", sqlalchemy.Text),
+    sqlalchemy.Column("fs_id", sqlalchemy.Text),
     sqlalchemy.Column("thumb_path", sqlalchemy.Text),
+    sqlalchemy.Column("size", sqlalchemy.Integer),
+    sqlalchemy.Column("mod", sqlalchemy.Integer),
+    sqlalchemy.Column("rating", sqlalchemy.Integer),
 )
 
 
 class CacheTable:
-    table = _CACHE
-    id = _CACHE.c.id
-    name = _CACHE.c.name
-    type = _CACHE.c.type
-    size = _CACHE.c.size
-    birth = _CACHE.c.birth
-    mod = _CACHE.c.mod
-    last_read = _CACHE.c.last_read
-    rating = _CACHE.c.rating
-    partial_hash = _CACHE.c.partial_hash
-    thumb_path = _CACHE.c.thumb_path
+    table = _DATA
+    id = _DATA.c.id
+    filename = _DATA.c.filename
+    rel_parent = _DATA.c.rel_parent
+    fs_id = _DATA.c.fs_id
+    thumb_path = _DATA.c.thumb_path
+    size = _DATA.c.size
+    mod = _DATA.c.mod
+    rating = _DATA.c.rating
 
 
 class Dbase:
@@ -64,7 +60,7 @@ class Dbase:
             os.makedirs(Static.app_dir, exist_ok=True)
             _METADATA.create_all(engine)
             conn = Dbase.main_engine.connect()
-            q = sqlalchemy.select(_CACHE)
+            q = sqlalchemy.select(_DATA)
             conn.execute(q).first()
             conn.close()
         except Exception as e:

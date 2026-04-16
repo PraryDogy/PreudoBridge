@@ -1284,7 +1284,7 @@ class Grid(UScrollArea):
             timer.stop()
             proc.terminate_join()
         urls = [i.data_item.src for i in self.selected_thumbs]
-        self.main_win_item.set_urls_to_select(urls)
+        self.main_win_item.urls_to_select = urls
         return super().deleteLater()
     
     def closeEvent(self, a0):
@@ -1294,5 +1294,5 @@ class Grid(UScrollArea):
             timer.stop()
             proc.terminate_join()
         urls = [i.src for i in self.selected_thumbs]
-        self.main_win_item.set_urls_to_select(urls)
+        self.main_win_item.urls_to_select = urls
         return super().closeEvent(a0)

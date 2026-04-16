@@ -131,20 +131,20 @@ class GridStandart(Grid):
             self.select_single_thumb(wid)
             self.ensureWidgetVisible(wid)
 
-        if self.main_win_item.get_go_to() in self.url_to_wid:
-            wid = self.url_to_wid.get(self.main_win_item.get_go_to())
-            self.main_win_item.clear_go_to()
+        if self.main_win_item.go_to in self.url_to_wid:
+            wid = self.url_to_wid.get(self.main_win_item.go_to)
+            self.main_win_item.go_to = None
             self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
             QTimer.singleShot(300, lambda: select_delayed(wid))
-        elif self.main_win_item.get_urls_to_select():
-            for i in self.main_win_item.get_urls_to_select():
+        elif self.main_win_item.urls_to_select:
+            for i in self.main_win_item.urls_to_select:
                 if i in self.url_to_wid:
                     wid = self.url_to_wid.get(i)
                     self.selected_thumbs.append(wid)
                     wid.set_frame()
             if self.selected_thumbs:
                 wid = self.selected_thumbs[-1]
-            self.main_win_item.clear_urls_to_select()
+            self.main_win_item.urls_to_select.clear()
         # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
         # которая скроет из сетки не подходящие под фильтр виджеты
         if Dynamic.rating_filter > 0 or Dynamic.word_filters:

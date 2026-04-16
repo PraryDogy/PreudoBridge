@@ -15,20 +15,20 @@ from system.multiprocess import PathFixer, ProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
 from system.tasks import RatingTask, UThreadPool
-from system.utils import Utils
+from system.utils import FileSystemId, Utils
 
 from ._base_widgets import USep, WinBase
 from .bar_macos import BarMacos
 from .bar_path import BarPath
+from .bar_sort import BarSort
 from .bar_top import BarTop
 from .grid import Grid
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
 from .menu_favs import MenuFavs
 from .menu_rating_filters import MenuRatingFilters
-from .bar_sort import BarSort
-from .table_view import TableView
 from .menu_tree import MenuTree
+from .table_view import TableView
 from .win_copy_files import WinCopyFiles
 from .win_go_to import WinGoTo
 from .win_img_view import WinImgView
@@ -334,7 +334,7 @@ class WinMain(WinBase):
                     self.main_win_item.main_dir = fixer_item.fixed_path
                 else:
                     self.main_win_item.main_dir = os.path.dirname(fixer_item.fixed_path)
-                    self.main_win_item.set_go_to(fixer_item.fixed_path)
+                    self.main_win_item.go_to = fixer_item.fixed_path
                 self.top_bar.new_history_item(self.main_win_item.main_dir)
                 self.load_st_grid()
 
@@ -364,8 +364,8 @@ class WinMain(WinBase):
 
         if new_main_dir != os.sep:
             self.top_bar.new_history_item(new_main_dir)
-            self.main_win_item.clear_urls_to_select()
-            self.main_win_item.set_go_to(old_main_dir)
+            self.main_win_item.urls_to_select.clear()
+            self.main_win_item.go_to = old_main_dir
             self.main_win_item.main_dir = new_main_dir
             self.load_st_grid()
 
