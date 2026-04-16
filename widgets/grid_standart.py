@@ -5,9 +5,7 @@ from PyQt5.QtWidgets import QLabel
 
 from cfg import Dynamic, JsonData, Static
 from system.items import DataItem, DirItem, MainWinItem
-from system.multiprocess import DirScaner, ProcessWorker
-from system.tasks import DirScaner as DirScanerS
-from system.tasks import UThreadPool
+from system.tasks import DirScaner, UThreadPool
 
 from .grid import Grid, NoItemsLabel, Thumb
 
@@ -62,46 +60,9 @@ class GridStandart(Grid):
 
     def start_dir_scaner(self):
         dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
-        self.finder_task = DirScanerS(dir_item)
+        self.finder_task = DirScaner(dir_item)
         self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
         UThreadPool.start(self.finder_task)
-
-    def start_dir_scaner(self):
-
-        def timeout_task():
-            self.finder_timer.stop()
-            self.finder_task.terminate_join()
-            dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
-            self.finalize_dir_scaner(dir_item)
-
-        def poll_task():
-            self.finder_timer.stop()
-            q = self.finder_task.process_queue
-
-            if not q.empty():
-                dir_item: DirItem = q.get()
-                self.finalize_dir_scaner(dir_item)
-
-            if not self.finder_task.is_alive():
-                self.timeout_timer.stop()
-                self.finder_task.terminate_join()
-            else:
-                self.finder_timer.start(self.finder_timer_ms)
-
-        dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
-        self.finder_task = ProcessWorker(target=DirScaner.start, args=(dir_item, ))
-
-        self.finder_timer = QTimer(self)
-        self.finder_timer.setSingleShot(True)
-        self.finder_timer.timeout.connect(poll_task)
-
-        self.timeout_timer = QTimer(self)
-        self.timeout_timer.setSingleShot(True)
-        self.timeout_timer.timeout.connect(timeout_task)
-
-        self.finder_task.start()
-        self.finder_timer.start(self.finder_timer_ms)
-        self.timeout_timer.start(self.timeout_timer_ms)
 
     def finalize_dir_scaner(self, dir_item: DirItem):
         if dir_item.fixed_path is None:

@@ -322,17 +322,15 @@ class DirScaner(URunnable):
             self.sigs.finished_.emit(self.dir_item)
 
     def task_(self):
-        hidden_syms = () if self.dir_item._show_hidden else Static.hidden_symbols
-
         for entry in os.scandir(self.dir_item._main_win_item.main_dir):
-            if entry.name.startswith(hidden_syms):
+            if entry.name.startswith(Static.hidden_symbols):
                 continue
             if not os.access(entry.path, 4):
                 continue
-
-            item = DataItem(entry.path)
-            item.set_properties()
-            self.dir_item.data_items.append(item)
+            if entry.is_dir() or entry.name.endswith(ImgUtils.ext_all):
+                item = DataItem(entry.path)
+                item.set_properties()
+                self.dir_item.data_items.append(item)
 
         self.dir_item.data_items = DataItem.sort_(self.dir_item.data_items, self.dir_item._sort_item)
         self.sigs.finished_.emit(self.dir_item)
