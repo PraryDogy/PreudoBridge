@@ -119,6 +119,8 @@ class WinMain(WinBase):
         else:
             self.main_win_item.current_dir = self.base_dir
             self.main_win_item.fs_id = FsId.get_fs_id(self.base_dir)
+        self.main_win_item.view_mode = 0
+        self.main_win_item.go_to = None
 
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)

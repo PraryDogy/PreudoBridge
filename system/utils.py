@@ -86,13 +86,23 @@ class Utils:
             return None
         return qimage
 
+    # @classmethod
+    # def get_partial_hash(cls, path: str, mb: float = 0.4) -> str:
+    #     chunk = int(mb * (1 << 20))  # переводим МБ в байты
+    #     h = hashlib.sha256()
+    #     with open(path, "rb") as f:
+    #         h.update(f.read(chunk))
+    #     return h.hexdigest()
+    
     @classmethod
-    def get_partial_hash(cls, path: str, mb: float = 0.4) -> str:
-        chunk = int(mb * (1 << 20))  # переводим МБ в байты
-        h = hashlib.sha256()
-        with open(path, "rb") as f:
-            h.update(f.read(chunk))
-        return h.hexdigest()
+    def create_abs_thumb_path(cls, rel_img_path: str, mf_alias: str) -> str | None:
+        filename = hashlib.md5(rel_img_path.encode('utf-8')).hexdigest() + ".jpg"
+        new_folder = os.path.join(
+            Static.external_hashdir,
+            f"{mf_alias}-{filename[:2]}"
+        )
+        os.makedirs(new_folder, exist_ok=True)
+        return os.path.join(new_folder, filename)
 
     @classmethod
     def get_abs_thumb_path(cls, partial_hash: str) -> str:

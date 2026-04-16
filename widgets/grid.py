@@ -459,7 +459,7 @@ class Grid(UScrollArea):
 
         img_task = ProcessWorker(
             target=ImgLoader.start,
-            args=([i.data_item for i in thumbs], )
+            args=([i.data_item for i in thumbs], self.main_win_item, )
         )
 
         img_timer = QTimer(self)

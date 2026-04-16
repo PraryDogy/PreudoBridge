@@ -58,12 +58,21 @@ class DataItem:
     def __init__(self, src: str, rating: int = 0):
         super().__init__()
         self.abs_path: str = src
-        self.filename: str = None
-        self.type_: str = None
         self.rating: int = rating
-        self.mod: float = None
-        self.size: int = None
-        self.thumb_path: str = None
+
+        # устанавливается через set_properties
+        self.filename: str
+        self.type_: str
+        self.mod: float
+        self.size: int
+
+        # thumb path выстраивается на основе fs_id
+        # мы превращаем fs_id в hash и относительный путь к файлу
+        # в hash
+        self.fs_id: str
+        self.thumb_path: str
+
+        # в процессе работы и gui
         self.image_is_loaded: bool = False
         self.must_hidden: bool = False
         self.row, self.col = 0, 0
@@ -74,17 +83,23 @@ class DataItem:
         self.qimages: dict[Literal["src"] | int, QImage] = {}
         self.img_array: np.ndarray = None
 
-    # def set_hash_and_thumb_path(self):
-    #     try:
-    #         self.partial_hash = Utils.get_partial_hash(self.abs_path)
-    #         if self.type_ in ImgUtils.ext_all:
-    #             thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
-    #             if self.type_ in (".png", ".icns"):
-    #                 self.thumb_path = thumb_path + ".png"
-    #             else:
-    #                 self.thumb_path = thumb_path + ".jpg"
-    #     except Exception as e:
-    #         print("items, BaseItem set partial hash error", e)
+    # def set_hash_and_thumb_path(self, fs_id: str):
+    #     rel_path = self.abs_path.strip(os.sep).split(os.sep)
+    #     rel_path = os.sep.join(rel_path[:2])
+    #     print(rel_path)
+
+
+
+        # try:
+        #     self.partial_hash = Utils.get_partial_hash(self.abs_path)
+        #     if self.type_ in ImgUtils.ext_all:
+        #         thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
+        #         if self.type_ in (".png", ".icns"):
+        #             self.thumb_path = thumb_path + ".png"
+        #         else:
+        #             self.thumb_path = thumb_path + ".jpg"
+        # except Exception as e:
+        #     print("items, BaseItem set partial hash error", e)
         
     def set_properties(self):
         self.abs_path = self.abs_path.rstrip(os.sep)
@@ -149,11 +164,11 @@ class DataItem:
 
 class MainWinItem:
     def __init__(self):
-        self.urls_to_select: list[str] = []
-        self.go_to: str = None
-        self.current_dir: str = None
-        self.view_mode: int = 0
-        self.fs_id = None
+        self.urls_to_select: list[str]
+        self.go_to: str
+        self.current_dir: str
+        self.view_mode: int 
+        self.fs_id: str
 
     def set_view_mode(self, value: int):
         self.view_mode = value

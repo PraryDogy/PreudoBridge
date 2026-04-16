@@ -13,7 +13,8 @@ from watchdog.observers.polling import PollingObserver as Observer
 from cfg import Static
 from system.database import CacheTable, Dbase
 from system.items import (CopyItem, DataItem, DirItem, JpgConvertItem,
-                          MultipleInfoItem, PathFixerItem, SearchItem)
+                          MainWinItem, MultipleInfoItem, PathFixerItem,
+                          SearchItem)
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
 from system.tasks import Utils
 
@@ -69,17 +70,18 @@ class ProcessWorker(BaseProcessWorker):
 
 class ImgLoader:
     @staticmethod
-    def start(data_items: list[DataItem], queue: Queue):
+    def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
+        return
         data_items.sort(key=lambda x: x.size)
         new_images: list[DataItem] = []
         exist_images: list[DataItem] = []
         svg_files: list[DataItem] = []
 
         for data_item in data_items:
-            data_item.set_hash_and_thumb_path()
-            if data_item.filename.endswith((".svg", ".SVG")):
-                svg_files.append(data_item)
-            else:
+            # data_item.set_hash_and_thumb_path(fs_id=main_win_item.fs_id)
+            # if data_item.filename.endswith((".svg", ".SVG")):
+                # svg_files.append(data_item)
+            # else:
                 if os.path.exists(data_item.thumb_path):
                     exist_images.append(data_item)
                 else:
