@@ -65,38 +65,18 @@ class DataItem:
         self.type_: str
         self.mod: int
         self.size: int
+        # нужно чтоб перекинуть с мультипроцесса в основной поток 
+        self.img_array: np.ndarray
 
         # в процессе работы и gui
         self.image_is_loaded: bool = False
         self.must_hidden: bool = False
         self.row, self.col = 0, 0
-
         # {"src": QImage(), 100: Qimage(), 200: QImage, ...}
         # словарь заполняется на основе Static.image_sizes
         # так же дополняется ключом "src" с исходным qimage
         self.qimages: dict[Literal["src"] | int, QImage] = {}
 
-        # нужно чтоб перекинуть с мультипроцесса в основной поток 
-        self.img_array: np.ndarray = None
-
-    # def set_hash_and_thumb_path(self, fs_id: str):
-    #     rel_path = self.abs_path.strip(os.sep).split(os.sep)
-    #     rel_path = os.sep.join(rel_path[:2])
-    #     print(rel_path)
-
-
-
-        # try:
-        #     self.partial_hash = Utils.get_partial_hash(self.abs_path)
-        #     if self.type_ in ImgUtils.ext_all:
-        #         thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
-        #         if self.type_ in (".png", ".icns"):
-        #             self.thumb_path = thumb_path + ".png"
-        #         else:
-        #             self.thumb_path = thumb_path + ".jpg"
-        # except Exception as e:
-        #     print("items, BaseItem set partial hash error", e)
-        
     def set_properties(self):
         self.abs_path = self.abs_path.rstrip(os.sep)
         self.filename = os.path.basename(self.abs_path)

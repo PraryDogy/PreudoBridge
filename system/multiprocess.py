@@ -84,7 +84,7 @@ class ImgLoader:
 
         with Dbase.create_engine().begin() as conn:
             img_loader_item = ImgLoaderItem(conn, fs_id, rel_parent)
-            res = ImgLoader._get_db_records(img_loader_item)
+            res = ImgLoader._get_records(img_loader_item)
             db_items_dict = {
                 (filename, mod, size): thumb_path
                 for thumb_path, filename, mod, size in res
@@ -105,7 +105,7 @@ class ImgLoader:
 
             if removed_thumbs:
                 removed_thumbs = ImgLoader._remove_thumbs(removed_thumbs)
-                ImgLoader._remove_db_records(img_loader_item, removed_thumbs)
+                ImgLoader._remove_records(img_loader_item, removed_thumbs)
 
             new_items = []
             for (filename, mod, size), data_item in data_items_dict.items():
@@ -116,21 +116,6 @@ class ImgLoader:
                     queue.put(data_item)
                     new_items.append(data_item)
 
-    @staticmethod
-    def _get_db_records(img_loader_item: ImgLoaderItem):
-        clmns = (
-            CacheTable.thumb_path,
-            CacheTable.filename,
-            CacheTable.mod,
-            CacheTable.size
-        )
-        stmt = (
-            sqlalchemy.select(*clmns)
-            .where(CacheTable.fs_id==img_loader_item.fs_id)
-            .where(CacheTable.rel_parent==img_loader_item.rel_parent)
-        )
-        return img_loader_item.conn.execute(stmt)
-    
     def _remove_thumbs(paths: list[str]):
         result = []
         for thumb_path in paths:
@@ -144,20 +129,35 @@ class ImgLoader:
             except OSError as e:
                 ...
         return result
+
+    @staticmethod
+    def _get_records(img_loader_item: ImgLoaderItem):
+        clmns = (
+            CacheTable.thumb_path,
+            CacheTable.filename,
+            CacheTable.mod,
+            CacheTable.size
+        )
+        stmt = (
+            sqlalchemy.select(*clmns)
+            .where(CacheTable.fs_id==img_loader_item.fs_id)
+            .where(CacheTable.rel_parent==img_loader_item.rel_parent)
+        )
+        return img_loader_item.conn.execute(stmt)
     
-    def _remove_db_records(img_loader_item: ImgLoaderItem, paths: list[str]):
+    def _remove_records(img_item: ImgLoaderItem, paths: list[str]):
         if not paths:
             return
         stmt = (
             sqlalchemy.delete(CacheTable)
-            .where(CacheTable.fs_id==img_loader_item.fs_id)
-            .where(CacheTable.rel_parent==img_loader_item.rel_parent)
+            .where(CacheTable.fs_id==img_item.fs_id)
+            .where(CacheTable.rel_parent==img_item.rel_parent)
             .where(CacheTable.thumb_path.in_(paths))
         )
-        img_loader_item.conn.execute(stmt)
+        img_item.conn.execute(stmt)
 
     @staticmethod
-    def _insert_new_items(new_items: list[DataItem], conn: sqlalchemy.Connection):
+    def _insert_records(img_item: ImgLoaderItem, data_items: list[DataItem]):
         ...
         # сюда еще нужно fs_id, rel_parent, поэтому лучше бы создать ImgLoaderItem
         # и возможно на вход получать data items, а вот на выход отдавать ImgLoaderItem
