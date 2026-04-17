@@ -113,8 +113,8 @@ class ImgLoader:
                 else:
                     removed_items.append(thumb_path)
 
-            # removed_items = ImgLoader._remove_from_disk(removed_items)
-            # ImgLoader._remove_records(img_item, removed_items)
+            removed_items = ImgLoader._remove_from_disk(removed_items)
+            ImgLoader._remove_records(img_item, removed_items)
 
             for (filename, mod, size), data_item in data_items_dict.items():
                 if (filename, mod, size) not in db_items_dict:
