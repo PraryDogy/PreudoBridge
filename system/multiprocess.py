@@ -98,8 +98,11 @@ class ImgLoader:
                 if (filename, mod, size) in data_items_dict:
                     data_item = data_items_dict[(filename, mod, size)]
                     data_item.img_array = Utils.read_thumb(thumb_path)
-                    
-                    queue.put(data_item)
+                    if data_item.img_array is not None:
+                        queue.put(data_item)
+                    else:
+                        print("img loader img array is none")
+                        data_item.filename
                 else:
                     removed_items.append(thumb_path)
 
