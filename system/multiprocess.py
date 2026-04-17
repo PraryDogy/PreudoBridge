@@ -151,7 +151,9 @@ class ImgLoader:
                     data_item.img_array = thumb
                     queue.put(data_item)
                     new_items.append(data_item)
-
+    @staticmethod
+    def insert_new_items(new_items: list[DataItem], conn: sqlalchemy.Connection):
+        ...
 
 class ReadImg:
     @staticmethod
