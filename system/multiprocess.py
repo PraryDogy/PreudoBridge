@@ -172,7 +172,7 @@ class ImgLoader:
             sqlalchemy.insert(CacheTable.table)
         )
         try:
-            img_item.conn.execute(stmt)
+            img_item.conn.execute(stmt, values)
         except OperationalError:
             ...
 
