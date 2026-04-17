@@ -447,22 +447,14 @@ class Grid(UScrollArea):
 
         def update_thumb(data_item: DataItem):
             thumb = self.url_to_wid[data_item.abs_path]
-            thumb.data_item.partial_hash = data_item.partial_hash
-            thumb.data_item.rating = data_item.rating
+            # thumb.data_item.rating = data_item.rating
             thumb.set_blue_text()
             if data_item.img_array is not None:
                 qimages = {}
-                original_qimage = Utils.qimage_from_array(
-                    image=data_item.img_array
-                )
-                if original_qimage is not None:
-                    qimages["src"] = original_qimage
-                    for size in Static.image_sizes:
-                        resized_qimage = Utils.scaled(
-                            qimage=original_qimage,
-                            size=size
-                        )
-                        qimages[size] = resized_qimage
+                qimages["src"] = Utils.qimage_from_array(data_item.img_array)
+                for size in Static.image_sizes:
+                    resized = Utils.scaled(qimages["src"], size)
+                    qimages[size] = resized
                     thumb.data_item.qimages = qimages
                     thumb.set_image()
 

@@ -86,6 +86,44 @@ class ImgLoader:
         # теперь мы можем работать с БД по fs_id и rel_parent>
         # то есть будем загружать все что относится к Х папке + Х диску
 
+        # первым делом нужно найти существующие миниатюры и подгрузить их
+        # затем удалить неактуальные
+        # затем добавить новые
+
+        # сравнение: имя файла / дата изменения / размер
+        # но загрузить надо сразу с thumb path, чтобы моментально передавать их в сетку
+
+        with Dbase.create_engine().begin() as conn:
+            clmns = (
+                DataTable.thumb_path,
+                DataTable.filename,
+                DataTable.mod,
+                DataTable.size
+            )
+            stmt = (
+                sqlalchemy.select(*clmns)
+                .where(DataTable.fs_id==fs_id)
+                .where(DataTable.rel_parent==rel_parent)
+            )
+            res = conn.execute(stmt)
+
+            res = {
+                (filename, mod, size): thumb_path
+                for thumb_path, filename, mod, size in res
+            }
+
+            data_items_dict = {
+                (i.filename, i.mod, i.size): i
+                for i in data_items
+            }
+
+            for props, thumb_path in res:
+                if props in data_items_dict:
+                    data_item = data_items_dict[props]
+                    data_item.img_array = Utils.read_thumb(thumb_path)
+                    queue.put(data_item)
+
+
         return
         data_items.sort(key=lambda x: x.size)
         abs_path = main_win_item.abs_current_dir

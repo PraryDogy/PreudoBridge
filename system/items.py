@@ -63,7 +63,7 @@ class DataItem:
         # устанавливается через set_properties
         self.filename: str
         self.type_: str
-        self.mod: float
+        self.mod: int
         self.size: int
 
         # в процессе работы и gui
