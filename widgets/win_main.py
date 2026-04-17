@@ -15,7 +15,7 @@ from system.multiprocess import PathFixer, ProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
 from system.tasks import RatingTask, UThreadPool
-from system.utils import FsId, Utils
+from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
 from .bar_macos import BarMacos
@@ -115,10 +115,8 @@ class WinMain(WinBase):
 
         if dir:
             self.main_win_item.abs_current_dir = dir
-            self.main_win_item.fs_id = FsId.get_fs_id(dir)
         else:
             self.main_win_item.abs_current_dir = self.base_dir
-            self.main_win_item.fs_id = FsId.get_fs_id(self.base_dir)
         self.main_win_item.view_mode = 0
         self.main_win_item.go_to = None
 
@@ -335,10 +333,8 @@ class WinMain(WinBase):
                     return
                 if fixer_item.is_dir:
                     self.main_win_item.abs_current_dir = fixer_item.fixed_path
-                    self.main_win_item.fs_id = FsId.get_fs_id(fixer_item.fixed_path)
                 else:
                     self.main_win_item.abs_current_dir = os.path.dirname(fixer_item.fixed_path)
-                    self.main_win_item.fs_id = FsId.get_fs_id(fixer_item.fixed_path)
                     self.main_win_item.go_to = fixer_item.fixed_path
                 self.top_bar.new_history_item(self.main_win_item.abs_current_dir)
                 self.load_st_grid()
@@ -372,7 +368,6 @@ class WinMain(WinBase):
             self.main_win_item.urls_to_select.clear()
             self.main_win_item.go_to = old_main_dir
             self.main_win_item.abs_current_dir = new_main_dir
-            self.main_win_item.fs_id = FsId.get_fs_id(new_main_dir)
             self.load_st_grid()
 
     def resize_timer_timeout(self):

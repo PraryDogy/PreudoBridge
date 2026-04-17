@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
 from system.items import MainWinItem
-from system.utils import FsId, Utils
+from system.utils import Utils
 
 from ._base_widgets import UMenu
 from .actions import ItemActions
@@ -47,7 +47,6 @@ class FavItem(QLabel):
     def view_fav(self):
         self.new_history_item.emit(self.src)
         self.main_win_item.abs_current_dir = self.src
-        self.main_win_item.fs_id = FsId.get_fs_id(self.src)
         self.load_st_grid.emit()
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:

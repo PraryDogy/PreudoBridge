@@ -163,7 +163,6 @@ class MainWinItem:
         self.urls_to_select: list[str]
         self.go_to: str
         self.abs_current_dir: str
-        self.rel_current_dir: str
         self.view_mode: int 
         self.fs_id: dict[Literal["mount_point", "fs_id"], str]
 
@@ -175,6 +174,10 @@ class MainWinItem:
         0 вид сетка, 1 вид список
         """
         return self.view_mode
+    
+    def set_current_dir(self, path: str):
+        if not path.startswith("/Volumes"):
+            ...
 
 
 class ClipboardItem:

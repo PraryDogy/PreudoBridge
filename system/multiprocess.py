@@ -72,6 +72,26 @@ class ImgLoader:
 
     @staticmethod
     def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
+        if not os.path.exists(main_win_item.abs_current_dir):
+            return
+
+        mp, device, uuid = Utils.get_fs_id(main_win_item.abs_current_dir)
+
+        if main_win_item.abs_current_dir.startswith("/Users"):
+            rel_parent = main_win_item.abs_current_dir
+        else:
+            rel_parent = os.path.relpath(main_win_item.abs_current_dir, mp)
+            rel_parent = os.sep + rel_parent
+        if uuid:
+            fs_id = uuid
+        else:
+            fs_id = device
+
+        print(fs_id, rel_parent)
+
+        # тепепь main_win_item.abs_current_dir удаляем mount_point,
+        # чтобы получился rel_current_dir
+
         return
         data_items.sort(key=lambda x: x.size)
         abs_path = main_win_item.abs_current_dir

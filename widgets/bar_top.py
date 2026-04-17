@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem, SearchItem
-from system.utils import FsId
 
 from ._base_widgets import (SmallBtn, UFrame, ULineEdit, UMenu,
                             USvgSqareWidget, UTextEdit, WinMinCloseOnly)
@@ -459,7 +458,6 @@ class BarTop(QWidget):
             self.current_index = new_index
             new_main_dir = self.history_items[self.current_index]
             self.main_win_item.abs_current_dir = new_main_dir
-            self.main_win_item.fs_id = FsId.get_fs_id(new_main_dir)
             self.load_st_grid.emit()
 
     def resizeEvent(self, a0):

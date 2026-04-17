@@ -17,7 +17,7 @@ from system.items import ClipboardItem, DataItem, MainWinItem, SortItem
 from system.multiprocess import DirWatcher, ImgLoader, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 from system.tasks import RatingTask, UThreadPool
-from system.utils import FsId, Utils
+from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions
@@ -613,7 +613,6 @@ class Grid(UScrollArea):
             elif wid.data_item.type_ == Static.folder_type:
                 self.new_history_item.emit(wid.data_item.abs_path)
                 self.main_win_item.abs_current_dir = wid.data_item.abs_path
-                self.main_win_item.fs_id = FsId.get_fs_id(wid.data_item.abs_path)
                 self.load_st_grid.emit()
             else:
                 Utils.open_in_def_app(wid.data_item.abs_path)
