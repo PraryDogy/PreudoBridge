@@ -89,8 +89,8 @@ class ImgLoader:
 
         print(fs_id, rel_parent)
 
-        # тепепь main_win_item.abs_current_dir удаляем mount_point,
-        # чтобы получился rel_current_dir
+        # теперь мы можем работать с БД по fs_id и rel_parent>
+        # то есть будем загружать все что относится к Х папке + Х диску
 
         return
         data_items.sort(key=lambda x: x.size)
