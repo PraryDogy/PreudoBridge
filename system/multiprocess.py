@@ -154,6 +154,8 @@ class ImgLoader:
     @staticmethod
     def insert_new_items(new_items: list[DataItem], conn: sqlalchemy.Connection):
         ...
+        # сюда еще нужно fs_id, rel_parent, поэтому лучше бы создать ImgLoaderItem
+        # и возможно на вход получать data items, а вот на выход отдавать ImgLoaderItem
 
 class ReadImg:
     @staticmethod
