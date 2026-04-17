@@ -67,6 +67,8 @@ class DataItem:
         self.size: int
         # нужно чтоб перекинуть с мультипроцесса в основной поток 
         self.img_array: np.ndarray
+        # для внутренней работы ImgLoader в multiprocess
+        self.thumb_path: str
 
         # в процессе работы и gui
         self.image_is_loaded: bool = False

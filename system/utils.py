@@ -85,33 +85,20 @@ class Utils:
             print("pixmap from array channels trouble", image.shape)
             return None
         return qimage
-
-    # @classmethod
-    # def get_partial_hash(cls, path: str, mb: float = 0.4) -> str:
-    #     chunk = int(mb * (1 << 20))  # переводим МБ в байты
-    #     h = hashlib.sha256()
-    #     with open(path, "rb") as f:
-    #         h.update(f.read(chunk))
-    #     return h.hexdigest()
     
     @classmethod
-    def create_abs_thumb_path(cls, rel_img_path: str, mf_alias: str) -> str | None:
-        filename = hashlib.md5(rel_img_path.encode('utf-8')).hexdigest() + ".jpg"
-        new_folder = os.path.join(
-            Static.external_hashdir,
-            f"{mf_alias}-{filename[:2]}"
-        )
+    def create_thumb_path(cls, path: str, fs_id: str):
+        """
+        Создает hash на основе fs_id + path, то есть создает 
+        уникальный идентификатор для файла на основе uuid/ip диска
+        и относительного пути к файлу.
+        Создает папку при необходимости.
+        """
+        string = fs_id + path
+        hash = hashlib.md5(string.encode('utf-8')).hexdigest() + ".jpg"
+        new_folder = os.path.join(Static.external_thumbs_dir, hash[:2])
         os.makedirs(new_folder, exist_ok=True)
-        return os.path.join(new_folder, filename)
-
-    @classmethod
-    def get_abs_thumb_path(cls, partial_hash: str) -> str:
-        base = os.path.join(
-            Static.external_thumbs_dir,
-            partial_hash[:2],
-            partial_hash[2:]
-        )
-        return base
+        return os.path.join(new_folder, hash)
 
     @classmethod
     def write_thumb(cls, thumb_path: str, thumb_array: np.ndarray) -> bool:

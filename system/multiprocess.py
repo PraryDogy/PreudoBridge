@@ -113,8 +113,13 @@ class ImgLoader:
                     data_item.img_array = thumb
                     queue.put(data_item)
                     new_items.append(data_item)
-            if new_items:
-                ...
+
+            for i in new_items:
+                res = ImgLoader.create_thumb_path(img_loader_item, i)
+
+    def create_thumb_path(img_item: ImgLoaderItem, data_item: DataItem):
+        path = os.path.join(img_item.rel_parent, data_item.filename)
+        thumb_path = Utils.create_thumb_path(path, img_item.fs_id)
 
     def _remove_from_disk(paths: list[str]):
         result = []
@@ -131,7 +136,13 @@ class ImgLoader:
         return result
 
     @staticmethod
-    def _get_records(img_loader_item: ImgLoaderItem):
+    def _add_to_disk(img_item: ImgLoaderItem, data_items: list[DataItem]):
+        new_items = []
+        for i in data_items:
+            ...
+
+    @staticmethod
+    def _get_records(img_item: ImgLoaderItem):
         clmns = (
             CacheTable.thumb_path,
             CacheTable.filename,
@@ -140,10 +151,10 @@ class ImgLoader:
         )
         stmt = (
             sqlalchemy.select(*clmns)
-            .where(CacheTable.fs_id==img_loader_item.fs_id)
-            .where(CacheTable.rel_parent==img_loader_item.rel_parent)
+            .where(CacheTable.fs_id==img_item.fs_id)
+            .where(CacheTable.rel_parent==img_item.rel_parent)
         )
-        return img_loader_item.conn.execute(stmt)
+        return img_item.conn.execute(stmt)
     
     def _remove_records(img_item: ImgLoaderItem, paths: list[str]):
         if not paths:
