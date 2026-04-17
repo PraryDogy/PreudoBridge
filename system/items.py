@@ -292,3 +292,10 @@ class PathFixerItem:
         super().__init__()
         self.fixed_path = fixed_path
         self.is_dir = is_dir
+
+
+@dataclass(slots=True)
+class ImgLoaderItem:
+    conn: sqlalchemy.Connection
+    fs_id: str
+    rel_parent: str

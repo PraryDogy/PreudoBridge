@@ -12,7 +12,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Static
 from system.database import CacheTable, Dbase
-from system.items import (CopyItem, DataItem, DirItem, JpgConvertItem,
+from system.items import (CopyItem, DataItem, ImgLoaderItem, JpgConvertItem,
                           MainWinItem, MultipleInfoItem, PathFixerItem,
                           SearchItem)
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
@@ -82,29 +82,9 @@ class ImgLoader:
             rel_parent = os.sep + os.sep.join(splited[2:])
         data_items = sorted(data_items, key=lambda x: x.size)
 
-        # теперь мы можем работать с БД по fs_id и rel_parent>
-        # то есть будем загружать все что относится к Х папке + Х диску
-
-        # первым делом нужно найти существующие миниатюры и подгрузить их
-        # затем удалить неактуальные
-        # затем добавить новые
-
-        # сравнение: имя файла / дата изменения / размер
-        # но загрузить надо сразу с thumb path, чтобы моментально передавать их в сетку
-
         with Dbase.create_engine().begin() as conn:
-            clmns = (
-                CacheTable.thumb_path,
-                CacheTable.filename,
-                CacheTable.mod,
-                CacheTable.size
-            )
-            stmt = (
-                sqlalchemy.select(*clmns)
-                .where(CacheTable.fs_id==fs_id)
-                .where(CacheTable.rel_parent==rel_parent)
-            )
-            res = conn.execute(stmt)
+            img_loader_item = ImgLoaderItem(conn, fs_id, rel_parent)
+            res = ImgLoader._get_db_records(img_loader_item)
             db_items_dict = {
                 (filename, mod, size): thumb_path
                 for thumb_path, filename, mod, size in res
@@ -123,25 +103,9 @@ class ImgLoader:
                 else:
                     removed_thumbs.append(thumb_path)
 
-            ok_removed = []
             if removed_thumbs:
-                for thumb_path in removed_thumbs:
-                    try:
-                        os.remove(thumb_path)
-                        ok_removed.append(thumb_path)
-                    except Exception as e:
-                        continue
-                    try:
-                        os.rmdir(os.path.dirname(thumb_path))
-                    except Exception:
-                        pass
-                stmt = (
-                    sqlalchemy.delete(CacheTable)
-                    .where(CacheTable.fs_id==fs_id)
-                    .where(CacheTable.rel_parent==rel_parent)
-                    .where(CacheTable.thumb_path.in_(removed_thumbs))
-                )
-                conn.execute(stmt)
+                removed_thumbs = ImgLoader._remove_thumbs(removed_thumbs)
+                ImgLoader._remove_db_records(img_loader_item, removed_thumbs)
 
             new_items = []
             for (filename, mod, size), data_item in data_items_dict.items():
@@ -151,8 +115,49 @@ class ImgLoader:
                     data_item.img_array = thumb
                     queue.put(data_item)
                     new_items.append(data_item)
+
     @staticmethod
-    def insert_new_items(new_items: list[DataItem], conn: sqlalchemy.Connection):
+    def _get_db_records(img_loader_item: ImgLoaderItem):
+        clmns = (
+            CacheTable.thumb_path,
+            CacheTable.filename,
+            CacheTable.mod,
+            CacheTable.size
+        )
+        stmt = (
+            sqlalchemy.select(*clmns)
+            .where(CacheTable.fs_id==img_loader_item.fs_id)
+            .where(CacheTable.rel_parent==img_loader_item.rel_parent)
+        )
+        return img_loader_item.conn.execute(stmt)
+    
+    def _remove_thumbs(paths: list[str]):
+        result = []
+        for thumb_path in paths:
+            try:
+                os.remove(thumb_path)
+                result.append(thumb_path)
+            except Exception as e:
+                pass
+            try:
+                os.rmdir(os.path.dirname(thumb_path))
+            except OSError as e:
+                ...
+        return result
+    
+    def _remove_db_records(img_loader_item: ImgLoaderItem, paths: list[str]):
+        if not paths:
+            return
+        stmt = (
+            sqlalchemy.delete(CacheTable)
+            .where(CacheTable.fs_id==img_loader_item.fs_id)
+            .where(CacheTable.rel_parent==img_loader_item.rel_parent)
+            .where(CacheTable.thumb_path.in_(paths))
+        )
+        img_loader_item.conn.execute(stmt)
+
+    @staticmethod
+    def _insert_new_items(new_items: list[DataItem], conn: sqlalchemy.Connection):
         ...
         # сюда еще нужно fs_id, rel_parent, поэтому лучше бы создать ImgLoaderItem
         # и возможно на вход получать data items, а вот на выход отдавать ImgLoaderItem
