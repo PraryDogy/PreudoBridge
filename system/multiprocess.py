@@ -93,7 +93,7 @@ class ImgLoader:
                 (i.filename, i.mod, i.size): i
                 for i in data_items
             }
-            removed_items = []
+            removed_items: list[str] = []
             for (filename, mod, size), thumb_path in db_items_dict.items():
                 if (filename, mod, size) in data_items_dict:
                     data_item = data_items_dict[(filename, mod, size)]
@@ -105,21 +105,26 @@ class ImgLoader:
             removed_items = ImgLoader._remove_from_disk(removed_items)
             ImgLoader._remove_records(img_loader_item, removed_items)
 
-            new_items = []
+            new_items: list[DataItem] = []
             for (filename, mod, size), data_item in data_items_dict.items():
                 if (filename, mod, size) not in db_items_dict:
-                    img = ImgUtils.read_img(data_item.abs_path)
-                    thumb = ImgUtils.resize(img, Static.max_thumb_size)
-                    data_item.img_array = thumb
-                    queue.put(data_item)
-                    new_items.append(data_item)
 
-            for i in new_items:
-                res = ImgLoader.create_thumb_path(img_loader_item, i)
+                    img = ImgUtils.read_img(data_item.abs_path)
+                    data_item.img_array = ImgUtils.resize(img, Static.max_thumb_size)
+
+                    rel_filepath = os.path.join(rel_parent, filename)
+                    data_item.thumb_path = Utils.create_thumb_path(
+                        path=rel_filepath,
+                        fs_id=fs_id
+                    )
+
+                    new_items.append(data_item)
+                    queue.put(data_item)
+            
 
     def create_thumb_path(img_item: ImgLoaderItem, data_item: DataItem):
         path = os.path.join(img_item.rel_parent, data_item.filename)
-        thumb_path = Utils.create_thumb_path(path, img_item.fs_id)
+        return Utils.create_thumb_path(path, img_item.fs_id)
 
     def _remove_from_disk(paths: list[str]):
         result = []
