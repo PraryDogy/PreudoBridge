@@ -9,7 +9,7 @@ from system.shared_utils import SharedUtils
 from system.utils import Utils
 
 _METADATA = sqlalchemy.MetaData()
-_TABLE_NAME = "data"
+_TABLE_NAME = "cache"
 
 _DATA = sqlalchemy.Table(
     _TABLE_NAME, _METADATA,
