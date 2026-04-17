@@ -148,6 +148,8 @@ class ImgLoader:
 
     @staticmethod
     def _insert_records(img_item: ImgLoaderItem, data_items: list[DataItem]):
+        if not data_items:
+            return
         values: list[dict] = []
         for i in data_items:
             values.append({
