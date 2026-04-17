@@ -9,3 +9,4 @@ rawpy==0.21.0
 SQLAlchemy==2.0.41
 tifffile==2026.1.28
 watchdog==6.0.0
+imagecodecs==2026.3.6
