@@ -11,7 +11,7 @@ from system.utils import Utils
 _METADATA = sqlalchemy.MetaData()
 _TABLE_NAME = "cache"
 
-_DATA = sqlalchemy.Table(
+_CACHETABLE = sqlalchemy.Table(
     _TABLE_NAME, _METADATA,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("filename", sqlalchemy.Text),
@@ -25,15 +25,15 @@ _DATA = sqlalchemy.Table(
 
 
 class CacheTable:
-    table = _DATA
-    id = _DATA.c.id
-    filename = _DATA.c.filename
-    rel_parent = _DATA.c.rel_parent
-    fs_id = _DATA.c.fs_id
-    thumb_path = _DATA.c.thumb_path
-    size = _DATA.c.size
-    mod = _DATA.c.mod
-    rating = _DATA.c.rating
+    table = _CACHETABLE
+    id = _CACHETABLE.c.id
+    filename = _CACHETABLE.c.filename
+    rel_parent = _CACHETABLE.c.rel_parent
+    fs_id = _CACHETABLE.c.fs_id
+    thumb_path = _CACHETABLE.c.thumb_path
+    size = _CACHETABLE.c.size
+    mod = _CACHETABLE.c.mod
+    rating = _CACHETABLE.c.rating
 
 
 class Dbase:
@@ -60,7 +60,7 @@ class Dbase:
             os.makedirs(Static.app_dir, exist_ok=True)
             _METADATA.create_all(engine)
             conn = Dbase.main_engine.connect()
-            q = sqlalchemy.select(_DATA)
+            q = sqlalchemy.select(_CACHETABLE)
             conn.execute(q).first()
             conn.close()
         except Exception as e:

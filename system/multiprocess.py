@@ -83,8 +83,8 @@ class ImgLoader:
         data_items = sorted(data_items, key=lambda x: x.size)
 
         with Dbase.create_engine().begin() as conn:
-            img_loader_item = ImgLoaderItem(conn, fs_id, rel_parent)
-            res = ImgLoader._get_records(img_loader_item)
+            img_item = ImgLoaderItem(conn, fs_id, rel_parent)
+            res = ImgLoader._get_records(img_item)
             db_items_dict = {
                 (filename, mod, size): thumb_path
                 for thumb_path, filename, mod, size in res
@@ -103,7 +103,7 @@ class ImgLoader:
                     removed_items.append(thumb_path)
 
             removed_items = ImgLoader._remove_from_disk(removed_items)
-            ImgLoader._remove_records(img_loader_item, removed_items)
+            ImgLoader._remove_records(img_item, removed_items)
 
             new_items: list[DataItem] = []
             for (filename, mod, size), data_item in data_items_dict.items():
@@ -120,11 +120,9 @@ class ImgLoader:
 
                     new_items.append(data_item)
                     queue.put(data_item)
-            
 
-    def create_thumb_path(img_item: ImgLoaderItem, data_item: DataItem):
-        path = os.path.join(img_item.rel_parent, data_item.filename)
-        return Utils.create_thumb_path(path, img_item.fs_id)
+            ImgLoader._write_to_disk(new_items)
+            ImgLoader._insert_records(img_item, new_items)
 
     def _remove_from_disk(paths: list[str]):
         result = []
@@ -141,10 +139,30 @@ class ImgLoader:
         return result
 
     @staticmethod
-    def _add_to_disk(img_item: ImgLoaderItem, data_items: list[DataItem]):
-        new_items = []
+    def _write_to_disk(data_items: list[DataItem]):
         for i in data_items:
-            ...
+            Utils.write_thumb(
+                thumb_path=i.thumb_path,
+                thumb_array=i.img_array
+            )
+
+    @staticmethod
+    def _insert_records(img_item: ImgLoaderItem, data_items: list[DataItem]):
+        values: list[dict] = []
+        for i in data_items:
+            values.append({
+                CacheTable.filename.name: i.filename,
+                CacheTable.rel_parent.name: img_item.rel_parent,
+                CacheTable.fs_id.name: img_item.fs_id,
+                CacheTable.thumb_path.name: i.thumb_path,
+                CacheTable.size.name: i.size,
+                CacheTable.mod.name: i.mod,
+                CacheTable.rating.name: 0
+            })
+        stmt = (
+            sqlalchemy.insert(CacheTable.table)
+        )
+        img_item.conn.execute(stmt, values)
 
     @staticmethod
     def _get_records(img_item: ImgLoaderItem):
@@ -172,11 +190,6 @@ class ImgLoader:
         )
         img_item.conn.execute(stmt)
 
-    @staticmethod
-    def _insert_records(img_item: ImgLoaderItem, data_items: list[DataItem]):
-        ...
-        # сюда еще нужно fs_id, rel_parent, поэтому лучше бы создать ImgLoaderItem
-        # и возможно на вход получать data items, а вот на выход отдавать ImgLoaderItem
 
 class ReadImg:
     @staticmethod
