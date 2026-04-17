@@ -74,9 +74,7 @@ class ImgLoader:
     def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
         if not os.path.exists(main_win_item.abs_current_dir):
             return
-
         fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
-
         if main_win_item.abs_current_dir.startswith("/Users"):
             rel_parent = main_win_item.abs_current_dir
         else:
