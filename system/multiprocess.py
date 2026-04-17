@@ -80,8 +80,7 @@ class ImgLoader:
         else:
             splited = main_win_item.abs_current_dir.strip(os.sep).split(os.sep)
             rel_parent = os.sep + os.sep.join(splited[2:])
-
-        print(fs_id, rel_parent)
+        data_items = sorted(data_items, key=lambda x: x.size)
 
         # теперь мы можем работать с БД по fs_id и rel_parent>
         # то есть будем загружать все что относится к Х папке + Х диску
@@ -143,6 +142,13 @@ class ImgLoader:
                     .where(CacheTable.thumb_path.in_(removed_thumbs))
                 )
                 conn.execute(stmt)
+
+            for (filename, mod, size), data_item in data_items_dict.items():
+                if (filename, mod, size) not in db_items_dict:
+                    img = ImgUtils.read_img(data_item.abs_path)
+                    thumb = ImgUtils.resize(img, Static.max_thumb_size)
+                    data_item.img_array = thumb
+                    queue.put(data_item)
 
 
         return
