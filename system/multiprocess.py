@@ -98,6 +98,7 @@ class ImgLoader:
                 if (filename, mod, size) in data_items_dict:
                     data_item = data_items_dict[(filename, mod, size)]
                     data_item.img_array = Utils.read_thumb(thumb_path)
+                    
                     queue.put(data_item)
                 else:
                     removed_items.append(thumb_path)
@@ -185,7 +186,7 @@ class ImgLoader:
         if not paths:
             return
         stmt = (
-            sqlalchemy.delete(CacheTable)
+            sqlalchemy.delete(CacheTable.table)
             .where(CacheTable.fs_id==img_item.fs_id)
             .where(CacheTable.rel_parent==img_item.rel_parent)
             .where(CacheTable.thumb_path.in_(paths))
