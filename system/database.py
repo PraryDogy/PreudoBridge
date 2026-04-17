@@ -44,7 +44,10 @@ class Dbase:
         return sqlalchemy.create_engine(
             f"sqlite:///{Static.external_db}",
             echo=False,
-            connect_args={"check_same_thread": False, "timeout": 30}
+            connect_args={
+                "check_same_thread": False,
+                "timeout": 30
+            }
         )
 
     @classmethod

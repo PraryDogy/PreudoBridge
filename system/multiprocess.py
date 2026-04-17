@@ -602,44 +602,13 @@ class SearchTask:
 
         data_item = DataItem(entry.path)
         data_item.set_properties()
+        data = (data_item, search_item.missed_files)
 
-        if not entry.name.endswith(ImgUtils.ext_all):
-            data = (data_item, search_item.missed_files)
+        if entry.is_dir():
+            search_item.process_queue.put(data)
+        elif entry.name.endswith(ImgUtils.ext_all):
             search_item.process_queue.put(data)
             sleep(SearchTask.sleep_s)
-            return
 
-        # data_item.set_hash_and_thumb_path()
-        # if os.path.exists(data_item.thumb_path):
-        #     img_array = Utils.read_thumb(data_item.thumb_path)
-        # else:
-        #     img_array = ImgUtils.read_img(entry.path)
-        #     img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
-        #     os.makedirs(
-        #         os.path.dirname(data_item.thumb_path),
-        #         exist_ok=True
-        #     )
-        #     Utils.write_thumb(
-        #         data_item.thumb_path,
-        #         img_array
-        #     )
-        #     stmt = (
-        #         sqlalchemy.insert(CacheTable.table)
-        #         .values({
-        #             CacheTable.name.name: data_item.filename,
-        #             CacheTable.type.name: data_item.type_,
-        #             CacheTable.size.name: data_item.size,
-        #             CacheTable.birth.name: data_item.birth,
-        #             CacheTable.mod.name: data_item.mod,
-        #             CacheTable.last_read.name: Utils.get_now(),
-        #             CacheTable.rating.name: 0,
-        #             CacheTable.partial_hash.name: data_item.partial_hash,
-        #             CacheTable.thumb_path.name: data_item.thumb_path
-        #         })
-        #     )
-        #     search_item.conn.execute(stmt)
-        #     search_item.conn.commit()
-        # data_item.img_array = img_array
-        data = (data_item, search_item.missed_files)
-        search_item.process_queue.put(data)
-        sleep(SearchTask.sleep_s)
+    def process_image():
+        ...
