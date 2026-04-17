@@ -196,11 +196,8 @@ class Utils:
     def get_fs_id(path: str):
         """
         Возвращает fs_id:
-        для smb
-        //Loshkarev%40mjf.lan@192.168.10.121/shares
-        или 
-        для локальных дисков
-        59897B99-3094-42BD-9C51-56F1FF7191B6
+        - для smb: //Loshkarev%40mjf.lan@192.168.10.121/shares
+        - для локальных дисков: 59897B99-3094-42BD-9C51-56F1FF7191B6
         """
 
         df_res = subprocess.run(
