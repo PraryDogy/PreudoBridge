@@ -17,7 +17,7 @@ from system.items import (CopyItem, DataItem, ImgLoaderItem, JpgConvertItem,
                           SearchItem)
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
 from system.tasks import Utils
-
+from sqlalchemy.exc import OperationalError
 
 class BaseProcessWorker:
     _registry = []
@@ -171,7 +171,10 @@ class ImgLoader:
         stmt = (
             sqlalchemy.insert(CacheTable.table)
         )
-        img_item.conn.execute(stmt, values)
+        try:
+            img_item.conn.execute(stmt)
+        except OperationalError:
+            ...
 
     @staticmethod
     def _get_records(img_item: ImgLoaderItem):
@@ -197,7 +200,10 @@ class ImgLoader:
             .where(CacheTable.rel_parent==img_item.rel_parent)
             .where(CacheTable.thumb_path.in_(paths))
         )
-        img_item.conn.execute(stmt)
+        try:
+            img_item.conn.execute(stmt)
+        except OperationalError:
+            ...
 
 
 class ReadImg:
@@ -603,7 +609,7 @@ class SearchTask:
             sleep(SearchTask.sleep_s)
             return
 
-        data_item.set_hash_and_thumb_path()
+        # data_item.set_hash_and_thumb_path()
         # if os.path.exists(data_item.thumb_path):
         #     img_array = Utils.read_thumb(data_item.thumb_path)
         # else:
