@@ -195,10 +195,12 @@ class Utils:
     
     def get_fs_id(path: str):
         """
-        Возвращает:
-        - mount point: /Volumes/Shares
-        - device: /dev/disk1s2 или //Loshkarev%40mjf.lan@192.168.10.121/shares
-        - uuid: 59897B99-3094-42BD-9C51-56F1FF7191B6 или None
+        Возвращает fs_id:
+        для smb
+        //Loshkarev%40mjf.lan@192.168.10.121/shares
+        или 
+        для локальных дисков
+        59897B99-3094-42BD-9C51-56F1FF7191B6
         """
 
         df_res = subprocess.run(
@@ -220,4 +222,9 @@ class Utils:
                 uuid = line.split(":")[1].strip()
                 break
 
-        return mp, device, uuid
+        if uuid:
+            fs_id = uuid
+        else:
+            fs_id = device
+
+        return fs_id

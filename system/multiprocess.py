@@ -75,17 +75,13 @@ class ImgLoader:
         if not os.path.exists(main_win_item.abs_current_dir):
             return
 
-        mp, device, uuid = Utils.get_fs_id(main_win_item.abs_current_dir)
+        fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
 
         if main_win_item.abs_current_dir.startswith("/Users"):
             rel_parent = main_win_item.abs_current_dir
         else:
-            rel_parent = os.path.relpath(main_win_item.abs_current_dir, mp)
-            rel_parent = os.sep + rel_parent
-        if uuid:
-            fs_id = uuid
-        else:
-            fs_id = device
+            splited = main_win_item.abs_current_dir.strip(os.sep).split(os.sep)
+            rel_parent = os.sep + os.sep.join(splited[2:])
 
         print(fs_id, rel_parent)
 
