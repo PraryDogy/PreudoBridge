@@ -93,23 +93,29 @@ class ImgLoader:
                 (i.filename, i.mod, i.size): i
                 for i in data_items
             }
+
             removed_items: list[str] = []
+            new_items: list[DataItem] = []
+
             for (filename, mod, size), thumb_path in db_items_dict.items():
                 if (filename, mod, size) in data_items_dict:
                     data_item = data_items_dict[(filename, mod, size)]
                     data_item.img_array = Utils.read_thumb(thumb_path)
                     if data_item.img_array is None:
-                        print("img loader img array is none")
-                        print(data_item.abs_path)
+                        rel_filepath = os.path.join(rel_parent, filename)
+                        data_item.thumb_path = Utils.create_thumb_path(
+                            path=rel_filepath,
+                            fs_id=fs_id
+                        )
+                        new_items.append(data_item)
                         continue
                     queue.put(data_item)
                 else:
                     removed_items.append(thumb_path)
 
-            removed_items = ImgLoader._remove_from_disk(removed_items)
-            ImgLoader._remove_records(img_item, removed_items)
+            # removed_items = ImgLoader._remove_from_disk(removed_items)
+            # ImgLoader._remove_records(img_item, removed_items)
 
-            new_items: list[DataItem] = []
             for (filename, mod, size), data_item in data_items_dict.items():
                 if (filename, mod, size) not in db_items_dict:
                     img = ImgUtils.read_img(data_item.abs_path)
