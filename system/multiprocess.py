@@ -93,19 +93,17 @@ class ImgLoader:
                 (i.filename, i.mod, i.size): i
                 for i in data_items
             }
-            removed_thumbs = []
+            removed_items = []
             for (filename, mod, size), thumb_path in db_items_dict.items():
                 if (filename, mod, size) in data_items_dict:
                     data_item = data_items_dict[(filename, mod, size)]
                     data_item.img_array = Utils.read_thumb(thumb_path)
                     queue.put(data_item)
-                # значит нет в finder больше этого изображения
                 else:
-                    removed_thumbs.append(thumb_path)
+                    removed_items.append(thumb_path)
 
-            if removed_thumbs:
-                removed_thumbs = ImgLoader._remove_thumbs(removed_thumbs)
-                ImgLoader._remove_records(img_loader_item, removed_thumbs)
+            removed_items = ImgLoader._remove_from_disk(removed_items)
+            ImgLoader._remove_records(img_loader_item, removed_items)
 
             new_items = []
             for (filename, mod, size), data_item in data_items_dict.items():
@@ -115,8 +113,10 @@ class ImgLoader:
                     data_item.img_array = thumb
                     queue.put(data_item)
                     new_items.append(data_item)
+            if new_items:
+                ...
 
-    def _remove_thumbs(paths: list[str]):
+    def _remove_from_disk(paths: list[str]):
         result = []
         for thumb_path in paths:
             try:
