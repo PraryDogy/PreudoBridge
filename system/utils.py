@@ -198,52 +198,81 @@ class FsId:
 
     @classmethod
     def get_fs_id(cls, path: str):
-        path = os.path.abspath(path)
-        mounts = cls._get_mounts()
-        best = None
-        for device, mount_point, line in mounts:
-            if path.startswith(mount_point):
-                if best is None or len(mount_point) > len(best[1]):
-                    best = (device, mount_point, line)
-        if not best:
-            return None
-        device, mount_point, line = best
-        if "smbfs" in line:
-            return {
-                "mount_point": mount_point,
-                "fs_id": cls._parse_smb(device)
-            }
-        uuid = cls._get_volume_uuid(device)
-        if uuid:
-            return {
-                "mount_point": mount_point,
-                "fs_id": uuid
-            }
-        return None
+        volumes = [i.path for i in os.scandir("/Volumes")]
+        mp = [i for i in volumes if i in path]
+        print(mp)
+        return
 
-    @classmethod
-    def _get_mounts(cls):
-        mounts = []
-        for line in subprocess.check_output(["mount"]).decode().splitlines():
-            if " on " not in line:
-                continue
-            device, rest = line.split(" on ", 1)
-            mount_point = rest.split(" (", 1)[0]
-            mounts.append((device, mount_point, line))
-        return mounts
+        # получаем device
+        df_res = subprocess.run(
+            ["df", mp],
+            capture_output=True,
+            text=True
+        )
+        device = df_res.stdout.splitlines()[1].split()[0]
 
-    @classmethod
-    def _get_volume_uuid(cls, device):
-        out = subprocess.check_output(["diskutil", "info", device]).decode()
-        for line in out.splitlines():
+        # получаем UUID
+        du_res = subprocess.run(
+            ["diskutil", "info", device],
+            capture_output=True,
+            text=True
+        )
+
+        uuid = None
+        for line in du_res.stdout.splitlines():
             if "Volume UUID" in line:
-                return "uuid:" + line.split(":")[1].strip()
-        return None
+                uuid = line.split(":")[1].strip()
+                break
+        
+        return mp, device, uuid
 
-    @classmethod
-    def _parse_smb(cls, device):
-        device = device.replace("//", "")
-        if "@" in device:
-            device = device.split("@", 1)[1]
-        host, share = device.split("/", 1)
-        return f"smb:{host}/{share}"
+
+        # path = os.path.abspath(path)
+        # mounts = cls._get_mounts()
+        # best = None
+        # for device, mount_point, line in mounts:
+        #     if path.startswith(mount_point):
+        #         if best is None or len(mount_point) > len(best[1]):
+        #             best = (device, mount_point, line)
+        # if not best:
+        #     return None
+        # device, mount_point, line = best
+        # if "smbfs" in line:
+        #     return {
+        #         "mount_point": mount_point,
+        #         "fs_id": cls._parse_smb(device)
+        #     }
+        # uuid = cls._get_volume_uuid(device)
+        # if uuid:
+        #     return {
+        #         "mount_point": mount_point,
+        #         "fs_id": uuid
+        #     }
+        # return None
+
+    # @classmethod
+    # def _get_mounts(cls):
+    #     mounts = []
+    #     for line in subprocess.check_output(["mount"]).decode().splitlines():
+    #         if " on " not in line:
+    #             continue
+    #         device, rest = line.split(" on ", 1)
+    #         mount_point = rest.split(" (", 1)[0]
+    #         mounts.append((device, mount_point, line))
+    #     return mounts
+
+    # @classmethod
+    # def _get_volume_uuid(cls, device):
+    #     out = subprocess.check_output(["diskutil", "info", device]).decode()
+    #     for line in out.splitlines():
+    #         if "Volume UUID" in line:
+    #             return "uuid:" + line.split(":")[1].strip()
+    #     return None
+
+    # @classmethod
+    # def _parse_smb(cls, device):
+    #     device = device.replace("//", "")
+    #     if "@" in device:
+    #         device = device.split("@", 1)[1]
+    #     host, share = device.split("/", 1)
+    #     return f"smb:{host}/{share}"

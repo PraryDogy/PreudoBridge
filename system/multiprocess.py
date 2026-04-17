@@ -72,6 +72,7 @@ class ImgLoader:
 
     @staticmethod
     def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
+        return
         data_items.sort(key=lambda x: x.size)
         abs_path = main_win_item.abs_current_dir
         rel_path = os.path.relpath(abs_path, main_win_item.fs_id["mount_point"])
