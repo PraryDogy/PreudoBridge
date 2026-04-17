@@ -15,7 +15,7 @@ from PyQt5.QtGui import QImage
 from cfg import Dynamic, Static
 from system.shared_utils import ImgUtils, SharedUtils
 
-from .database import DataTable, Dbase
+from .database import CacheTable, Dbase
 from .items import DataItem, DirItem
 from .utils import Utils
 
@@ -88,13 +88,13 @@ class RatingTask(URunnable):
     def task(self):
         with Dbase.main_engine.begin() as conn:
             stmt = (
-                sqlalchemy.update(DataTable.table)
+                sqlalchemy.update(CacheTable.table)
                 .values(rating=self.new_rating)
             )
             if self.data_item.type_ == Static.folder_type:
                 stmt = stmt.where(*DataItem.get_folder_conds(self.data_item))
             else:
-                stmt = stmt.where(DataTable.partial_hash==self.data_item.partial_hash)
+                stmt = stmt.where(CacheTable.partial_hash==self.data_item.partial_hash)
             conn.execute(stmt)
         self.sigs.finished_.emit()
 

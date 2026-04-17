@@ -11,7 +11,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Static
-from system.database import DataTable, Dbase
+from system.database import CacheTable, Dbase
 from system.items import (CopyItem, DataItem, DirItem, JpgConvertItem,
                           MainWinItem, MultipleInfoItem, PathFixerItem,
                           SearchItem)
@@ -95,33 +95,54 @@ class ImgLoader:
 
         with Dbase.create_engine().begin() as conn:
             clmns = (
-                DataTable.thumb_path,
-                DataTable.filename,
-                DataTable.mod,
-                DataTable.size
+                CacheTable.thumb_path,
+                CacheTable.filename,
+                CacheTable.mod,
+                CacheTable.size
             )
             stmt = (
                 sqlalchemy.select(*clmns)
-                .where(DataTable.fs_id==fs_id)
-                .where(DataTable.rel_parent==rel_parent)
+                .where(CacheTable.fs_id==fs_id)
+                .where(CacheTable.rel_parent==rel_parent)
             )
             res = conn.execute(stmt)
-
-            res = {
+            db_items_dict = {
                 (filename, mod, size): thumb_path
                 for thumb_path, filename, mod, size in res
             }
-
             data_items_dict = {
                 (i.filename, i.mod, i.size): i
                 for i in data_items
             }
-
-            for props, thumb_path in res:
-                if props in data_items_dict:
-                    data_item = data_items_dict[props]
+            removed_thumbs = []
+            for (filename, mod, size), thumb_path in db_items_dict.items():
+                if (filename, mod, size) in data_items_dict:
+                    data_item = data_items_dict[(filename, mod, size)]
                     data_item.img_array = Utils.read_thumb(thumb_path)
                     queue.put(data_item)
+                # значит нет в finder больше этого изображения
+                else:
+                    removed_thumbs.append(thumb_path)
+
+            ok_removed = []
+            if removed_thumbs:
+                for thumb_path in removed_thumbs:
+                    try:
+                        os.remove(thumb_path)
+                        ok_removed.append(thumb_path)
+                    except Exception as e:
+                        continue
+                    try:
+                        os.rmdir(os.path.dirname(thumb_path))
+                    except Exception:
+                        pass
+                stmt = (
+                    sqlalchemy.delete(CacheTable)
+                    .where(CacheTable.fs_id==fs_id)
+                    .where(CacheTable.rel_parent==rel_parent)
+                    .where(CacheTable.thumb_path.in_(removed_thumbs))
+                )
+                conn.execute(stmt)
 
 
         return
@@ -172,16 +193,16 @@ class ImgLoader:
         conn: sqlalchemy.Connection
     ):
         clmns = (
-            DataTable.id,
-            DataTable.thumb_path,
-            DataTable.filename,
-            DataTable.size,
-            DataTable.mod
+            CacheTable.id,
+            CacheTable.thumb_path,
+            CacheTable.filename,
+            CacheTable.size,
+            CacheTable.mod
         )
         stmt = (
             sqlalchemy.select(*clmns)
-            .where(DataTable.rel_parent==main_win_item.rel_current_dir)
-            .where(DataTable.fs_id==main_win_item.fs_id)
+            .where(CacheTable.rel_parent==main_win_item.rel_current_dir)
+            .where(CacheTable.fs_id==main_win_item.fs_id)
         )
         db_images = conn.execute(stmt)
         finder_images = ((i.filename, i.size, i.mod) for i in data_items)
@@ -194,8 +215,8 @@ class ImgLoader:
     ):
         hashes = {i.partial_hash: i for i in data_items}
         stmt = (
-            sqlalchemy.select(DataTable.partial_hash, DataTable.rating)
-            .where(DataTable.partial_hash.in_(hashes))
+            sqlalchemy.select(CacheTable.partial_hash, CacheTable.rating)
+            .where(CacheTable.partial_hash.in_(hashes))
         )
         res = conn.execute(stmt).fetchall()
         if not res:
@@ -246,18 +267,18 @@ class ImgLoader:
             Utils.write_thumb(data_item.thumb_path, img_array)
             queue.put(data_item)
             values.append({
-                DataTable.name.name: data_item.filename,
-                DataTable.type.name: data_item.type_,
-                DataTable.size.name: data_item.size,
-                DataTable.birth.name: data_item.birth,
-                DataTable.mod.name: data_item.mod,
-                DataTable.last_read.name: now,
-                DataTable.rating.name: 0,
-                DataTable.partial_hash.name: data_item.partial_hash,
-                DataTable.thumb_path.name: data_item.thumb_path
+                CacheTable.name.name: data_item.filename,
+                CacheTable.type.name: data_item.type_,
+                CacheTable.size.name: data_item.size,
+                CacheTable.birth.name: data_item.birth,
+                CacheTable.mod.name: data_item.mod,
+                CacheTable.last_read.name: now,
+                CacheTable.rating.name: 0,
+                CacheTable.partial_hash.name: data_item.partial_hash,
+                CacheTable.thumb_path.name: data_item.thumb_path
             })
         stmt = (
-            sqlalchemy.insert(DataTable.table)
+            sqlalchemy.insert(CacheTable.table)
             .values(values)
         )
         conn.execute(stmt)

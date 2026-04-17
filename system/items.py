@@ -12,7 +12,7 @@ from PyQt5.QtGui import QImage
 from cfg import Static
 from system.shared_utils import ImgUtils
 
-from .database import DataTable
+from .database import CacheTable
 from .utils import Utils
 
 
@@ -149,11 +149,11 @@ class DataItem:
         Возвращает условия для поиска папки в базе данных
         """
         conds = [
-            DataTable.name == data_item.filename,
-            DataTable.type == data_item.type_,
-            DataTable.size == data_item.size,
-            DataTable.birth == data_item.birth,
-            DataTable.mod == data_item.mod,
+            CacheTable.name == data_item.filename,
+            CacheTable.type == data_item.type_,
+            CacheTable.size == data_item.size,
+            CacheTable.birth == data_item.birth,
+            CacheTable.mod == data_item.mod,
         ]
         return sqlalchemy.and_(*conds)
             
