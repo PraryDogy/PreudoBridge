@@ -102,7 +102,7 @@ class GridSearch(Grid):
         self.pause_timer.setSingleShot(True)
 
         # отключаем автоподгрузку изображений
-        self.load_visible_thumbs_images = lambda *args: None
+        # self.load_visible_thumbs_images = lambda *args: None
         self.start_search()
 
     def start_search(self):
@@ -156,7 +156,7 @@ class GridSearch(Grid):
         missed_files: list[str] = []
         self.is_grid_search = True
         Thumb.calc_size()
-        self.search_item.root_dir = self.main_win_item.abs_current_dir
+        self.search_item.abs_current_dir = self.main_win_item.abs_current_dir
         self.search_task = SearchTaskWorker(target=SearchTask.start, args=(self.search_item, ))
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)

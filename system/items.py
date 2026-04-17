@@ -246,10 +246,13 @@ class SearchItem:
         self.search_list_low: list[str] = []
         self.missed_files: list[str] = []
 
-        self.root_dir: str
+        self.abs_current_dir: str
         self.conn: sqlalchemy.Connection
         self.process_queue: Queue
         self.gui_queue: Queue
+
+        self.fs_id: str
+        self.rel_parent: str
 
 
 class CopyItem:

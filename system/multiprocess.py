@@ -82,6 +82,16 @@ class ImgLoader:
             rel_parent = os.sep + os.sep.join(splited[2:])
         data_items = sorted(data_items, key=lambda x: x.size)
 
+
+
+        # короче поиск ломается потому что фотки то из разных директорий
+        # типа папка папка/подпапка
+        # а ты им всем присваиваешь rel parent изначальное из mainwin_item
+
+
+        print(fs_id, rel_parent)
+        return
+
         with Dbase.create_engine().begin() as conn:
             img_item = ImgLoaderItem(conn, fs_id, rel_parent)
             res = ImgLoader._get_records(img_item)
@@ -545,6 +555,7 @@ class SearchTask:
 
     @staticmethod
     def start(search_item: SearchItem, process_queue: Queue, gui_queue: Queue):
+
         engine = Dbase.create_engine()
         search_item.conn = Dbase.get_conn(engine)
 
@@ -573,7 +584,7 @@ class SearchTask:
     
     @staticmethod
     def scandir_recursive(search_item: SearchItem):
-        dirs_list = [search_item.root_dir, ]
+        dirs_list = [search_item.abs_current_dir, ]
         while dirs_list:
             current_dir = dirs_list.pop()
             if not os.path.exists(current_dir):
@@ -590,6 +601,17 @@ class SearchTask:
     
     @staticmethod
     def scan_current_dir(current_dir: str, dir_list: list, search_item: SearchItem):
+
+        fs_id = Utils.get_fs_id(current_dir)
+        if current_dir.startswith("/Users"):
+            rel_parent = current_dir
+        else:
+            splited = current_dir.strip(os.sep).split(os.sep)
+            rel_parent = os.sep + os.sep.join(splited[2:])
+
+        search_item.fs_id = fs_id
+        search_item.rel_parent = rel_parent
+
         for entry in os.scandir(current_dir):
             if entry.name.startswith(Static.hidden_symbols):
                 continue
@@ -616,5 +638,5 @@ class SearchTask:
             search_item.process_queue.put(data)
             sleep(SearchTask.sleep_s)
 
-    def process_image():
+    def process_image(search_item: SearchItem, data_item: DataItem):
         ...
