@@ -449,14 +449,13 @@ class Grid(UScrollArea):
             thumb = self.url_to_wid[data_item.abs_path]
             # thumb.data_item.rating = data_item.rating
             thumb.set_blue_text()
-            if data_item.img_array is not None:
-                qimages = {}
-                qimages["src"] = Utils.qimage_from_array(data_item.img_array)
-                for size in Static.image_sizes:
-                    resized = Utils.scaled(qimages["src"], size)
-                    qimages[size] = resized
-                    thumb.data_item.qimages = qimages
-                    thumb.set_image()
+            qimages = {}
+            qimages["src"] = Utils.qimage_from_array(data_item.img_array)
+            for size in Static.image_sizes:
+                resized = Utils.scaled(qimages["src"], size)
+                qimages[size] = resized
+                thumb.data_item.qimages = qimages
+                thumb.set_image()
 
         def poll_task(img_task: ProcessWorker, img_timer: QTimer):
             img_timer.stop()
