@@ -572,6 +572,18 @@ class SearchTask:
         search_item.process_queue.put(search_item)
         Dbase.close_conn(search_item.conn)
 
+
+        # fs_id и rel_parent мы можем получать когда делаем
+        # scan current dir, потому что знаем наверняка, что сейчас
+        # сканится одна директория
+        # в рамках этого:
+        # загрузить кешированную миниатюру:
+        # ищем строку в БД по fs_id rel_parent и сравниваем размер и дату
+        # если есть - загружаем, если нет, отправляем в список на инсерт
+        # сразу со всеми данными включая array
+
+
+
     @staticmethod
     def setup(search_item: SearchItem):
         for i in search_item.search_list:
