@@ -92,9 +92,6 @@ class ImgLoader:
         # так как thumbnails берутся по зоне видимости а не по директориям
 
 
-        print(fs_id, rel_parent)
-        return
-
         with Dbase.create_engine().begin() as conn:
             img_item = ImgLoaderItem(conn, fs_id, rel_parent)
             res = ImgLoader._get_records(img_item)
