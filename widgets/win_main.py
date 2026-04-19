@@ -153,7 +153,7 @@ class WinMain(WinBase):
 
         self.left_wid.addWidget(self.tabs_widget)
         self.left_wid.addWidget(self.filters_menu)
-        self.left_wid.setSizes([999, 1])
+        self.left_wid.setSizes([self.min_height_ - 120, 120])
 
         # --- Правый виджет ---
         right_wid = QWidget()
@@ -189,8 +189,6 @@ class WinMain(WinBase):
         self.splitter.setHandleWidth(WinMain.splitter_handle_width)
         self.splitter.addWidget(self.left_wid)
         self.splitter.addWidget(right_wid)
-        self.splitter.setStretchFactor(0, 0)
-        self.splitter.setStretchFactor(1, 1)
         self.splitter.setSizes([WinMain.left_menu_w, self.width() - WinMain.left_menu_w])
         main_lay.addWidget(self.splitter)
 
