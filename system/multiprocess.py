@@ -596,7 +596,6 @@ class SearchTask:
         # мы делаем select всего что относится к этой директории и fs_id
         # каждая миниатюра если есть в БД
 
-
         fs_id = Utils.get_fs_id(current_dir)
         if current_dir.startswith("/Users"):
             rel_parent = current_dir
@@ -606,6 +605,14 @@ class SearchTask:
 
         search_item.fs_id = fs_id
         search_item.rel_parent = rel_parent
+
+        with search_item.engine.connect() as conn:
+            stmt = (
+                sqlalchemy.select(CacheTable.filename)
+                .where(CacheTable.fs_id==fs_id)
+                .where(CacheTable.rel_parent==rel_parent)
+            )
+            res = conn.execute(stmt).fetchall()
 
         for entry in os.scandir(current_dir):
             if entry.name.startswith(Static.hidden_symbols):

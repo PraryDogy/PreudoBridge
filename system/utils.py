@@ -189,7 +189,9 @@ class Utils:
 
         df_res = subprocess.run(
             ["df", path],
-            capture_output=True, text=True)
+            capture_output=True,
+            text=True
+        )
         lines = df_res.stdout.splitlines()
         device, mp = lines[1].split()[0], lines[1].split()[-1]
 
