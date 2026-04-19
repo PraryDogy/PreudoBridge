@@ -1,10 +1,9 @@
-from PyQt5.QtCore import QSize, Qt, pyqtSignal
-from PyQt5.QtWidgets import (QAction, QHBoxLayout, QListWidget,
-                             QListWidgetItem, QTabWidget, QVBoxLayout, QWidget)
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
-from cfg import Dynamic, Static
+from cfg import Dynamic
 
-from ._base_widgets import SmallBtn, UMenu, UTextEdit
+from ._base_widgets import SmallBtn, UTextEdit
 
 
 class MenuFilters(QWidget):
