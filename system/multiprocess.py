@@ -74,59 +74,36 @@ class ImgLoader:
     def start(finder_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
         if not os.path.exists(main_win_item.abs_current_dir):
             return
-        fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
-        rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
-        finder_items = sorted(finder_items, key=lambda x: x.size)
-
-        # короче поиск ломается потому что фотки то из разных директорий
-        # типа папка папка/подпапка
-        # а ты им всем присваиваешь rel parent изначальное из mainwin_item
-        # этот метод загрузки изображений не подходит, потому что тут могут
-        # быть thumbnails сразу из нескольких директорий во время поиска
-        # так как thumbnails берутся по зоне видимости а не по директориям
-
         with Dbase.create_engine().begin() as conn:
+            finder_items = sorted(finder_items, key=lambda x: x.size)
+            fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
+            rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
             img_item = ImgLoaderItem(conn, fs_id, rel_parent)
             db_items = ImgLoader._get_records(img_item)
-
+            finder_filenames = []
+            db_filenames = {}
+            db_props = {}
             rating_data_items = []
             exist_data_items = []
             update_data_items = []
             new_data_items = []
             del_data_items = []
 
-            finder_filenames = [i.filename for i in finder_items]
-            db_filenames = {}
-            db_props = {}
-
             for filename, mod, size, thumb_path, rating in db_items:
                 db_filenames[filename] = (mod, size, thumb_path, rating)
                 db_props[(filename, mod, size)] = thumb_path
 
             for i in finder_items:
+                finder_filenames.append(i.filename)
                 if i.filename in db_filenames:
                     i.rating = db_filenames[i.filename][3]
                     rating_data_items.append(i)
                     if (i.filename, i.mod, i.size) in db_props:
-                        i._img_array = Utils.read_thumb(
-                            thumb_path=db_filenames[i.filename][2]
-                        )
+                        i._img_array = Utils.read_thumb(db_filenames[i.filename][2])
                         exist_data_items.append(i)
-                    else:
-                        img = ImgUtils.read_img(i.abs_path)
-                        i._img_array = ImgUtils.resize(img, Static.max_thumb_size)
-                        stats = os.stat(i.abs_path)
-                        i.mod = int(stats.st_mtime)
-                        i.size = int(stats.st_size)
-                        Utils.write_thumb(i._img_array)
+                    elif ImgLoader.process_thumb(i):
                         update_data_items.append(i)
-                else:
-                    img = ImgUtils.read_img(i.abs_path)
-                    i._img_array = ImgUtils.resize(img, Static.max_thumb_size)
-                    stats = os.stat(i.abs_path)
-                    i.mod = int(stats.st_mtime)
-                    i.size = int(stats.st_size)
-                    Utils.write_thumb(i._img_array)
+                elif ImgLoader.process_thumb(i):
                     new_data_items.append(i)
 
             for i in db_items:
@@ -134,44 +111,17 @@ class ImgLoader:
                     del_data_items.append(i)
 
             return
-
-
-
             db_items_dict = {
                 (filename, mod, size): thumb_path
                 for thumb_path, filename, mod, size in db_items
             }
 
-
-
-
             data_items_dict = {
                 (i.filename, i.mod, i.size): i
                 for i in finder_items
             }
-
             removed_items: list[str] = []
             new_items: list[DataItem] = []
-
-            # нужно распределить insert update delete
-            # рейнтинг
-
-            # сначала итерация finder по именам файлов
-            # если имя файла есть в db_items, берем рейтинг
-            # если дата изменения совпадает - берем изображение
-            # execute exists
-
-            # если не совпадает - отправляем в update, обновляем size mod
-            # загружаем новое изображение
-            # отправляем в update
-            # берем рейтинг
-
-            # если имени файла нет - отправляем в insert
-
-            # итерация db_items - удаляем из БД чего нет в finder
-
-            # при этом давай разобьем все списки по чанки 10 штук
-
 
             for (filename, mod, size), thumb_path in db_items_dict.items():
                 if (filename, mod, size) in data_items_dict:
@@ -212,6 +162,26 @@ class ImgLoader:
                     queue.put(data_item)
             ImgLoader._write_to_disk(new_items)
             ImgLoader._insert_records(img_item, new_items)
+
+    def process_thumb(data_item: DataItem, img_item: ImgLoaderItem):
+        try:
+            stats = os.stat(data_item.abs_path)
+        except Exception as e:
+            return None
+
+        img = ImgUtils.read_img(data_item.abs_path)
+        rel_filepath = os.path.join(img_item.rel_parent, data_item.filename)
+
+        data_item._img_array = ImgUtils.resize(img, Static.max_thumb_size)
+        data_item.mod = int(stats.st_mtime)
+        data_item.size = int(stats.st_size)
+        data_item._thumb_path = Utils.create_thumb_path(
+            rel_file_path=rel_filepath,
+            fs_id=img_item.fs_id
+        )
+
+        Utils.write_thumb(data_item._img_array)
+        return True
 
     def _remove_from_disk(paths: list[str]):
         result = []
