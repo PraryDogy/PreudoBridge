@@ -591,11 +591,6 @@ class SearchTask:
     
     @staticmethod
     def scan_single_dir(current_dir: str, dir_list: list, search_item: SearchItem):
-
-        # здесь и будет основная работа
-        # мы делаем select всего что относится к этой директории и fs_id
-        # каждая миниатюра если есть в БД
-
         fs_id = Utils.get_fs_id(current_dir)
         if current_dir.startswith("/Users"):
             rel_parent = current_dir
@@ -606,9 +601,27 @@ class SearchTask:
         search_item.fs_id = fs_id
         search_item.rel_parent = rel_parent
 
+
+        # нам нужно либо найти миниатюру в базе данных
+        # либо создать миниатюру и поместить в БД
+        # обрати внимание что при поиске мы ничего не удаляем из БД
+
+        # как удалять неактуальные?
+        # когда закончится scan single dir, у нас будет полный список файлов
+        # и тогда мы его сравним с БД и удалим лишнее
+
+        # то есть делаем так
+        # выделяем БД
+        # каждое изображение мы чекаем есть ли оно в БД или надо создать
+        # если создать то помещаем в список и каждые 10 штук пишем в БД
+
+
         with search_item.engine.connect() as conn:
+            clmns = (
+
+            )
             stmt = (
-                sqlalchemy.select(CacheTable.filename)
+                sqlalchemy.select(*clmns)
                 .where(CacheTable.fs_id==fs_id)
                 .where(CacheTable.rel_parent==rel_parent)
             )
