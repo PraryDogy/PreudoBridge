@@ -64,12 +64,3 @@ class MenuFilters(QWidget):
             Dynamic.word_filters.clear()
             self.filter_thumbs.emit()
             self.rearrange_thumbs.emit()
-
-    def show_context_menu(self, position):
-        item: QListWidgetItem = self.list.itemAt(position)
-        if not item:
-            return
-        menu = UMenu(parent=self)
-        enable_action = QAction(self.enable_text, menu)
-        menu.addAction(enable_action)
-        menu.show_under_cursor()
