@@ -135,25 +135,25 @@ class GridSearch(Grid):
                 self.win_missed_files.center(self.window())
                 self.win_missed_files.show()
         
-        def poll_task(previous_missed_files: dict[str, str]):
+        def poll_task():
             self.search_timer.stop()
             data_items: list[DataItem] = []
             while not self.search_task.queue.empty():
-                data_item: DataItem = self.search_task.queue.get()
-                # previous_missed_files.clear()
-                # previous_missed_files.update(actual_missed_files)
-                data_items.append(data_item)
+                result = self.search_task.queue.get()
+                if isinstance(result, DataItem):
+                    data_items.append(result)
+                else:
+                    fin(result)
+                    break
             if data_items:
                 for i in data_items:
                     create_thumb(i)
                 self.rearrange_thumbs()
             if not self.search_task.is_alive() and self.search_task.queue.empty():
-                # fin(previous_missed_files)
                 self.search_task.terminate_join()
             else:
                 self.search_timer.start(self.search_timer_ms)
 
-        missed_files: dict[str, str] = {}
         self.is_grid_search = True
         Thumb.calc_size()
         self.search_item.root_dir = self.main_win_item.abs_current_dir
@@ -163,7 +163,7 @@ class GridSearch(Grid):
         )
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
-        self.search_timer.timeout.connect(lambda: poll_task(missed_files))
+        self.search_timer.timeout.connect(poll_task)
 
         self.search_task.start()
         self.search_timer.start(self.search_timer_ms)

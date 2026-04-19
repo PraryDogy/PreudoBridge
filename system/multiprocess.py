@@ -543,9 +543,9 @@ class SearchTask:
     def start(search_item: SearchItem, queue: Queue):
         search_item.engine = Dbase.create_engine()
         search_item.queue = queue
-        search_item.missed_files = search_item.search_list
+        search_item.missed_files = search_item.search_list.copy()
         SearchTask.scandir_recursive(search_item)
-        search_item.queue.put(search_item)
+        search_item.queue.put(search_item.missed_files)
 
         # fs_id и rel_parent мы можем получать когда делаем
         # scan current dir, потому что знаем наверняка, что сейчас
@@ -565,6 +565,8 @@ class SearchTask:
     def process_entry(entry: os.DirEntry[str], search_item: SearchItem):
         for low in search_item.search_list:
             if low in entry.name.lower():
+                if low in search_item.missed_files:
+                    search_item.missed_files.pop(low)
                 return True
         return False
     
@@ -636,12 +638,6 @@ class SearchTask:
                 dir_list.append(entry.path)
             if SearchTask.process_entry(entry, search_item):
                 SearchTask.process_data_item(entry, search_item)
-                if entry.name.lower() in search_item.missed_files:
-                    ...
-
-
-
-                    # search_item.missed_files.pop(entry.name.lower())
                 # sleep нужен чтобы предотвратить бомбинг
                 sleep(SearchTask.sleep_s)
 
@@ -654,7 +650,6 @@ class SearchTask:
         elif entry.name.endswith(ImgUtils.ext_all):
             search_item.queue.put(data_item)
             # SearchTask.process_image(search_item, data_item)
-
 
     def process_image(search_item: SearchItem, data_item: DataItem):
         props = data_item.filename, data_item.size, data_item.mod
