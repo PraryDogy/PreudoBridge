@@ -103,6 +103,13 @@ class ImgLoader:
             # нужно распределить insert update delete
             # рейнтинг
 
+            # сначала итерация finder по именам файлов
+            # если имя файла есть в db_items, берем рейтинг
+            # если дата изменения совпадает - берем изображение
+
+            # если не совпадает - отправляем в update, обновляем size mod
+            # загружаем новое изображение
+
 
 
             for (filename, mod, size), thumb_path in db_items_dict.items():
