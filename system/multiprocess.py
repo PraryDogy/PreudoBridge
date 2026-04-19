@@ -566,16 +566,9 @@ class SearchTask:
     # базовый метод обработки os.DirEntry
     @staticmethod
     def process_entry(entry: os.DirEntry[str], search_item: SearchItem):
-
-        # если мы нашли айтем из списка, то удаляем его из списка
-        # не найденных айтемов
-        # for i in search_item.missed_files:
-        #     if i.lower() in entry.name.lower():
-        #         search_item.missed_files.remove(i)
-
-        for i in search_item.search_list_low:
-            if i in entry.name.lower():
-                # search_item.missed_files.remove(entry.name)
+        for low in search_item.search_list:
+            if low in entry.name.lower():
+                search_item.missed_files.pop(low)
                 return True
         return False
     

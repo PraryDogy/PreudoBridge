@@ -120,7 +120,7 @@ class GridSearch(Grid):
                 self.col = 0
                 self.row += 1
 
-        def fin(missed_files: list[str]):
+        def fin(missed_files: dict[str, str]):
             self.finished_.emit()
             
             if not self.cell_to_wid:
@@ -130,30 +130,31 @@ class GridSearch(Grid):
                 self.grid_layout.addWidget(no_images, 0, 0)
 
             if missed_files:
+                missed_files = list(missed_files.values())
                 self.win_missed_files = WinMissedFiles(missed_files)
                 self.win_missed_files.center(self.window())
                 self.win_missed_files.show()
         
-        def poll_task(missed_files: list[str]):
+        def poll_task(previous_missed_files: dict[str, str]):
             self.search_timer.stop()
             q = self.search_task.queue
             data_items: list[DataItem] = []
             while not q.empty():
-                data_item, tmp_missed_files = q.get()
-                missed_files.clear()
-                missed_files.extend(tmp_missed_files)
+                data_item, actual_missed_files = q.get()
+                previous_missed_files.clear()
+                previous_missed_files.update(actual_missed_files)
                 data_items.append(data_item)
             if data_items:
                 for i in data_items:
                     create_thumb(i)
                 self.rearrange_thumbs()
             if not self.search_task.is_alive() and q.empty():
-                fin(missed_files)
+                fin(previous_missed_files)
                 self.search_task.terminate_join()
             else:
                 self.search_timer.start(self.search_timer_ms)
 
-        missed_files: list[str] = []
+        missed_files: dict[str, str] = {}
         self.is_grid_search = True
         Thumb.calc_size()
         self.search_item.root_dir = self.main_win_item.abs_current_dir

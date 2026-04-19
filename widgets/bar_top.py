@@ -244,6 +244,9 @@ class SearchWidget(ULineEdit):
         self.setText(text)
         self.search_item.search_list.clear()
 
+
+        # самое важное тут
+        # тут формируется search_list
         self.search_item.search_list.update(
             {i.lower():i for i in self.search_list}
         )

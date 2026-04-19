@@ -254,7 +254,7 @@ class SearchItem:
         # по мере поиска файлов, если файл найден, то он удаляется из
         # missed files, и в конце поиска в missed files останутся только
         # ненайденные файлы
-        self.missed_files: dict[str] = []
+        self.missed_files: dict[str, str] = {}
 
         self.root_dir: str
         self.queue: Queue
