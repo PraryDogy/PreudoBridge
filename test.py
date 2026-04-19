@@ -1,12 +1,4 @@
-class Foo:
-    def __init__(self):
-        super().__init__()
-        self.test: str
-
-
-foo = Foo()
-foo.test = None
-
-
-print(foo.test)
-
+import os
+dow = os.path.expanduser("~/Downloads")
+for x, i in enumerate(os.scandir(dow), start=1):
+    print(x)

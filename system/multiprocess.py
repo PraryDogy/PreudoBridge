@@ -616,13 +616,17 @@ class SearchTask:
                 for thumb_path, filename, size, mod in conn.execute(stmt)
             }
 
-        for entry in os.scandir(current_dir):
+        for x, entry in enumerate(os.scandir(current_dir), start=1):
             if entry.name.startswith(Static.hidden_symbols):
                 continue
             if entry.is_dir():
                 dir_list.append(entry.path)
             if SearchTask.process_entry(entry, search_item):
                 SearchTask.process_data_item(entry, search_item)
+            if x == 10:
+                # запись в бд
+                ...
+                search_item.new_items.clear()
 
     @staticmethod
     def process_data_item(entry: os.DirEntry[str], search_item: SearchItem):
@@ -653,6 +657,23 @@ class SearchTask:
                 fs_id=search_item.fs_id
 
             )
-            print(data_item._thumb_path)
-            # кинуть в new_items
+            Utils.write_thumb(data_item._thumb_path)
+            search_item.new_items.append(data_item)
         search_item.queue.put(data_item)
+
+    def insert_records(search_item: SearchItem, data_items: list[DataItem]):
+        values = []
+        for i in data_items:
+            values.append({
+                CacheTable.filename.name: i.filename,
+                CacheTable.rel_parent.name: search_item.rel_parent,
+                CacheTable.fs_id.name: search_item.fs_id,
+                CacheTable.thumb_path.name: i._thumb_path,
+                CacheTable.size.name: i.size,
+                CacheTable.mod.name: i.mod,
+                CacheTable.rating.name: 0
+            })
+
+
+# сейчас проблема с рейтингом
+# если попадется изображение которое
