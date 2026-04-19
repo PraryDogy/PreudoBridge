@@ -242,17 +242,24 @@ class MultipleInfoItem:
 class SearchItem:
     def __init__(self):
         super().__init__()
-        self.search_list: list[str] = []
-        self.search_list_low: list[str] = []
-        self.missed_files: list[str] = []
 
-        self.abs_current_dir: str
-        self.conn: sqlalchemy.Connection
+        # изначальный список для поиска
+        self.search_list: list[str]
+
+        # список для поиска в нижнем регистре для универсальности
+        self.search_list_low: list[str]
+
+        # по мере поиска файлов, если файл найден, то он удаляется из
+        # missed files, и в конце поиска в missed files останутся только
+        # ненайденные файлы
+        self.missed_files: list[str]
+
+        self.root_dir: str
         self.process_queue: Queue
-        self.gui_queue: Queue
 
         self.fs_id: str
         self.rel_parent: str
+        self.engine: sqlalchemy.Engine
 
 
 class CopyItem:

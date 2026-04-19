@@ -539,36 +539,17 @@ class CopyTask:
             print("copy stat error CopyTask")
 
 
-class SearchTaskWorker(BaseProcessWorker):
-    """
-    - args: любые аргументы
-    - proq_q, gui_q: передаются автоматически
-    """
-    def __init__(self, target, args):
-        self.process_queue = Queue()
-        self.gui_queue = Queue()
-        super().__init__(target, (*args, self.process_queue, self.gui_queue))
-
-
 class SearchTask:
-    sleep_s = 0
+    sleep_s = 0.1
 
     @staticmethod
-    def start(search_item: SearchItem, process_queue: Queue, gui_queue: Queue):
-
-        engine = Dbase.create_engine()
-        search_item.conn = Dbase.get_conn(engine)
-
+    def start(search_item: SearchItem, process_queue: Queue):
+        search_item.engine = Dbase.create_engine()
         search_item.process_queue = process_queue
-        search_item.gui_queue = gui_queue
         search_item.missed_files = search_item.search_list
-
         SearchTask.setup(search_item)
-
         SearchTask.scandir_recursive(search_item)
         search_item.process_queue.put(search_item)
-        Dbase.close_conn(search_item.conn)
-
 
         # fs_id и rel_parent мы можем получать когда делаем
         # scan current dir, потому что знаем наверняка, что сейчас
@@ -579,7 +560,9 @@ class SearchTask:
         # если есть - загружаем, если нет, отправляем в список на инсерт
         # сразу со всеми данными включая array
 
-
+        # когда мы сканим конкретную диру, мы сразу забираем из БД
+        # одним SELECT все что относится к ней, чтобы сравнивать и
+        # открываеть подключения для каждого select
 
     @staticmethod
     def setup(search_item: SearchItem):
@@ -588,7 +571,7 @@ class SearchTask:
 
     # базовый метод обработки os.DirEntry
     @staticmethod
-    def process_entry(entry: os.DirEntry, search_item: SearchItem):
+    def process_entry(entry: os.DirEntry[str], search_item: SearchItem):
         for i in search_item.search_list_low:
             if i in entry.name.lower():
                 return True
@@ -596,14 +579,14 @@ class SearchTask:
     
     @staticmethod
     def scandir_recursive(search_item: SearchItem):
-        dirs_list = [search_item.abs_current_dir, ]
+        dirs_list = [search_item.root_dir, ]
         while dirs_list:
             current_dir = dirs_list.pop()
             if not os.path.exists(current_dir):
                 continue
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
-                SearchTask.scan_current_dir(current_dir, dirs_list, search_item)
+                SearchTask.scan_single_dir(current_dir, dirs_list, search_item)
             except OSError as e:
                 Utils.print_error()
                 continue
@@ -612,7 +595,12 @@ class SearchTask:
                 continue
     
     @staticmethod
-    def scan_current_dir(current_dir: str, dir_list: list, search_item: SearchItem):
+    def scan_single_dir(current_dir: str, dir_list: list, search_item: SearchItem):
+
+        # здесь и будет основная работа
+        # мы делаем select всего что относится к этой директории и fs_id
+        # каждая миниатюра если есть в БД
+
 
         fs_id = Utils.get_fs_id(current_dir)
         if current_dir.startswith("/Users"):
@@ -648,7 +636,9 @@ class SearchTask:
             search_item.process_queue.put(data)
         elif entry.name.endswith(ImgUtils.ext_all):
             search_item.process_queue.put(data)
-            sleep(SearchTask.sleep_s)
+
+        # sleep нужен чтобы предотвратить бомбинг
+        sleep(SearchTask.sleep_s)
 
     def process_image(search_item: SearchItem, data_item: DataItem):
         ...
