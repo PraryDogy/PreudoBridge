@@ -599,21 +599,6 @@ class SearchTask:
         search_item.fs_id = fs_id
         search_item.rel_parent = rel_parent
 
-
-        # нам нужно либо найти миниатюру в базе данных
-        # либо создать миниатюру и поместить в БД
-        # обрати внимание что при поиске мы ничего не удаляем из БД
-
-        # как удалять неактуальные?
-        # когда закончится scan single dir, у нас будет полный список файлов
-        # и тогда мы его сравним с БД и удалим лишнее
-
-        # то есть делаем так
-        # выделяем БД
-        # каждое изображение мы чекаем есть ли оно в БД или надо создать
-        # если создать то помещаем в список и каждые 10 штук пишем в БД
-
-
         with search_item.engine.connect() as conn:
             clmns = (
                 CacheTable.thumb_path,
@@ -638,8 +623,6 @@ class SearchTask:
                 dir_list.append(entry.path)
             if SearchTask.process_entry(entry, search_item):
                 SearchTask.process_data_item(entry, search_item)
-                # sleep нужен чтобы предотвратить бомбинг
-                sleep(SearchTask.sleep_s)
 
     @staticmethod
     def process_data_item(entry: os.DirEntry[str], search_item: SearchItem):
