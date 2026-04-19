@@ -15,7 +15,7 @@ from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import ItemActions
-from .grid import KEY_RATING, RATINGS, Thumb
+from .grid import Thumb
 
 
 class ImgWid(QGraphicsView):
@@ -212,7 +212,6 @@ class WinImgView(WinBase):
     cached_images: dict[str, QImage] = {}
     move_to_wid = pyqtSignal(object)
     move_to_url = pyqtSignal(str)
-    new_rating = pyqtSignal(tuple)
     closed = pyqtSignal()
     info_win = pyqtSignal(list)
     object_name = "win_img_view"
@@ -283,8 +282,6 @@ class WinImgView(WinBase):
 
     def set_title(self):
         text_ = os.path.basename(self.current_path)
-        if self.thumb.data_item.rating > 0:
-            text_ = f"{RATINGS[self.thumb.data_item.rating]} | {text_}"
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
@@ -444,12 +441,6 @@ class WinImgView(WinBase):
             elif ev.key() == Qt.Key.Key_Space:
                 self.deleteLater()
 
-            elif ev.key() in KEY_RATING:
-                rating = KEY_RATING.get(ev.key())
-                data = (rating, self.current_path)
-                self.new_rating.emit(data)
-                self.set_title()
-
         # return super().keyPressEvent(ev)
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
@@ -525,10 +516,6 @@ class WinImgView(WinBase):
         menu.addAction(copy_name)
 
         menu.addSeparator()
-
-        rating_menu = ItemActions.RatingMenu(menu, self.thumb.data_item.rating)
-        rating_menu.new_rating.connect(lambda value: self.new_rating.emit((value, self.current_path)))
-        menu.addMenu(rating_menu)
 
         rotate = ItemActions.RotateMenu(menu)
         rotate.rotate_sig.connect(self.rotate_image)

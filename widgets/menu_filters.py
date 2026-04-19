@@ -7,13 +7,7 @@ from cfg import Dynamic, Static
 from ._base_widgets import SmallBtn, UMenu, UTextEdit
 
 
-class UItem(QListWidgetItem):
-    def __init__(self):
-        super().__init__()
-        self.rating: int
-
-
-class MenuRatingFilters(QWidget):
+class MenuFilters(QWidget):
     filter_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
     enable_text = "Включить"
@@ -74,30 +68,25 @@ class MenuRatingFilters(QWidget):
         self.list.setFixedHeight(self.height_)
         item_size = QSize(self.list.width(), self.item_width)
 
-        zero_item = UItem()
-        zero_item.rating = 0
+        zero_item = QListWidgetItem()
         zero_item.setText(Static.long_line_symbol)
         zero_item.setSizeHint(item_size)
         self.list.addItem(zero_item)
 
         for i in range(1, 6):
-            item = UItem()
-            item.rating = i
+            item = QListWidgetItem()
             item.setText(Static.star_symbol * i)
             item.setSizeHint(item_size)
             self.list.addItem(item)
 
         self.list.setContextMenuPolicy(Qt.CustomContextMenu)
         self.list.customContextMenuRequested.connect(self.show_context_menu)
-        self.list.itemClicked.connect(self.handle_item_click)
         tab1_layout.addWidget(self.list)
         self.tabs.addTab(self.tab_list, "Рейтинг")
 
     def clear_btn_cmd(self):
         self.line_edit.clear()
         self.line_edit.clearFocus()
-        # self.filter_thumbs.emit()
-        # self.rearrange_thumbs.emit()
 
     def on_text_changed(self):
         text = self.line_edit.toPlainText()
@@ -112,25 +101,10 @@ class MenuRatingFilters(QWidget):
             self.rearrange_thumbs.emit()
 
     def show_context_menu(self, position):
-        item: UItem = self.list.itemAt(position)
+        item: QListWidgetItem = self.list.itemAt(position)
         if not item:
             return
         menu = UMenu(parent=self)
         enable_action = QAction(self.enable_text, menu)
-        if Dynamic.rating_filter == item.rating:
-            enable_action.setDisabled(True)
-        enable_action.triggered.connect(lambda: self.item_cmd(item.rating))
         menu.addAction(enable_action)
         menu.show_under_cursor()
-
-    def handle_item_click(self, item: 'UItem'):
-        self.item_cmd(item.rating)
-
-    def item_cmd(self, rating: int):
-        Dynamic.rating_filter = rating
-        self.filter_thumbs.emit()
-        self.rearrange_thumbs.emit()
-
-    def reset(self):
-        Dynamic.rating_filter = 0
-        self.list.setCurrentRow(0)

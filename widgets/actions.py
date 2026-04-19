@@ -131,45 +131,6 @@ class OpenInApp(UMenu):
             Utils.open_in_app(i, app_path)
 
 
-# меню с рейтингом для _grid.py > Thumb
-class RatingMenu(UMenu):
-    new_rating = pyqtSignal(int)
-    text_ = "Рейтинг"
-
-    def __init__(self, parent: UMenu, current_rating: int):
-        super().__init__(parent=parent, title=self.text_)
-
-        # свойство Thumb
-        # рейтинг для каждого виджета хранится в базе данных
-        # и подгружается при создании сетки
-        rating = current_rating
-
-        cancel_ = QAction(Static.long_line_symbol, self)
-        cancel_.triggered.connect(lambda: self.new_rating.emit(0))
-        self.addAction(cancel_)
-
-        # рейтинг от 1 до 5 звезд
-        # в цикле происходит проверка, есть ли рейтинг > 0
-        # в rating (свойство Thumb)
-        # если есть, то отмечается setChecked
-        # 0 возвращает False
-        for current_rating in range(1, 6):
-            wid = QAction(Static.star_symbol * current_rating, self)
-            wid.setCheckable(True)
-
-            if rating == current_rating:
-                wid.setChecked(True)
-
-            # клик возвращает через сигнал целое число
-            # соответствующее количеству звезд
-            # например: int(5) это 5 звезд = rating в данном цикле
-            # виджет Thumb установит новый рейтинг и 
-            # запишет его в базу данных
-            cmd_ = lambda e, r=current_rating: self.new_rating.emit(r)
-            wid.triggered.connect(cmd_)
-            self.addAction(wid)
-
-
 # удалить текст из виджета и скопировать в буфер обмена удаленную часть текста
 # только для QLineEdit / QTextEdit
 class CutText(QAction):
@@ -446,7 +407,6 @@ class ItemActions:
     class CopyObjects(CopyObjects): ...
     class FavRemove(FavRemove): ...
     class FavAdd(FavAdd): ...
-    class RatingMenu(RatingMenu): ...
     class ShowInGrid(ShowInGrid): ...
     class RemoveObjects(RemoveObjects): ...
     class ImgConvert(ImgConvert): ...

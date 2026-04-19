@@ -22,15 +22,13 @@ class SortItem:
     size = "size"
     mod = "mod"
     birth = "birth"
-    rating = "rating"
 
     attr_lang = {
         filename : "Имя",
         type_ : "Тип",
         size : "Размер",
         mod : "Дата изменения",
-        birth: "Дата создания",
-        rating : "Рейтинг",
+        birth: "Дата создания"
     }
 
     def __init__(self):
@@ -55,10 +53,9 @@ class SortItem:
 
 
 class DataItem:
-    def __init__(self, src: str, rating: int = 0):
+    def __init__(self, src: str):
         super().__init__()
         self.abs_path: str = src
-        self.rating: int = rating
 
         # устанавливается через set_properties
         self.filename: str

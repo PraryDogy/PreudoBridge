@@ -92,7 +92,6 @@ class JsonData:
 
 
 class Dynamic:
-    rating_filter: int = 0
     word_filters: list[str] = []
     pixmap_size_ind = 2
     image_apps: list[str] = []

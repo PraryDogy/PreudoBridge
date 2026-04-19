@@ -149,7 +149,7 @@ class GridStandart(Grid):
             self.main_win_item.urls_to_select.clear()
         # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
         # которая скроет из сетки не подходящие под фильтр виджеты
-        if Dynamic.rating_filter > 0 or Dynamic.word_filters:
+        if Dynamic.word_filters:
             self.filter_thumbs()
         # почему то без таймера срабатывает через раз
         QTimer.singleShot(0, self.rearrange_thumbs)

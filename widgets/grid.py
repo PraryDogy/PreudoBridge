@@ -16,7 +16,7 @@ from system.database import Dbase
 from system.items import ClipboardItem, DataItem, MainWinItem, SortItem
 from system.multiprocess import DirWatcher, ImgLoader, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
-from system.tasks import RatingTask, UThreadPool
+from system.tasks import UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -29,29 +29,11 @@ from .win_rename import WinRename
 FONT_SIZE = 11
 BORDER_RADIUS = 4
 
-KEY_RATING = {
-    Qt.Key.Key_0: 0,
-    Qt.Key.Key_1: 1,
-    Qt.Key.Key_2: 2,
-    Qt.Key.Key_3: 3,
-    Qt.Key.Key_4: 4,
-    Qt.Key.Key_5: 5,
-}
-
 KEY_NAVI = {
     Qt.Key.Key_Left: (0, -1),
     Qt.Key.Key_Right: (0, 1),
     Qt.Key.Key_Up: (-1, 0),
     Qt.Key.Key_Down: (1, 0)
-}
-
-RATINGS = {
-    0: "",
-    1: Static.star_symbol,
-    2: Static.star_symbol * 2,
-    3: Static.star_symbol * 3,
-    4: Static.star_symbol * 4,
-    5: Static.star_symbol * 5,
 }
 
 
@@ -104,15 +86,12 @@ class BlueTextWid(QLabel):
             """
         )
 
-        if data.rating > 0:
-            mod_row = RATINGS.get(data.rating, "").strip()
+        mod_row = self.text_mod + SharedUtils.get_f_date(data.mod)
+        if data.type_ == Static.folder_type:
+            sec_row = str("")
         else:
-            mod_row = self.text_mod + SharedUtils.get_f_date(data.mod)
-            if data.type_ == Static.folder_type:
-                sec_row = str("")
-            else:
-                sec_row = self.text_size + SharedUtils.get_f_size(data.size, 0)
-            mod_row = "\n".join((mod_row, sec_row))
+            sec_row = self.text_size + SharedUtils.get_f_size(data.size, 0)
+        mod_row = "\n".join((mod_row, sec_row))
         self.setText(mod_row)
 
 
@@ -447,7 +426,6 @@ class Grid(UScrollArea):
 
         def update_thumb(data_item: DataItem):
             thumb = self.url_to_wid[data_item.abs_path]
-            # thumb.data_item.rating = data_item.rating
             thumb.set_blue_text()
             qimages = {}
             qimages["src"] = Utils.qimage_from_array(data_item._img_array)
@@ -527,8 +505,6 @@ class Grid(UScrollArea):
         visible_thumbs = 0
         for wid in self.url_to_wid.values():
             show_widget = True
-            if Dynamic.rating_filter > 0 and wid.data_item.rating != Dynamic.rating_filter:
-                show_widget = False
             if Dynamic.word_filters:
                 for i in Dynamic.word_filters:
                     if i.lower() not in wid.data_item.filename.lower():
@@ -737,31 +713,6 @@ class Grid(UScrollArea):
         self.cell_to_wid.pop((wid.data_item.row, wid.data_item.col))
         self.url_to_wid.pop(url)
         wid.deleteLater()
-
-    def set_thumb_rating(self, data_item: DataItem, new_rating: int):
-        wid = self.url_to_wid.get(data_item.abs_path)
-        wid.data_item.rating = new_rating
-        wid.set_blue_text()
-        wid.text_changed.emit()
-
-    def new_rating_multiple_start(self, rating: int):
-        """
-        Устанавливает рейтинг для выделенных в сетке виджетов:
-        - Делается запись в базу данных через URunnable
-        - При успешной записи URunnable испускает сигнал finished
-        """
-
-        for wid in self.selected_thumbs:
-            if wid.data_item.type_ not in ImgUtils.ext_all:
-                continue
-            self.rating_task = RatingTask(
-                self.main_win_item,
-                wid.data_item,
-                rating
-            )
-            cmd_ = lambda d=wid.data_item: self.set_thumb_rating(d, rating)
-            self.rating_task.sigs.finished_.connect(cmd_)
-            UThreadPool.start(self.rating_task)
         
     def clear_selected_widgets(self):
         """
@@ -796,7 +747,7 @@ class Grid(UScrollArea):
         """
         Получает виджет Thumb, по которому произошел клик.  
         Клик засчитывается, если он произошел по дочерним виджетам Thumb:   
-        TextWidget, RatingWid, ImgFrame     
+        TextWidget, ImgFrame     
         QLabel и QSvgWidget являются дочерними виджетами ImgFrame, поэтому  
         в случае клика по ним, возвращается .parent().parent()
         """
@@ -875,11 +826,6 @@ class Grid(UScrollArea):
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
 
-        if wid.data_item.type_ in ImgUtils.ext_all:
-            rating_menu = ItemActions.RatingMenu(menu_, wid.data_item.rating)
-            rating_menu.new_rating.connect(self.new_rating_multiple_start)
-            menu_.addMenu(rating_menu)
-
         info = ItemActions.Info(menu_)
         info.triggered.connect(
             lambda: self.open_win_info([i.data_item for i in self.selected_thumbs])
@@ -957,7 +903,7 @@ class Grid(UScrollArea):
         data = DataItem(self.main_win_item.abs_current_dir)
         data.set_properties()
 
-        if not self.is_grid_search and not Dynamic.rating_filter != 0:
+        if not self.is_grid_search:
             new_folder = GridActions.NewFolder(menu_)
             new_folder.triggered.connect(self.new_folder)
             menu_.addAction(new_folder)
@@ -1235,9 +1181,6 @@ class Grid(UScrollArea):
                 self.select_single_thumb(next_wid)
                 self.ensureWidgetVisible(next_wid)
                 self.wid_under_mouse = next_wid
-        elif a0.key() in KEY_RATING:
-            rating = KEY_RATING.get(a0.key())
-            self.new_rating_multiple_start(rating)
 
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         return super().keyPressEvent(a0)

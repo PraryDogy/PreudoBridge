@@ -14,7 +14,7 @@ from system.items import (ClipboardItem, DataItem, MainWinItem, PathFixerItem,
 from system.multiprocess import PathFixer, ProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import RatingTask, UThreadPool
+from system.tasks import UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -26,7 +26,7 @@ from .grid import Grid
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
 from .menu_favs import MenuFavs
-from .menu_rating_filters import MenuRatingFilters
+from .menu_filters import MenuFilters
 from .menu_tree import MenuTree
 from .table_view import TableView
 from .win_copy_files import WinCopyFiles
@@ -149,7 +149,7 @@ class WinMain(WinBase):
         self.tabs_widget.addTab(self.tree_menu, WinMain.folders_text)
         self.tabs_widget.addTab(self.favs_menu, WinMain.favs_text)
 
-        self.filters_menu = MenuRatingFilters()
+        self.filters_menu = MenuFilters()
 
         self.left_wid.addWidget(self.tabs_widget)
         self.left_wid.addWidget(self.filters_menu)
@@ -226,7 +226,6 @@ class WinMain(WinBase):
         self.favs_menu.new_history_item.connect(self.top_bar.new_history_item)
         self.favs_menu.open_in_new_win.connect(lambda d: self.open_in_new_win((d, None)))
 
-        # rating_menu
         self.filters_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
         self.filters_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
 
@@ -278,28 +277,11 @@ class WinMain(WinBase):
             self.img_view_win = None
             gc.collect()
 
-        def set_db_rating(data_tuple: tuple):
-            rating, url = data_tuple
-            wid = self.grid.url_to_wid.get(url)
-            if not wid:
-                return
-            self.rating_task = RatingTask(
-                main_win_item=self.main_win_item, 
-                data_item=wid.data_item,
-                new_rating=rating
-            )
-            assert isinstance(self.rating_task, RatingTask)
-            self.rating_task.sigs.finished_.connect(
-                lambda: self.grid.set_thumb_rating(wid.data_item, rating)
-            )
-            UThreadPool.start(self.rating_task)
-
         self.img_view_win = WinImgView(
             data["start_url"], data["url_to_wid"], data["is_selection"]
         )
 
         self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
-        self.img_view_win.new_rating.connect(set_db_rating)
         self.img_view_win.move_to_url.connect(self.grid.select_path)
         self.img_view_win.closed.connect(closed)
         self.img_view_win.info_win.connect(self.open_info_win)

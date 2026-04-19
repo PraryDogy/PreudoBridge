@@ -73,33 +73,6 @@ class UThreadPool:
         cls.pool.start(runnable)
 
 
-class RatingTask(URunnable):
-
-    class Sigs(QObject):
-        finished_ = pyqtSignal()
-
-    def __init__(self, main_win_item: MainWinItem, data_item: DataItem, new_rating: int):
-        super().__init__()
-        self.data_item = data_item
-        self.new_rating = new_rating
-        self.main_win_item = main_win_item
-        self.sigs = RatingTask.Sigs()
-
-    def task(self):
-        fs_id = Utils.get_fs_id(self.main_win_item.abs_current_dir)
-        rel_parent = Utils.get_rel_parent(self.main_win_item.abs_current_dir)
-        with Dbase.main_engine.begin() as conn:
-            stmt = (
-                sqlalchemy.update(CacheTable.table)
-                .values(rating=self.new_rating)
-                .where(CacheTable.filename==self.data_item.filename)
-                .where(CacheTable.fs_id==fs_id)
-                .where(CacheTable.rel_parent==rel_parent)
-            )
-            conn.execute(stmt)
-        self.sigs.finished_.emit()
-
-
 class FileRemover(URunnable):
 
     class Sigs(QObject):
