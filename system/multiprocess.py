@@ -71,170 +71,142 @@ class ProcessWorker(BaseProcessWorker):
 class ImgLoader:
 
     @staticmethod
-    def start(finder_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
-
+    def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
         if not os.path.exists(main_win_item.abs_current_dir):
             return
         
-        finder_items = sorted(finder_items, key=lambda x: x.size)
+        engine = Dbase.create_engine()
+        fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
+        rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
+        img_item = ImgLoaderItem(engine, queue, fs_id, rel_parent)
+        
+        data_items = sorted(data_items, key=lambda x: x.size)
 
-        _fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
-        _rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
-        _engine = Dbase.create_engine()
-        img_item = ImgLoaderItem(_engine, queue, _fs_id, _rel_parent)
+        res = ImgLoader._get_records(img_item)
+        db_items_dict = {
+            (filename, mod, size): thumb_path
+            for filename, mod, size, thumb_path in res
+        }
 
-        db_items = ImgLoader._get_records(img_item)
-        db_filenames = {}
-        db_props = {}
+        finder_items_dict = {
+            (data_item.filename, data_item.mod, data_item.size): data_item
+            for data_item in data_items
+        }
 
-        finder_filenames = []
+        removed_items: list[str] = []
+        new_items: list[DataItem] = []
 
-        rating_data_items: list[DataItem] = []
-        exist_data_items: list[DataItem] = []
-        update_data_items: list[DataItem] = []
-        new_data_items: list[DataItem] = []
-        del_data_items: list[DataItem] = []
-
-        for filename, mod, size, thumb_path, rating in db_items:
-            db_filenames[filename] = (mod, size, thumb_path, rating)
-            db_props[(filename, mod, size)] = thumb_path
-
-        for i in finder_items:
-            finder_filenames.append(i.filename)
-            if i.filename in db_filenames:
-                i.rating = db_filenames[i.filename][3]
-                rating_data_items.append(i)
-                if (i.filename, i.mod, i.size) in db_props:
-                    i._img_array = Utils.read_thumb(db_filenames[i.filename][2])
-                    exist_data_items.append(i)
-                else:
-                    update_data_items.append(i)
-            else:
-                new_data_items.append(i)
-
-        step = 10
-        update_chunked = [
-            update_data_items[i:i+step]
-            for i in range(0, len(update_data_items), step)
-        ]
-        new_chunked = [
-            new_data_items[i:i+step]
-            for i in range(0, len(new_data_items), step)
-        ]
-
-        for chunk in update_chunked:
-            ok_data_items = []
-            for data_item in chunk:
-                if ImgLoader.process_thumb(data_item, img_item):
-                    ok_data_items.append(data_item)
-            ImgLoader._update_records(img_item, ok_data_items)
-
-        for chunk in new_chunked:
-            ok_data_items = []
-            for data_item in chunk:
-                if ImgLoader.process_thumb(data_item, img_item):
-                    ok_data_items.append(data_item)
-            ImgLoader._insert_records(img_item, ok_data_items)
-
-        for i in db_items:
-            if i[0] in finder_filenames:
-                try:
-                    os.remove(i[3])
-                except Exception as e:
+        # проверяем есть ли айтемы базы данных в Finder
+        for data, thumb_path in db_items_dict.items():
+            # если файл базы данных есть в finder
+            # значит изображение не менялось и мы загружаем миниатюру
+            if data in finder_items_dict:
+                data_item = finder_items_dict[data]
+                data_item._img_array = Utils.read_thumb(thumb_path)
+                # если чтение существующей миниатюры прошло неудачно
+                # добавляем ее в раздел новые, чтобы попытаться
+                # открыть ее заново
+                if data_item._img_array is None:
+                    rel_filepath = os.path.join(rel_parent, filename)
+                    data_item.thumb_path = Utils.create_thumb_path(
+                        rel_file_path=rel_filepath,
+                        fs_id=fs_id
+                    )
+                    new_items.append(data_item)
                     continue
-                try:
-                    os.rmdir(os.path.dirname(i[3]))
-                except OSError:
-                    pass
-                del_data_items.append(i)
+                # чтение прошло удачно и передаем это в gui
+                else:
+                    queue.put(data_item)
+            # файла базы данных нет в finder
+            # значит изображение было модифицировано или удалено
+            else:
+                removed_items.append(thumb_path)
 
-    def process_thumb(data_item: DataItem, img_item: ImgLoaderItem):
-        try:
-            stats = os.stat(data_item.abs_path)
-        except Exception as e:
-            return None
+        # удаляем лишнее с диска и из базы данных
+        removed_items = ImgLoader._remove_from_disk(removed_items)
+        ImgLoader._remove_records(img_item, removed_items)
 
-        img = ImgUtils.read_img(data_item.abs_path)
-        rel_filepath = os.path.join(img_item.rel_parent, data_item.filename)
+        # проверяем есть ли айтемы из Finder в базе данных
+        for (filename, mod, size), data_item in finder_items_dict.items():
+            # изображения нет в базе данных, создаем миниатюру
+            if (filename, mod, size) not in db_items_dict:
+                img = ImgUtils.read_img(data_item.abs_path)
+                data_item._img_array = ImgUtils.resize(
+                    image=img,
+                    size=Static.max_thumb_size
+                )
+                # чтение прошло неудачно, игнорируем
+                if data_item._img_array is None:
+                    print("img loader img array is none")
+                    print(data_item.abs_path)
+                    continue
+                # чтение прошло удачно
+                # отправляем айтем в new_items для последующего добавления
+                # в базу данных
+                # и отправляем сигнал в gui для отображения миниатюры
+                else:
+                    rel_filepath = os.path.join(rel_parent, filename)
+                    data_item._thumb_path = Utils.create_thumb_path(
+                        rel_file_path=rel_filepath,
+                        fs_id=fs_id
+                    )
+                    Utils.write_thumb(
+                        thumb_path=data_item._thumb_path,
+                        thumb_array=data_item._img_array
+                    )
+                    new_items.append(data_item)
+                    queue.put(data_item)
+        ImgLoader._insert_records(img_item, new_items)
 
-        data_item._img_array = ImgUtils.resize(img, Static.max_thumb_size)
-        data_item.mod = int(stats.st_mtime)
-        data_item.size = int(stats.st_size)
-        data_item._thumb_path = Utils.create_thumb_path(
-            rel_file_path=rel_filepath,
-            fs_id=img_item.fs_id
-        )
-
-        Utils.write_thumb(data_item._img_array)
-        return True
-
-    # def _remove_from_disk(paths: list[str]):
-    #     result = []
-    #     for thumb_path in paths:
-    #         try:
-    #             os.remove(thumb_path)
-    #             result.append(thumb_path)
-    #         except Exception as e:
-    #             pass
-    #         try:
-    #             os.rmdir(os.path.dirname(thumb_path))
-    #         except OSError as e:
-    #             ...
-    #     return result
-
-    # @staticmethod
-    # def _write_to_disk(data_items: list[DataItem]):
-    #     for i in data_items:
-    #         Utils.write_thumb(
-    #             thumb_path=i._thumb_path,
-    #             thumb_array=i._img_array
-    #         )
+    def _remove_from_disk(paths: list[str]):
+        result = []
+        for thumb_path in paths:
+            try:
+                os.remove(thumb_path)
+                result.append(thumb_path)
+            except Exception as e:
+                pass
+            try:
+                os.rmdir(os.path.dirname(thumb_path))
+            except OSError as e:
+                ...
+        return result
 
     @staticmethod
-    def _update_records(img_item: ImgLoaderItem, items: list[DataItem]):
-        ...
-
-    @staticmethod
-    def _insert_records(img_item: ImgLoaderItem, items: list[DataItem]):
-        if not items:
+    def _insert_records(img_item: ImgLoaderItem, data_items: list[DataItem]):
+        if not data_items:
             return
         values: list[dict] = []
-        for i in items:
+        for i in data_items:
             values.append({
                 CacheTable.filename.name: i.filename,
                 CacheTable.rel_parent.name: img_item.rel_parent,
                 CacheTable.fs_id.name: img_item.fs_id,
                 CacheTable.thumb_path.name: i._thumb_path,
                 CacheTable.size.name: i.size,
-                CacheTable.mod.name: i.mod,
-                CacheTable.rating.name: 0
+                CacheTable.mod.name: i.mod
             })
         stmt = (
             sqlalchemy.insert(CacheTable.table)
         )
-        try:
-            img_item.conn.execute(stmt, values)
-        except OperationalError:
-            ...
+        with img_item.engine.begin() as conn:
+            conn.execute(stmt, values)
 
     @staticmethod
     def _get_records(img_item: ImgLoaderItem):
-        """
-        filename, mod, size, thumb path, rating
-        """
         clmns = (
             CacheTable.filename,
             CacheTable.mod,
             CacheTable.size,
-            CacheTable.thumb_path,
-            CacheTable.rating
+            CacheTable.thumb_path
         )
         stmt = (
             sqlalchemy.select(*clmns)
             .where(CacheTable.fs_id==img_item.fs_id)
             .where(CacheTable.rel_parent==img_item.rel_parent)
         )
-        return img_item.conn.execute(stmt)
+        with img_item.engine.connect() as conn:
+            return conn.execute(stmt)
     
     def _remove_records(img_item: ImgLoaderItem, paths: list[str]):
         if not paths:
@@ -697,8 +669,7 @@ class SearchTask:
                 CacheTable.fs_id.name: search_item.fs_id,
                 CacheTable.thumb_path.name: i._thumb_path,
                 CacheTable.size.name: i.size,
-                CacheTable.mod.name: i.mod,
-                CacheTable.rating.name: 0
+                CacheTable.mod.name: i.mod
             })
 
 

@@ -19,8 +19,7 @@ _CACHETABLE = sqlalchemy.Table(
     sqlalchemy.Column("fs_id", sqlalchemy.Text),
     sqlalchemy.Column("thumb_path", sqlalchemy.Text),
     sqlalchemy.Column("size", sqlalchemy.Integer),
-    sqlalchemy.Column("mod", sqlalchemy.Integer),
-    sqlalchemy.Column("rating", sqlalchemy.Integer),
+    sqlalchemy.Column("mod", sqlalchemy.Integer)
 )
 
 
@@ -33,7 +32,6 @@ class CacheTable:
     thumb_path = _CACHETABLE.c.thumb_path
     size = _CACHETABLE.c.size
     mod = _CACHETABLE.c.mod
-    rating = _CACHETABLE.c.rating
 
 
 class Dbase:
