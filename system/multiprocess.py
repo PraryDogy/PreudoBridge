@@ -614,20 +614,19 @@ class SearchTask:
                 dir_list.append(entry.path)
             if SearchTask.process_entry(entry, search_item):
                 SearchTask.process_data_item(entry, search_item)
+                # sleep нужен чтобы предотвратить бомбинг
+                sleep(SearchTask.sleep_s)
 
     @staticmethod
     def process_data_item(entry: os.DirEntry, search_item: SearchItem):
         data_item = DataItem(entry.path)
         data_item.set_properties()
         data = (data_item, search_item.missed_files)
-
         if entry.is_dir():
             search_item.queue.put(data)
         elif entry.name.endswith(ImgUtils.ext_all):
             search_item.queue.put(data)
 
-        # sleep нужен чтобы предотвратить бомбинг
-        sleep(SearchTask.sleep_s)
 
     def process_image(search_item: SearchItem, data_item: DataItem):
         ...
