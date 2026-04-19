@@ -185,7 +185,7 @@ class Utils:
         return image
     
     @classmethod
-    def get_fs_id(cls, path: str):
+    def get_fs_id(cls, abs_path: str):
         """
         Возвращает fs_id:
         - для smb: //Loshkarev%40mjf.lan@192.168.10.121/shares
@@ -193,7 +193,7 @@ class Utils:
         """
 
         df_res = subprocess.run(
-            ["df", path],
+            ["df", abs_path],
             capture_output=True,
             text=True
         )

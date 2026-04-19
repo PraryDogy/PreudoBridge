@@ -82,19 +82,20 @@ class RatingTask(URunnable):
         super().__init__()
         self.data_item = data_item
         self.new_rating = new_rating
-        self.main_dir = main_dir
+        self.main_win_item = main_win_item
         self.sigs = RatingTask.Sigs()
 
     def task(self):
+        fs_id = Utils.get_fs_id(self.main_win_item.abs_current_dir)
+        rel_parent = Utils.get_rel_parent(self.main_win_item.abs_current_dir)
         with Dbase.main_engine.begin() as conn:
             stmt = (
                 sqlalchemy.update(CacheTable.table)
                 .values(rating=self.new_rating)
+                .where(CacheTable.filename==self.data_item.filename)
+                .where(CacheTable.fs_id==fs_id)
+                .where(CacheTable.rel_parent==rel_parent)
             )
-            if self.data_item.type_ == Static.folder_type:
-                stmt = stmt.where(*DataItem.get_folder_conds(self.data_item))
-            else:
-                stmt = stmt.where(CacheTable.partial_hash==self.data_item.partial_hash)
             conn.execute(stmt)
         self.sigs.finished_.emit()
 
