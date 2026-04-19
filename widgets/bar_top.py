@@ -87,7 +87,9 @@ class WinSearchList(WinMinCloseOnly):
         self.main_win_item = main_win_item
         self.search_item = search_item
         self.centralWidget().setLayout(self.create_main_layout())
-        self.input_.setText("\n".join(self.search_item.search_list))
+        self.input_.setText(
+            "\n".join(self.search_item.search_list.values())
+        )
         self.adjustSize()
 
     def create_main_layout(self):
@@ -241,7 +243,10 @@ class SearchWidget(ULineEdit):
         text = ", ".join(self.search_list)
         self.setText(text)
         self.search_item.search_list.clear()
-        self.search_item.search_list.extend(self.search_list)
+
+        self.search_item.search_list.update(
+            {i.lower():i for i in self.search_list}
+        )
         self.load_search_grid.emit()
 
     def open_search_list_win(self):

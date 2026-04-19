@@ -244,8 +244,9 @@ class SearchItem:
     def __init__(self):
         super().__init__()
 
-        # изначальный список для поиска
-        self.search_list: list[str] = []
+        # список для поиска:
+        # айтем в нижнем регистре: оригинальный айтем
+        self.search_list: dict[str, str] = {}
 
         # список для поиска в нижнем регистре для универсальности
         self.search_list_low: list[str] = []
@@ -253,7 +254,7 @@ class SearchItem:
         # по мере поиска файлов, если файл найден, то он удаляется из
         # missed files, и в конце поиска в missed files останутся только
         # ненайденные файлы
-        self.missed_files: list[str] = []
+        self.missed_files: dict[str] = []
 
         self.root_dir: str
         self.queue: Queue

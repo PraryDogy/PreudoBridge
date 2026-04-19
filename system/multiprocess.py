@@ -547,7 +547,6 @@ class SearchTask:
         search_item.engine = Dbase.create_engine()
         search_item.queue = queue
         search_item.missed_files = search_item.search_list
-        SearchTask.setup(search_item)
         SearchTask.scandir_recursive(search_item)
         search_item.queue.put(search_item)
 
@@ -564,16 +563,19 @@ class SearchTask:
         # одним SELECT все что относится к ней, чтобы сравнивать и
         # открываеть подключения для каждого select
 
-    @staticmethod
-    def setup(search_item: SearchItem):
-        for i in search_item.search_list:
-            search_item.search_list_low.append(i.lower())
-
     # базовый метод обработки os.DirEntry
     @staticmethod
     def process_entry(entry: os.DirEntry[str], search_item: SearchItem):
+
+        # если мы нашли айтем из списка, то удаляем его из списка
+        # не найденных айтемов
+        # for i in search_item.missed_files:
+        #     if i.lower() in entry.name.lower():
+        #         search_item.missed_files.remove(i)
+
         for i in search_item.search_list_low:
             if i in entry.name.lower():
+                # search_item.missed_files.remove(entry.name)
                 return True
         return False
     
@@ -622,12 +624,6 @@ class SearchTask:
 
     @staticmethod
     def process_data_item(entry: os.DirEntry, search_item: SearchItem):
-        # если мы нашли айтем из списка, то удаляем его из списка
-        # не найденных айтемов
-        for i in search_item.missed_files:
-            if i.lower() in entry.name.lower():
-                search_item.missed_files.remove(i)
-
         data_item = DataItem(entry.path)
         data_item.set_properties()
         data = (data_item, search_item.missed_files)
