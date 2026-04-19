@@ -292,6 +292,7 @@ class PathFixerItem:
 
 @dataclass(slots=True)
 class ImgLoaderItem:
-    conn: sqlalchemy.Connection
+    engine: sqlalchemy.Engine
+    queue: Queue
     fs_id: str
     rel_parent: str

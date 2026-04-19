@@ -72,96 +72,81 @@ class ImgLoader:
 
     @staticmethod
     def start(finder_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
+
         if not os.path.exists(main_win_item.abs_current_dir):
             return
-        with Dbase.create_engine().begin() as conn:
-            finder_items = sorted(finder_items, key=lambda x: x.size)
-            fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
-            rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
-            img_item = ImgLoaderItem(conn, fs_id, rel_parent)
-            db_items = ImgLoader._get_records(img_item)
-            finder_filenames = []
-            db_filenames = {}
-            db_props = {}
-            rating_data_items = []
-            exist_data_items = []
-            update_data_items = []
-            new_data_items = []
-            del_data_items = []
+        
+        finder_items = sorted(finder_items, key=lambda x: x.size)
 
-            for filename, mod, size, thumb_path, rating in db_items:
-                db_filenames[filename] = (mod, size, thumb_path, rating)
-                db_props[(filename, mod, size)] = thumb_path
+        _fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
+        _rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
+        _engine = Dbase.create_engine()
+        img_item = ImgLoaderItem(_engine, queue, _fs_id, _rel_parent)
 
-            for i in finder_items:
-                finder_filenames.append(i.filename)
-                if i.filename in db_filenames:
-                    i.rating = db_filenames[i.filename][3]
-                    rating_data_items.append(i)
-                    if (i.filename, i.mod, i.size) in db_props:
-                        i._img_array = Utils.read_thumb(db_filenames[i.filename][2])
-                        exist_data_items.append(i)
-                    elif ImgLoader.process_thumb(i):
-                        update_data_items.append(i)
-                elif ImgLoader.process_thumb(i):
-                    new_data_items.append(i)
+        db_items = ImgLoader._get_records(img_item)
+        db_filenames = {}
+        db_props = {}
 
-            for i in db_items:
-                if i[0] in finder_filenames:
-                    del_data_items.append(i)
+        finder_filenames = []
 
-            return
-            db_items_dict = {
-                (filename, mod, size): thumb_path
-                for thumb_path, filename, mod, size in db_items
-            }
+        rating_data_items: list[DataItem] = []
+        exist_data_items: list[DataItem] = []
+        update_data_items: list[DataItem] = []
+        new_data_items: list[DataItem] = []
+        del_data_items: list[DataItem] = []
 
-            data_items_dict = {
-                (i.filename, i.mod, i.size): i
-                for i in finder_items
-            }
-            removed_items: list[str] = []
-            new_items: list[DataItem] = []
+        for filename, mod, size, thumb_path, rating in db_items:
+            db_filenames[filename] = (mod, size, thumb_path, rating)
+            db_props[(filename, mod, size)] = thumb_path
 
-            for (filename, mod, size), thumb_path in db_items_dict.items():
-                if (filename, mod, size) in data_items_dict:
-                    data_item = data_items_dict[(filename, mod, size)]
-                    data_item._img_array = Utils.read_thumb(thumb_path)
-                    if data_item._img_array is None:
-                        rel_filepath = os.path.join(rel_parent, filename)
-                        data_item.thumb_path = Utils.create_thumb_path(
-                            rel_file_path=rel_filepath,
-                            fs_id=fs_id
-                        )
-                        new_items.append(data_item)
-                        continue
-                    queue.put(data_item)
+        for i in finder_items:
+            finder_filenames.append(i.filename)
+            if i.filename in db_filenames:
+                i.rating = db_filenames[i.filename][3]
+                rating_data_items.append(i)
+                if (i.filename, i.mod, i.size) in db_props:
+                    i._img_array = Utils.read_thumb(db_filenames[i.filename][2])
+                    exist_data_items.append(i)
                 else:
-                    removed_items.append(thumb_path)
+                    update_data_items.append(i)
+            else:
+                new_data_items.append(i)
 
-            removed_items = ImgLoader._remove_from_disk(removed_items)
-            ImgLoader._remove_records(img_item, removed_items)
+        step = 10
+        update_chunked = [
+            update_data_items[i:i+step]
+            for i in range(0, len(update_data_items), step)
+        ]
+        new_chunked = [
+            new_data_items[i:i+step]
+            for i in range(0, len(new_data_items), step)
+        ]
 
-            for (filename, mod, size), data_item in data_items_dict.items():
-                if (filename, mod, size) not in db_items_dict:
-                    img = ImgUtils.read_img(data_item.abs_path)
-                    data_item._img_array = ImgUtils.resize(
-                        image=img,
-                        size=Static.max_thumb_size
-                    )
-                    if data_item._img_array is None:
-                        print("img loader img array is none")
-                        print(data_item.abs_path)
-                        continue
-                    rel_filepath = os.path.join(rel_parent, filename)
-                    data_item._thumb_path = Utils.create_thumb_path(
-                        rel_file_path=rel_filepath,
-                        fs_id=fs_id
-                    )
-                    new_items.append(data_item)
-                    queue.put(data_item)
-            ImgLoader._write_to_disk(new_items)
-            ImgLoader._insert_records(img_item, new_items)
+        for chunk in update_chunked:
+            ok_data_items = []
+            for data_item in chunk:
+                if ImgLoader.process_thumb(data_item, img_item):
+                    ok_data_items.append(data_item)
+            ImgLoader._update_records(img_item, ok_data_items)
+
+        for chunk in new_chunked:
+            ok_data_items = []
+            for data_item in chunk:
+                if ImgLoader.process_thumb(data_item, img_item):
+                    ok_data_items.append(data_item)
+            ImgLoader._insert_records(img_item, ok_data_items)
+
+        for i in db_items:
+            if i[0] in finder_filenames:
+                try:
+                    os.remove(i[3])
+                except Exception as e:
+                    continue
+                try:
+                    os.rmdir(os.path.dirname(i[3]))
+                except OSError:
+                    pass
+                del_data_items.append(i)
 
     def process_thumb(data_item: DataItem, img_item: ImgLoaderItem):
         try:
@@ -183,34 +168,38 @@ class ImgLoader:
         Utils.write_thumb(data_item._img_array)
         return True
 
-    def _remove_from_disk(paths: list[str]):
-        result = []
-        for thumb_path in paths:
-            try:
-                os.remove(thumb_path)
-                result.append(thumb_path)
-            except Exception as e:
-                pass
-            try:
-                os.rmdir(os.path.dirname(thumb_path))
-            except OSError as e:
-                ...
-        return result
+    # def _remove_from_disk(paths: list[str]):
+    #     result = []
+    #     for thumb_path in paths:
+    #         try:
+    #             os.remove(thumb_path)
+    #             result.append(thumb_path)
+    #         except Exception as e:
+    #             pass
+    #         try:
+    #             os.rmdir(os.path.dirname(thumb_path))
+    #         except OSError as e:
+    #             ...
+    #     return result
+
+    # @staticmethod
+    # def _write_to_disk(data_items: list[DataItem]):
+    #     for i in data_items:
+    #         Utils.write_thumb(
+    #             thumb_path=i._thumb_path,
+    #             thumb_array=i._img_array
+    #         )
 
     @staticmethod
-    def _write_to_disk(data_items: list[DataItem]):
-        for i in data_items:
-            Utils.write_thumb(
-                thumb_path=i._thumb_path,
-                thumb_array=i._img_array
-            )
+    def _update_records(img_item: ImgLoaderItem, items: list[DataItem]):
+        ...
 
     @staticmethod
-    def _insert_records(img_item: ImgLoaderItem, data_items: list[DataItem]):
-        if not data_items:
+    def _insert_records(img_item: ImgLoaderItem, items: list[DataItem]):
+        if not items:
             return
         values: list[dict] = []
-        for i in data_items:
+        for i in items:
             values.append({
                 CacheTable.filename.name: i.filename,
                 CacheTable.rel_parent.name: img_item.rel_parent,
