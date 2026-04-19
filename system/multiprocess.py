@@ -75,11 +75,7 @@ class ImgLoader:
         if not os.path.exists(main_win_item.abs_current_dir):
             return
         fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
-        if main_win_item.abs_current_dir.startswith("/Users"):
-            rel_parent = main_win_item.abs_current_dir
-        else:
-            splited = main_win_item.abs_current_dir.strip(os.sep).split(os.sep)
-            rel_parent = os.sep + os.sep.join(splited[2:])
+        rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
         data_items = sorted(data_items, key=lambda x: x.size)
 
         # короче поиск ломается потому что фотки то из разных директорий
@@ -590,12 +586,7 @@ class SearchTask:
     @staticmethod
     def scan_single_dir(current_dir: str, dir_list: list, search_item: SearchItem):
         fs_id = Utils.get_fs_id(current_dir)
-        if current_dir.startswith("/Users"):
-            rel_parent = current_dir
-        else:
-            splited = current_dir.strip(os.sep).split(os.sep)
-            rel_parent = os.sep + os.sep.join(splited[2:])
-
+        rel_parent = Utils.get_rel_parent(current_dir)
         search_item.fs_id = fs_id
         search_item.rel_parent = rel_parent
 

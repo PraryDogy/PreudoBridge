@@ -16,7 +16,7 @@ from cfg import Dynamic, Static
 from system.shared_utils import ImgUtils, SharedUtils
 
 from .database import CacheTable, Dbase
-from .items import DataItem, DirItem
+from .items import DataItem, DirItem, MainWinItem
 from .utils import Utils
 
 
@@ -78,7 +78,7 @@ class RatingTask(URunnable):
     class Sigs(QObject):
         finished_ = pyqtSignal()
 
-    def __init__(self, main_dir: str, data_item: DataItem, new_rating: int):
+    def __init__(self, main_win_item: MainWinItem, data_item: DataItem, new_rating: int):
         super().__init__()
         self.data_item = data_item
         self.new_rating = new_rating

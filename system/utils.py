@@ -184,7 +184,8 @@ class Utils:
 
         return image
     
-    def get_fs_id(path: str):
+    @classmethod
+    def get_fs_id(cls, path: str):
         """
         Возвращает fs_id:
         - для smb: //Loshkarev%40mjf.lan@192.168.10.121/shares
@@ -218,3 +219,11 @@ class Utils:
             fs_id = device
 
         return fs_id
+
+    @classmethod
+    def get_rel_parent(cls, abs_path: str):
+        if abs_path.startswith("/Users"):
+            return abs_path
+        else:
+            splited = abs_path.strip(os.sep).split(os.sep)
+            return os.sep + os.sep.join(splited[2:])

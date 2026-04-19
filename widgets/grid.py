@@ -754,7 +754,11 @@ class Grid(UScrollArea):
         for wid in self.selected_thumbs:
             if wid.data_item.type_ not in ImgUtils.ext_all:
                 continue
-            self.rating_task = RatingTask(self.main_win_item.abs_current_dir, wid.data_item, rating)
+            self.rating_task = RatingTask(
+                self.main_win_item,
+                wid.data_item,
+                rating
+            )
             cmd_ = lambda d=wid.data_item: self.set_thumb_rating(d, rating)
             self.rating_task.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
