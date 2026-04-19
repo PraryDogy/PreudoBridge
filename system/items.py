@@ -76,7 +76,7 @@ class DataItem:
         self.qimages: dict[Literal["src"] | int, QImage] = {}
 
         # нужно чтоб перекинуть с мультипроцесса в основной поток 
-        self._img_array: np.ndarray
+        self._img_array: np.ndarray = None
         # для внутренней работы ImgLoader, SearchTask в multiprocess
         self._thumb_path: str
 

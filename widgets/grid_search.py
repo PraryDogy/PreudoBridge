@@ -11,7 +11,7 @@ from system.multiprocess import ProcessWorker, SearchTask
 from ._base_widgets import (NotifyWid, SmallBtn, USvgSqareWidget, UTextEdit,
                             WinMinCloseOnly)
 from .grid import Grid, Thumb
-
+from system.utils import Utils
 
 class DirsWatched:
     def set_should_run(self): ...
@@ -111,6 +111,17 @@ class GridSearch(Grid):
             thumb = Thumb(data_item)
             thumb.resize_()
             thumb.set_no_frame()
+
+            if thumb.data_item._img_array is not None:
+                thumb.data_item.qimages["src"] = Utils.qimage_from_array(
+                    image=data_item._img_array
+                )
+                for i in Static.image_sizes:
+                    thumb.data_item.qimages[i] = Utils.scaled(
+                        qimage=thumb.data_item.qimages["src"],
+                        size=i
+                    )
+                thumb.set_image()
 
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)

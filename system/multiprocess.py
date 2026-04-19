@@ -648,10 +648,11 @@ class SearchTask:
         if entry.is_dir():
             search_item.queue.put(data_item)
         elif entry.name.endswith(ImgUtils.ext_all):
-            search_item.queue.put(data_item)
-            # SearchTask.process_image(search_item, data_item)
+            SearchTask.process_image(search_item, data_item)
 
     def process_image(search_item: SearchItem, data_item: DataItem):
         props = data_item.filename, data_item.size, data_item.mod
         if props in search_item.db_items:
             path = search_item.db_items[props]
+            data_item._img_array = Utils.read_thumb(path)
+        search_item.queue.put(data_item)

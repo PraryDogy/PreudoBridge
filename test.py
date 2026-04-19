@@ -1,8 +1,12 @@
-abc = [".", ]
-test = {
-    i.lower(): i
-    for i in abc
-}
+class Foo:
+    def __init__(self):
+        super().__init__()
+        self.test: str
 
 
-print(test)
+foo = Foo()
+foo.test = None
+
+
+print(foo.test)
+
