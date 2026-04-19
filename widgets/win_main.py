@@ -325,7 +325,7 @@ class WinMain(WinBase):
     def path_finder_cmd(self, clipboard_path: str):
 
         def poll_task():
-            q = self.path_fixer_task.process_queue
+            q = self.path_fixer_task.queue
 
             if not q.empty():
                 fixer_item: PathFixerItem = q.get()

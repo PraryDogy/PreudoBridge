@@ -136,7 +136,7 @@ class GridSearch(Grid):
         
         def poll_task(missed_files: list[str]):
             self.search_timer.stop()
-            q = self.search_task.process_queue
+            q = self.search_task.queue
             data_items: list[DataItem] = []
             while not q.empty():
                 data_item, tmp_missed_files = q.get()

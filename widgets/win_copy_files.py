@@ -190,8 +190,8 @@ class WinCopyFiles(WinProgressbar):
         self.copy_timer.stop()
         finished = False
 
-        if not self.copy_task.process_queue.empty():
-            copy_item: CopyItem = self.copy_task.process_queue.get()
+        if not self.copy_task.queue.empty():
+            copy_item: CopyItem = self.copy_task.queue.get()
 
             if copy_item.msg == "error":
                 self.error_win = WinError()

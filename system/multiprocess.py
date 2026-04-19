@@ -64,8 +64,8 @@ class ProcessWorker(BaseProcessWorker):
         Передает в BaseProcessWorker args + self.proc (Queue)
     """
     def __init__(self, target: callable, args: tuple):
-        self.process_queue = Queue()
-        super().__init__(target, (*args, self.process_queue))
+        self.queue = Queue()
+        super().__init__(target, (*args, self.queue))
 
 
 class ImgLoader:
@@ -110,8 +110,8 @@ class ImgLoader:
             for (filename, mod, size), thumb_path in db_items_dict.items():
                 if (filename, mod, size) in data_items_dict:
                     data_item = data_items_dict[(filename, mod, size)]
-                    data_item.img_array = Utils.read_thumb(thumb_path)
-                    if data_item.img_array is None:
+                    data_item._img_array = Utils.read_thumb(thumb_path)
+                    if data_item._img_array is None:
                         rel_filepath = os.path.join(rel_parent, filename)
                         data_item.thumb_path = Utils.create_thumb_path(
                             path=rel_filepath,
@@ -129,16 +129,16 @@ class ImgLoader:
             for (filename, mod, size), data_item in data_items_dict.items():
                 if (filename, mod, size) not in db_items_dict:
                     img = ImgUtils.read_img(data_item.abs_path)
-                    data_item.img_array = ImgUtils.resize(
+                    data_item._img_array = ImgUtils.resize(
                         image=img,
                         size=Static.max_thumb_size
                     )
-                    if data_item.img_array is None:
+                    if data_item._img_array is None:
                         print("img loader img array is none")
                         print(data_item.abs_path)
                         continue
                     rel_filepath = os.path.join(rel_parent, filename)
-                    data_item.thumb_path = Utils.create_thumb_path(
+                    data_item._thumb_path = Utils.create_thumb_path(
                         path=rel_filepath,
                         fs_id=fs_id
                     )
@@ -165,8 +165,8 @@ class ImgLoader:
     def _write_to_disk(data_items: list[DataItem]):
         for i in data_items:
             Utils.write_thumb(
-                thumb_path=i.thumb_path,
-                thumb_array=i.img_array
+                thumb_path=i._thumb_path,
+                thumb_array=i._img_array
             )
 
     @staticmethod
@@ -179,7 +179,7 @@ class ImgLoader:
                 CacheTable.filename.name: i.filename,
                 CacheTable.rel_parent.name: img_item.rel_parent,
                 CacheTable.fs_id.name: img_item.fs_id,
-                CacheTable.thumb_path.name: i.thumb_path,
+                CacheTable.thumb_path.name: i._thumb_path,
                 CacheTable.size.name: i.size,
                 CacheTable.mod.name: i.mod,
                 CacheTable.rating.name: 0
@@ -409,14 +409,14 @@ class MultipleInfo:
 
 class CopyWorker(BaseProcessWorker):
     def __init__(self, target, args):
-        self.process_queue = Queue()
+        self.queue = Queue()
         self.gui_queue = Queue()
-        super().__init__(target, (*args, self.process_queue, self.gui_queue))
+        super().__init__(target, (*args, self.queue, self.gui_queue))
 
 
 class CopyTask:
     @staticmethod
-    def start(copy_item: CopyItem, process_queue: Queue, gui_queue: Queue):
+    def start(copy_item: CopyItem, queue: Queue, gui_queue: Queue):
 
         if copy_item.is_search or copy_item.src_dir != copy_item.dst_dir:
             src_dst_urls = CopyTask.get_another_dir_urls(copy_item)
@@ -440,7 +440,7 @@ class CopyTask:
 
             if not replace_all and dest.exists() and src.name == dest.name:
                 copy_item.msg = "need_replace"
-                process_queue.put(copy_item)
+                queue.put(copy_item)
                 while True:
                     sleep(1)
                     if not gui_queue.empty():
@@ -457,11 +457,11 @@ class CopyTask:
             try:
                 if os.path.exists(dest) and dest.is_file():
                     os.remove(dest)
-                CopyTask.copy_file_with_progress(process_queue, copy_item, src, dest)
+                CopyTask.copy_file_with_progress(queue, copy_item, src, dest)
             except Exception as e:
                 print("CopyTask copy error", e)
                 copy_item.msg = "error"
-                process_queue.put(copy_item)
+                queue.put(copy_item)
                 return
             if copy_item.is_cut and not copy_item.is_search:
                 os.remove(src)
@@ -476,7 +476,7 @@ class CopyTask:
                         print("copy task error dir remove", e)
         
         copy_item.msg = "finished"
-        process_queue.put(copy_item)
+        queue.put(copy_item)
 
     @staticmethod
     def get_another_dir_urls(copy_item: CopyItem):
@@ -523,7 +523,7 @@ class CopyTask:
         return src_dst_urls
     
     @staticmethod
-    def copy_file_with_progress(process_queue: Queue, copy_item: CopyItem, src: Path, dest: Path):
+    def copy_file_with_progress(queue: Queue, copy_item: CopyItem, src: Path, dest: Path):
         block = 4 * 1024 * 1024  # 4 MB
         with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
             while True:
@@ -532,7 +532,7 @@ class CopyTask:
                     break
                 fdst.write(buf)
                 copy_item.current_size += len(buf) // 1024
-                process_queue.put(copy_item)
+                queue.put(copy_item)
         try:
             shutil.copystat(src, dest, follow_symlinks=True)
         except OSError:
@@ -543,13 +543,13 @@ class SearchTask:
     sleep_s = 0.1
 
     @staticmethod
-    def start(search_item: SearchItem, process_queue: Queue):
+    def start(search_item: SearchItem, queue: Queue):
         search_item.engine = Dbase.create_engine()
-        search_item.process_queue = process_queue
+        search_item.queue = queue
         search_item.missed_files = search_item.search_list
         SearchTask.setup(search_item)
         SearchTask.scandir_recursive(search_item)
-        search_item.process_queue.put(search_item)
+        search_item.queue.put(search_item)
 
         # fs_id и rel_parent мы можем получать когда делаем
         # scan current dir, потому что знаем наверняка, что сейчас
@@ -633,9 +633,9 @@ class SearchTask:
         data = (data_item, search_item.missed_files)
 
         if entry.is_dir():
-            search_item.process_queue.put(data)
+            search_item.queue.put(data)
         elif entry.name.endswith(ImgUtils.ext_all):
-            search_item.process_queue.put(data)
+            search_item.queue.put(data)
 
         # sleep нужен чтобы предотвратить бомбинг
         sleep(SearchTask.sleep_s)

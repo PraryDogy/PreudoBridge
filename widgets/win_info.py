@@ -114,7 +114,7 @@ class WinInfo(WinMinCloseOnly):
     def single_img(self):
 
         def poll_task(resol_label: SelectableLabel):
-            q = self.img_res_task.process_queue
+            q = self.img_res_task.queue
             if not q.empty():
                 resol = q.get()
                 resol_label.setText(resol)
@@ -175,7 +175,7 @@ class WinInfo(WinMinCloseOnly):
     def multiple_items(self):
 
         def poll_task():
-            q = self.info_task.process_queue
+            q = self.info_task.queue
             if not q.empty():
                 info_item: MultipleInfoItem = q.get()
                 total_size = self.findChildren(SelectableLabel)[3]
@@ -219,7 +219,7 @@ class WinInfo(WinMinCloseOnly):
     def single_folder(self):
 
         def poll_task():
-            q = self.info_task.process_queue
+            q = self.info_task.queue
             if not q.empty():
                 info_item: MultipleInfoItem = q.get()
                 total_size = self.findChildren(SelectableLabel)[5]

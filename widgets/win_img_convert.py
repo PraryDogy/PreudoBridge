@@ -40,7 +40,7 @@ class WinImgConvert(WinProgressbar):
 
     def poll_task(self):
         self.jpg_timer.stop()
-        q = self.jpg_task.process_queue
+        q = self.jpg_task.queue
         finished = False
         if not q.empty():
             jpg_item: JpgConvertItem = q.get()

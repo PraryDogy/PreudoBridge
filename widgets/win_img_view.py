@@ -333,7 +333,7 @@ class WinImgView(WinBase):
             self.restart_img_wid(QPixmap.fromImage(qimage))
 
         def poll_task():
-            q = self.read_img_task.process_queue
+            q = self.read_img_task.queue
             if not q.empty():
                 src, img_array = q.get()
                 if img_array is None:

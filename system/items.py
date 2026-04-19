@@ -65,10 +65,6 @@ class DataItem:
         self.type_: str
         self.mod: int
         self.size: int
-        # нужно чтоб перекинуть с мультипроцесса в основной поток 
-        self.img_array: np.ndarray
-        # для внутренней работы ImgLoader в multiprocess
-        self.thumb_path: str
 
         # в процессе работы и gui
         self.image_is_loaded: bool = False
@@ -78,6 +74,11 @@ class DataItem:
         # словарь заполняется на основе Static.image_sizes
         # так же дополняется ключом "src" с исходным qimage
         self.qimages: dict[Literal["src"] | int, QImage] = {}
+
+        # нужно чтоб перекинуть с мультипроцесса в основной поток 
+        self._img_array: np.ndarray
+        # для внутренней работы ImgLoader, SearchTask в multiprocess
+        self._thumb_path: str
 
     def set_properties(self):
         self.abs_path = self.abs_path.rstrip(os.sep)
@@ -244,18 +245,18 @@ class SearchItem:
         super().__init__()
 
         # изначальный список для поиска
-        self.search_list: list[str]
+        self.search_list: list[str] = []
 
         # список для поиска в нижнем регистре для универсальности
-        self.search_list_low: list[str]
+        self.search_list_low: list[str] = []
 
         # по мере поиска файлов, если файл найден, то он удаляется из
         # missed files, и в конце поиска в missed files останутся только
         # ненайденные файлы
-        self.missed_files: list[str]
+        self.missed_files: list[str] = []
 
         self.root_dir: str
-        self.process_queue: Queue
+        self.queue: Queue
 
         self.fs_id: str
         self.rel_parent: str

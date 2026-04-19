@@ -356,7 +356,7 @@ class Grid(UScrollArea):
             else:
                 ms = fast_ms
             self.dir_watcher_timer.stop()
-            q = self.dir_watcher_task.process_queue
+            q = self.dir_watcher_task.queue
             events: list[FileSystemEvent] = []
             while not q.empty():
                 events.append(q.get())
@@ -450,7 +450,7 @@ class Grid(UScrollArea):
             # thumb.data_item.rating = data_item.rating
             thumb.set_blue_text()
             qimages = {}
-            qimages["src"] = Utils.qimage_from_array(data_item.img_array)
+            qimages["src"] = Utils.qimage_from_array(data_item._img_array)
             for size in Static.image_sizes:
                 resized = Utils.scaled(qimages["src"], size)
                 qimages[size] = resized
@@ -459,7 +459,7 @@ class Grid(UScrollArea):
 
         def poll_task(img_task: ProcessWorker, img_timer: QTimer):
             img_timer.stop()
-            q = img_task.process_queue
+            q = img_task.queue
             while not q.empty():
                 data_item: DataItem = q.get()
                 try:
