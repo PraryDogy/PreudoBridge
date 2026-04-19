@@ -75,6 +75,16 @@ class ImgLoader:
         if not os.path.exists(main_win_item.abs_current_dir):
             return
         
+
+        # сюда ты посылаешь только изображения в зоне видимости
+        # а сравниваешь их с полноценной базой данных
+
+        # когда мы можем удалять записи
+        # в finder task ты загружаешь полный список файлов
+        # там и сравнивай finder и базу данных
+        # удаляй чего нет в finder
+        # и соответственно тут все будет ок
+        
         engine = Dbase.create_engine()
         fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
         rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
@@ -217,10 +227,8 @@ class ImgLoader:
             .where(CacheTable.rel_parent==img_item.rel_parent)
             .where(CacheTable.thumb_path.in_(paths))
         )
-        try:
-            img_item.conn.execute(stmt)
-        except OperationalError:
-            ...
+        with img_item.engine.begin() as conn:
+            conn.execute(stmt)
 
 
 class ReadImg:

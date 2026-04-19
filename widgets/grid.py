@@ -187,7 +187,6 @@ class Thumb(QFrame):
         qimage = self.data_item.qimages[Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
-        self.data_item.image_is_loaded = True
 
     def set_blue_text(self):
         self.blue_text_wid.set_text(self.data_item)
@@ -434,6 +433,7 @@ class Grid(UScrollArea):
                 qimages[size] = resized
                 thumb.data_item.qimages = qimages
             thumb.set_image()
+            thumb.data_item.image_is_loaded = True
 
         def poll_task(img_task: ProcessWorker, img_timer: QTimer):
             img_timer.stop()
