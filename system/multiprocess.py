@@ -111,7 +111,7 @@ class ImgLoader:
                     if data_item._img_array is None:
                         rel_filepath = os.path.join(rel_parent, filename)
                         data_item.thumb_path = Utils.create_thumb_path(
-                            path=rel_filepath,
+                            rel_file_path=rel_filepath,
                             fs_id=fs_id
                         )
                         new_items.append(data_item)
@@ -136,7 +136,7 @@ class ImgLoader:
                         continue
                     rel_filepath = os.path.join(rel_parent, filename)
                     data_item._thumb_path = Utils.create_thumb_path(
-                        path=rel_filepath,
+                        rel_file_path=rel_filepath,
                         fs_id=fs_id
                     )
                     new_items.append(data_item)
@@ -638,4 +638,21 @@ class SearchTask:
         if props in search_item.db_items:
             path = search_item.db_items[props]
             data_item._img_array = Utils.read_thumb(path)
+        else:
+            img_array = ImgUtils.read_img(data_item.abs_path)
+            data_item._img_array = ImgUtils.resize(
+                image=img_array,
+                size=Static.max_thumb_size
+            )
+            rel_filepath = os.path.join(
+                search_item.rel_parent,
+                data_item.filename
+            )
+            data_item._thumb_path = Utils.create_thumb_path(
+                rel_file_path=rel_filepath,
+                fs_id=search_item.fs_id
+
+            )
+            print(data_item._thumb_path)
+            # кинуть в new_items
         search_item.queue.put(data_item)

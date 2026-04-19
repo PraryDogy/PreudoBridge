@@ -159,7 +159,7 @@ class GridSearch(Grid):
             if data_items:
                 for i in data_items:
                     create_thumb(i)
-                self.rearrange_thumbs()
+                # self.rearrange_thumbs()
             if not self.search_task.is_alive() and self.search_task.queue.empty():
                 self.search_task.terminate_join()
             else:

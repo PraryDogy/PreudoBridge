@@ -259,9 +259,11 @@ class SearchItem:
         # SINGLE DIR
         # эти данные нужны когда поиск сканирует директорию
         # данные динамически обновляются для новой директории
+        # смотри system multiprocess SearchTask
         self.fs_id: str
         self.rel_parent: str
         self.db_items: dict
+        # self.new_items
 
 
 class CopyItem:
