@@ -71,12 +71,12 @@ class ProcessWorker(BaseProcessWorker):
 class ImgLoader:
 
     @staticmethod
-    def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
+    def start(finder_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
         if not os.path.exists(main_win_item.abs_current_dir):
             return
         fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
         rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
-        data_items = sorted(data_items, key=lambda x: x.size)
+        finder_items = sorted(finder_items, key=lambda x: x.size)
 
         # короче поиск ломается потому что фотки то из разных директорий
         # типа папка папка/подпапка
@@ -87,14 +87,67 @@ class ImgLoader:
 
         with Dbase.create_engine().begin() as conn:
             img_item = ImgLoaderItem(conn, fs_id, rel_parent)
-            res = ImgLoader._get_records(img_item)
+            db_items = ImgLoader._get_records(img_item)
+
+            rating_data_items = []
+            exist_data_items = []
+            update_data_items = []
+            new_data_items = []
+            del_data_items = []
+
+            finder_filenames = [i.filename for i in finder_items]
+            db_filenames = {}
+            db_props = {}
+
+            for filename, mod, size, thumb_path, rating in db_items:
+                db_filenames[filename] = (mod, size, thumb_path, rating)
+                db_props[(filename, mod, size)] = thumb_path
+
+            for i in finder_items:
+                if i.filename in db_filenames:
+                    i.rating = db_filenames[i.filename][3]
+                    rating_data_items.append(i)
+                    if (i.filename, i.mod, i.size) in db_props:
+                        i._img_array = Utils.read_thumb(
+                            thumb_path=db_filenames[i.filename][2]
+                        )
+                        exist_data_items.append(i)
+                    else:
+                        img = ImgUtils.read_img(i.abs_path)
+                        i._img_array = ImgUtils.resize(img, Static.max_thumb_size)
+                        stats = os.stat(i.abs_path)
+                        i.mod = int(stats.st_mtime)
+                        i.size = int(stats.st_size)
+                        Utils.write_thumb(i._img_array)
+                        update_data_items.append(i)
+                else:
+                    img = ImgUtils.read_img(i.abs_path)
+                    i._img_array = ImgUtils.resize(img, Static.max_thumb_size)
+                    stats = os.stat(i.abs_path)
+                    i.mod = int(stats.st_mtime)
+                    i.size = int(stats.st_size)
+                    Utils.write_thumb(i._img_array)
+                    new_data_items.append(i)
+
+            for i in db_items:
+                if i[0] in finder_filenames:
+                    del_data_items.append(i)
+
+            return
+
+
+
             db_items_dict = {
                 (filename, mod, size): thumb_path
-                for thumb_path, filename, mod, size in res
+                for thumb_path, filename, mod, size in db_items
             }
+
+
+
+
             data_items_dict = {
                 (i.filename, i.mod, i.size): i
-                for i in data_items
+                for i in finder_items
             }
 
             removed_items: list[str] = []
@@ -207,11 +260,15 @@ class ImgLoader:
 
     @staticmethod
     def _get_records(img_item: ImgLoaderItem):
+        """
+        filename, mod, size, thumb path, rating
+        """
         clmns = (
-            CacheTable.thumb_path,
             CacheTable.filename,
             CacheTable.mod,
-            CacheTable.size
+            CacheTable.size,
+            CacheTable.thumb_path,
+            CacheTable.rating
         )
         stmt = (
             sqlalchemy.select(*clmns)
