@@ -254,10 +254,14 @@ class SearchItem:
 
         self.root_dir: str
         self.queue: Queue
+        self.engine: sqlalchemy.Engine
 
+        # SINGLE DIR
+        # эти данные нужны когда поиск сканирует директорию
+        # данные динамически обновляются для новой директории
         self.fs_id: str
         self.rel_parent: str
-        self.engine: sqlalchemy.Engine
+        self.db_items: dict
 
 
 class CopyItem:

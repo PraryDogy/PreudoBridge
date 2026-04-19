@@ -82,15 +82,12 @@ class ImgLoader:
             rel_parent = os.sep + os.sep.join(splited[2:])
         data_items = sorted(data_items, key=lambda x: x.size)
 
-
-
         # короче поиск ломается потому что фотки то из разных директорий
         # типа папка папка/подпапка
         # а ты им всем присваиваешь rel parent изначальное из mainwin_item
         # этот метод загрузки изображений не подходит, потому что тут могут
         # быть thumbnails сразу из нескольких директорий во время поиска
         # так как thumbnails берутся по зоне видимости а не по директориям
-
 
         with Dbase.create_engine().begin() as conn:
             img_item = ImgLoaderItem(conn, fs_id, rel_parent)
@@ -568,7 +565,6 @@ class SearchTask:
     def process_entry(entry: os.DirEntry[str], search_item: SearchItem):
         for low in search_item.search_list:
             if low in entry.name.lower():
-                search_item.missed_files.pop(low)
                 return True
         return False
     
@@ -618,14 +614,20 @@ class SearchTask:
 
         with search_item.engine.connect() as conn:
             clmns = (
-
+                CacheTable.thumb_path,
+                CacheTable.filename,
+                CacheTable.size,
+                CacheTable.mod
             )
             stmt = (
                 sqlalchemy.select(*clmns)
                 .where(CacheTable.fs_id==fs_id)
                 .where(CacheTable.rel_parent==rel_parent)
             )
-            res = conn.execute(stmt).fetchall()
+            search_item.db_items = {
+                (filename, size, mod): thumb_path
+                for thumb_path, filename, size, mod in conn.execute(stmt)
+            }
 
         for entry in os.scandir(current_dir):
             if entry.name.startswith(Static.hidden_symbols):
@@ -634,19 +636,27 @@ class SearchTask:
                 dir_list.append(entry.path)
             if SearchTask.process_entry(entry, search_item):
                 SearchTask.process_data_item(entry, search_item)
+                if entry.name.lower() in search_item.missed_files:
+                    ...
+
+
+
+                    # search_item.missed_files.pop(entry.name.lower())
                 # sleep нужен чтобы предотвратить бомбинг
                 sleep(SearchTask.sleep_s)
 
     @staticmethod
-    def process_data_item(entry: os.DirEntry, search_item: SearchItem):
+    def process_data_item(entry: os.DirEntry[str], search_item: SearchItem):
         data_item = DataItem(entry.path)
         data_item.set_properties()
-        data = (data_item, search_item.missed_files)
         if entry.is_dir():
-            search_item.queue.put(data)
+            search_item.queue.put(data_item)
         elif entry.name.endswith(ImgUtils.ext_all):
-            search_item.queue.put(data)
+            search_item.queue.put(data_item)
+            # SearchTask.process_image(search_item, data_item)
 
 
     def process_image(search_item: SearchItem, data_item: DataItem):
-        ...
+        props = data_item.filename, data_item.size, data_item.mod
+        if props in search_item.db_items:
+            path = search_item.db_items[props]

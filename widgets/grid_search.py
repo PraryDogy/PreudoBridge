@@ -137,19 +137,18 @@ class GridSearch(Grid):
         
         def poll_task(previous_missed_files: dict[str, str]):
             self.search_timer.stop()
-            q = self.search_task.queue
             data_items: list[DataItem] = []
-            while not q.empty():
-                data_item, actual_missed_files = q.get()
-                previous_missed_files.clear()
-                previous_missed_files.update(actual_missed_files)
+            while not self.search_task.queue.empty():
+                data_item: DataItem = self.search_task.queue.get()
+                # previous_missed_files.clear()
+                # previous_missed_files.update(actual_missed_files)
                 data_items.append(data_item)
             if data_items:
                 for i in data_items:
                     create_thumb(i)
                 self.rearrange_thumbs()
-            if not self.search_task.is_alive() and q.empty():
-                fin(previous_missed_files)
+            if not self.search_task.is_alive() and self.search_task.queue.empty():
+                # fin(previous_missed_files)
                 self.search_task.terminate_join()
             else:
                 self.search_timer.start(self.search_timer_ms)

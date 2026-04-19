@@ -1,4 +1,8 @@
-import os
+abc = [".", ]
+test = {
+    i.lower(): i
+    for i in abc
+}
 
 
-print(os.path.expanduser(os.sep))
+print(test)
