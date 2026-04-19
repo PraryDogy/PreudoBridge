@@ -100,6 +100,11 @@ class ImgLoader:
             removed_items: list[str] = []
             new_items: list[DataItem] = []
 
+            # нужно распределить insert update delete
+            # рейнтинг
+
+
+
             for (filename, mod, size), thumb_path in db_items_dict.items():
                 if (filename, mod, size) in data_items_dict:
                     data_item = data_items_dict[(filename, mod, size)]
