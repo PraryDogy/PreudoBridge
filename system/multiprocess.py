@@ -71,19 +71,14 @@ class ProcessWorker(BaseProcessWorker):
 class ImgLoader:
 
     @staticmethod
-    def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
+    def start(
+        data_items: list[DataItem],
+        main_win_item: MainWinItem,
+        queue: Queue
+    ):
+
         if not os.path.exists(main_win_item.abs_current_dir):
             return
-        
-
-        # сюда ты посылаешь только изображения в зоне видимости
-        # а сравниваешь их с полноценной базой данных
-
-        # когда мы можем удалять записи
-        # в finder task ты загружаешь полный список файлов
-        # там и сравнивай finder и базу данных
-        # удаляй чего нет в finder
-        # и соответственно тут все будет ок
         
         engine = Dbase.create_engine()
         fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
@@ -103,62 +98,40 @@ class ImgLoader:
             for data_item in data_items
         }
 
-        removed_items: list[str] = []
         new_items: list[DataItem] = []
 
-        # проверяем есть ли айтемы базы данных в Finder
         for data, thumb_path in db_items_dict.items():
-            # если файл базы данных есть в finder
-            # значит изображение не менялось и мы загружаем миниатюру
             if data in finder_items_dict:
                 data_item = finder_items_dict[data]
                 data_item._img_array = Utils.read_thumb(thumb_path)
-                # если чтение существующей миниатюры прошло неудачно
-                # добавляем ее в раздел новые, чтобы попытаться
-                # открыть ее заново
                 if data_item._img_array is None:
-                    rel_filepath = os.path.join(rel_parent, filename)
-                    data_item.thumb_path = Utils.create_thumb_path(
-                        rel_file_path=rel_filepath,
-                        fs_id=fs_id
-                    )
                     new_items.append(data_item)
-                    continue
-                # чтение прошло удачно и передаем это в gui
                 else:
                     queue.put(data_item)
 
-        # проверяем есть ли айтемы из Finder в базе данных
         for (filename, mod, size), data_item in finder_items_dict.items():
-            # изображения нет в базе данных, создаем миниатюру
             if (filename, mod, size) not in db_items_dict:
-                img = ImgUtils.read_img(data_item.abs_path)
-                data_item._img_array = ImgUtils.resize(
-                    image=img,
-                    size=Static.max_thumb_size
-                )
-                # чтение прошло неудачно, игнорируем
-                if data_item._img_array is None:
-                    print("img loader img array is none")
-                    print(data_item.abs_path)
-                    continue
-                # чтение прошло удачно
-                # отправляем айтем в new_items для последующего добавления
-                # в базу данных
-                # и отправляем сигнал в gui для отображения миниатюры
-                else:
-                    rel_filepath = os.path.join(rel_parent, filename)
-                    data_item._thumb_path = Utils.create_thumb_path(
-                        rel_file_path=rel_filepath,
-                        fs_id=fs_id
-                    )
-                    Utils.write_thumb(
-                        thumb_path=data_item._thumb_path,
-                        thumb_array=data_item._img_array
-                    )
-                    new_items.append(data_item)
-                    queue.put(data_item)
-        ImgLoader._insert_records(img_item, new_items)
+                new_items.append(data_item)
+
+        if new_items:
+            ImgLoader.process_items(img_item, new_items)
+
+    @staticmethod
+    def process_items(img_item: ImgLoaderItem, data_items: list[DataItem]):
+        step = 10
+        chunks = [
+            data_items[i:i+step]
+            for i in range(0, len(data_items), step)
+        ]
+        for chunk in chunks:
+            ok_data_items = []
+            for data_item in chunk:
+                ...
+                # читаем изображение и пишем миниатюру на диск
+                # отправляем в gui .put
+                # добавляем в ok data items
+                # не забудь что тебе нужен thumb path
+            ImgLoader._insert_records()
 
     @staticmethod
     def _insert_records(img_item: ImgLoaderItem, data_items: list[DataItem]):
