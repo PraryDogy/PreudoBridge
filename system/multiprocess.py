@@ -617,7 +617,7 @@ class SearchTask:
                     image=img_array,
                     size=Static.max_thumb_size
                 )
-                Utils.write_thumb(data_item._thumb_path)
+                Utils.write_thumb(data_item._thumb_path, data_item._img_array)
                 search_item.new_items.append(data_item)
             search_item.queue.put(data_item)
 
@@ -635,5 +635,5 @@ class SearchTask:
                 CacheTable.mod.name: i.mod
             })
         with search_item.engine.begin() as conn:
-            stmt = sqlalchemy.insert(CacheTable)
+            stmt = sqlalchemy.insert(CacheTable.table)
             conn.execute(stmt, values)

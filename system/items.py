@@ -260,7 +260,7 @@ class SearchItem:
         self.fs_id: str
         self.rel_parent: str
         self.db_items: dict
-        self.new_items: list[DataItem]
+        self.new_items: list[DataItem] = []
 
 
 class CopyItem:
