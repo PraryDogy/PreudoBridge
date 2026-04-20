@@ -144,7 +144,8 @@ class MainWinItem:
         self.go_to: str
         self.abs_current_dir: str
         self.view_mode: int 
-        self.fs_id: dict[Literal["mount_point", "fs_id"], str]
+        self.fs_id: str
+        self.rel_parent: str
 
     def set_view_mode(self, value: int):
         self.view_mode = value
@@ -156,8 +157,9 @@ class MainWinItem:
         return self.view_mode
     
     def set_current_dir(self, path: str):
-        if not path.startswith("/Volumes"):
-            ...
+        self.abs_current_dir = path
+        self.fs_id = Utils.get_fs_id(path)
+        self.rel_parent = Utils.get_rel_parent(path)
 
 
 class ClipboardItem:

@@ -232,7 +232,7 @@ class TableView(QTableView):
 
                 self.open_img_view(start_url, url_to_wid, is_selection)
             elif os.path.isdir(urls[0]):
-                self.main_win_item.abs_current_dir = urls[0]
+                self.main_win_item.set_current_dir(urls[0])
                 self.new_history_item.emit(urls[0])
                 self.load_st_grid.emit()
             else:

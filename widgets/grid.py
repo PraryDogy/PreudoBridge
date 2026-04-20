@@ -579,7 +579,7 @@ class Grid(UScrollArea):
                 self.open_img_view(wid.data_item.abs_path, url_to_wid, is_selection)
             elif wid.data_item.type_ == Static.folder_type:
                 self.new_history_item.emit(wid.data_item.abs_path)
-                self.main_win_item.abs_current_dir = wid.data_item.abs_path
+                self.main_win_item.set_current_dir(wid.data_item.abs_path)
                 self.load_st_grid.emit()
             else:
                 Utils.open_in_def_app(wid.data_item.abs_path)

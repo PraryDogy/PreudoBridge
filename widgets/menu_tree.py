@@ -44,7 +44,7 @@ class MenuTree(QTreeView):
         if path != self.main_win_item.abs_current_dir:
             self.setCurrentIndex(index)
             self.new_history_item.emit(path)
-            self.main_win_item.abs_current_dir = path
+            self.main_win_item.set_current_dir(path)
             self.load_st_grid_sig.emit()
         # self.expand(index)
 

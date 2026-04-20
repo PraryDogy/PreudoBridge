@@ -164,7 +164,7 @@ class PathItem(QWidget):
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
             if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.abs_current_dir:
-                self.main_win_item.abs_current_dir = self.item_dir
+                self.main_win_item.set_current_dir(self.item_dir)
                 self.new_history_item.emit(self.item_dir)
                 self.load_st_grid.emit()
         return super().mouseReleaseEvent(a0)

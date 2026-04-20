@@ -46,7 +46,7 @@ class FavItem(QLabel):
 
     def view_fav(self):
         self.new_history_item.emit(self.src)
-        self.main_win_item.abs_current_dir = self.src
+        self.main_win_item.set_current_dir(self.src)
         self.load_st_grid.emit()
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:

@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QLabel
 from cfg import Dynamic, JsonData, Static
 from system.items import DataItem, DirItem, MainWinItem
 from system.tasks import DirScaner, UThreadPool
+from system.utils import Utils
 
 from .grid import Grid, NoItemsLabel, Thumb
 
@@ -79,7 +80,7 @@ class GridStandart(Grid):
             return
 
         if dir_item.fixed_path:
-            self.main_win_item.abs_current_dir = dir_item.fixed_path
+            self.main_win_item.set_current_dir(dir_item.fixed_path)
         Thumb.calc_size()
 
         self.path_bar_update.emit(self.main_win_item.abs_current_dir)
