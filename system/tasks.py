@@ -239,8 +239,6 @@ class AnyTaskLoader(URunnable):
 
 
 class DirScaner(URunnable):
-    folder_icon = os.path.join(Static.internal_images_dir, "folder.png")
-    image_icon = os.path.join(Static.internal_images_dir, "image.png")
 
     class Sigs(QObject):
         finished_ = pyqtSignal(DirItem)
@@ -254,6 +252,7 @@ class DirScaner(URunnable):
         try:
             self.task_()
         except Exception as e:
+            print(traceback.format_exc())
             self.sigs.finished_.emit(self.dir_item)
 
     def task_(self):
@@ -271,7 +270,69 @@ class DirScaner(URunnable):
             data_items=self.dir_item.data_items,
             sort_item=self.dir_item._sort_item
         )
+
+        self.remove_items()
         self.sigs.finished_.emit(self.dir_item)
+
+
+    def remove_items(self):
+        finder_items = {
+            (i.filename, i.mod, i.size): i
+            for i in self.dir_item.data_items
+        }
+        fs_id = Utils.get_fs_id(
+            abs_path=self.dir_item._main_win_item.abs_current_dir
+        )
+        rel_parent = Utils.get_rel_parent(
+            abs_path=self.dir_item._main_win_item.abs_current_dir
+        )
+        with Dbase.main_engine.connect() as conn:
+            clmns = (
+                CacheTable.filename,
+                CacheTable.mod,
+                CacheTable.size,
+                CacheTable.thumb_path
+            )
+            stmt = (
+                sqlalchemy.select(*clmns)
+                .where(CacheTable.rel_parent==rel_parent)
+                .where(CacheTable.fs_id==fs_id)
+            )
+            db_items = {
+                (filename, mod, size): thumb_path
+                for filename, mod, size, thumb_path in conn.execute(stmt)
+            }
+
+        thumb_paths = set()
+        for i in db_items:
+            if i not in finder_items:
+                thumb_paths.add(db_items[i])
+
+        ok_thumb_paths = set()
+        for i in thumb_paths:
+            try:
+                os.remove(i)
+                ok_thumb_paths.add(i)
+            except Exception as e:
+                print("system > tasks > DirScaner > remove thumb error", e)
+                continue
+            try:
+                os.rmdir(os.path.dirname(i))
+            except OSError:
+                pass
+        
+        if not ok_thumb_paths:
+            return
+
+        with Dbase.main_engine.begin() as conn:
+            stmt = (
+                sqlalchemy.delete(CacheTable.table)
+                .where(CacheTable.fs_id==fs_id)
+                .where(CacheTable.rel_parent==rel_parent)
+                .where(CacheTable.thumb_path.in_(ok_thumb_paths))
+            )
+            conn.execute(stmt)
+
 
     def terminate_join(self):
         """
