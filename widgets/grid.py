@@ -399,8 +399,11 @@ class Grid(UScrollArea):
         visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
             stmt = (
+                # если у виджета уже есть изображения
                 thumb.data_item.qimages,
-                thumb.data_item.type_ not in ImgUtils.ext_all,
+                # если виджет это папка
+                thumb.data_item.type_ == Static.folder_type,
+                # если виджет в загруженных
                 thumb in self.loaded_thumbs
             )
             if any(stmt):
@@ -437,15 +440,13 @@ class Grid(UScrollArea):
 
         def poll_task(img_task: ProcessWorker, img_timer: QTimer):
             img_timer.stop()
-            q = img_task.queue
-            while not q.empty():
-                data_item: DataItem = q.get()
+            while not img_task.queue.empty():
+                data_item: DataItem = img_task.queue.get()
                 try:
                     update_thumb(data_item)
                 except RuntimeError:
                     pass
-
-            if not img_task.is_alive() and q.empty():
+            if not img_task.is_alive() and img_task.queue.empty():
                 img_task.terminate_join()
             else:
                 img_timer.start(self.img_timer_ms)
@@ -461,6 +462,8 @@ class Grid(UScrollArea):
         self.proc_timer_dict[img_task] = img_timer
         img_task.start()
         img_timer.start(self.img_timer_ms)
+
+        print(len(thumbs))
 
     def reload_rubber(self):
         self.rubberBand.deleteLater()
