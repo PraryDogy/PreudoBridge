@@ -1,9 +1,4 @@
-abc = [i for i in range(0, 59)]
-step = 10
-test = [
-    abc[i:i+step]
-    for i in range(0, len(abc), step)
-]
+a = 21
 
-for i in test:
-    print(i)
+if a % 10 == 0:
+    print(1)
