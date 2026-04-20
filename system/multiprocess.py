@@ -588,8 +588,8 @@ class SearchTask:
             if x == step:
                 SearchTask.insert_records(search_item, search_item.new_items)
                 search_item.new_items.clear()
-            SearchTask.insert_records(search_item, search_item.new_items)
-            search_item.new_items.clear()
+        SearchTask.insert_records(search_item, search_item.new_items)
+        search_item.new_items.clear()
 
     @staticmethod
     def process_data_item(entry: os.DirEntry[str], search_item: SearchItem):
