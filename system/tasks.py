@@ -320,8 +320,8 @@ class DirScaner(URunnable):
         with Dbase.main_engine.begin() as conn:
             stmt = (
                 sqlalchemy.delete(CacheTable.table)
-                .where(CacheTable.fs_id==fs_id)
-                .where(CacheTable.rel_parent==rel_parent)
+                .where(CacheTable.fs_id==self.dir_item._main_win_item.fs_id)
+                .where(CacheTable.rel_parent==self.dir_item._main_win_item.rel_parent)
                 .where(CacheTable.thumb_path.in_(ok_thumb_paths))
             )
             conn.execute(stmt)
