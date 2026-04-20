@@ -274,7 +274,6 @@ class DirScaner(URunnable):
         self.remove_items()
         self.sigs.finished_.emit(self.dir_item)
 
-
     def remove_items(self):
         finder_items = {
             (i.filename, i.mod, i.size): i
