@@ -121,8 +121,8 @@ class TableView(QTableView):
 
         self._model = MyFileSystemModel()
         self._model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot)
-        if JsonData.show_hidden:
-            self._model.setFilter(self._model.filter() | QDir.Hidden)
+        # if JsonData.show_hidden:
+            # self._model.setFilter(self._model.filter() | QDir.Hidden)
 
         if main_win_item.abs_current_dir is not None:
             self.setModel(self._model)
