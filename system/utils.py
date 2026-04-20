@@ -87,7 +87,7 @@ class Utils:
         return qimage
     
     @classmethod
-    def create_thumb_path(cls, rel_file_path: str, fs_id: str):
+    def create_thumb_path(cls, filename: str, mod: int, rel_parent, fs_id: str):
         """
         Создает hash на основе fs_id + rel_filepath, то есть создает 
         уникальный идентификатор для файла на основе uuid/ip диска
@@ -98,7 +98,7 @@ class Utils:
         - относительный путь /images/img.jpg
         - fs_id: smb://192.168.1.1 или uuid (system > utils > get_fs_id)
         """
-        string = fs_id + rel_file_path
+        string = f"{filename}{mod}{rel_parent}{fs_id}"
         hash = hashlib.md5(string.encode('utf-8')).hexdigest() + ".jpg"
         new_folder = os.path.join(Static.external_thumbs_dir, hash[:2])
         os.makedirs(new_folder, exist_ok=True)

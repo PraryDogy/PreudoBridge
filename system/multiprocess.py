@@ -128,13 +128,11 @@ class ImgLoader:
         ]
         for chunk in chunks:
             for data_item in chunk:
-                _rel_filepath = os.path.join(
-                    img_item.rel_parent,
-                    data_item.filename
-                )
                 _img = ImgUtils.read_img(data_item.abs_path)
                 data_item._thumb_path = Utils.create_thumb_path(
-                    rel_file_path=_rel_filepath,
+                    filename=data_item.filename,
+                    mod=data_item.mod,
+                    rel_parent=img_item.rel_parent,
                     fs_id=img_item.fs_id
                 )
                 data_item._img_array = ImgUtils.resize(
@@ -607,12 +605,10 @@ class SearchTask:
                 data_item._img_array = Utils.read_thumb(path)
             else:
                 img_array = ImgUtils.read_img(data_item.abs_path)
-                rel_filepath = os.path.join(
-                    search_item.rel_parent,
-                    data_item.filename
-                )
                 data_item._thumb_path = Utils.create_thumb_path(
-                    rel_file_path=rel_filepath,
+                    filename=data_item.filename,
+                    mod=data_item.mod,
+                    rel_parent=search_item.rel_parent,
                     fs_id=search_item.fs_id
 
                 )
