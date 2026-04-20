@@ -338,12 +338,12 @@ class Grid(UScrollArea):
             events: list[FileSystemEvent] = []
             while not q.empty():
                 events.append(q.get())
-            for i in events:
-                QTimer.singleShot(0, lambda event=i: self.apply_changes(event))
-            self.dir_watcher_timer.start(ms)
             if events:
+                for i in events:
+                    QTimer.singleShot(0, lambda ev=i: self.apply_changes(ev))
                 QTimer.singleShot(0, self.sort_thumbs)
                 QTimer.singleShot(0, self.rearrange_thumbs)
+            self.dir_watcher_timer.start(ms)
 
 
         self.dir_watcher_task = ProcessWorker(
