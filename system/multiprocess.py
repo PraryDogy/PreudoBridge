@@ -127,14 +127,6 @@ class ImgLoader:
                 # чтение прошло удачно и передаем это в gui
                 else:
                     queue.put(data_item)
-            # файла базы данных нет в finder
-            # значит изображение было модифицировано или удалено
-            else:
-                removed_items.append(thumb_path)
-
-        # удаляем лишнее с диска и из базы данных
-        removed_items = ImgLoader._remove_from_disk(removed_items)
-        ImgLoader._remove_records(img_item, removed_items)
 
         # проверяем есть ли айтемы из Finder в базе данных
         for (filename, mod, size), data_item in finder_items_dict.items():
@@ -167,20 +159,6 @@ class ImgLoader:
                     new_items.append(data_item)
                     queue.put(data_item)
         ImgLoader._insert_records(img_item, new_items)
-
-    def _remove_from_disk(paths: list[str]):
-        result = []
-        for thumb_path in paths:
-            try:
-                os.remove(thumb_path)
-                result.append(thumb_path)
-            except Exception as e:
-                pass
-            try:
-                os.rmdir(os.path.dirname(thumb_path))
-            except OSError as e:
-                ...
-        return result
 
     @staticmethod
     def _insert_records(img_item: ImgLoaderItem, data_items: list[DataItem]):
@@ -218,18 +196,6 @@ class ImgLoader:
         with img_item.engine.connect() as conn:
             return conn.execute(stmt)
     
-    def _remove_records(img_item: ImgLoaderItem, paths: list[str]):
-        if not paths:
-            return
-        stmt = (
-            sqlalchemy.delete(CacheTable.table)
-            .where(CacheTable.fs_id==img_item.fs_id)
-            .where(CacheTable.rel_parent==img_item.rel_parent)
-            .where(CacheTable.thumb_path.in_(paths))
-        )
-        with img_item.engine.begin() as conn:
-            conn.execute(stmt)
-
 
 class ReadImg:
     @staticmethod
