@@ -81,9 +81,12 @@ class ImgLoader:
             return
         
         engine = Dbase.create_engine()
-        fs_id = Utils.get_fs_id(main_win_item.abs_current_dir)
-        rel_parent = Utils.get_rel_parent(main_win_item.abs_current_dir)
-        img_item = ImgLoaderItem(engine, queue, fs_id, rel_parent)
+        img_item = ImgLoaderItem(
+            engine=engine,
+            queue=queue,
+            fs_id=main_win_item.fs_id,
+            rel_parent=main_win_item.rel_parent
+        )
         
         data_items = sorted(data_items, key=lambda x: x.size)
 

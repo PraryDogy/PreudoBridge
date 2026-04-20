@@ -279,12 +279,6 @@ class DirScaner(URunnable):
             (i.filename, i.mod, i.size): i
             for i in self.dir_item.data_items
         }
-        fs_id = Utils.get_fs_id(
-            abs_path=self.dir_item._main_win_item.abs_current_dir
-        )
-        rel_parent = Utils.get_rel_parent(
-            abs_path=self.dir_item._main_win_item.abs_current_dir
-        )
         with Dbase.main_engine.connect() as conn:
             clmns = (
                 CacheTable.filename,
@@ -294,8 +288,8 @@ class DirScaner(URunnable):
             )
             stmt = (
                 sqlalchemy.select(*clmns)
-                .where(CacheTable.rel_parent==rel_parent)
-                .where(CacheTable.fs_id==fs_id)
+                .where(CacheTable.rel_parent==self.dir_item._main_win_item.rel_parent)
+                .where(CacheTable.fs_id==self.dir_item._main_win_item.fs_id)
             )
             db_items = {
                 (filename, mod, size): thumb_path
