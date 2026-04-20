@@ -89,14 +89,10 @@ class Utils:
     @classmethod
     def create_thumb_path(cls, filename: str, mod: int, rel_parent, fs_id: str):
         """
-        Создает hash на основе fs_id + rel_filepath, то есть создает 
-        уникальный идентификатор для файла на основе uuid/ip диска
-        и относительного пути к файлу (без точки монтирования).
+        Создает hash:
+        имя файла + дата модицикации + относительный путь к родителю + fs_id
         Создает папку при необходимости.
-        Пример:
-        - абсолютный путь /Volumes/Shares/images/img.jpg
-        - относительный путь /images/img.jpg
-        - fs_id: smb://192.168.1.1 или uuid (system > utils > get_fs_id)
+        fs_id: смотри system > utils > Utils > get_fs_id
         """
         string = f"{filename}{mod}{rel_parent}{fs_id}"
         hash = hashlib.md5(string.encode('utf-8')).hexdigest() + ".jpg"
