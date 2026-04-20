@@ -341,8 +341,9 @@ class Grid(UScrollArea):
             for i in events:
                 QTimer.singleShot(0, lambda event=i: self.apply_changes(event))
             self.dir_watcher_timer.start(ms)
-            QTimer.singleShot(0, self.sort_thumbs)
-            QTimer.singleShot(0, self.rearrange_thumbs)
+            if events:
+                QTimer.singleShot(0, self.sort_thumbs)
+                QTimer.singleShot(0, self.rearrange_thumbs)
 
 
         self.dir_watcher_task = ProcessWorker(
