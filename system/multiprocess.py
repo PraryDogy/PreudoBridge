@@ -637,11 +637,3 @@ class SearchTask:
         with search_item.engine.begin() as conn:
             stmt = sqlalchemy.insert(CacheTable)
             conn.execute(stmt, values)
-
-
-# сейчас проблема с рейтингом
-# у нас везде есть только insert и delete
-# соответственно если было изображение с рейтингом и изменится
-# то будет delete и insert
-# нужен уникальный идентификатор
-# так же сейчас при подгрузке изображений не подгружается рейтинг
