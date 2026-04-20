@@ -27,8 +27,10 @@ class Servers:
     def json_to_app(cls):
         try:
             with open(cls.filepath, "r", encoding="utf-8") as f:
-                server_list: list = json.load(f)
+                server_list: list[list] = json.load(f)
             for i in server_list:
+                if len(i) == 3:
+                    i.insert(0, "Задайте псевдоним")
                 Servers.items.append(i)
         except Exception as e:
             print("Servers json to app error", e)
@@ -41,6 +43,7 @@ class Servers:
 
 @dataclass(slots=True)
 class ServerItem:
+    alias: str
     server: str
     login: str
     password: str
@@ -51,8 +54,6 @@ class ServerListItem(QListWidgetItem):
     def __init__(self, parent: QListWidget, text: str, server_item: ServerItem):
         super().__init__(text, parent)
         self.server_item = server_item
-        # icon = QIcon(self.iconpath)
-        # self.setIcon(icon)
         self.setSizeHint(QSize(0, 25))
 
 
@@ -146,6 +147,13 @@ class WinLogin(WinMinCloseOnly):
         self.centralWidget().setLayout(self.central_layout)
         self.central_layout.setSpacing(5)
 
+        alias_label = ServerLabel(text="Псевдоним")
+        self.central_layout.addWidget(alias_label)
+
+        self.alias = ULineEdit()
+        self.alias.setPlaceholderText("Псевдоним")
+        self.central_layout.addWidget(self.alias)
+
         server_label = ServerLabel(text="Сервер")
         self.central_layout.addWidget(server_label)
 
@@ -194,6 +202,7 @@ class WinLogin(WinMinCloseOnly):
         self.btn_layout.addStretch()
 
         if server_item:
+            self.alias.setText(server_item.alias)
             self.server.setText(server_item.server)
             self.login.setText(server_item.login)
             self.pass_.setText(server_item.password)
@@ -209,7 +218,6 @@ class WinLogin(WinMinCloseOnly):
         self.eye_svg.show()
         self.eye_svg.mouseReleaseEvent = self.show_hide_pass
 
-
     def show_hide_pass(self, *args):
         if self.pass_.echoMode() == ULineEdit.EchoMode.Password:
             self.pass_.setEchoMode(ULineEdit.EchoMode.Normal)
@@ -219,8 +227,15 @@ class WinLogin(WinMinCloseOnly):
             self.eye_svg.load(self.eye_svg.eye_off)
 
     def ok_cmd(self):
-        if self.server.text() and self.login.text() and self.pass_.text():
+        stmt = all((
+            self.alias.text(),
+            self.server.text(),
+            self.login.text(),
+            self.pass_.text()
+        ))
+        if stmt:
             server_item = ServerItem(
+                alias=self.alias.text(),
                 server=self.server.text(),
                 login=self.login.text(),
                 password=self.pass_.text()
@@ -282,15 +297,16 @@ class WinServers(WinMinCloseOnly):
 
     # Загрузка данных из JSON
     def init_data(self):
-        for server, login, pass_ in Servers.items:
+        for alias, server, login, pass_ in Servers.items:
             server_item = ServerItem(
+                alias=alias,
                 server=server,
                 login=login,
                 password=pass_
             )
             list_item = ServerListItem(
                 parent=self.v_list,
-                text=server,
+                text=f"{server} ({alias})",
                 server_item=server_item
             )
             self.v_list.addItem(list_item)
@@ -305,6 +321,7 @@ class WinServers(WinMinCloseOnly):
             if server_item:
                 self.remove_cmd(server_item)
             Servers.items.append([
+                new_server_item.alias,
                 new_server_item.server,
                 new_server_item.login,
                 new_server_item.password
@@ -312,7 +329,7 @@ class WinServers(WinMinCloseOnly):
             Servers.write_json_data()
             list_item = ServerListItem(
                 parent=self.v_list,
-                text=new_server_item.server,
+                text=f"{new_server_item.server} ({new_server_item.alias})",
                 server_item=new_server_item
             )
             self.v_list.addItem(list_item)
@@ -324,21 +341,24 @@ class WinServers(WinMinCloseOnly):
 
     def remove_cmd(self, server_item: ServerItem):
         Servers.items.remove([
+            server_item.alias,
             server_item.server,
             server_item.login,
             server_item.password
         ])
         Servers.write_json_data()
         for i in range(self.v_list.count()):
-            item = self.v_list.item(i)
+            item: ServerListItem = self.v_list.item(i)
             if not item:
                 continue
             current = (
+                item.server_item.alias,
                 item.server_item.server,
                 item.server_item.login,
                 item.server_item.password
             )
             target = (
+                server_item.alias,
                 server_item.server,
                 server_item.login,
                 server_item.password
