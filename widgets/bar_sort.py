@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QPoint, Qt, pyqtSignal
+from PyQt5.QtCore import QPoint, Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
@@ -94,7 +94,7 @@ class SortFrame(UFrame):
             text_ = f"Выбрано {selected} из {total}"
         else:
             text_ = f"{self.total_text}: {str(total)}"
-        self.total_text_label.setText(text_)
+        QTimer.singleShot(10, lambda: self.total_text_label.setText(text_))
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
         """

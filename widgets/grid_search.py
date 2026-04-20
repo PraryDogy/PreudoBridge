@@ -159,14 +159,11 @@ class GridSearch(Grid):
             if data_items:
                 for i in data_items:
                     create_thumb(i)
+            selected, total = 0, self.total
+            self.total_count_update.emit((selected, total))
             if not self.search_task.is_alive() and self.search_task.queue.empty():
-                selected, total = 0, self.total
-                self.total_count_update.emit((selected, total))
                 self.search_task.terminate_join()
             else:
-                if self.total % 5 == 0:
-                    selected, total = 0, self.total
-                    self.total_count_update.emit((selected, total))
                 self.search_timer.start(self.search_timer_ms)
 
 
