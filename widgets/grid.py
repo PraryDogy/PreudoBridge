@@ -463,8 +463,6 @@ class Grid(UScrollArea):
         img_task.start()
         img_timer.start(self.img_timer_ms)
 
-        print(len(thumbs))
-
     def reload_rubber(self):
         self.rubberBand.deleteLater()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
