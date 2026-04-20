@@ -577,6 +577,7 @@ class SearchTask:
                 for thumb_path, filename, size, mod in conn.execute(stmt)
             }
 
+        step = 5
         for x, entry in enumerate(os.scandir(current_dir), start=1):
             if entry.name.startswith(Static.hidden_symbols):
                 continue
@@ -584,10 +585,11 @@ class SearchTask:
                 dir_list.append(entry.path)
             if SearchTask.process_entry(entry, search_item):
                 SearchTask.process_data_item(entry, search_item)
-            if x == 10:
-                # запись в бд
-                ...
+            if x == step:
+                SearchTask.insert_records(search_item, search_item.new_items)
                 search_item.new_items.clear()
+            SearchTask.insert_records(search_item, search_item.new_items)
+            search_item.new_items.clear()
 
     @staticmethod
     def process_data_item(entry: os.DirEntry[str], search_item: SearchItem):
@@ -596,33 +598,32 @@ class SearchTask:
         if entry.is_dir():
             search_item.queue.put(data_item)
         elif entry.name.endswith(ImgUtils.ext_all):
-            SearchTask.process_image(search_item, data_item)
+            props = data_item.filename, data_item.size, data_item.mod
+            if props in search_item.db_items:
+                path = search_item.db_items[props]
+                data_item._img_array = Utils.read_thumb(path)
+            else:
+                img_array = ImgUtils.read_img(data_item.abs_path)
+                rel_filepath = os.path.join(
+                    search_item.rel_parent,
+                    data_item.filename
+                )
+                data_item._thumb_path = Utils.create_thumb_path(
+                    rel_file_path=rel_filepath,
+                    fs_id=search_item.fs_id
 
-    def process_image(search_item: SearchItem, data_item: DataItem):
-        props = data_item.filename, data_item.size, data_item.mod
-        if props in search_item.db_items:
-            path = search_item.db_items[props]
-            data_item._img_array = Utils.read_thumb(path)
-        else:
-            img_array = ImgUtils.read_img(data_item.abs_path)
-            data_item._img_array = ImgUtils.resize(
-                image=img_array,
-                size=Static.max_thumb_size
-            )
-            rel_filepath = os.path.join(
-                search_item.rel_parent,
-                data_item.filename
-            )
-            data_item._thumb_path = Utils.create_thumb_path(
-                rel_file_path=rel_filepath,
-                fs_id=search_item.fs_id
-
-            )
-            Utils.write_thumb(data_item._thumb_path)
-            search_item.new_items.append(data_item)
-        search_item.queue.put(data_item)
+                )
+                data_item._img_array = ImgUtils.resize(
+                    image=img_array,
+                    size=Static.max_thumb_size
+                )
+                Utils.write_thumb(data_item._thumb_path)
+                search_item.new_items.append(data_item)
+            search_item.queue.put(data_item)
 
     def insert_records(search_item: SearchItem, data_items: list[DataItem]):
+        if not data_items:
+            return
         values = []
         for i in data_items:
             values.append({
@@ -633,6 +634,9 @@ class SearchTask:
                 CacheTable.size.name: i.size,
                 CacheTable.mod.name: i.mod
             })
+        with search_item.engine.begin() as conn:
+            stmt = sqlalchemy.insert(CacheTable)
+            conn.execute(stmt, values)
 
 
 # сейчас проблема с рейтингом
