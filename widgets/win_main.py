@@ -401,7 +401,6 @@ class WinMain(WinBase):
         self.setWindowTitle(self.search_text)
         Utils.fill_missing_methods(TableView, Grid)
         self.r_lay.insertWidget(WinMain.grid_insert_num, self.grid)
-        self.filters_menu.reset()
         self.scroll_up.hide()
         self.setup_grid_signals()
         self.grid.finished_.connect(
