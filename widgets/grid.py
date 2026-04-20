@@ -345,7 +345,6 @@ class Grid(UScrollArea):
                 QTimer.singleShot(0, self.rearrange_thumbs)
             self.dir_watcher_timer.start(ms)
 
-
         self.dir_watcher_task = ProcessWorker(
             target=DirWatcher.start,
             args=(self.main_win_item.abs_current_dir, )
