@@ -124,14 +124,29 @@ class ImgLoader:
             for i in range(0, len(data_items), step)
         ]
         for chunk in chunks:
-            ok_data_items = []
             for data_item in chunk:
-                ...
-                # читаем изображение и пишем миниатюру на диск
-                # отправляем в gui .put
-                # добавляем в ok data items
-                # не забудь что тебе нужен thumb path
-            ImgLoader._insert_records()
+                _rel_filepath = os.path.join(
+                    img_item.rel_parent,
+                    data_item.filename
+                )
+                _img = ImgUtils.read_img(data_item.abs_path)
+                data_item._thumb_path = Utils.create_thumb_path(
+                    rel_file_path=_rel_filepath,
+                    fs_id=img_item.fs_id
+                )
+                data_item._img_array = ImgUtils.resize(
+                    image=_img,
+                    size=Static.max_thumb_size
+                )
+                Utils.write_thumb(
+                    thumb_path=data_item._thumb_path,
+                    thumb_array=data_item._img_array
+                )
+                img_item.queue.put(data_item)
+            ImgLoader._insert_records(
+                img_item=img_item,
+                data_items=chunk
+            )
 
     @staticmethod
     def _insert_records(img_item: ImgLoaderItem, data_items: list[DataItem]):
