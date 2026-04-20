@@ -64,7 +64,6 @@ class DataItem:
         self.size: int
 
         # в процессе работы и gui
-        self.image_is_loaded: bool = False
         self.must_hidden: bool = False
         self.row, self.col = 0, 0
         # {"src": QImage(), 100: Qimage(), 200: QImage, ...}

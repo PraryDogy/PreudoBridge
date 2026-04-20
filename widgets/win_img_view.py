@@ -293,7 +293,7 @@ class WinImgView(WinBase):
             pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)
 
-        elif self.thumb.data_item.image_is_loaded:
+        elif self.thumb.data_item.qimages:
             qimage = self.thumb.data_item.qimages["src"]
             pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)

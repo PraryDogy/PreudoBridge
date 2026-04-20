@@ -436,7 +436,6 @@ class Grid(UScrollArea):
                 qimages[size] = resized
                 thumb.data_item.qimages = qimages
             thumb.set_image()
-            thumb.data_item.image_is_loaded = True
 
         def poll_task(img_task: ProcessWorker, img_timer: QTimer):
             img_timer.stop()
