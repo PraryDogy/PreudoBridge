@@ -332,7 +332,9 @@ class WinServers(WinMinCloseOnly):
                 text=f"{new_server_item.server} ({new_server_item.alias})",
                 server_item=new_server_item
             )
+            
             self.v_list.addItem(list_item)
+            self.v_list.setCurrentItem(list_item)
 
         self.login_win = WinLogin(server_item)
         self.login_win.ok_pressed.connect(ok_pressed)
