@@ -569,51 +569,35 @@ class Grid(UScrollArea):
     def open_thumb(self):
         if len(self.selected_thumbs) == 1:
             wid = self.selected_thumbs[0]
-            if wid.data_item.abs_path.endswith(ImgUtils.ext_all):
-                url_to_wid = {
-                    url: wid
-                    for url, wid in self.url_to_wid.items()
-                    if url.endswith(ImgUtils.ext_all) and not wid.data_item.must_hidden
-                }
-                is_selection = False
-                self.open_img_view(wid.data_item.abs_path, url_to_wid, is_selection)
-            elif wid.data_item.type_ == Static.folder_type:
+            if wid.data_item.type_ == Static.folder_type:
                 self.new_history_item.emit(wid.data_item.abs_path)
                 self.main_win_item.set_current_dir(wid.data_item.abs_path)
                 self.load_st_grid.emit()
             else:
-                Utils.open_in_def_app(wid.data_item.abs_path)
+                url_to_wid = {
+                    url: wid
+                    for url, wid in self.url_to_wid.items()
+                    if url.endswith(ImgUtils.ext_all)
+                    and
+                    not wid.data_item.must_hidden
+                }
+                if url_to_wid:
+                    self.open_img_view(wid.data_item.abs_path, url_to_wid, False)
         else:
-            url_to_wid = {
-                i.data_item.abs_path: i
-                for i in self.selected_thumbs
-                if i.data_item.abs_path.endswith(ImgUtils.ext_all) and not i.data_item.must_hidden
-            }
-
-            if url_to_wid:
-                is_selection = True
-                start_url = list(url_to_wid)[0]
-                self.open_img_view(start_url, url_to_wid, is_selection)
-
-            folders = [
-                i.data_item.abs_path
-                for i in self.selected_thumbs
-                if i.data_item.type_ == Static.folder_type
-            ]
-
-            for i in folders:
-                self.open_in_new_win.emit((i, None))
-
-            files = [
-                i.data_item.abs_path
-                for i in self.selected_thumbs
-                if not i.data_item.abs_path.endswith(ImgUtils.ext_all)
+            img_widgets = [
+                wid
+                for wid in self.selected_thumbs
+                if wid.data_item.type_.endswith(ImgUtils.ext_all)
                 and
-                i.data_item.type_ != Static.folder_type
+                not wid.data_item.must_hidden
             ]
-
-            for i in files:
-                Utils.open_in_def_app(i)
+            url_to_wid = {
+                wid.data_item.abs_path: wid
+                for wid in img_widgets
+            }
+            if img_widgets:
+                wid = img_widgets[-1]
+                self.open_img_view(wid.data_item.abs_path, url_to_wid, True)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
         self.img_view_win.emit({
