@@ -1,12 +1,12 @@
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QTabWidget
 
 from cfg import Dynamic
 
 from ._base_widgets import SmallBtn, UTextEdit
 
 
-class MenuFilters(QWidget):
+class MenuFilters(QTabWidget):
     filter_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
     enable_text = "Включить"
@@ -17,9 +17,18 @@ class MenuFilters(QWidget):
     def __init__(self):
         super().__init__()
 
-        layout_ = QVBoxLayout(self)
-        layout_.setContentsMargins(0, 0, 0, 5)
+        # layout_ = QVBoxLayout(self)
+        # layout_.setContentsMargins(0, 0, 0, 5)
+        # layout_.setSpacing(5)
+
+        wid = QWidget()
+        self.addTab(wid, "Фильтры")
+        self.tabBar().hide()
+
+        layout_ = QVBoxLayout()
+        layout_.setContentsMargins(0, 0, 0, 0)
         layout_.setSpacing(5)
+        wid.setLayout(layout_)
 
         self.line_edit = UTextEdit()
         self.line_edit.setPlaceholderText(self.filter_placeholder)

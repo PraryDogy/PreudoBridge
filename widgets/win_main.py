@@ -142,6 +142,7 @@ class WinMain(WinBase):
         self.left_wid = QSplitter()
         self.left_wid.setHandleWidth(WinMain.splitter_handle_width)
         self.left_wid.setOrientation(Qt.Orientation.Vertical)
+        self.left_wid.setContentsMargins(0, 0, 0, 5)
 
         self.tabs_widget = TabsWidget()
         self.tree_menu = MenuTree(self.main_win_item)
@@ -190,6 +191,7 @@ class WinMain(WinBase):
         self.splitter.addWidget(self.left_wid)
         self.splitter.addWidget(right_wid)
         self.splitter.setSizes([WinMain.left_menu_w, self.width() - WinMain.left_menu_w])
+        self.splitter.setContentsMargins(0, 5, 0, 0)
         main_lay.addWidget(self.splitter)
 
         # --- Инициализация элементов ---
