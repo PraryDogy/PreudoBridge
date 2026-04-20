@@ -126,12 +126,13 @@ class WinInfo(WinMinCloseOnly):
 
         row = 0
         item = self.data_items[0]
+        birth = int(os.stat(item.abs_path).st_birthtime)
         labels = {
             self.name_text: self.lined_text(item.filename),
             self.type_text: item.type_,
             self.size_text: SharedUtils.get_f_size(item.size),
             self.src_text: self.lined_text(item.abs_path),
-            self.birth_text: SharedUtils.get_f_date(item.birth),
+            self.birth_text: SharedUtils.get_f_date(birth),
             self.mod_text: SharedUtils.get_f_date(item.mod),
             self.resol_text: self.calc_text,
         }
@@ -237,12 +238,13 @@ class WinInfo(WinMinCloseOnly):
 
         row = 0
         item = self.data_items[0]
+        birth = int(os.stat(item.abs_path).st_birthtime)
         labels = {
             self.name_text: self.lined_text(item.filename),
             self.type_text: self.ru_folder,
             self.size_text: self.calc_text,
             self.src_text: self.lined_text(self.data_items[0].abs_path),
-            self.birth_text: SharedUtils.get_f_date(item.birth),
+            self.birth_text: SharedUtils.get_f_date(birth),
             self.mod_text: SharedUtils.get_f_date(item.mod),
             self.files_text: self.calc_text,
             self.folders_text: self.calc_text
