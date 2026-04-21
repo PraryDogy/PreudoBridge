@@ -20,7 +20,7 @@ from ._base_widgets import USep, WinBase
 from .bar_macos import BarMacos
 from .bar_path import BarPath
 from .bar_sort import BarSort
-from .bar_top import TopBar
+from .bar_top import BarTop
 from .grid import Grid
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
@@ -135,59 +135,53 @@ class WinMain(WinBase):
         self.centralWidget().setLayout(main_lay)
 
         # --- Левый виджет ---
-        self.left_side_widget = QSplitter()
-        self.left_side_widget.setHandleWidth(WinMain.splitter_handle_width)
-        self.left_side_widget.setOrientation(Qt.Orientation.Vertical)
-        self.left_side_widget.setContentsMargins(0, 0, 0, 5)
-
-        self.tree_favs_wid = TreeFavsWid()
-        self.tree_menu = MenuTree(self.main_win_item)
-        self.favs_menu = MenuFavs(self.main_win_item)
-        self.tree_favs_wid.addTab(self.tree_menu, WinMain.folders_text)
-        self.tree_favs_wid.addTab(self.favs_menu, WinMain.favs_text)
-        self.left_side_widget.addWidget(self.tree_favs_wid)
-
-        self.filters_menu = MenuFilters()
-        self.left_side_widget.addWidget(self.filters_menu)
-
-        self.left_side_widget.setSizes([self.min_height_ - 120, 120])
+        left_side_widget = QSplitter()
+        left_side_widget.setHandleWidth(WinMain.splitter_handle_width)
+        left_side_widget.setOrientation(Qt.Orientation.Vertical)
+        left_side_widget.setContentsMargins(0, 0, 0, 5)
+        tree_favs_wid = TreeFavsWid()
+        self.menu_tree = MenuTree(self.main_win_item)
+        tree_favs_wid.addTab(self.menu_tree, WinMain.folders_text)
+        self.menu_favs = MenuFavs(self.main_win_item)
+        tree_favs_wid.addTab(self.menu_favs, WinMain.favs_text)
+        left_side_widget.addWidget(tree_favs_wid)
+        self.menu_filters = MenuFilters()
+        left_side_widget.addWidget(self.menu_filters)
+        left_side_widget.setSizes([self.min_height_ - 120, 120])
 
         # --- Правый виджет ---
         right_side_widget = QWidget()
         self.right_side_layout = QVBoxLayout()
+        right_side_widget.setLayout(self.right_side_layout)
         self.right_side_layout.setContentsMargins(0, 0, 0, 0)
         self.right_side_layout.setSpacing(0)
-        right_side_widget.setLayout(self.right_side_layout)
-
-        self.top_bar = TopBar(self.main_win_item, self.search_item)
+        self.bar_top = BarTop(self.main_win_item, self.search_item)
+        self.right_side_layout.insertWidget(0, self.bar_top)
+        self.right_side_layout.insertWidget(1, USep())
         self.grid = Grid(self.main_win_item, False)
         Utils.fill_missing_methods(GridSearch, Grid)
-        self.path_bar = BarPath(self.main_win_item)
-        self.sort_bar = BarSort(self.sort_item, self.main_win_item)
-
-        # --- Добавление в layout ---
-        self.right_side_layout.insertWidget(0, self.top_bar)
-        self.right_side_layout.insertWidget(1, USep())
         self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
         self.right_side_layout.insertWidget(4, USep())
-        self.right_side_layout.insertWidget(5, self.path_bar)
+        self.bar_path = BarPath(self.main_win_item)
+        self.right_side_layout.insertWidget(5, self.bar_path)
         self.right_side_layout.insertWidget(6, USep())
-        self.right_side_layout.insertWidget(7, self.sort_bar)
+        self.bar_sort = BarSort(self.sort_item, self.main_win_item)
+        self.right_side_layout.insertWidget(7, self.bar_sort)
 
         # --- Настройка Splitter ---
         self.splitter = QSplitter()
         self.splitter.setHandleWidth(WinMain.splitter_handle_width)
-        self.splitter.addWidget(self.left_side_widget)
+        self.splitter.addWidget(left_side_widget)
         self.splitter.addWidget(right_side_widget)
         self.splitter.setSizes([WinMain.left_menu_w, self.width() - WinMain.left_menu_w])
         self.splitter.setContentsMargins(0, 5, 0, 0)
         main_lay.addWidget(self.splitter)
 
         # --- Инициализация элементов ---
-        self.top_bar.new_history_item(self.main_win_item.abs_current_dir)
-        self.path_bar.update(self.main_win_item.abs_current_dir)
-        self.sort_bar.sort_menu_update()
-        self.tree_favs_wid.setCurrentIndex(1)
+        self.bar_top.new_history_item(self.main_win_item.abs_current_dir)
+        self.bar_path.update(self.main_win_item.abs_current_dir)
+        self.bar_sort.sort_menu_update()
+        tree_favs_wid.setCurrentIndex(1)
 
         # --- ScrollUp кнопка ---
         self.scroll_up = ScrollUpBtn(self)
@@ -201,48 +195,48 @@ class WinMain(WinBase):
             self.load_st_grid(self.base_dir)
 
         if not JsonData.favs:
-            self.tree_favs_wid.setCurrentIndex(0)
+            tree_favs_wid.setCurrentIndex(0)
 
     def setup_signals(self):
         # splitter
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(WinMain.resize_ms))
 
         # tree_menu
-        self.tree_menu.load_st_grid_sig.connect(self.load_st_grid)
-        self.tree_menu.add_fav.connect(self.favs_menu.add_fav)
-        self.tree_menu.del_fav.connect(self.favs_menu.del_fav)
-        self.tree_menu.new_history_item.connect(self.top_bar.new_history_item)
-        self.tree_menu.open_in_new_window.connect(self.open_in_new_win)
+        self.menu_tree.load_st_grid_sig.connect(self.load_st_grid)
+        self.menu_tree.add_fav.connect(self.menu_favs.add_fav)
+        self.menu_tree.del_fav.connect(self.menu_favs.del_fav)
+        self.menu_tree.new_history_item.connect(self.bar_top.new_history_item)
+        self.menu_tree.open_in_new_window.connect(self.open_in_new_win)
 
         # favs_menu
-        self.favs_menu.load_st_grid.connect(self.load_st_grid)
-        self.favs_menu.new_history_item.connect(self.top_bar.new_history_item)
-        self.favs_menu.open_in_new_win.connect(self.open_in_new_win)
+        self.menu_favs.load_st_grid.connect(self.load_st_grid)
+        self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
+        self.menu_favs.open_in_new_win.connect(self.open_in_new_win)
 
-        self.filters_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
-        self.filters_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
+        self.menu_filters.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
+        self.menu_filters.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
 
         # top_bar
-        self.top_bar.level_up.connect(self.level_up)
-        self.top_bar.change_view.connect(self.change_view_cmd)
-        self.top_bar.load_search_grid.connect(self.load_search_grid)
-        self.top_bar.load_st_grid.connect(self.load_st_grid)
-        self.top_bar.open_in_new_win.connect(self.open_in_new_win)
-        self.top_bar.open_settings.connect(self.open_settings)
-        self.top_bar.new_folder.connect(self.new_folder)
+        self.bar_top.level_up.connect(self.level_up)
+        self.bar_top.change_view.connect(self.change_view_cmd)
+        self.bar_top.load_search_grid.connect(self.load_search_grid)
+        self.bar_top.load_st_grid.connect(self.load_st_grid)
+        self.bar_top.open_in_new_win.connect(self.open_in_new_win)
+        self.bar_top.open_settings.connect(self.open_settings)
+        self.bar_top.new_folder.connect(self.new_folder)
 
         # path_bar
-        self.path_bar.new_history_item.connect(self.top_bar.new_history_item)
-        self.path_bar.load_st_grid.connect(self.load_st_grid)
-        self.path_bar.info_win.connect(self.open_info_win)
-        self.path_bar.add_fav.connect(self.favs_menu.add_fav)
-        self.path_bar.del_fav.connect(self.favs_menu.del_fav)
+        self.bar_path.new_history_item.connect(self.bar_top.new_history_item)
+        self.bar_path.load_st_grid.connect(self.load_st_grid)
+        self.bar_path.info_win.connect(self.open_info_win)
+        self.bar_path.add_fav.connect(self.menu_favs.add_fav)
+        self.bar_path.del_fav.connect(self.menu_favs.del_fav)
 
         # sort_bar
-        self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
-        self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
-        self.sort_bar.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
-        self.sort_bar.open_go_win.connect(lambda: self.go_to_toggle())
+        self.bar_sort.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
+        self.bar_sort.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
+        self.bar_sort.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
+        self.bar_sort.open_go_win.connect(lambda: self.go_to_toggle())
 
     def new_folder(self):
         if isinstance(self.grid, (GridStandart, TableView)):
@@ -321,7 +315,7 @@ class WinMain(WinBase):
 
     def open_settings(self, *args):
         self.sett_win = WinSettings()
-        self.sett_win.show_texts_sig.connect(lambda: self.top_bar.toggle_texts())
+        self.sett_win.show_texts_sig.connect(lambda: self.bar_top.toggle_texts())
         self.sett_win.theme_changed.connect(lambda: QTimer.singleShot(100, self.change_theme))
         self.sett_win.center(self)
         self.sett_win.show()
@@ -331,7 +325,7 @@ class WinMain(WinBase):
         old_main_dir = self.main_win_item.abs_current_dir
 
         if new_main_dir != os.sep:
-            self.top_bar.new_history_item(new_main_dir)
+            self.bar_top.new_history_item(new_main_dir)
             self.main_win_item.urls_to_select.clear()
             self.main_win_item.go_to = old_main_dir
             self.load_st_grid(new_main_dir)
@@ -348,17 +342,17 @@ class WinMain(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        self.grid.sort_menu_update.connect(self.sort_bar.sort_menu_update)
-        self.grid.total_count_update.connect(self.sort_bar.sort_frame.set_total_text)
-        self.grid.path_bar_update.connect(self.path_bar.update)
-        self.grid.add_fav.connect(self.favs_menu.add_fav)
-        self.grid.del_fav.connect(self.favs_menu.del_fav)
-        self.grid.move_slider.connect(self.sort_bar.move_slider)
+        self.grid.sort_menu_update.connect(self.bar_sort.sort_menu_update)
+        self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
+        self.grid.path_bar_update.connect(self.bar_path.update)
+        self.grid.add_fav.connect(self.menu_favs.add_fav)
+        self.grid.del_fav.connect(self.menu_favs.del_fav)
+        self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
         self.grid.open_in_new_win.connect(self.open_in_new_win)
         self.grid.go_to_widget.connect(self.go_to_cmd)
         self.grid.level_up.connect(self.level_up)
-        self.grid.new_history_item.connect(self.top_bar.new_history_item)
+        self.grid.new_history_item.connect(self.bar_top.new_history_item)
         self.grid.change_view.connect(self.change_view_cmd)
         self.grid.info_win.connect(self.open_info_win)
         self.grid.img_view_win.connect(self.open_img_view)
@@ -368,9 +362,9 @@ class WinMain(WinBase):
     def load_search_grid(self):
         QTimer.singleShot(
             1500,
-            lambda: self.top_bar.search_wid.setDisabled(False)
+            lambda: self.bar_top.search_wid.setDisabled(False)
         )
-        self.top_bar.search_wid.setDisabled(True)
+        self.bar_top.search_wid.setDisabled(True)
         self.grid.deleteLater()
         self.grid = GridSearch(
             main_win_item=self.main_win_item,
@@ -402,21 +396,21 @@ class WinMain(WinBase):
         QTimer.singleShot(300, self.win_copy.raise_)
 
     def disable_wids(self, value: bool):
-        self.sort_bar.sort_frame.setDisabled(value)
-        self.sort_bar.slider.setDisabled(value)
-        self.filters_menu.setDisabled(value)
+        self.bar_sort.sort_frame.setDisabled(value)
+        self.bar_sort.slider.setDisabled(value)
+        self.menu_filters.setDisabled(value)
 
     def load_st_grid(self, path: str):
 
         def _load():
-            self.top_bar.search_wid.clear_search()
+            self.bar_top.search_wid.clear_search()
             self.search_item.search_list.clear()
             self.scroll_up.hide()
             self.grid.deleteLater()
 
             self.setWindowTitle(os.path.basename(path))
-            self.favs_menu.select_fav(path)
-            self.tree_menu.expand_path(path)
+            self.menu_favs.select_fav(path)
+            self.menu_tree.expand_path(path)
             self.grid.deleteLater()
 
             if self.main_win_item.get_view_mode() == 0:
@@ -458,17 +452,17 @@ class WinMain(WinBase):
 
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:
-            self.top_bar.change_view_btn.load(
+            self.bar_top.change_view_btn.load(
                 os.path.join(Static.internal_images_dir, "grid.svg")
             )
-            self.top_bar.change_view_btn.lbl.setText(self.grid_text)
+            self.bar_top.change_view_btn.lbl.setText(self.grid_text)
             self.main_win_item.set_view_mode(1)
 
         else:
-            self.top_bar.change_view_btn.load(
+            self.bar_top.change_view_btn.load(
                 os.path.join(Static.internal_images_dir, "list.svg")
             )
-            self.top_bar.change_view_btn.lbl.setText(self.list_text)
+            self.bar_top.change_view_btn.lbl.setText(self.list_text)
             self.main_win_item.set_view_mode(0)
 
         self.load_st_grid(self.main_win_item.abs_current_dir)
@@ -508,8 +502,8 @@ class WinMain(WinBase):
         if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
 
             if a0.key() == Qt.Key.Key_F:
-                self.top_bar.search_wid.setFocus()
-                self.top_bar.search_wid.selectAll()
+                self.bar_top.search_wid.setFocus()
+                self.bar_top.search_wid.selectAll()
 
             elif a0.key() == Qt.Key.Key_W:
                 self.close()
