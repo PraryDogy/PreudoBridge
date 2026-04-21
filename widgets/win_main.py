@@ -316,9 +316,8 @@ class WinMain(WinBase):
                 self.load_st_grid(os.path.dirname(path))
 
         clipboard_path = clipboard_path.strip("\"\'\n ")
-        unix_path_regex = r"^(\/([a-zA-Z0-9._-]+\/?)*)$"
-        is_path = bool(re.fullmatch(unix_path_regex, clipboard_path))
-        if not is_path:
+        template = r"^(\/[^/]+)+\/?$"
+        if not bool(re.fullmatch(template, clipboard_path)):
             return
         if not os.path.exists(clipboard_path):
             fixed_path = self.main_win_item.fix_path(clipboard_path)
