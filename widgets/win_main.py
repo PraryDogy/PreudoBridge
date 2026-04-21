@@ -377,6 +377,7 @@ class WinMain(WinBase):
             lambda: self.bar_top.search_wid.setDisabled(False)
         )
         self.bar_top.search_wid.setDisabled(True)
+        self.grid.grid_wid.hide()
         self.grid.deleteLater()
         self.grid = GridSearch(
             main_win_item=self.main_win_item,
