@@ -112,12 +112,12 @@ class MenuFavs(QListWidget):
     load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
     svg_size = 16
-    folder_icon: QPixmap
+    folder_icon: QIcon
+    folder_pin_icon: QIcon
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
         self.main_win_item = main_win_item
-        self.folder_icon: QIcon = None
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
@@ -125,15 +125,14 @@ class MenuFavs(QListWidget):
         self.fixed_items: dict[str, QListWidgetItem] = {}
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
-        self.create_folder_icon()
+        self.create_icons()
         self.init_ui()
 
-    def create_folder_icon(self):
-        icon = os.path.join(Static.internal_images_dir, "folder.png")
-        qimage = QImage(icon)
-        qimage = Utils.scaled(qimage, self.svg_size)
-        pixmap = QPixmap.fromImage(qimage)
-        self.folder_icon = QIcon(pixmap)
+    def create_icons(self):
+        folder = os.path.join(Static.internal_images_dir, "folder.png")
+        folder_pin = os.path.join(Static.internal_images_dir, "folder_pin.png")
+        self.folder_icon = QIcon(folder)
+        self.folder_pin_icon = QIcon(folder_pin)
 
     def init_ui(self):
         self.clear()
@@ -199,7 +198,10 @@ class MenuFavs(QListWidget):
         fav_item.path_fixed.connect(lambda: self.init_ui())
 
         list_item = QListWidgetItem(parent=self)
-        list_item.setIcon(self.folder_icon)
+        if fixed:
+            list_item.setIcon(self.folder_pin_icon)
+        else:
+            list_item.setIcon(self.folder_icon)
         list_item.setSizeHint(fav_item.sizeHint())
 
         self.addItem(list_item)
