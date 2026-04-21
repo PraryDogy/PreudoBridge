@@ -200,6 +200,7 @@ class _DirChangedHandler(FileSystemEventHandler):
         self.callback = callback
 
     def on_any_event(self, event: FileSystemEvent):
+        raise Exception ("watchdog почини чтоб пропускал только папки и ищобраденмя")
         # stmt = any((
         #     event.src_path.endswith(ImgUtils.ext_all),
         #     os.path.isdir(event.src_path)
