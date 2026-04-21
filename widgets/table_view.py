@@ -1,7 +1,4 @@
-import gc
-import inspect
 import os
-import sys
 
 from PyQt5.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
                           QModelIndex, Qt, QTimer, QUrl, pyqtSignal)
@@ -119,6 +116,10 @@ class TableView(QTableView):
         self.setAcceptDrops(True)
         self.setDragDropMode(QAbstractItemView.DragDrop)
         self.setDropIndicatorShown(True)
+
+        # Заглушка (placeholder) для grid_wid. 
+        # Используется для предотвращения ошибок при вызове .hide() в MainWin.
+        self.grid_wid = QLabel()
 
         self.main_win_item = main_win_item
         self.url_to_index: dict[str, QModelIndex] = {}
