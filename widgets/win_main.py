@@ -416,22 +416,22 @@ class WinMain(WinBase):
 
     def load_st_grid(self, path: str):
 
-        def end_load_grid():
+        def _load():
+            self.top_bar.search_wid.clear_search()
+            self.search_item.search_list.clear()
+            self.scroll_up.hide()
+            self.grid.deleteLater()
+
+            self.setWindowTitle(os.path.basename(path))
             self.favs_menu.select_fav(path)
             self.tree_menu.expand_path(path)
             self.grid.deleteLater()
 
-            # это лочит главный гуи когда СМБ не отвечает
-            expand_path = lambda: self.tree_menu.expand_path(self.main_win_item.abs_current_dir)
-
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
-                # скрываем новый виджет
-                self.grid.grid_wid.hide()
                 self.grid.load_finished.connect(self.grid.grid_wid.show)
                 self.grid.load_finished.connect(self.grid.setFocus)
-                self.grid.load_finished.connect(expand_path)
-                
+                self.grid.grid_wid.hide()
                 classes = (TableView, Grid)
                 self.grid.sort_item = self.sort_item
                 self.disable_wids(False)
@@ -441,36 +441,28 @@ class WinMain(WinBase):
                 self.grid = TableView(self.main_win_item)
                 self.grid.load_finished.connect(self.grid.show)
                 self.grid.load_finished.connect(self.grid.setFocus)
-                self.grid.load_finished.connect(expand_path)
                 classes = (Grid, TableView)
                 self.disable_wids(True)
 
             Utils.fill_missing_methods(*classes)
-            self.grid.setParent(self)
-            self.grid.set_first_col_width()
             self.setup_grid_signals()
             self.r_lay.insertWidget(WinMain.grid_index, self.grid)
 
-        def start_load_grid():
-            self.top_bar.search_wid.clear_search()
-            self.search_item.search_list.clear()
-            self.scroll_up.hide()
-            self.grid.deleteLater()
-            self.setWindowTitle(os.path.basename(self.main_win_item.abs_current_dir))
-            end_load_grid()
-
-        def show_win(win: WinWarn):
+        def _show_win(win: WinWarn):
             win.center(self.window())
             win.show()
 
         result = self.main_win_item.set_current_dir(path)
         if result:
             self.grid.grid_wid.hide()
-            QTimer.singleShot(100, start_load_grid)
+            QTimer.singleShot(100, _load)
         else:
-            no_conn = "Такой папки не существует.\nВозможно не подключен сетевой диск."
+            no_conn = (
+                "Такой папки не существует."
+                "\nВозможно не подключен сетевой диск."
+            )
             self.no_path_win = WinWarn(no_conn)
-            QTimer.singleShot(100, lambda: show_win(self.no_path_win))
+            QTimer.singleShot(100, lambda: _show_win(self.no_path_win))
 
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:
