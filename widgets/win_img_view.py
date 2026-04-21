@@ -222,7 +222,7 @@ class WinImgView(WinBase):
     ww, hh = 0, 0
     xx, yy = 0, 0
 
-    def __init__(self, start_url: str, url_to_wid: dict[str, Thumb], is_selection: bool):
+    def __init__(self, item: ImgViewItem):
         super().__init__()
         self.setMinimumSize(QSize(self.min_w, self.min_h))
         self.setObjectName(self.object_name)
@@ -231,11 +231,11 @@ class WinImgView(WinBase):
         )
 
         self.read_img_task = None
-        self.is_selection = is_selection
-        self.url_to_wid: dict[str, Thumb] = url_to_wid
+        self.is_selection = item.is_selection
+        self.url_to_wid: dict[str, Thumb] = item.url_to_wid
         self.urls: list = [i for i in self.url_to_wid]
-        self.current_path: str = start_url
-        self.thumb: Thumb = self.url_to_wid.get(start_url)
+        self.current_path: str = item.start_url
+        self.thumb: Thumb = self.url_to_wid.get(item.start_url)
         self.thumb.text_changed.connect(self.set_title)
 
         self.mouse_move_timer = QTimer(self)
