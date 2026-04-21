@@ -360,7 +360,6 @@ class Grid(UScrollArea):
         )
         new_thumb = None
         event: Literal["deleted", "created", "moved", "modified"] = e.event_type
-        print(e.src_path)
         if event == "deleted":
             if is_selected:
                 self.removed_urls.append(e.src_path)
@@ -376,7 +375,6 @@ class Grid(UScrollArea):
             if is_selected:
                 self.select_multiple_thumb(new_thumb)
         elif event == "modified":
-            print(e.src_path)
             if not os.path.exists(e.src_path):
                 if is_selected:
                     self.removed_urls.append(e.src_path)
