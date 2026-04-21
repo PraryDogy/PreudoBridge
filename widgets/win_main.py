@@ -207,6 +207,7 @@ class WinMain(WinBase):
     def setup_signals(self):
         """
         Сигналы подключаются после инициации всех виджетов
+        Без лямбды не сработают, потому что self.grid динамически меняется
         """
         self.main_splitter.splitterMoved.connect(
             lambda: self.resize_timer.start(WinMain.resize_ms)
@@ -222,7 +223,6 @@ class WinMain(WinBase):
         self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
         self.menu_favs.open_in_new_win.connect(self.open_in_new_win)
 
-        # без лямбды не сработают, потому что self.grid динамически меняется
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
         )
@@ -236,7 +236,9 @@ class WinMain(WinBase):
         self.bar_top.load_st_grid.connect(self.load_st_grid)
         self.bar_top.open_in_new_win.connect(self.open_in_new_win)
         self.bar_top.open_settings.connect(self.open_settings)
-        self.bar_top.new_folder.connect(self.new_folder)
+        self.bar_top.new_folder.connect(
+            lambda: self.grid.new_folder()
+        )
 
         self.bar_path.new_history_item.connect(self.bar_top.new_history_item)
         self.bar_path.load_st_grid.connect(self.load_st_grid)
@@ -244,7 +246,6 @@ class WinMain(WinBase):
         self.bar_path.add_fav.connect(self.menu_favs.add_fav)
         self.bar_path.del_fav.connect(self.menu_favs.del_fav)
 
-        # без лямбды не сработают, потому что self.grid динамически меняется
         self.bar_sort.open_go_win.connect(
             self.go_to_toggle
         )
@@ -257,10 +258,6 @@ class WinMain(WinBase):
         self.bar_sort.sort_thumbs.connect(
             lambda: self.grid.sort_thumbs()
         )
-
-    def new_folder(self):
-        if isinstance(self.grid, (GridStandart, TableView)):
-            self.grid.new_folder()
 
     def change_theme(self):
         app: QApplication = QApplication.instance()
