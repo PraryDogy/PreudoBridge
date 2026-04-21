@@ -18,7 +18,6 @@ from .win_rename import WinRename
 class FavItem(QLabel):
     remove_fav_item = pyqtSignal()
     renamed = pyqtSignal(str)
-    path_fixed = pyqtSignal()
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
@@ -195,7 +194,6 @@ class MenuFavs(QListWidget):
         fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
         fav_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
         fav_item.renamed.connect(lambda name: self.update_name(src, name))
-        fav_item.path_fixed.connect(lambda: self.init_ui())
 
         list_item = QListWidgetItem(parent=self)
         if fixed:
@@ -243,3 +241,7 @@ class MenuFavs(QListWidget):
             url_ = url_.rstrip(os.sep)
             if os.path.isdir(url_):
                 self.add_fav(src=url_)
+
+    # def mouseReleaseEvent(self, e):
+    #     print(123)
+    #     return super().mouseReleaseEvent(e)

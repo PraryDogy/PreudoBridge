@@ -3,11 +3,9 @@ import os
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QLabel
 
-from cfg import Dynamic, JsonData, Static
+from cfg import Dynamic, JsonData
 from system.items import DataItem, DirItem, MainWinItem
-from system.shared_utils import PathFinder
 from system.tasks import DirScaner, UThreadPool
-from system.utils import Utils
 
 from .grid import Grid, NoItemsLabel, Thumb
 
@@ -63,19 +61,17 @@ class GridStandart(Grid):
     def start_dir_scaner(self):
         dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
         self.finder_task = DirScaner(dir_item)
-        if not os.path.exists(self.main_win_item.abs_current_dir):
-            path_finder = PathFinder(self.main_win_item.abs_current_dir)
-            result = path_finder.get_result()
-            if result and os.path.exists(result):
-                self.main_win_item.set_current_dir(result)
-        if os.path.exists(self.main_win_item.abs_current_dir):
-            self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
-            UThreadPool.start(self.finder_task)
-        else:
-            self.create_no_items_label(NoItemsLabel.no_conn)
-            self.mouseMoveEvent = lambda args: None
-            self.load_finished.emit()
-            self.loading_label.hide()
+        self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
+        UThreadPool.start(self.finder_task)
+        
+        # if os.path.exists(self.main_win_item.abs_current_dir):
+        #     self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
+        #     UThreadPool.start(self.finder_task)
+        # else:
+        #     self.create_no_items_label(NoItemsLabel.no_conn)
+        #     self.mouseMoveEvent = lambda args: None
+        #     self.load_finished.emit()
+        #     self.loading_label.hide()
 
     def finalize_dir_scaner(self, dir_item: DirItem):
         if len(dir_item.data_items) == 0:

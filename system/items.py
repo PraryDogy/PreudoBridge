@@ -1,4 +1,3 @@
-
 import os
 import re
 from dataclasses import dataclass
@@ -10,7 +9,6 @@ import sqlalchemy
 from PyQt5.QtGui import QImage
 
 from cfg import Static
-from system.shared_utils import ImgUtils
 
 from .database import CacheTable
 from .utils import Utils
@@ -159,6 +157,16 @@ class MainWinItem:
         self.abs_current_dir = path
         self.fs_id = Utils.get_fs_id(path)
         self.rel_parent = Utils.get_rel_parent(path)
+
+    def fix_path(self, path: str):
+        volumes = [i.path for i in os.scandir("/Volumes")]
+        rel_path = path.strip(os.sep).split(os.sep)
+        rel_path = os.sep.join(rel_path[2:])
+        for i in volumes:
+            new_path = os.path.join(i, rel_path)
+            if os.path.exists(new_path):
+                return new_path
+        return None
 
 
 class ClipboardItem:
