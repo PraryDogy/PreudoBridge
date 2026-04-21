@@ -137,12 +137,12 @@ class DataItem:
 
 class MainWinItem:
     def __init__(self):
-        self.urls_to_select: list[str]
-        self.go_to: str
-        self.abs_current_dir: str
-        self.view_mode: int 
-        self.fs_id: str
-        self.rel_parent: str
+        self.urls_to_select: list[str] = []
+        self.go_to: str = None
+        self.abs_current_dir: str = None
+        self.view_mode: int = 0
+        self.fs_id: str = None
+        self.rel_parent: str = None
 
     def set_view_mode(self, value: int):
         self.view_mode = value

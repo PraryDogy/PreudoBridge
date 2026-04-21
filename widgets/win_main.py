@@ -104,19 +104,15 @@ class WinMain(WinBase):
     
         self.main_win_list: list[WinMain] = []
         self.search_item = SearchItem()
-        self.main_win_item: MainWinItem = MainWinItem()
-        self.sort_item: SortItem = SortItem()
+        self.sort_item = SortItem()
         self.img_view_win = None
-        self.win_copy = None
 
+        self.main_win_item = MainWinItem()
         self.main_win_item.set_current_dir(self.base_dir)
 
         if WinMain.first_load:
             self.change_theme()
             WinMain.first_load = False
-
-        self.main_win_item.view_mode = 0
-        self.main_win_item.go_to = None
 
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
