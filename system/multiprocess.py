@@ -363,7 +363,7 @@ class MultipleInfo:
                 os.listdir(current_dir)
             except Exception as e:
                 print("tasks, MultipleItemsInfo error", e)
-                continue
+                break
             for entry in os.scandir(current_dir):
                 if entry.is_dir():
                     info_item._folders_set.add(item["src"])

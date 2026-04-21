@@ -375,7 +375,12 @@ class Grid(UScrollArea):
             if is_selected:
                 self.select_multiple_thumb(new_thumb)
         elif event == "modified":
-            if e.src_path in self.url_to_wid:
+            print(e.src_path)
+            if not os.path.exists(e.src_path):
+                if is_selected:
+                    self.removed_urls.append(e.src_path)
+                self.del_thumb(e.src_path)
+            elif e.src_path in self.url_to_wid:
                 wid = self.url_to_wid[e.src_path]
                 wid.data_item.set_properties()
                 wid.set_blue_text()
