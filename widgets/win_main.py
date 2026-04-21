@@ -326,8 +326,12 @@ class WinMain(WinBase):
 
     def open_settings(self, *args):
         self.sett_win = WinSettings()
-        self.sett_win.show_texts_sig.connect(lambda: self.bar_top.toggle_texts())
-        self.sett_win.theme_changed.connect(lambda: QTimer.singleShot(100, self.change_theme))
+        self.sett_win.show_texts_sig.connect(
+            lambda: self.bar_top.toggle_texts()
+        )
+        self.sett_win.theme_changed.connect(
+            lambda: QTimer.singleShot(100, self.change_theme)
+        )
         self.sett_win.center(self)
         self.sett_win.show()
 
