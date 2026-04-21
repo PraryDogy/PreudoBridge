@@ -157,9 +157,8 @@ class MainWinItem:
     
     def set_current_dir(self, path: str):
         self.abs_current_dir = path
-        if os.path.exists(path):
-            self.fs_id = Utils.get_fs_id(path)
-            self.rel_parent = Utils.get_rel_parent(path)
+        self.fs_id = Utils.get_fs_id(path)
+        self.rel_parent = Utils.get_rel_parent(path)
 
 
 class ClipboardItem:

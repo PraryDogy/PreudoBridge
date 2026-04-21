@@ -64,12 +64,10 @@ class GridStandart(Grid):
         dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
         self.finder_task = DirScaner(dir_item)
         if not os.path.exists(self.main_win_item.abs_current_dir):
-            print(1)
             path_finder = PathFinder(self.main_win_item.abs_current_dir)
             result = path_finder.get_result()
             if result and os.path.exists(result):
                 self.main_win_item.set_current_dir(result)
-                print(2)
         if os.path.exists(self.main_win_item.abs_current_dir):
             self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
             UThreadPool.start(self.finder_task)
