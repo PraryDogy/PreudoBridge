@@ -473,6 +473,10 @@ class WinMain(WinBase):
             self.setWindowTitle(t)
             end_load_grid()
 
+        def show_win(win: WinWarn):
+            win.center(self.window())
+            win.show()
+
         result = self.main_win_item.set_current_dir(path)
         if result:
             self.grid.grid_wid.hide()
@@ -480,8 +484,7 @@ class WinMain(WinBase):
         else:
             no_conn = "Такой папки не существует.\nВозможно не подключен сетевой диск."
             self.no_path_win = WinWarn(no_conn)
-            self.no_path_win.center(self)
-            self.no_path_win.show()
+            QTimer.singleShot(100, lambda: show_win(self.no_path_win))
 
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:
