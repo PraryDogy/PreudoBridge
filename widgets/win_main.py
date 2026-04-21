@@ -139,15 +139,24 @@ class WinMain(WinBase):
         left_side_widget.setHandleWidth(WinMain.splitter_handle_width)
         left_side_widget.setOrientation(Qt.Orientation.Vertical)
         left_side_widget.setContentsMargins(0, 0, 0, 5)
+
         tree_favs_wid = TreeFavsWid()
+
         self.menu_tree = MenuTree(self.main_win_item)
         tree_favs_wid.addTab(self.menu_tree, WinMain.folders_text)
+
         self.menu_favs = MenuFavs(self.main_win_item)
         tree_favs_wid.addTab(self.menu_favs, WinMain.favs_text)
         left_side_widget.addWidget(tree_favs_wid)
+
+        tree_favs_wid.setCurrentIndex(1)
+
         self.menu_filters = MenuFilters()
         left_side_widget.addWidget(self.menu_filters)
-        left_side_widget.setSizes([self.min_height_ - 120, 120])
+        left_side_widget.setSizes([
+            self.min_height_ - 120,
+            120
+        ])
 
         # --- Правый виджет ---
         right_side_widget = QWidget()
@@ -167,24 +176,24 @@ class WinMain(WinBase):
         self.right_side_layout.insertWidget(4, USep())
 
         self.bar_path = BarPath(self.main_win_item)
+        self.bar_path.update(self.main_win_item.abs_current_dir)
         self.right_side_layout.insertWidget(5, self.bar_path)
         self.right_side_layout.insertWidget(6, USep())
 
         self.bar_sort = BarSort(self.sort_item, self.main_win_item)
+        self.bar_sort.sort_menu_update()
         self.right_side_layout.insertWidget(7, self.bar_sort)
 
-        # --- Настройка Splitter ---
-        self.splitter = QSplitter()
-        self.splitter.setHandleWidth(WinMain.splitter_handle_width)
-        self.splitter.addWidget(left_side_widget)
-        self.splitter.addWidget(right_side_widget)
-        self.splitter.setSizes([WinMain.left_menu_w, self.width() - WinMain.left_menu_w])
-        self.splitter.setContentsMargins(0, 5, 0, 0)
-        main_lay.addWidget(self.splitter)
-
-        self.bar_path.update(self.main_win_item.abs_current_dir)
-        self.bar_sort.sort_menu_update()
-        tree_favs_wid.setCurrentIndex(1)
+        self.main_splitter = QSplitter()
+        self.main_splitter.setHandleWidth(WinMain.splitter_handle_width)
+        self.main_splitter.addWidget(left_side_widget)
+        self.main_splitter.addWidget(right_side_widget)
+        self.main_splitter.setSizes([
+            WinMain.left_menu_w,
+             self.width() - WinMain.left_menu_w
+        ])
+        self.main_splitter.setContentsMargins(0, 5, 0, 0)
+        main_lay.addWidget(self.main_splitter)
 
         # --- ScrollUp кнопка ---
         self.scroll_up = ScrollUpBtn(self)
@@ -202,7 +211,7 @@ class WinMain(WinBase):
 
     def setup_signals(self):
         # splitter
-        self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(WinMain.resize_ms))
+        self.main_splitter.splitterMoved.connect(lambda: self.resize_timer.start(WinMain.resize_ms))
 
         # tree_menu
         self.menu_tree.load_st_grid_sig.connect(self.load_st_grid)
