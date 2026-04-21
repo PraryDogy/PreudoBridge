@@ -108,6 +108,8 @@ class WinMain(WinBase):
         self.img_view_win = None
         self.win_copy = None
 
+        self.main_win_item.set_current_dir(self.base_dir)
+
         if WinMain.first_load:
             self.change_theme()
             WinMain.first_load = False
@@ -231,7 +233,6 @@ class WinMain(WinBase):
         self.top_bar.change_view.connect(self.change_view_cmd)
         self.top_bar.load_search_grid.connect(self.load_search_grid)
         self.top_bar.load_st_grid.connect(self.load_st_grid)
-        # self.top_bar.navigate.connect(self.load_st_grid)
         self.top_bar.open_in_new_win.connect(lambda d: self.open_in_new_win((d, None)))
         self.top_bar.open_settings.connect(self.open_settings)
         self.top_bar.new_folder.connect(self.new_folder)

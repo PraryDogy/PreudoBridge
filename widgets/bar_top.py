@@ -280,7 +280,6 @@ class BarTop(QWidget):
     change_view = pyqtSignal()
     load_search_grid = pyqtSignal()
     load_st_grid = pyqtSignal(str)
-    navigate = pyqtSignal(str)
     # Кнопка "очистить данные" была нажата в окне настроек
     remove_db = pyqtSignal()
     # открывает заданный путь в новом окне
