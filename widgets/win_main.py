@@ -304,7 +304,7 @@ class WinMain(WinBase):
         else:
             self.open_go_to_win()
 
-    def path_finder_cmd(self, clipboard_path: str):
+    def path_finder_cmd(self, user_path: str):
 
         def finalize(path: str):
             if os.path.isdir(path):
@@ -313,16 +313,16 @@ class WinMain(WinBase):
                 self.main_win_item.go_to = path
                 self.load_st_grid(os.path.dirname(path))
 
-        clipboard_path = clipboard_path.strip("\"\'\n ")
+        user_path = user_path.strip("\"\'\n ")
         template = r"^(\/[^/]+)+\/?$"
-        if not bool(re.fullmatch(template, clipboard_path)):
+        if not bool(re.fullmatch(template, user_path)):
             return
-        if not os.path.exists(clipboard_path):
-            fixed_path = self.main_win_item.fix_path(clipboard_path)
+        if not os.path.exists(user_path):
+            fixed_path = self.main_win_item.fix_path(user_path)
             if fixed_path:
                 finalize(fixed_path)
         else:
-            finalize(clipboard_path)
+            finalize(user_path)
 
     def open_settings(self, *args):
         self.sett_win = WinSettings()
@@ -361,6 +361,7 @@ class WinMain(WinBase):
         self.grid.move_slider.connect(self.sort_bar.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
         self.grid.open_in_new_win.connect(self.open_in_new_win)
+        self.grid.go_to_widget.connect(self.path_finder_cmd)
         self.grid.level_up.connect(self.level_up)
         self.grid.new_history_item.connect(self.top_bar.new_history_item)
         self.grid.change_view.connect(self.change_view_cmd)

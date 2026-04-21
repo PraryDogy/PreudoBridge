@@ -270,6 +270,7 @@ class Grid(UScrollArea):
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
+    go_to_widget = pyqtSignal(str)
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
@@ -620,15 +621,10 @@ class Grid(UScrollArea):
         self.info_win.emit(items)
 
     def show_in_folder_cmd(self, wid: Thumb):
-        """
-        В сетке GridSearch к каждому Thumb добавляется пункт "Показать в папке"     
-        Загружает сетку GridStandart с указанным путем к файлу / папке
-        """
-        def cmd(main_dir: str):
-            self.open_in_new_win.emit(main_dir)
-
-        new_main_dir = os.path.dirname(wid.data_item.abs_path)
-        QTimer.singleShot(100, lambda: cmd(new_main_dir))
+        QTimer.singleShot(
+            100,
+            lambda: self.go_to_widget.emit(wid.data_item.abs_path)
+        )
 
     def setup_urls_to_copy(self):
         """
