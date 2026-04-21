@@ -155,16 +155,21 @@ class WinMain(WinBase):
         right_side_widget.setLayout(self.right_side_layout)
         self.right_side_layout.setContentsMargins(0, 0, 0, 0)
         self.right_side_layout.setSpacing(0)
+
         self.bar_top = BarTop(self.main_win_item, self.search_item)
+        self.bar_top.new_history_item(self.main_win_item.abs_current_dir)
         self.right_side_layout.insertWidget(0, self.bar_top)
         self.right_side_layout.insertWidget(1, USep())
+
         self.grid = Grid(self.main_win_item, False)
         Utils.fill_missing_methods(GridSearch, Grid)
         self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
         self.right_side_layout.insertWidget(4, USep())
+
         self.bar_path = BarPath(self.main_win_item)
         self.right_side_layout.insertWidget(5, self.bar_path)
         self.right_side_layout.insertWidget(6, USep())
+
         self.bar_sort = BarSort(self.sort_item, self.main_win_item)
         self.right_side_layout.insertWidget(7, self.bar_sort)
 
@@ -177,8 +182,6 @@ class WinMain(WinBase):
         self.splitter.setContentsMargins(0, 5, 0, 0)
         main_lay.addWidget(self.splitter)
 
-        # --- Инициализация элементов ---
-        self.bar_top.new_history_item(self.main_win_item.abs_current_dir)
         self.bar_path.update(self.main_win_item.abs_current_dir)
         self.bar_sort.sort_menu_update()
         tree_favs_wid.setCurrentIndex(1)
