@@ -183,7 +183,7 @@ class MenuFavs(QListWidget):
 
     def on_finished_rename(self, src: str, name: str):
         JsonData.favs[src] = name
-        self.add_fav_item(name, src)
+        self.add_fav_item(name, src, False)
         JsonData.write_json_data()
 
     def add_fav_item(self, name: str, src: str, fixed_item: bool) -> dict:
