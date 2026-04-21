@@ -222,25 +222,19 @@ class MenuFavs(QListWidget):
         e.acceptProposedAction()
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
-
         urls = a0.mimeData().urls()
-
         if not urls:
             super().dropEvent(a0)
             new_order = {}
-
             for i in range(self.count()):
                 item = self.item(i)
                 fav_widget: FavItem = self.itemWidget(item)
                 if isinstance(fav_widget, FavItem):
                     new_order[fav_widget.src] = fav_widget.name
-
             if new_order:
                 JsonData.favs = new_order
-
         else:
             url_ = urls[-1].toLocalFile()
             url_ = url_.rstrip(os.sep)
-            
             if url_ not in JsonData.favs and os.path.isdir(url_):
                 self.add_fav(src=url_)
