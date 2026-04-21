@@ -191,7 +191,6 @@ class CheckboxWidgets(GroupWid):
 
     def __init__(self):
         super().__init__()
-        self.layout_.addWidget(HSep())
 
         self.enable_go_to = UCheckBox(self.go_to_text)
         self.enable_go_to.setFixedHeight(
