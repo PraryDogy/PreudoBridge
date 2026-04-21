@@ -212,7 +212,6 @@ class NextImgBtn(SwitchImgBtn):
 class WinImgView(WinBase):
     cached_images: dict[str, QImage] = {}
     move_to_wid = pyqtSignal(object)
-    move_to_url = pyqtSignal(str)
     closed = pyqtSignal()
     info_win = pyqtSignal(list)
     object_name = "win_img_view"
@@ -388,7 +387,6 @@ class WinImgView(WinBase):
             self.thumb.text_changed.connect(self.set_title)
             if not self.is_selection:
                 self.move_to_wid.emit(self.thumb)
-                self.move_to_url.emit(self.current_path)
             self.load_thumbnail()
         except Exception as e:
             print("widgets ImgViewWin error", e)

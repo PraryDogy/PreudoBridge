@@ -275,15 +275,14 @@ class WinMain(WinBase):
             self.grid.reload_rubber()
 
     def open_img_view(self, item: ImgViewItem):
-        def closed():
+        def _on_closed():
             self.img_view_win = None
             gc.collect()
 
         self.img_view_win = WinImgView(item)
 
         self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
-        self.img_view_win.move_to_url.connect(self.grid.select_path)
-        self.img_view_win.closed.connect(closed)
+        self.img_view_win.closed.connect(_on_closed)
         self.img_view_win.info_win.connect(self.open_info_win)
 
         if WinImgView.ww == 0:
