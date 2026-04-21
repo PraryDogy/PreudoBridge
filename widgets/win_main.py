@@ -125,7 +125,7 @@ class WinMain(WinBase):
         )
         self.bar_macos.servers_win.connect(self.open_servers_win)
         self.bar_macos.settings_win.connect(self.open_settings)
-        self.bar_macos.go_to_win.connect(self.open_go_to_win)
+        self.bar_macos.go_to_win.connect(self.go_to_win)
         self.setMenuBar(self.bar_macos)
 
         # --- Основной layout ---
@@ -247,7 +247,7 @@ class WinMain(WinBase):
         self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
         self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
         self.sort_bar.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
-        self.sort_bar.open_go_win.connect(lambda: self.go_to_cmd())
+        self.sort_bar.open_go_win.connect(lambda: self.go_to_toggle())
 
     def new_folder(self):
         if isinstance(self.grid, (GridStandart, TableView)):
@@ -292,19 +292,19 @@ class WinMain(WinBase):
 
         self.img_view_win.show()
 
-    def open_go_to_win(self):
+    def go_to_win(self):
         self.go_win = WinGoTo()
-        self.go_win.closed.connect(self.path_finder_cmd)
+        self.go_win.closed.connect(self.go_to_cmd)
         self.go_win.center(self)
         self.go_win.show()
 
-    def go_to_cmd(self):
+    def go_to_toggle(self):
         if JsonData.go_to_now:
-            self.path_finder_cmd(Utils.read_from_clipboard())
+            self.go_to_cmd(Utils.read_from_clipboard())
         else:
-            self.open_go_to_win()
+            self.go_to_win()
 
-    def path_finder_cmd(self, user_path: str):
+    def go_to_cmd(self, user_path: str):
 
         def finalize(path: str):
             if os.path.isdir(path):
@@ -361,7 +361,7 @@ class WinMain(WinBase):
         self.grid.move_slider.connect(self.sort_bar.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
         self.grid.open_in_new_win.connect(self.open_in_new_win)
-        self.grid.go_to_widget.connect(self.path_finder_cmd)
+        self.grid.go_to_widget.connect(self.go_to_cmd)
         self.grid.level_up.connect(self.level_up)
         self.grid.new_history_item.connect(self.top_bar.new_history_item)
         self.grid.change_view.connect(self.change_view_cmd)
