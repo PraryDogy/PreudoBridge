@@ -338,7 +338,6 @@ class WinMain(WinBase):
     def level_up(self):
         new_main_dir = os.path.dirname(self.main_win_item.abs_current_dir)
         old_main_dir = self.main_win_item.abs_current_dir
-
         if new_main_dir != os.sep:
             self.bar_top.new_history_item(new_main_dir)
             self.main_win_item.urls_to_select.clear()
