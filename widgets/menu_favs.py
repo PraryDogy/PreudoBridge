@@ -219,7 +219,10 @@ class MenuFavs(QListWidget):
         self.init_ui()
 
     def dragEnterEvent(self, e):
-        e.acceptProposedAction()
+        item = self.currentItem()
+        widget: FavItem = self.itemWidget(item)
+        if widget.src not in self.fixed_items:
+            e.acceptProposedAction()
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
         urls = a0.mimeData().urls()
