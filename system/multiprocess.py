@@ -209,7 +209,6 @@ class _DirChangedHandler(FileSystemEventHandler):
             ))
             if stmt:
                 self.callback(event)
-            self.callback(event)
 
 
 class DirWatcher:
