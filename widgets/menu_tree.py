@@ -1,9 +1,9 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt, pyqtSignal
-from PyQt5.QtWidgets import QFileSystemModel, QTreeView
+from PyQt5.QtCore import QDir, Qt, pyqtSignal, QTimer
+from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 
-from cfg import JsonData, Static
+from cfg import JsonData
 from system.items import MainWinItem
 
 from ._base_widgets import UMenu
@@ -51,9 +51,14 @@ class MenuTree(QTreeView):
         return super().mouseReleaseEvent(event)
 
     def expand_path(self, root: str):
+
         index = self.c_model.index(root)
         self.setCurrentIndex(index)
         self.expand(index)
+        self.scrollTo(
+            index,
+            QAbstractItemView.ScrollHint.EnsureVisible
+        )
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())

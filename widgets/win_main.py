@@ -427,6 +427,7 @@ class WinMain(WinBase):
 
         def end_load_grid():
             self.favs_menu.select_fav(path)
+            self.tree_menu.expand_path(path)
             self.grid.deleteLater()
 
             # это лочит главный гуи когда СМБ не отвечает
@@ -477,7 +478,7 @@ class WinMain(WinBase):
             self.grid.grid_wid.hide()
             QTimer.singleShot(100, start_load_grid)
         else:
-            no_conn = "Такой папки не существует. \nВозможно не подключен сетевой диск."
+            no_conn = "Такой папки не существует.\nВозможно не подключен сетевой диск."
             self.no_path_win = WinWarn(no_conn)
             self.no_path_win.center(self)
             self.no_path_win.show()
