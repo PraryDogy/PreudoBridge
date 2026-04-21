@@ -495,7 +495,7 @@ class WinMain(WinBase):
     def on_exit(self):
         self.grid.deleteLater()
         JsonData.write_json_data()
-        SharedUtils.exit_force()
+        os._exit(1)
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.scroll_up.move(

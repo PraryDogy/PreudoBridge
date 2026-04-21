@@ -86,7 +86,7 @@ class Dbase:
                     subprocess.Popen(["open", log_file])
                 except Exception:
                     pass
-                SharedUtils.exit_force()
+                os._exit(1)
 
     @classmethod
     def commit(cls, conn: sqlalchemy.Connection) -> None:

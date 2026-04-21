@@ -50,10 +50,6 @@ class SharedUtils:
         else:
             return date.strftime("%d.%m.%y %H:%M")
         
-    @classmethod
-    def exit_force(cls):
-        os._exit(1)
-
 
 class ImgUtils:
     Image.MAX_IMAGE_PIXELS = None
