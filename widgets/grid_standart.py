@@ -79,9 +79,6 @@ class GridStandart(Grid):
             self.load_finished.emit()
             self.loading_label.hide()
             return
-
-        if dir_item.fixed_path:
-            self.main_win_item.set_current_dir(dir_item.fixed_path)
         Thumb.calc_size()
 
         self.path_bar_update.emit(self.main_win_item.abs_current_dir)

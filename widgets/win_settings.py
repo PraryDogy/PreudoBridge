@@ -14,7 +14,7 @@ from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 
 from ._base_widgets import HSep, WinMinCloseOnly, ULabel, USvgSqareWidget
 # возможно в main win
-from .warn_win import ConfirmWindow, WinWarn
+from .win_warn import ConfirmWindow, WinWarn
 
 
 class GroupWid(QGroupBox):

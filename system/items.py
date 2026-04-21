@@ -160,10 +160,11 @@ class MainWinItem:
                 self.abs_current_dir = None
                 self.fs_id = None
                 self.rel_parent = None
-                return
+                return None
         self.abs_current_dir = path
         self.fs_id = Utils.get_fs_id(path)
         self.rel_parent = Utils.get_rel_parent(path)
+        return True
 
     def fix_path(self, path: str):
         volumes = [i.path for i in os.scandir("/Volumes")]
@@ -231,7 +232,6 @@ class DirItem:
         self._main_win_item = _main_win_item
         self._sort_item = _sort_item
         self._show_hidden = _show_hidden
-        self.fixed_path = ""
 
 
 class JpgConvertItem:

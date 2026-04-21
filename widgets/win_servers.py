@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QListWidget,
 from cfg import Static
 
 from ._base_widgets import WinMinCloseOnly, SmallBtn, ULineEdit, UMenu
-from .warn_win import ConfirmWindow
+from .win_warn import ConfirmWindow
 
 # from cfg import Cfg
 # from system.servers import Servers

@@ -4,7 +4,7 @@ from cfg import Dynamic
 from system.items import MainWinItem
 from system.tasks import FileRemover, UThreadPool
 
-from .warn_win import ConfirmWindow
+from .win_warn import ConfirmWindow
 
 
 class WinRemoveFiles(ConfirmWindow):

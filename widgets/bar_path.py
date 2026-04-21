@@ -23,7 +23,7 @@ class Icons:
 class PathItem(QWidget):
     min_wid = 5
     new_history_item = pyqtSignal(str)
-    load_st_grid = pyqtSignal()
+    load_st_grid = pyqtSignal(str)
     arrow_right = " \U0000203A" # ›
     item_height = 15
     info_win = pyqtSignal(list)
@@ -164,9 +164,8 @@ class PathItem(QWidget):
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
             if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.abs_current_dir:
-                self.main_win_item.set_current_dir(self.item_dir)
                 self.new_history_item.emit(self.item_dir)
-                self.load_st_grid.emit()
+                self.load_st_grid.emit(self.item_dir)
         return super().mouseReleaseEvent(a0)
     
 
@@ -226,9 +225,8 @@ class BarPath(QWidget):
         for x, name in enumerate(root, start=1):
             dir = os.path.join(os.sep, *root[:x])
             path_item = PathItem(dir, name, self.main_win_item)
-            cmd_ = lambda dir: self.new_history_item.emit(dir)
-            path_item.new_history_item.connect(cmd_)
-            path_item.load_st_grid.connect(lambda x=dir: self.load_st_grid.emit(x))
+            path_item.new_history_item.connect(lambda x=dir: self.new_history_item.emit(x))
+            path_item.load_st_grid.connect(self.load_st_grid.emit)
             path_item.info_win.connect(lambda lst: self.info_win.emit(lst))
             path_item.add_fav.connect(self.add_fav.emit)
             path_item.del_fav.connect(self.del_fav.emit)

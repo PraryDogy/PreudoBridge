@@ -5,16 +5,14 @@ from pathlib import Path
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
-from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-                             QSplitter, QTabWidget, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
+                             QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import (ClipboardItem, DataItem, MainWinItem, PathFixerItem,
-                          SearchItem, SortItem)
-from system.multiprocess import PathFixer, ProcessWorker
+from system.items import (ClipboardItem, DataItem, MainWinItem, SearchItem,
+                          SortItem)
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -35,6 +33,7 @@ from .win_img_view import WinImgView
 from .win_info import WinInfo
 from .win_servers import WinServers
 from .win_settings import WinSettings
+from .win_warn import WinWarn
 
 
 class TabsWidget(QTabWidget):
@@ -113,10 +112,6 @@ class WinMain(WinBase):
             self.change_theme()
             WinMain.first_load = False
 
-        if dir:
-            self.main_win_item.set_current_dir(dir)
-        else:
-            self.main_win_item.set_current_dir(self.base_dir)
         self.main_win_item.view_mode = 0
         self.main_win_item.go_to = None
 
@@ -458,9 +453,14 @@ class WinMain(WinBase):
             self.setWindowTitle(t)
             end_load_grid()
 
-        self.main_win_item.set_current_dir(path)
-        self.grid.grid_wid.hide()
-        QTimer.singleShot(100, start_load_grid)
+        result = self.main_win_item.set_current_dir(path)
+        if result:
+            self.grid.grid_wid.hide()
+            QTimer.singleShot(100, start_load_grid)
+        else:
+            self.no_path_win = WinWarn("Путь не найден")
+            self.no_path_win.center(self)
+            self.no_path_win.show()
 
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:

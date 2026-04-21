@@ -92,7 +92,7 @@ class TableView(QTableView):
     path_bar_update = pyqtSignal(str)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-    load_st_grid = pyqtSignal()
+    load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
@@ -245,9 +245,8 @@ class TableView(QTableView):
 
                 self.open_img_view(start_url, url_to_wid, is_selection)
             elif os.path.isdir(urls[0]):
-                self.main_win_item.set_current_dir(urls[0])
                 self.new_history_item.emit(urls[0])
-                self.load_st_grid.emit()
+                self.load_st_grid.emit(urls[0])
             else:
                 Utils.open_in_def_app(urls[0])
         else:
@@ -321,7 +320,7 @@ class TableView(QTableView):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
         self.convert_win = WinImgConvert(urls)
         self.convert_win.center(self.window())
-        self.convert_win.finished.connect(self.load_st_grid.emit)
+        # self.convert_win.finished.connect(self.load_st_grid.emit)
         self.convert_win.show()
 
     def rename_row(self, url: str):
@@ -463,7 +462,7 @@ class TableView(QTableView):
             menu_.addSeparator()
 
         upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid.emit())
+        upd_.triggered.connect(lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir))
         menu_.addAction(upd_)
 
         change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
@@ -483,7 +482,7 @@ class TableView(QTableView):
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = WinRemoveFiles(self.main_win_item, urls)
         self.rem_win.center(self.window())
-        self.rem_win.finished_.connect(self.load_st_grid.emit)
+        # self.rem_win.finished_.connect(self.load_st_grid.emit)
         self.rem_win.show()
 
     def select_row(self, index: QModelIndex):
