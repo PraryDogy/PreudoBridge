@@ -386,14 +386,15 @@ class WinMain(WinBase):
             parent=self,
             is_grid_search=True,
         )
-        self.setWindowTitle(self.search_text)
         Utils.fill_missing_methods(TableView, Grid)
-        self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
-        self.scroll_up.hide()
         self.setup_grid_signals()
         self.grid.finished_.connect(
             lambda: self.setWindowTitle(self.search_fin_text)
         )
+        self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
+
+        self.setWindowTitle(self.search_text)
+        self.scroll_up.hide()
         QTimer.singleShot(100, self.grid.setFocus)
 
     def open_info_win(self, data_items: list[DataItem]):
