@@ -406,14 +406,8 @@ class WinMain(WinBase):
         """
         Для cmd v, вставить, dropEvent
         """
-        def paste_final(dst_urls: list[Path]):
-            raise Exception ("paste filessss")
-            if isinstance(self.grid, TableView):
-                self.load_st_grid("test")
-
         ClipboardItem.set_dest(self.main_win_item.abs_current_dir)
         self.win_copy = WinCopyFiles()
-        self.win_copy.finished_.connect(paste_final)
         self.win_copy.center(self.window())
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
