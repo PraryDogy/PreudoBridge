@@ -51,7 +51,6 @@ class MenuTree(QTreeView):
         return super().mouseReleaseEvent(event)
 
     def expand_path(self, root: str):
-
         index = self.c_model.index(root)
         self.setCurrentIndex(index)
         self.expand(index)
