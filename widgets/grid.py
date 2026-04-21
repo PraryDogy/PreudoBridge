@@ -11,7 +11,8 @@ from typing_extensions import Literal
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
-from system.items import ClipboardItem, DataItem, MainWinItem, SortItem
+from system.items import (ClipboardItem, DataItem, ImgViewItem, MainWinItem,
+                          SortItem)
 from system.multiprocess import DirWatcher, ImgLoader, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
@@ -276,7 +277,7 @@ class Grid(UScrollArea):
     total_count_update = pyqtSignal(tuple)
     download_cache = pyqtSignal(list)
     info_win = pyqtSignal(list)
-    img_view_win = pyqtSignal(dict)
+    img_view_win = pyqtSignal(ImgViewItem)
     paste_files = pyqtSignal()
     load_finished = pyqtSignal()
 
@@ -600,11 +601,12 @@ class Grid(UScrollArea):
                 self.open_img_view(wid.data_item.abs_path, url_to_wid, True)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
-        self.img_view_win.emit({
-            "start_url": start_url,
-            "url_to_wid": url_to_wid,
-            "is_selection": is_selection
-        })
+        item = ImgViewItem(
+            start_url=start_url,
+            url_to_wid=url_to_wid,
+            is_selection=is_selection
+        )
+        self.img_view_win.emit(item)
 
     def fav_cmd(self, offset: int, src: str):
         """

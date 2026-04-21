@@ -9,8 +9,9 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QLabel, QVBoxLayout, QWidget)
 
 from cfg import Static
+from system.items import ImgViewItem
 from system.multiprocess import ProcessWorker, ReadImg
-from system.tasks import UThreadPool, ImgArrayQImage
+from system.tasks import ImgArrayQImage, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase

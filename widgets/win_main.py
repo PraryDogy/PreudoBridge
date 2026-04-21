@@ -274,14 +274,12 @@ class WinMain(WinBase):
         if not WinMain.first_load:
             self.grid.reload_rubber()
 
-    def open_img_view(self, data: dict):
+    def open_img_view(self, item: ImgViewItem):
         def closed():
             self.img_view_win = None
             gc.collect()
 
-        self.img_view_win = WinImgView(
-            data["start_url"], data["url_to_wid"], data["is_selection"]
-        )
+        self.img_view_win = WinImgView(item)
 
         self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
         self.img_view_win.move_to_url.connect(self.grid.select_path)
