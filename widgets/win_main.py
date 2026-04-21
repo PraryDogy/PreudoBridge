@@ -9,9 +9,10 @@ from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import Dynamic, JsonData, Static
+from cfg import JsonData, Static
 from system.items import (ClipboardItem, DataItem, ImgViewItem, MainWinItem,
                           SearchItem, SortItem)
+from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
@@ -493,7 +494,7 @@ class WinMain(WinBase):
             self.scroll_up.show()
 
     def on_exit(self):
-        self.grid.deleteLater()
+        BaseProcessWorker.stop_all()
         JsonData.write_json_data()
         os._exit(1)
     

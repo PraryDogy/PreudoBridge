@@ -104,6 +104,7 @@ class App(QApplication):
         return False
 
     def on_exit(self):
+        print(1)
         ProcessWorker.stop_all()
         JsonData.write_json_data()
 
