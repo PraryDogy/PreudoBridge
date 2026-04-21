@@ -169,7 +169,7 @@ class BarSort(QWidget):
     sort_thumbs = pyqtSignal()
     resize_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
-    open_go_win = pyqtSignal()
+    go_to_win_open = pyqtSignal()
     height_ = 25
 
     def __init__(self, sort_item: SortItem, main_win_item: MainWinItem):
@@ -209,7 +209,7 @@ class BarSort(QWidget):
     def create_go_to_button(self):
         """Создает кнопку для перехода"""
         self.go_to_frame = GoToBtn()
-        self.go_to_frame.clicked_.connect(lambda: self.open_go_win.emit())
+        self.go_to_frame.clicked_.connect(lambda: self.go_to_win_open.emit())
         self.main_lay.addWidget(self.go_to_frame)
 
     def create_sort_button(self):

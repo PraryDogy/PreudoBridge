@@ -172,7 +172,7 @@ class PathItem(QWidget):
 class BarPath(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
-    info_win = pyqtSignal(list)
+    info_win_open = pyqtSignal(list)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     last_item_limit = 40
@@ -227,7 +227,7 @@ class BarPath(QWidget):
             path_item = PathItem(dir, name, self.main_win_item)
             path_item.new_history_item.connect(lambda x=dir: self.new_history_item.emit(x))
             path_item.load_st_grid.connect(self.load_st_grid.emit)
-            path_item.info_win.connect(lambda lst: self.info_win.emit(lst))
+            path_item.info_win.connect(lambda lst: self.info_win_open.emit(lst))
             path_item.add_fav.connect(self.add_fav.emit)
             path_item.del_fav.connect(self.del_fav.emit)
             path_item.add_arrow()

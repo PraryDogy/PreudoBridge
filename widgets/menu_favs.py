@@ -108,7 +108,7 @@ class MenuFavs(QListWidget):
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
-    open_in_new_win = pyqtSignal(str)
+    new_main_win = pyqtSignal(str)
     svg_size = 16
     folder_icon: QIcon
     folder_pin_icon: QIcon
@@ -191,7 +191,7 @@ class MenuFavs(QListWidget):
         fav_item.new_history_item.connect(self.new_history_item)
         fav_item.load_st_grid.connect(lambda path: self.load_st_grid.emit(path))
         fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
-        fav_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
+        fav_item.open_in_new_win.connect(lambda dir: self.new_main_win.emit(dir))
         fav_item.renamed.connect(lambda name: self.update_name(src, name))
 
         list_item = QListWidgetItem(parent=self)

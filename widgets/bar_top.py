@@ -283,8 +283,8 @@ class BarTop(QWidget):
     # Кнопка "очистить данные" была нажата в окне настроек
     remove_db = pyqtSignal()
     # открывает заданный путь в новом окне
-    open_in_new_win = pyqtSignal(str)
-    open_settings = pyqtSignal()
+    new_main_win = pyqtSignal(str)
+    settings_win_open = pyqtSignal()
     new_folder = pyqtSignal()
 
     non_text_height = 46
@@ -366,7 +366,7 @@ class BarTop(QWidget):
         self.main_lay.addWidget(self.change_view_btn)
 
         self.sett_btn = BarTopBtn()
-        self.sett_btn.clicked.connect(self.open_settings.emit)
+        self.sett_btn.clicked.connect(self.settings_win_open.emit)
         self.sett_btn.load(os.path.join(Static.internal_images_dir, "settings.svg"))
         self.main_lay.addWidget(self.sett_btn)
 

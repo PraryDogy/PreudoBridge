@@ -13,7 +13,7 @@ from .actions import ItemActions
 class MenuTree(QTreeView):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(str)
-    open_in_new_window = pyqtSignal(str)
+    new_main_win = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     add_fav = pyqtSignal(str)
 
@@ -75,7 +75,7 @@ class MenuTree(QTreeView):
 
         if os.path.isdir(src):
             new_win = ItemActions.OpenInNewWindow(menu)
-            new_win.triggered.connect(lambda: self.open_in_new_window.emit(src))
+            new_win.triggered.connect(lambda: self.new_main_win.emit(src))
             menu.addAction(new_win)
 
         menu.addSeparator()

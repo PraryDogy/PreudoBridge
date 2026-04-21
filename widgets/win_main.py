@@ -121,10 +121,10 @@ class WinMain(WinBase):
         # --- Меню и панель ---
         self.bar_macos = BarMacos()
         self.bar_macos.new_win.connect(
-            lambda: self.new_main_win((self.base_dir, None))
+            lambda: self.new_main_win_open((self.base_dir, None))
         )
-        self.bar_macos.servers_win.connect(self.open_servers_win)
-        self.bar_macos.settings_win.connect(self.open_settings)
+        self.bar_macos.servers_win.connect(self.servers_win_open)
+        self.bar_macos.settings_win.connect(self.settings_win_open)
         self.bar_macos.go_to_win.connect(self.go_to_win)
         self.setMenuBar(self.bar_macos)
 
@@ -217,11 +217,11 @@ class WinMain(WinBase):
         self.menu_tree.add_fav.connect(self.menu_favs.add_fav)
         self.menu_tree.del_fav.connect(self.menu_favs.del_fav)
         self.menu_tree.new_history_item.connect(self.bar_top.new_history_item)
-        self.menu_tree.open_in_new_window.connect(self.new_main_win)
+        self.menu_tree.new_main_win.connect(self.new_main_win_open)
 
         self.menu_favs.load_st_grid.connect(self.load_st_grid)
         self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
-        self.menu_favs.open_in_new_win.connect(self.new_main_win)
+        self.menu_favs.new_main_win.connect(self.new_main_win_open)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
@@ -234,19 +234,19 @@ class WinMain(WinBase):
         self.bar_top.change_view.connect(self.change_view_cmd)
         self.bar_top.load_search_grid.connect(self.load_search_grid)
         self.bar_top.load_st_grid.connect(self.load_st_grid)
-        self.bar_top.open_in_new_win.connect(self.new_main_win)
-        self.bar_top.open_settings.connect(self.open_settings)
+        self.bar_top.new_main_win.connect(self.new_main_win_open)
+        self.bar_top.settings_win_open.connect(self.settings_win_open)
         self.bar_top.new_folder.connect(
             lambda: self.grid.new_folder()
         )
 
         self.bar_path.new_history_item.connect(self.bar_top.new_history_item)
         self.bar_path.load_st_grid.connect(self.load_st_grid)
-        self.bar_path.info_win.connect(self.open_info_win)
+        self.bar_path.info_win_open.connect(self.info_win_open)
         self.bar_path.add_fav.connect(self.menu_favs.add_fav)
         self.bar_path.del_fav.connect(self.menu_favs.del_fav)
 
-        self.bar_sort.open_go_win.connect(
+        self.bar_sort.go_to_win_open.connect(
             self.go_to_toggle
         )
         self.bar_sort.resize_thumbs.connect(
@@ -274,7 +274,7 @@ class WinMain(WinBase):
         if not WinMain.first_load:
             self.grid.reload_rubber()
 
-    def open_img_view(self, item: ImgViewItem):
+    def img_view_win_open(self, item: ImgViewItem):
 
         def _on_closed():
             self.img_view_win = None
@@ -283,7 +283,7 @@ class WinMain(WinBase):
         self.img_view_win = WinImgView(item)
         self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
         self.img_view_win.closed.connect(_on_closed)
-        self.img_view_win.info_win.connect(self.open_info_win)
+        self.img_view_win.info_win.connect(self.info_win_open)
         if WinImgView.ww == 0:
             self.img_view_win.resize(Static.base_ww, Static.base_hh)
             self.img_view_win.center(self.window())
@@ -324,7 +324,7 @@ class WinMain(WinBase):
         else:
             finalize(user_path)
 
-    def open_settings(self, *args):
+    def settings_win_open(self, *args):
         self.sett_win = WinSettings()
         self.sett_win.show_texts_sig.connect(
             lambda: self.bar_top.toggle_texts()
@@ -346,7 +346,7 @@ class WinMain(WinBase):
         self.grid.resize_thumbs()
         self.grid.rearrange_thumbs()
 
-    def new_main_win(self, path: str):
+    def new_main_win_open(self, path: str):
         new_win = WinMain(path)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
@@ -361,13 +361,13 @@ class WinMain(WinBase):
         self.grid.del_fav.connect(self.menu_favs.del_fav)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
-        self.grid.open_in_new_win.connect(self.new_main_win)
+        self.grid.open_in_new_win.connect(self.new_main_win_open)
         self.grid.go_to_widget.connect(self.go_to_cmd)
         self.grid.level_up.connect(self.level_up)
         self.grid.new_history_item.connect(self.bar_top.new_history_item)
         self.grid.change_view.connect(self.change_view_cmd)
-        self.grid.info_win.connect(self.open_info_win)
-        self.grid.img_view_win.connect(self.open_img_view)
+        self.grid.info_win.connect(self.info_win_open)
+        self.grid.img_view_win.connect(self.img_view_win_open)
         self.grid.paste_files.connect(self.paste_files)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
 
@@ -397,7 +397,7 @@ class WinMain(WinBase):
         self.scroll_up.hide()
         QTimer.singleShot(100, self.grid.setFocus)
 
-    def open_info_win(self, data_items: list[DataItem]):
+    def info_win_open(self, data_items: list[DataItem]):
         self.info_win = WinInfo(data_items)
         self.info_win.center(self.img_view_win if self.img_view_win else self)
         self.info_win.show()
@@ -481,7 +481,7 @@ class WinMain(WinBase):
 
         self.load_st_grid(self.main_win_item.abs_current_dir)
 
-    def open_servers_win(self):
+    def servers_win_open(self):
         self.servers_win = WinServers()
         self.servers_win.center(self)
         self.servers_win.show()
@@ -526,10 +526,10 @@ class WinMain(WinBase):
                 self.change_view_cmd()
 
             elif a0.key() == Qt.Key.Key_N:
-                self.new_main_win(self.base_dir)
+                self.new_main_win_open(self.base_dir)
             
             elif a0.key() == Qt.Key.Key_K:
-                self.open_servers_win()
+                self.servers_win_open()
         
         elif a0.key() == Qt.Key.Key_Escape:
             if self.isFullScreen():
