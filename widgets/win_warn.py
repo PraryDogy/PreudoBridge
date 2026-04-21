@@ -68,3 +68,10 @@ class WinWarn(ConfirmWindow):
         self.cancel_btn.deleteLater()
         self.ok_btn.disconnect()
         self.ok_btn.clicked.connect(self.deleteLater)
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
+            self.deleteLater()
+        elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            self.deleteLater()
+        return super().keyPressEvent(a0)
