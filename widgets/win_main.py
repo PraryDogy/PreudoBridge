@@ -370,7 +370,6 @@ class WinMain(WinBase):
         self.grid.info_win.connect(self.open_info_win)
         self.grid.img_view_win.connect(self.open_img_view)
         self.grid.paste_files.connect(self.paste_files)
-        
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
 
     def load_search_grid(self):
