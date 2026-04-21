@@ -306,7 +306,10 @@ class WinMain(WinBase):
             self.open_go_to_win()
 
     def path_finder_cmd(self, clipboard_path: str):
-        raise Exception ("фиксер путей")
+        result = self.main_win_item.fix_path(clipboard_path)
+        if result:
+            self.main_win_item.go_to = result
+        print(result)
 
     def open_settings(self, *args):
         self.sett_win = WinSettings()
