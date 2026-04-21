@@ -166,7 +166,6 @@ class WinMain(WinBase):
         self.top_bar = BarTop(self.main_win_item, self.search_item)
         self.grid = Grid(self.main_win_item, False)
         Utils.fill_missing_methods(GridSearch, Grid)
-        self.grid_spacer = QWidget()
         self.path_bar = BarPath(self.main_win_item)
         self.sort_bar = BarSort(self.sort_item, self.main_win_item)
 
@@ -179,11 +178,10 @@ class WinMain(WinBase):
         self.r_lay.insertWidget(0, self.top_bar)
         self.r_lay.insertWidget(1, top_bar_sep)
         self.r_lay.insertWidget(WinMain.grid_insert_num, self.grid)
-        self.r_lay.insertWidget(4, self.grid_spacer)
-        self.r_lay.insertWidget(5, grid_sep)
-        self.r_lay.insertWidget(6, self.path_bar)
-        self.r_lay.insertWidget(7, path_bar_sep)
-        self.r_lay.insertWidget(9, self.sort_bar)
+        self.r_lay.insertWidget(4, grid_sep)
+        self.r_lay.insertWidget(5, self.path_bar)
+        self.r_lay.insertWidget(6, path_bar_sep)
+        self.r_lay.insertWidget(7, self.sort_bar)
 
         # --- Настройка Splitter ---
         self.splitter = QSplitter()
@@ -470,7 +468,6 @@ class WinMain(WinBase):
             self.grid.set_first_col_width()
             self.setup_grid_signals()
             self.r_lay.insertWidget(WinMain.grid_insert_num, self.grid)
-            self.grid_spacer.resize(0, 0)
 
         def start_load_grid():
             self.top_bar.search_wid.clear_search()
@@ -485,8 +482,7 @@ class WinMain(WinBase):
             self.setWindowTitle(t)
             end_load_grid()
 
-        self.grid_spacer.resize(0, self.height())
-        self.grid_spacer.setFocus()
+        self.grid.grid_wid.hide()
         QTimer.singleShot(100, start_load_grid)
 
     def change_view_cmd(self):
