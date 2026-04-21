@@ -320,7 +320,6 @@ class TableView(QTableView):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
         self.convert_win = WinImgConvert(urls)
         self.convert_win.center(self.window())
-        # self.convert_win.finished.connect(self.load_st_grid.emit)
         self.convert_win.show()
 
     def rename_row(self, url: str):
@@ -482,7 +481,6 @@ class TableView(QTableView):
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = WinRemoveFiles(self.main_win_item, urls)
         self.rem_win.center(self.window())
-        # self.rem_win.finished_.connect(self.load_st_grid.emit)
         self.rem_win.show()
 
     def select_row(self, index: QModelIndex):
