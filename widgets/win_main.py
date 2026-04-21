@@ -120,7 +120,9 @@ class WinMain(WinBase):
 
         # --- Меню и панель ---
         self.bar_macos = BarMacos()
-        self.bar_macos.new_win.connect(lambda: self.open_in_new_win((None, None)))
+        self.bar_macos.new_win.connect(
+            lambda: self.open_in_new_win((self.base_dir, None))
+        )
         self.bar_macos.servers_win.connect(self.open_servers_win)
         self.bar_macos.settings_win.connect(self.open_settings)
         self.bar_macos.go_to_win.connect(self.open_go_to_win)
