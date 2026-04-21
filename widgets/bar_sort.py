@@ -166,7 +166,6 @@ class CustomSlider(USlider):
 
 
 class BarSort(QWidget):
-    load_st_grid = pyqtSignal()
     sort_thumbs = pyqtSignal()
     resize_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()

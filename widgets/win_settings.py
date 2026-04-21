@@ -181,9 +181,7 @@ class UCheckBox(QCheckBox):
 
 
 class CheckboxWidgets(GroupWid):
-    load_st_grid = pyqtSignal()
     show_texts_sig = pyqtSignal()
-    text_ = "Отобазить скрытые файлы"
     go_to_text = "\n".join([
     "Включить автоматический переход при нажатии \"Перейти\",",
     " если путь скопирован в буфер обмена.",
@@ -193,10 +191,6 @@ class CheckboxWidgets(GroupWid):
 
     def __init__(self):
         super().__init__()
-
-        self.show_hidden = UCheckBox(self.text_)
-        self.layout_.addWidget(self.show_hidden)
-
         self.layout_.addWidget(HSep())
 
         self.enable_go_to = UCheckBox(self.go_to_text)
@@ -210,24 +204,15 @@ class CheckboxWidgets(GroupWid):
         self.show_texts = UCheckBox(self.show_texts_text)
         self.layout_.addWidget(self.show_texts)
 
-        if JsonData.show_hidden:
-            self.show_hidden.setChecked(True)
-
         if JsonData.go_to_now:
             self.enable_go_to.setChecked(True)
 
         if JsonData.show_text:
             self.show_texts.setChecked(True)
 
-        self.show_hidden.stateChanged.connect(self.on_state_changed)
         self.enable_go_to.stateChanged.connect(self.on_state_changed_two)
         self.show_texts.stateChanged.connect(self.show_texts_cmd)
-        
-    def on_state_changed(self, value: int):
-        data = {0: False, 2: True}
-        JsonData.show_hidden = data.get(value)
-        self.load_st_grid.emit()
- 
+         
     def on_state_changed_two(self, value: int):
         data = {0: False, 2: True}
         JsonData.go_to_now = data.get(value)
@@ -358,7 +343,6 @@ class Themes(QGroupBox):
 
 class WinSettings(WinMinCloseOnly):
     remove_db = pyqtSignal()
-    load_st_grid = pyqtSignal()
     title_text = "Настройки"
     theme_changed = pyqtSignal()
     show_texts_sig = pyqtSignal()
@@ -379,7 +363,6 @@ class WinSettings(WinMinCloseOnly):
         main_lay.addWidget(h_wid)
 
         checkbox_group = CheckboxWidgets()
-        checkbox_group.load_st_grid.connect(self.load_st_grid.emit)
         checkbox_group.show_texts_sig.connect(self.show_texts_sig.emit)
         main_lay.addWidget(checkbox_group)
 

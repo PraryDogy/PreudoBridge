@@ -267,7 +267,7 @@ class Grid(UScrollArea):
     path_bar_update = pyqtSignal(str)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-    load_st_grid = pyqtSignal()
+    load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
     open_in_new_win = pyqtSignal(tuple)
@@ -568,8 +568,7 @@ class Grid(UScrollArea):
             wid = self.selected_thumbs[0]
             if wid.data_item.type_ == Static.folder_type:
                 self.new_history_item.emit(wid.data_item.abs_path)
-                self.main_win_item.set_current_dir(wid.data_item.abs_path)
-                self.load_st_grid.emit()
+                self.load_st_grid.emit(wid.data_item.abs_path)
             else:
                 url_to_wid = {
                     url: wid
@@ -931,7 +930,7 @@ class Grid(UScrollArea):
             menu_.addSeparator()
 
         upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid.emit())
+        upd_.triggered.connect(lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir))
         menu_.addAction(upd_)
 
         change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())

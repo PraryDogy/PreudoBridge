@@ -236,7 +236,7 @@ class WinMain(WinBase):
         self.top_bar.change_view.connect(self.change_view_cmd)
         self.top_bar.load_search_grid.connect(self.load_search_grid)
         self.top_bar.load_st_grid.connect(self.load_st_grid)
-        self.top_bar.navigate.connect(self.load_st_grid)
+        # self.top_bar.navigate.connect(self.load_st_grid)
         self.top_bar.open_in_new_win.connect(lambda d: self.open_in_new_win((d, None)))
         self.top_bar.open_settings.connect(self.open_settings)
         self.top_bar.new_folder.connect(self.new_folder)
@@ -252,7 +252,6 @@ class WinMain(WinBase):
         self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
         self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
         self.sort_bar.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
-        self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.sort_bar.open_go_win.connect(lambda: self.go_to_cmd())
 
     def new_folder(self):
@@ -311,38 +310,11 @@ class WinMain(WinBase):
             self.open_go_to_win()
 
     def path_finder_cmd(self, clipboard_path: str):
-
-        def poll_task():
-            q = self.path_fixer_task.queue
-
-            if not q.empty():
-                fixer_item: PathFixerItem = q.get()
-                if fixer_item.fixed_path is None:
-                    return
-                if fixer_item.is_dir:
-                    self.main_win_item.set_current_dir(fixer_item.fixed_path)
-                else:
-                    self.main_win_item.set_current_dir(os.path.dirname(fixer_item.fixed_path))
-                    self.main_win_item.go_to = fixer_item.fixed_path
-                self.top_bar.new_history_item(self.main_win_item.abs_current_dir)
-                self.load_st_grid()
-
-            if not self.path_fixer_task.is_alive():
-                self.path_fixer_task.terminate_join()
-            else:
-                QTimer.singleShot(100, poll_task)
-
-        self.path_fixer_task = ProcessWorker(
-            target=PathFixer.start,
-            args=(clipboard_path, )
-        )
-        self.path_fixer_task.start()
-        QTimer.singleShot(100, poll_task)
+        raise Exception ("фиксер путей")
 
     def open_settings(self, *args):
         self.sett_win = WinSettings()
         self.sett_win.show_texts_sig.connect(lambda: self.top_bar.toggle_texts())
-        self.sett_win.load_st_grid.connect(self.load_st_grid)
         self.sett_win.theme_changed.connect(lambda: QTimer.singleShot(100, self.change_theme))
         self.sett_win.center(self)
         self.sett_win.show()
@@ -355,8 +327,7 @@ class WinMain(WinBase):
             self.top_bar.new_history_item(new_main_dir)
             self.main_win_item.urls_to_select.clear()
             self.main_win_item.go_to = old_main_dir
-            self.main_win_item.set_current_dir(new_main_dir)
-            self.load_st_grid()
+            self.load_st_grid(new_main_dir)
 
     def resize_timer_timeout(self):
         self.grid.resize_thumbs()
@@ -422,8 +393,9 @@ class WinMain(WinBase):
         Для cmd v, вставить, dropEvent
         """
         def paste_final(dst_urls: list[Path]):
+            raise Exception ("paste filessss")
             if isinstance(self.grid, TableView):
-                self.load_st_grid()
+                self.load_st_grid("test")
 
         ClipboardItem.set_dest(self.main_win_item.abs_current_dir)
         self.win_copy = WinCopyFiles()
@@ -501,7 +473,7 @@ class WinMain(WinBase):
             self.top_bar.change_view_btn.lbl.setText(self.list_text)
             self.main_win_item.set_view_mode(0)
 
-        self.load_st_grid()
+        self.load_st_grid(self.main_win_item.abs_current_dir)
 
     def open_servers_win(self):
         self.servers_win = WinServers()
