@@ -121,7 +121,7 @@ class WinMain(WinBase):
         # --- Меню и панель ---
         self.bar_macos = BarMacos()
         self.bar_macos.new_win.connect(
-            lambda: self.open_in_new_win((self.base_dir, None))
+            lambda: self.new_main_win((self.base_dir, None))
         )
         self.bar_macos.servers_win.connect(self.open_servers_win)
         self.bar_macos.settings_win.connect(self.open_settings)
@@ -217,11 +217,11 @@ class WinMain(WinBase):
         self.menu_tree.add_fav.connect(self.menu_favs.add_fav)
         self.menu_tree.del_fav.connect(self.menu_favs.del_fav)
         self.menu_tree.new_history_item.connect(self.bar_top.new_history_item)
-        self.menu_tree.open_in_new_window.connect(self.open_in_new_win)
+        self.menu_tree.open_in_new_window.connect(self.new_main_win)
 
         self.menu_favs.load_st_grid.connect(self.load_st_grid)
         self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
-        self.menu_favs.open_in_new_win.connect(self.open_in_new_win)
+        self.menu_favs.open_in_new_win.connect(self.new_main_win)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
@@ -234,7 +234,7 @@ class WinMain(WinBase):
         self.bar_top.change_view.connect(self.change_view_cmd)
         self.bar_top.load_search_grid.connect(self.load_search_grid)
         self.bar_top.load_st_grid.connect(self.load_st_grid)
-        self.bar_top.open_in_new_win.connect(self.open_in_new_win)
+        self.bar_top.open_in_new_win.connect(self.new_main_win)
         self.bar_top.open_settings.connect(self.open_settings)
         self.bar_top.new_folder.connect(
             lambda: self.grid.new_folder()
@@ -310,7 +310,7 @@ class WinMain(WinBase):
             if os.path.isdir(path):
                 self.load_st_grid(path)
             elif path.endswith(ImgUtils.ext_all):
-                self.main_win_item.go_to = path
+                self.main_win_item.go_to_widget = path
                 self.load_st_grid(os.path.dirname(path))
 
         user_path = user_path.strip("\"\'\n ")
@@ -337,18 +337,16 @@ class WinMain(WinBase):
 
     def level_up(self):
         new_main_dir = os.path.dirname(self.main_win_item.abs_current_dir)
-        old_main_dir = self.main_win_item.abs_current_dir
         if new_main_dir != os.sep:
             self.bar_top.new_history_item(new_main_dir)
             self.main_win_item.urls_to_select.clear()
-            self.main_win_item.go_to = old_main_dir
             self.load_st_grid(new_main_dir)
 
     def resize_timer_timeout(self):
         self.grid.resize_thumbs()
         self.grid.rearrange_thumbs()
 
-    def open_in_new_win(self, path: str):
+    def new_main_win(self, path: str):
         new_win = WinMain(path)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
@@ -363,7 +361,7 @@ class WinMain(WinBase):
         self.grid.del_fav.connect(self.menu_favs.del_fav)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
-        self.grid.open_in_new_win.connect(self.open_in_new_win)
+        self.grid.open_in_new_win.connect(self.new_main_win)
         self.grid.go_to_widget.connect(self.go_to_cmd)
         self.grid.level_up.connect(self.level_up)
         self.grid.new_history_item.connect(self.bar_top.new_history_item)
@@ -526,7 +524,7 @@ class WinMain(WinBase):
                 self.change_view_cmd()
 
             elif a0.key() == Qt.Key.Key_N:
-                self.open_in_new_win(self.base_dir)
+                self.new_main_win(self.base_dir)
             
             elif a0.key() == Qt.Key.Key_K:
                 self.open_servers_win()

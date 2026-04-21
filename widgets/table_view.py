@@ -174,12 +174,12 @@ class TableView(QTableView):
             path = self._model.filePath(index)
             self.url_to_index[path] = index
 
-        if self.main_win_item.go_to:
-            if self.main_win_item.go_to in self.url_to_index:
-                index = self.url_to_index.get(self.main_win_item.go_to)
+        if self.main_win_item.go_to_widget:
+            if self.main_win_item.go_to_widget in self.url_to_index:
+                index = self.url_to_index.get(self.main_win_item.go_to_widget)
                 if index and index.isValid():
                     self.select_row(index)
-                self.main_win_item.go_to = None
+                self.main_win_item.go_to_widget = None
 
         elif self.main_win_item.urls_to_select:
             for url in self.main_win_item.urls_to_select:
