@@ -1,22 +1,19 @@
-import gc
 import os
 
 from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
                           pyqtSignal)
-from PyQt5.QtGui import (QContextMenuEvent, QDrag, QIcon, QImage, QKeyEvent,
+from PyQt5.QtGui import (QContextMenuEvent, QDrag, QImage, QKeyEvent,
                          QMouseEvent, QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
-                             QGridLayout, QLabel, QRubberBand, QSplitter,
-                             QVBoxLayout, QWidget)
+                             QGridLayout, QLabel, QRubberBand, QVBoxLayout,
+                             QWidget)
 from typing_extensions import Literal
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
-from system.database import Dbase
 from system.items import ClipboardItem, DataItem, MainWinItem, SortItem
 from system.multiprocess import DirWatcher, ImgLoader, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
-from system.tasks import UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea

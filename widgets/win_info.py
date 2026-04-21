@@ -10,7 +10,7 @@ from system.items import DataItem, MultipleInfoItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
-from ._base_widgets import WinMinCloseOnly, UMenu
+from ._base_widgets import UMenu, WinMinCloseOnly
 from .actions import CopyText, RevealInFinder
 
 

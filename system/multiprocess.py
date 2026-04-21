@@ -7,7 +7,8 @@ from time import sleep
 import numpy as np
 import sqlalchemy
 from PIL import Image
-from watchdog.events import FileSystemEventHandler
+from sqlalchemy.exc import OperationalError
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Static
@@ -17,7 +18,7 @@ from system.items import (CopyItem, DataItem, ImgLoaderItem, JpgConvertItem,
                           SearchItem)
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
 from system.tasks import Utils
-from sqlalchemy.exc import OperationalError
+
 
 class BaseProcessWorker:
     _registry = []
@@ -198,8 +199,13 @@ class _DirChangedHandler(FileSystemEventHandler):
         super().__init__()
         self.callback = callback
 
-    def on_any_event(self, event):
-        self.callback(event)
+    def on_any_event(self, event: FileSystemEvent):
+        stmt = any((
+            event.src_path.endswith(ImgUtils.ext_all),
+            os.path.isdir(event.src_path)
+        ))
+        if stmt:
+            self.callback(event)
 
 
 class DirWatcher:
