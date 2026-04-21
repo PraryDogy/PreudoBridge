@@ -33,12 +33,13 @@ class MyFileSystemModel(QFileSystemModel):
             f"*{ext}"
             for ext in ImgUtils.ext_all
         ]
-        print(exts)
         self.setNameFilters(exts)
-
-        # 2. Указываем, что фильтр должен применяться постоянно
         self.setNameFilterDisables(False) 
-
+        self.setFilter(
+            QDir.Filter.Files | 
+            QDir.Filter.AllDirs | 
+            QDir.Filter.NoDotAndDotDot
+        )
         self.cut_rows = set()
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
@@ -131,7 +132,7 @@ class TableView(QTableView):
         self.doubleClicked.connect(self.double_clicked)
 
         self._model = MyFileSystemModel()
-        self._model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot)
+        # self._model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot)
         # if JsonData.show_hidden:
             # self._model.setFilter(self._model.filter() | QDir.Hidden)
 
