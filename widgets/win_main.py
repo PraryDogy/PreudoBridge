@@ -217,12 +217,12 @@ class WinMain(WinBase):
         self.tree_menu.add_fav.connect(self.favs_menu.add_fav)
         self.tree_menu.del_fav.connect(self.favs_menu.del_fav)
         self.tree_menu.new_history_item.connect(self.top_bar.new_history_item)
-        self.tree_menu.open_in_new_window.connect(lambda d: self.open_in_new_win((d, None)))
+        self.tree_menu.open_in_new_window.connect(self.open_in_new_win)
 
         # favs_menu
         self.favs_menu.load_st_grid.connect(self.load_st_grid)
         self.favs_menu.new_history_item.connect(self.top_bar.new_history_item)
-        self.favs_menu.open_in_new_win.connect(lambda d: self.open_in_new_win((d, None)))
+        self.favs_menu.open_in_new_win.connect(self.open_in_new_win)
 
         self.filters_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
         self.filters_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
@@ -232,7 +232,7 @@ class WinMain(WinBase):
         self.top_bar.change_view.connect(self.change_view_cmd)
         self.top_bar.load_search_grid.connect(self.load_search_grid)
         self.top_bar.load_st_grid.connect(self.load_st_grid)
-        self.top_bar.open_in_new_win.connect(lambda d: self.open_in_new_win((d, None)))
+        self.top_bar.open_in_new_win.connect(self.open_in_new_win)
         self.top_bar.open_settings.connect(self.open_settings)
         self.top_bar.new_folder.connect(self.new_folder)
 
@@ -345,12 +345,8 @@ class WinMain(WinBase):
         self.grid.resize_thumbs()
         self.grid.rearrange_thumbs()
 
-    def open_in_new_win(self, data: tuple):
-        """
-        new main dir, go_to
-        """
-        new_main_dir, _ = data
-        new_win = WinMain(new_main_dir)
+    def open_in_new_win(self, path: str):
+        new_win = WinMain(path)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
         new_win.move(x + WinMain.new_win_offset, y + WinMain.new_win_offset)
@@ -526,7 +522,7 @@ class WinMain(WinBase):
                 self.change_view_cmd()
 
             elif a0.key() == Qt.Key.Key_N:
-                self.open_in_new_win((None, None))
+                self.open_in_new_win(self.base_dir)
             
             elif a0.key() == Qt.Key.Key_K:
                 self.open_servers_win()

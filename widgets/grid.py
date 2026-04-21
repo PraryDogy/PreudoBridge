@@ -269,7 +269,7 @@ class Grid(UScrollArea):
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
-    open_in_new_win = pyqtSignal(tuple)
+    open_in_new_win = pyqtSignal(str)
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
@@ -625,7 +625,7 @@ class Grid(UScrollArea):
         Загружает сетку GridStandart с указанным путем к файлу / папке
         """
         def cmd(main_dir: str):
-            self.open_in_new_win.emit((main_dir, wid.data_item.abs_path, ))
+            self.open_in_new_win.emit(main_dir)
 
         new_main_dir = os.path.dirname(wid.data_item.abs_path)
         QTimer.singleShot(100, lambda: cmd(new_main_dir))
@@ -795,7 +795,9 @@ class Grid(UScrollArea):
 
         elif wid.data_item.type_ == Static.folder_type:
             new_win = ItemActions.OpenInNewWindow(menu_)
-            new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.data_item.abs_path, None)))
+            new_win.triggered.connect(
+                lambda: self.open_in_new_win.emit(wid.data_item.abs_path)
+            )
             menu_.addAction(new_win)
 
             if wid.data_item.abs_path in JsonData.favs:
