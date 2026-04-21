@@ -1,6 +1,4 @@
 src = "'  act  '"
+res = src.strip("\"\'\n ")
 
-
-src = src.strip(("'", '"', ""))
-
-print(src)
+print(res)
