@@ -344,7 +344,10 @@ class WinMain(WinBase):
         self.grid.rearrange_thumbs()
 
     def open_in_new_win(self, data: tuple):
-        new_main_dir, go_to = data
+        """
+        new main dir, go_to
+        """
+        new_main_dir, _ = data
         new_win = WinMain(new_main_dir)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
