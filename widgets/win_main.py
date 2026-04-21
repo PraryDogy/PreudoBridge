@@ -408,7 +408,7 @@ class WinMain(WinBase):
     def load_st_grid(self, path: str):
 
         def end_load_grid():
-            self.favs_menu.select_fav(self.main_win_item.abs_current_dir)
+            self.favs_menu.select_fav(path)
             self.grid.deleteLater()
 
             # это лочит главный гуи когда СМБ не отвечает
