@@ -280,19 +280,15 @@ class WinMain(WinBase):
             gc.collect()
 
         self.img_view_win = WinImgView(item)
-
         self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
         self.img_view_win.closed.connect(_on_closed)
         self.img_view_win.info_win.connect(self.open_info_win)
-
         if WinImgView.ww == 0:
             self.img_view_win.resize(Static.base_ww, Static.base_hh)
             self.img_view_win.center(self.window())
-            
         else:
             self.img_view_win.resize(WinImgView.ww, WinImgView.hh)
             self.img_view_win.move(WinImgView.xx, WinImgView.yy)
-
         self.img_view_win.show()
 
     def go_to_win(self):
