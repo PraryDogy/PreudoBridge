@@ -456,12 +456,7 @@ class WinMain(WinBase):
             self.search_item.search_list.clear()
             self.scroll_up.hide()
             self.grid.deleteLater()
-
-            t = os.path.basename(self.main_win_item.abs_current_dir)
-            fav = JsonData.favs.get(self.main_win_item.abs_current_dir, "")
-            if fav and fav != t:
-                t = f"{t} ({fav})"
-            self.setWindowTitle(t)
+            self.setWindowTitle(os.path.basename(self.main_win_item.abs_current_dir))
             end_load_grid()
 
         def show_win(win: WinWarn):
