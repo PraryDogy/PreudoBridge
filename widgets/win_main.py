@@ -77,7 +77,7 @@ class ScrollUpBtn(QLabel):
 
 class WinMain(WinBase):
     resize_ms = 100
-    grid_insert_num = 3
+    grid_index = 3
     min_width_ = 800
     min_height_ = 500
     left_menu_w = 240
@@ -175,7 +175,7 @@ class WinMain(WinBase):
         # --- Добавление в layout ---
         self.r_lay.insertWidget(0, self.top_bar)
         self.r_lay.insertWidget(1, top_bar_sep)
-        self.r_lay.insertWidget(WinMain.grid_insert_num, self.grid)
+        self.r_lay.insertWidget(WinMain.grid_index, self.grid)
         self.r_lay.insertWidget(4, grid_sep)
         self.r_lay.insertWidget(5, self.path_bar)
         self.r_lay.insertWidget(6, path_bar_sep)
@@ -389,7 +389,7 @@ class WinMain(WinBase):
         )
         self.setWindowTitle(self.search_text)
         Utils.fill_missing_methods(TableView, Grid)
-        self.r_lay.insertWidget(WinMain.grid_insert_num, self.grid)
+        self.r_lay.insertWidget(WinMain.grid_index, self.grid)
         self.scroll_up.hide()
         self.setup_grid_signals()
         self.grid.finished_.connect(
@@ -449,7 +449,7 @@ class WinMain(WinBase):
             self.grid.setParent(self)
             self.grid.set_first_col_width()
             self.setup_grid_signals()
-            self.r_lay.insertWidget(WinMain.grid_insert_num, self.grid)
+            self.r_lay.insertWidget(WinMain.grid_index, self.grid)
 
         def start_load_grid():
             self.top_bar.search_wid.clear_search()
