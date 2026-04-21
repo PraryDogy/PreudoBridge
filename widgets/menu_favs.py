@@ -19,7 +19,7 @@ class FavItem(QLabel):
     remove_fav_item = pyqtSignal()
     renamed = pyqtSignal(str)
     new_history_item = pyqtSignal(str)
-    load_st_grid = pyqtSignal()
+    load_st_grid = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
     rename_text = "Переименовать"
     item_height = 25
@@ -47,7 +47,7 @@ class FavItem(QLabel):
     def view_fav(self):
         self.new_history_item.emit(self.src)
         self.main_win_item.set_current_dir(self.src)
-        self.load_st_grid.emit()
+        self.load_st_grid.emit(self.src)
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
@@ -108,7 +108,7 @@ class MenuFavs(QListWidget):
     LIST_ITEM = "list_item"
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
-    load_st_grid = pyqtSignal()
+    load_st_grid = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
     svg_size = 16
     folder_icon: QIcon
@@ -187,16 +187,16 @@ class MenuFavs(QListWidget):
         self.add_fav_item(name, src)
         JsonData.write_json_data()
 
-    def add_fav_item(self, name: str, src: str, fixed: bool) -> dict:
-        fav_item = FavItem(name, src, self.main_win_item, fixed)
+    def add_fav_item(self, name: str, src: str, fixed_item: bool) -> dict:
+        fav_item = FavItem(name, src, self.main_win_item, fixed_item)
         fav_item.new_history_item.connect(self.new_history_item)
-        fav_item.load_st_grid.connect(self.load_st_grid.emit)
+        fav_item.load_st_grid.connect(lambda path: self.load_st_grid.emit(path))
         fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
         fav_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
         fav_item.renamed.connect(lambda name: self.update_name(src, name))
 
         list_item = QListWidgetItem(parent=self)
-        if fixed:
+        if fixed_item:
             list_item.setIcon(self.folder_pin_icon)
         else:
             list_item.setIcon(self.folder_icon)

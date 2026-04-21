@@ -203,7 +203,11 @@ class WinMain(WinBase):
         self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
 
         self.setup_signals()
-        self.load_st_grid()
+
+        if dir:
+            self.load_st_grid(dir)
+        else:
+            self.load_st_grid(self.base_dir)
 
         if not JsonData.favs:
             self.tabs_widget.setCurrentIndex(0)
@@ -433,7 +437,7 @@ class WinMain(WinBase):
         self.sort_bar.slider.setDisabled(value)
         self.filters_menu.setDisabled(value)
 
-    def load_st_grid(self):
+    def load_st_grid(self, path: str):
 
         def end_load_grid():
             self.favs_menu.select_fav(self.main_win_item.abs_current_dir)
@@ -482,6 +486,7 @@ class WinMain(WinBase):
             self.setWindowTitle(t)
             end_load_grid()
 
+        self.main_win_item.set_current_dir(path)
         self.grid.grid_wid.hide()
         QTimer.singleShot(100, start_load_grid)
 

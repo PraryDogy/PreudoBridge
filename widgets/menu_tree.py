@@ -12,7 +12,7 @@ from .actions import ItemActions
 
 class MenuTree(QTreeView):
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal()
+    load_st_grid_sig = pyqtSignal(str)
     open_in_new_window = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     add_fav = pyqtSignal(str)
@@ -45,7 +45,7 @@ class MenuTree(QTreeView):
             self.setCurrentIndex(index)
             self.new_history_item.emit(path)
             self.main_win_item.set_current_dir(path)
-            self.load_st_grid_sig.emit()
+            self.load_st_grid_sig.emit(path)
         # self.expand(index)
 
     def mouseReleaseEvent(self, event):

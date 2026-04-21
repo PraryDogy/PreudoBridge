@@ -279,8 +279,7 @@ class BarTop(QWidget):
     # 0 отобразить сеткой, 1 отобразить списком
     change_view = pyqtSignal()
     load_search_grid = pyqtSignal()
-    load_st_grid = pyqtSignal()
-    # при нажатии кнопкок "назад" или "вперед" загружает GridStandart
+    load_st_grid = pyqtSignal(str)
     navigate = pyqtSignal(str)
     # Кнопка "очистить данные" была нажата в окне настроек
     remove_db = pyqtSignal()
@@ -349,7 +348,7 @@ class BarTop(QWidget):
 
         self.update_btn = BarTopBtn()
         self.update_btn.load(os.path.join(Static.internal_images_dir, "update.svg"))
-        self.update_btn.clicked.connect(lambda: self.load_st_grid.emit())
+        self.update_btn.clicked.connect(lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir))
         self.main_lay.addWidget(self.update_btn)
 
         self.new_folder_btn = BarTopBtn()
@@ -377,7 +376,7 @@ class BarTop(QWidget):
 
         self.search_wid = SearchWidget(self.search_item, self.main_win_item)
         self.search_wid.load_search_grid.connect(self.load_search_grid.emit)
-        self.search_wid.load_st_grid.connect(self.load_st_grid.emit)
+        self.search_wid.load_st_grid.connect(lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir))
         self.main_lay.addWidget(self.search_wid)
 
         for btn, txt in zip(self.findChildren(BarTopBtn), self.topbar_btn_texts):
@@ -466,8 +465,7 @@ class BarTop(QWidget):
         if 0 <= new_index < len(self.history_items):
             self.current_index = new_index
             new_main_dir = self.history_items[self.current_index]
-            self.main_win_item.set_current_dir(new_main_dir)
-            self.load_st_grid.emit()
+            self.load_st_grid.emit(new_main_dir)
 
     def resizeEvent(self, a0):
         return super().resizeEvent(a0)

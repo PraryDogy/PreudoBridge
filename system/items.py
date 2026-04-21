@@ -173,7 +173,7 @@ class MainWinItem:
             new_path = os.path.join(i, rel_path)
             if os.path.exists(new_path):
                 return new_path
-        return None
+        return path
 
 
 class ClipboardItem:
