@@ -20,7 +20,7 @@ from ._base_widgets import USep, WinBase
 from .bar_macos import BarMacos
 from .bar_path import BarPath
 from .bar_sort import BarSort
-from .bar_top import BarTop
+from .bar_top import TopBar
 from .grid import Grid
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
@@ -37,7 +37,7 @@ from .win_settings import WinSettings
 from .win_warn import WinWarn
 
 
-class TabsWidget(QTabWidget):
+class TreeFavsWid(QTabWidget):
     def __init__(self):
         super().__init__()
         self.tabBarClicked.connect(self.tab_cmd)
@@ -135,55 +135,50 @@ class WinMain(WinBase):
         self.centralWidget().setLayout(main_lay)
 
         # --- Левый виджет ---
-        self.left_wid = QSplitter()
-        self.left_wid.setHandleWidth(WinMain.splitter_handle_width)
-        self.left_wid.setOrientation(Qt.Orientation.Vertical)
-        self.left_wid.setContentsMargins(0, 0, 0, 5)
+        self.left_side_widget = QSplitter()
+        self.left_side_widget.setHandleWidth(WinMain.splitter_handle_width)
+        self.left_side_widget.setOrientation(Qt.Orientation.Vertical)
+        self.left_side_widget.setContentsMargins(0, 0, 0, 5)
 
-        self.tabs_widget = TabsWidget()
+        self.tree_favs_wid = TreeFavsWid()
         self.tree_menu = MenuTree(self.main_win_item)
         self.favs_menu = MenuFavs(self.main_win_item)
-        self.tabs_widget.addTab(self.tree_menu, WinMain.folders_text)
-        self.tabs_widget.addTab(self.favs_menu, WinMain.favs_text)
+        self.tree_favs_wid.addTab(self.tree_menu, WinMain.folders_text)
+        self.tree_favs_wid.addTab(self.favs_menu, WinMain.favs_text)
+        self.left_side_widget.addWidget(self.tree_favs_wid)
 
         self.filters_menu = MenuFilters()
+        self.left_side_widget.addWidget(self.filters_menu)
 
-        self.left_wid.addWidget(self.tabs_widget)
-        self.left_wid.addWidget(self.filters_menu)
-        self.left_wid.setSizes([self.min_height_ - 120, 120])
+        self.left_side_widget.setSizes([self.min_height_ - 120, 120])
 
         # --- Правый виджет ---
-        right_wid = QWidget()
-        self.r_lay = QVBoxLayout()
-        self.r_lay.setContentsMargins(0, 0, 0, 0)
-        self.r_lay.setSpacing(0)
-        right_wid.setLayout(self.r_lay)
+        right_side_widget = QWidget()
+        self.right_side_layout = QVBoxLayout()
+        self.right_side_layout.setContentsMargins(0, 0, 0, 0)
+        self.right_side_layout.setSpacing(0)
+        right_side_widget.setLayout(self.right_side_layout)
 
-        self.top_bar = BarTop(self.main_win_item, self.search_item)
+        self.top_bar = TopBar(self.main_win_item, self.search_item)
         self.grid = Grid(self.main_win_item, False)
         Utils.fill_missing_methods(GridSearch, Grid)
         self.path_bar = BarPath(self.main_win_item)
         self.sort_bar = BarSort(self.sort_item, self.main_win_item)
 
-        # Разделители
-        top_bar_sep = USep()
-        grid_sep = USep()
-        path_bar_sep = USep()
-
         # --- Добавление в layout ---
-        self.r_lay.insertWidget(0, self.top_bar)
-        self.r_lay.insertWidget(1, top_bar_sep)
-        self.r_lay.insertWidget(WinMain.grid_index, self.grid)
-        self.r_lay.insertWidget(4, grid_sep)
-        self.r_lay.insertWidget(5, self.path_bar)
-        self.r_lay.insertWidget(6, path_bar_sep)
-        self.r_lay.insertWidget(7, self.sort_bar)
+        self.right_side_layout.insertWidget(0, self.top_bar)
+        self.right_side_layout.insertWidget(1, USep())
+        self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
+        self.right_side_layout.insertWidget(4, USep())
+        self.right_side_layout.insertWidget(5, self.path_bar)
+        self.right_side_layout.insertWidget(6, USep())
+        self.right_side_layout.insertWidget(7, self.sort_bar)
 
         # --- Настройка Splitter ---
         self.splitter = QSplitter()
         self.splitter.setHandleWidth(WinMain.splitter_handle_width)
-        self.splitter.addWidget(self.left_wid)
-        self.splitter.addWidget(right_wid)
+        self.splitter.addWidget(self.left_side_widget)
+        self.splitter.addWidget(right_side_widget)
         self.splitter.setSizes([WinMain.left_menu_w, self.width() - WinMain.left_menu_w])
         self.splitter.setContentsMargins(0, 5, 0, 0)
         main_lay.addWidget(self.splitter)
@@ -192,7 +187,7 @@ class WinMain(WinBase):
         self.top_bar.new_history_item(self.main_win_item.abs_current_dir)
         self.path_bar.update(self.main_win_item.abs_current_dir)
         self.sort_bar.sort_menu_update()
-        self.tabs_widget.setCurrentIndex(1)
+        self.tree_favs_wid.setCurrentIndex(1)
 
         # --- ScrollUp кнопка ---
         self.scroll_up = ScrollUpBtn(self)
@@ -206,7 +201,7 @@ class WinMain(WinBase):
             self.load_st_grid(self.base_dir)
 
         if not JsonData.favs:
-            self.tabs_widget.setCurrentIndex(0)
+            self.tree_favs_wid.setCurrentIndex(0)
 
     def setup_signals(self):
         # splitter
@@ -386,7 +381,7 @@ class WinMain(WinBase):
         )
         self.setWindowTitle(self.search_text)
         Utils.fill_missing_methods(TableView, Grid)
-        self.r_lay.insertWidget(WinMain.grid_index, self.grid)
+        self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
         self.scroll_up.hide()
         self.setup_grid_signals()
         self.grid.finished_.connect(
@@ -443,7 +438,7 @@ class WinMain(WinBase):
 
             Utils.fill_missing_methods(*classes)
             self.setup_grid_signals()
-            self.r_lay.insertWidget(WinMain.grid_index, self.grid)
+            self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
 
         def _show_win(win: WinWarn):
             win.center(self.window())

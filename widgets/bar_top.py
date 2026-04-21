@@ -274,7 +274,7 @@ class SearchWidget(ULineEdit):
         return super().keyPressEvent(a0)
 
 
-class BarTop(QWidget):
+class TopBar(QWidget):
     level_up = pyqtSignal()
     # 0 отобразить сеткой, 1 отобразить списком
     change_view = pyqtSignal()
@@ -437,7 +437,7 @@ class BarTop(QWidget):
             # старые пути, если пользователь изменил направление навигации.
             self.history_items = self.history_items[:self.current_index + 1]
 
-        if len(self.history_items) > BarTop.history_items_limit:
+        if len(self.history_items) > TopBar.history_items_limit:
             self.history_items.pop(0)
             self.current_index -= 1
 
