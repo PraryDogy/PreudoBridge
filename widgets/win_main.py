@@ -97,7 +97,7 @@ class WinMain(WinBase):
     search_fin_text = "Поиск завершен"
     cache_download_descr ="Будет кэшировано все содержимое этой папки. Продолжить?"
 
-    def __init__(self, dir: str = None):
+    def __init__(self, dir: str = base_dir):
         super().__init__()
         self.setMinimumSize(WinMain.min_width_, WinMain.min_height_)
         self.resize(Static.base_ww, Static.base_hh)
@@ -108,7 +108,7 @@ class WinMain(WinBase):
         self.img_view_win = None
 
         self.main_win_item = MainWinItem()
-        self.main_win_item.set_current_dir(self.base_dir)
+        self.main_win_item.set_current_dir(dir)
 
         if WinMain.first_load:
             self.change_theme()
@@ -166,7 +166,7 @@ class WinMain(WinBase):
         self.right_side_layout.setSpacing(0)
 
         self.bar_top = BarTop(self.main_win_item, self.search_item)
-        self.bar_top.new_history_item(self.main_win_item.abs_current_dir)
+        self.bar_top.new_history_item(dir)
         self.right_side_layout.insertWidget(0, self.bar_top)
         self.right_side_layout.insertWidget(1, USep())
 
@@ -176,7 +176,7 @@ class WinMain(WinBase):
         self.right_side_layout.insertWidget(4, USep())
 
         self.bar_path = BarPath(self.main_win_item)
-        self.bar_path.update(self.main_win_item.abs_current_dir)
+        self.bar_path.update(dir)
         self.right_side_layout.insertWidget(5, self.bar_path)
         self.right_side_layout.insertWidget(6, USep())
 
@@ -197,17 +197,12 @@ class WinMain(WinBase):
 
         # --- ScrollUp кнопка ---
         self.scroll_up = ScrollUpBtn(self)
-        self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
+        self.scroll_up.clicked.connect(
+            lambda: self.grid.verticalScrollBar().setValue(0)
+        )
 
         self.setup_signals()
-
-        if dir:
-            self.load_st_grid(dir)
-        else:
-            self.load_st_grid(self.base_dir)
-
-        if not JsonData.favs:
-            tree_favs_wid.setCurrentIndex(0)
+        self.load_st_grid(dir)
 
     def setup_signals(self):
         # splitter
