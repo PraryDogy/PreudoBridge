@@ -191,7 +191,8 @@ class Utils:
         df_res = subprocess.run(
             ["df", abs_path],
             capture_output=True,
-            text=True
+            text=True,
+            encoding="utf-8"
         )
         lines = df_res.stdout.splitlines()
         device, mp = lines[1].split()[0], lines[1].split()[-1]
@@ -200,7 +201,8 @@ class Utils:
         du_res = subprocess.run(
             ["diskutil", "info", device],
             capture_output=True,
-            text=True
+            text=True,
+            encoding="utf-8"
         )
 
         uuid = None
