@@ -307,13 +307,15 @@ class WinMain(WinBase):
 
     def path_finder_cmd(self, clipboard_path: str):
         clipboard_path = clipboard_path.strip("\"\'\n ")
+        test = os.path.normpath(clipboard_path)
+        print(test)
+
         if not os.path.exists(clipboard_path):
             result = self.main_win_item.fix_path(clipboard_path)
             if result:
                 self.main_win_item.go_to = result
         else:
             result = clipboard_path
-        print(result)
 
     def open_settings(self, *args):
         self.sett_win = WinSettings()

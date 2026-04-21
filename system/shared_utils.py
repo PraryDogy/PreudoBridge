@@ -135,7 +135,7 @@ class ImgUtils:
         *ext_raw,
         *ext_video,
         *ext_icns,
-        *ext_svg,
+        # *ext_svg,
     )
 
     @classmethod
