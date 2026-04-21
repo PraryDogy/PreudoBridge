@@ -309,3 +309,10 @@ class ImgLoaderItem:
     queue: Queue
     fs_id: str
     rel_parent: str
+
+
+@dataclass(slots=True)
+class ImgViewItem:
+    start_url: str
+    url_to_wid: dict[str, object]
+    is_selection: bool

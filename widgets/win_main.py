@@ -10,10 +10,10 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import (ClipboardItem, DataItem, MainWinItem, SearchItem,
-                          SortItem)
+from system.items import (ClipboardItem, DataItem, ImgViewItem, MainWinItem,
+                          SearchItem, SortItem)
 from system.paletes import UPallete
-from system.shared_utils import SharedUtils, ImgUtils
+from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
