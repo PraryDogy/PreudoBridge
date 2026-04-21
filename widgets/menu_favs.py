@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDropEvent, QIcon, QImage,
                          QMouseEvent, QPixmap)
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
@@ -25,11 +25,12 @@ class FavItem(QLabel):
     rename_text = "Переименовать"
     item_height = 25
 
-    def __init__(self, name: str, src: str, main_win_item: MainWinItem):
+    def __init__(self, name: str, src: str, main_win_item: MainWinItem, fixed: bool):
         super().__init__(text=name)
         self.main_win_item = main_win_item
         self.name = name
         self.src = src
+        self.fixed = fixed
         self.setFixedHeight(FavItem.item_height)
         self.setContentsMargins(10, 0, 10, 0)
 
@@ -82,18 +83,27 @@ class FavItem(QLabel):
         copy_name = ItemActions.CopyName(menu_, names)
         menu_.addAction(copy_name)
 
-        menu_.addSeparator()
+        if not self.fixed:
+            menu_.addSeparator()
 
-        rename_action = QAction(FavItem.rename_text, menu_)
-        rename_action.triggered.connect(self.rename_cmd)
-        menu_.addAction(rename_action)
+            rename_action = QAction(FavItem.rename_text, menu_)
+            rename_action.triggered.connect(self.rename_cmd)
+            menu_.addAction(rename_action)
 
-        cmd_ = lambda: self.remove_fav_item.emit()
-        fav_action = ItemActions.FavRemove(menu_)
-        fav_action.triggered.connect(cmd_)
-        menu_.addAction(fav_action)
+            cmd_ = lambda: self.remove_fav_item.emit()
+            fav_action = ItemActions.FavRemove(menu_)
+            fav_action.triggered.connect(cmd_)
+            menu_.addAction(fav_action)
 
         menu_.show_under_cursor()
+
+
+class UListSpacerItem(QListWidgetItem):
+    def __init__(self, parent: QListWidget, height: int = 15):
+        super().__init__()
+        self.setSizeHint(QSize(parent.width(), height))
+        self.setFlags(Qt.ItemFlag.NoItemFlags)
+
 
 class MenuFavs(QListWidget):
     LIST_ITEM = "list_item"
@@ -111,7 +121,8 @@ class MenuFavs(QListWidget):
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        self.wids: dict[str, QListWidgetItem] = {}
+        self.items: dict[str, QListWidgetItem] = {}
+        self.fixed_items: dict[str, QListWidgetItem] = {}
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.create_folder_icon()
@@ -126,25 +137,46 @@ class MenuFavs(QListWidget):
 
     def init_ui(self):
         self.clear()
-        self.wids.clear()
+        self.items.clear()
+
+        user = os.path.expanduser("~")
+        icloud = "Library/Mobile Documents/com~apple~CloudDocs"
+        fixed = {
+            "/Volumes": "Компьютер",
+            os.path.join(user, icloud): "iCloud Drive",
+            os.path.join(user, "Desktop"): "Рабочий стол",
+            os.path.join(user, "Downloads"): "Загрузки"
+        }
+
+        for src, name in fixed.items():
+            if src in JsonData.favs:
+                JsonData.favs.pop(src)
+            result = self.add_fav_item(name, src, True)
+            item: QListWidgetItem = result[self.LIST_ITEM]
+            self.fixed_items[src] = item
+
+        item = UListSpacerItem(self)
+        self.addItem(item)
 
         for src, name in JsonData.favs.items():
-            result = self.add_fav_item(name, src)
+            if src in self.fixed_items:
+                continue
+            result = self.add_fav_item(name, src, False)
             item: QListWidgetItem = result[self.LIST_ITEM]
-            self.wids[src] = item
+            self.items[src] = item
 
             if self.main_win_item.abs_current_dir == src:
                 self.setCurrentItem(item)
 
     def select_fav(self, src: str):
-        wid = self.wids.get(src, None)
+        wid = self.items.get(src, None)
         if wid is None:
             self.clearSelection()
         else:
             self.setCurrentItem(wid)
 
     def add_fav(self, src: str):
-        if src not in JsonData.favs:
+        if src not in JsonData.favs and src not in self.fixed_items:
             cmd_ = lambda name: self.on_finished_rename(src, name)
             name = os.path.basename(src)
             self.win_set_name = WinRename(name)
@@ -157,8 +189,8 @@ class MenuFavs(QListWidget):
         self.add_fav_item(name, src)
         JsonData.write_json_data()
 
-    def add_fav_item(self, name: str, src: str) -> dict:
-        fav_item = FavItem(name, src, self.main_win_item)
+    def add_fav_item(self, name: str, src: str, fixed: bool) -> dict:
+        fav_item = FavItem(name, src, self.main_win_item, fixed)
         fav_item.new_history_item.connect(self.new_history_item)
         fav_item.load_st_grid.connect(self.load_st_grid.emit)
         fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
@@ -173,7 +205,7 @@ class MenuFavs(QListWidget):
         self.addItem(list_item)
         self.setItemWidget(list_item, fav_item)
 
-        self.wids[src] = list_item
+        self.items[src] = list_item
 
         return {self.LIST_ITEM: list_item, self.FAV_ITEM: fav_item}
 
