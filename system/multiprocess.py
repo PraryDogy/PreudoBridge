@@ -200,12 +200,14 @@ class _DirChangedHandler(FileSystemEventHandler):
         self.callback = callback
 
     def on_any_event(self, event: FileSystemEvent):
-        stmt = any((
-            event.src_path.endswith(ImgUtils.ext_all),
-            os.path.isdir(event.src_path)
-        ))
-        if stmt:
-            self.callback(event)
+        # stmt = any((
+        #     event.src_path.endswith(ImgUtils.ext_all),
+        #     os.path.isdir(event.src_path)
+        # ))
+        # if stmt:
+        #     self.callback(event)
+
+        self.callback(event)
 
 
 class DirWatcher:
