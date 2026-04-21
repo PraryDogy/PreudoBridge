@@ -205,25 +205,31 @@ class WinMain(WinBase):
         self.load_st_grid(dir)
 
     def setup_signals(self):
-        # splitter
-        self.main_splitter.splitterMoved.connect(lambda: self.resize_timer.start(WinMain.resize_ms))
+        """
+        Сигналы подключаются после инициации всех виджетов
+        """
+        self.main_splitter.splitterMoved.connect(
+            lambda: self.resize_timer.start(WinMain.resize_ms)
+        )
 
-        # tree_menu
         self.menu_tree.load_st_grid_sig.connect(self.load_st_grid)
         self.menu_tree.add_fav.connect(self.menu_favs.add_fav)
         self.menu_tree.del_fav.connect(self.menu_favs.del_fav)
         self.menu_tree.new_history_item.connect(self.bar_top.new_history_item)
         self.menu_tree.open_in_new_window.connect(self.open_in_new_win)
 
-        # favs_menu
         self.menu_favs.load_st_grid.connect(self.load_st_grid)
         self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
         self.menu_favs.open_in_new_win.connect(self.open_in_new_win)
 
-        self.menu_filters.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
-        self.menu_filters.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
+        # без лямбды не сработают, потому что self.grid динамически меняется
+        self.menu_filters.filter_thumbs.connect(
+            lambda: self.grid.filter_thumbs()
+        )
+        self.menu_filters.rearrange_thumbs.connect(
+            lambda: self.grid.rearrange_thumbs()
+        )
 
-        # top_bar
         self.bar_top.level_up.connect(self.level_up)
         self.bar_top.change_view.connect(self.change_view_cmd)
         self.bar_top.load_search_grid.connect(self.load_search_grid)
@@ -232,18 +238,25 @@ class WinMain(WinBase):
         self.bar_top.open_settings.connect(self.open_settings)
         self.bar_top.new_folder.connect(self.new_folder)
 
-        # path_bar
         self.bar_path.new_history_item.connect(self.bar_top.new_history_item)
         self.bar_path.load_st_grid.connect(self.load_st_grid)
         self.bar_path.info_win.connect(self.open_info_win)
         self.bar_path.add_fav.connect(self.menu_favs.add_fav)
         self.bar_path.del_fav.connect(self.menu_favs.del_fav)
 
-        # sort_bar
-        self.bar_sort.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
-        self.bar_sort.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
-        self.bar_sort.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
-        self.bar_sort.open_go_win.connect(lambda: self.go_to_toggle())
+        # без лямбды не сработают, потому что self.grid динамически меняется
+        self.bar_sort.open_go_win.connect(
+            self.go_to_toggle
+        )
+        self.bar_sort.resize_thumbs.connect(
+            lambda: self.grid.resize_thumbs()
+        )
+        self.bar_sort.rearrange_thumbs.connect(
+            lambda: self.grid.rearrange_thumbs()
+        )
+        self.bar_sort.sort_thumbs.connect(
+            lambda: self.grid.sort_thumbs()
+        )
 
     def new_folder(self):
         if isinstance(self.grid, (GridStandart, TableView)):
