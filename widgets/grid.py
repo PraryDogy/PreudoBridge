@@ -248,7 +248,6 @@ class Thumb(QFrame):
 
 class NoItemsLabel(QLabel):
     no_files = "Нет изображений"
-    no_conn = "Такой папки не существует. \nВозможно не подключен сетевой диск."
     no_filter = "Нет файлов с выбранным рейтингом или фильтром."
     def __init__(self, text: str):
         super().__init__(text)

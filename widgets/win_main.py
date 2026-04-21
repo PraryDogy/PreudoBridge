@@ -459,7 +459,8 @@ class WinMain(WinBase):
             self.grid.grid_wid.hide()
             QTimer.singleShot(100, start_load_grid)
         else:
-            self.no_path_win = WinWarn("Путь не найден")
+            no_conn = "Такой папки не существует. \nВозможно не подключен сетевой диск."
+            self.no_path_win = WinWarn(no_conn)
             self.no_path_win.center(self)
             self.no_path_win.show()
 

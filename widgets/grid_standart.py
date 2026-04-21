@@ -10,12 +10,6 @@ from system.tasks import DirScaner, UThreadPool
 from .grid import Grid, NoItemsLabel, Thumb
 
 
-class LoadingWidget(QLabel):
-    def __init__(self, text="Загрузка…", parent=None):
-        super().__init__(text, parent)
-        self.adjustSize()
-
-
 class GridStandart(Grid):
     scroll_timer_ms = 500
     finder_timer_ms = 200
@@ -34,23 +28,6 @@ class GridStandart(Grid):
         self.scroll_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
-        self.loading_label = LoadingWidget()
-
-    def show_loading_label(self):
-        try:
-            self.loading_label.setParent(self.viewport())
-        except RuntimeError:
-            return
-        vp = self.viewport().rect()
-        lbl = self.loading_label.rect()
-
-        self.loading_label.move(
-            (vp.width() - lbl.width()) // 2,
-            (vp.height() - lbl.height()) // 2
-        )
-
-        self.loading_label.show()
-
     def scroll_timer_cmd(self):
         self.load_visible_thumbs_images()
 
@@ -63,21 +40,11 @@ class GridStandart(Grid):
         self.finder_task = DirScaner(dir_item)
         self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
         UThreadPool.start(self.finder_task)
-        
-        # if os.path.exists(self.main_win_item.abs_current_dir):
-        #     self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
-        #     UThreadPool.start(self.finder_task)
-        # else:
-        #     self.create_no_items_label(NoItemsLabel.no_conn)
-        #     self.mouseMoveEvent = lambda args: None
-        #     self.load_finished.emit()
-        #     self.loading_label.hide()
 
     def finalize_dir_scaner(self, dir_item: DirItem):
         if len(dir_item.data_items) == 0:
             self.create_no_items_label(NoItemsLabel.no_files)
             self.load_finished.emit()
-            self.loading_label.hide()
             return
         Thumb.calc_size()
 
@@ -153,34 +120,12 @@ class GridStandart(Grid):
         # почему то без таймера срабатывает через раз
         QTimer.singleShot(0, self.rearrange_thumbs)
         self.load_finished.emit()
-        self.loading_label.hide()
 
-    def mousePressEvent(self, a0):
-        if self.loading_label.isVisible():
-            return    
-        return super().mousePressEvent(a0)
-
-    def keyPressEvent(self, a0):
-        if self.loading_label.isVisible():
-            return    
-        return super().keyPressEvent(a0)
-
-    def contextMenuEvent(self, a0):
-        if self.loading_label.isVisible():
-            return    
-        return super().contextMenuEvent(a0)
-
-    def mouseMoveEvent(self, a0):
-        if self.loading_label.isVisible():
-            return  
-        return super().mouseMoveEvent(a0)
     
     def deleteLater(self):
-        self.loading_label.hide()
         self.finder_task.terminate_join()
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        self.loading_label.hide()
         self.finder_task.terminate_join()
         return super().closeEvent(a0)
