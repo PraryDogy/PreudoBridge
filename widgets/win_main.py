@@ -1,5 +1,6 @@
 import gc
 import os
+import re
 from pathlib import Path
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
@@ -12,7 +13,7 @@ from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItem, DataItem, MainWinItem, SearchItem,
                           SortItem)
 from system.paletes import UPallete
-from system.shared_utils import SharedUtils
+from system.shared_utils import SharedUtils, ImgUtils
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -306,16 +307,25 @@ class WinMain(WinBase):
             self.open_go_to_win()
 
     def path_finder_cmd(self, clipboard_path: str):
-        clipboard_path = clipboard_path.strip("\"\'\n ")
-        test = os.path.normpath(clipboard_path)
-        print(test)
 
+        def finalize(path: str):
+            if os.path.isdir(path):
+                self.load_st_grid(path)
+            elif path.endswith(ImgUtils.ext_all):
+                self.main_win_item.go_to = path
+                self.load_st_grid(os.path.dirname(path))
+
+        clipboard_path = clipboard_path.strip("\"\'\n ")
+        unix_path_regex = r"^(\/([a-zA-Z0-9._-]+\/?)*)$"
+        is_path = bool(re.fullmatch(unix_path_regex, clipboard_path))
+        if not is_path:
+            return
         if not os.path.exists(clipboard_path):
-            result = self.main_win_item.fix_path(clipboard_path)
-            if result:
-                self.main_win_item.go_to = result
+            fixed_path = self.main_win_item.fix_path(clipboard_path)
+            if fixed_path:
+                finalize(fixed_path)
         else:
-            result = clipboard_path
+            finalize(clipboard_path)
 
     def open_settings(self, *args):
         self.sett_win = WinSettings()
