@@ -275,6 +275,7 @@ class WinMain(WinBase):
             self.grid.reload_rubber()
 
     def open_img_view(self, item: ImgViewItem):
+
         def _on_closed():
             self.img_view_win = None
             gc.collect()
