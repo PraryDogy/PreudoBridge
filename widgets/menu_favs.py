@@ -99,7 +99,7 @@ class FavItem(QLabel):
 
 
 class UListSpacerItem(QListWidgetItem):
-    def __init__(self, parent: QListWidget, height: int = 15):
+    def __init__(self, parent: QListWidget, height: int = 10):
         super().__init__()
         self.setSizeHint(QSize(parent.width(), height))
         self.setFlags(Qt.ItemFlag.NoItemFlags)
