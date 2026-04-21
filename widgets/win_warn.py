@@ -65,6 +65,7 @@ class ConfirmWindow(WinMinCloseOnly):
 class WinWarn(ConfirmWindow):
     def __init__(self, text):
         super().__init__(text)
+        self.cancel_btn.hide()
         self.cancel_btn.deleteLater()
         self.ok_btn.disconnect()
         self.ok_btn.clicked.connect(self.deleteLater)
