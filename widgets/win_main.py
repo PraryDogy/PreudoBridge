@@ -409,6 +409,7 @@ class WinMain(WinBase):
 
         self.setWindowTitle(self.search_text)
         self.scroll_up.hide()
+        self.menu_filters.setDisabled(True)
         QTimer.singleShot(100, self.grid.setFocus)
 
     def info_win_open(self, data_items: list[DataItem]):
