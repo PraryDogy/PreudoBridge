@@ -302,7 +302,6 @@ class Grid(UScrollArea):
         self.watchdog_modified_files = set()
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
-
         self.watcdog_task = None
         self.process_timer_dict: dict[ProcessWorker, QTimer] = {}
         self.loaded_thumbs: list[Thumb] = []
