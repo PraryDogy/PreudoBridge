@@ -185,14 +185,13 @@ class JpgConvertItem:
     urls: list[str]
 
 
+@dataclass(slots=True)
 class MultipleInfoItem:
-    def __init__(self):
-        super().__init__()
-        self.total_size = 0
-        self.total_files = 0
-        self.total_folders = 0
-        self._folders_set = set()
-        self._files_set = set()
+    total_size: int
+    total_files: int
+    total_folders: int
+    folders: set
+    files: set
 
 
 class SearchItem:
