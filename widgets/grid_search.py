@@ -109,7 +109,7 @@ class GridSearch(Grid):
 
         def create_thumb(data_item: DataItem):
             thumb = Thumb(data_item)
-            thumb.resize_()
+            thumb.resize_(self.sort_item)
             thumb.set_no_frame()
 
             if thumb.data_item._img_array is not None:

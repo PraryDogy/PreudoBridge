@@ -76,7 +76,7 @@ class GridStandart(Grid):
             # Создание и настройка виджета
             data_item = self.data_items[self._thumb_index]
             thumb = Thumb(data_item)
-            thumb.resize_()
+            thumb.resize_(self.sort_item)
             thumb.set_no_frame()
             thumb.set_icon()
 

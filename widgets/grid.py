@@ -67,30 +67,28 @@ class FileNameWidget(QLabel):
 
 
 class BlueTextWid(QLabel):
-    text_mod = "Изм: "
-    text_size = "Размер: "
 
     def __init__(self):
         super().__init__()
         self.blue_color = "#6199E4"
-        self.gray_color = "#7C7C7C"
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    
-    def set_text(self, data: DataItem):
         self.setStyleSheet(
             f"""
             font-size: {FONT_SIZE}px;
             color: {self.blue_color};
             """
         )
-
-        mod_row = self.text_mod + SharedUtils.get_f_date(data.mod)
-        if data.type_ == Static.folder_type:
-            sec_row = str("")
+    
+    def set_text(self, data_item: DataItem, sort_item: SortItem):
+        if sort_item.item_type == sort_item.mod:
+            first_row = f"Изм: {SharedUtils.get_f_date(data_item.mod)}"
+        elif sort_item.item_type == sort_item.added:
+            first_row = f"Доб: {SharedUtils.get_f_date(data_item.added)}"
+        if data_item.type_ != Static.folder_type:
+            sec_row = f"Размер: {SharedUtils.get_f_size(data_item.size, 0)}"
         else:
-            sec_row = self.text_size + SharedUtils.get_f_size(data.size, 0)
-        mod_row = "\n".join((mod_row, sec_row))
-        self.setText(mod_row)
+            sec_row = ""
+        self.setText("\n".join((first_row, sec_row)))
 
 
 class Thumb(QFrame):
@@ -186,14 +184,14 @@ class Thumb(QFrame):
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
 
-    def resize_(self):
+    def resize_(self, sort_item: SortItem):
         """
         Устанавливает фиксированные размеры для дочерних виджетов Thumb     
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
         self.text_wid.set_text(self.data_item)
-        self.blue_text_wid.set_text(self.data_item)
+        self.blue_text_wid.set_text(self.data_item, sort_item)
 
         self.setFixedSize(
             Thumb.thumb_w,
@@ -529,7 +527,7 @@ class Grid(UScrollArea):
         """
         Thumb.calc_size()
         for wid in self.url_to_wid.values():
-            wid.resize_()
+            wid.resize_(self.sort_item)
         for i in self.selected_thumbs:
             i.set_frame()
 
@@ -668,7 +666,7 @@ class Grid(UScrollArea):
         data = DataItem(url)
         data.set_properties()
         thumb = Thumb(data)
-        thumb.resize_()
+        thumb.resize_(self.sort_item)
         thumb.set_no_frame()
         thumb.set_icon()
 
