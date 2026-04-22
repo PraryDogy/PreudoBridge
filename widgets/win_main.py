@@ -117,8 +117,8 @@ class WinMain(WinBase):
 
         )
         self.sort_item = SortItem(
-            item_type=SortItem.filename,
-            reversed=False
+            item_type=SortItem.mod,
+            reversed=True
         )
         self.img_view_win = None
 

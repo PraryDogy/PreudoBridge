@@ -16,16 +16,19 @@ from .utils import Utils
 
 @dataclass(slots=True)
 class SortItem:
+    # имена должны соответствовать аттрибутам DateItem
     filename = "filename"
     type_ = "type_"
     size = "size"
     mod = "mod"
+    added = "added"
 
     attr_lang = {
         filename : "Имя",
         type_ : "Тип",
         size : "Размер",
-        mod : "Дата изменения"
+        mod : "Дата изменения",
+        added: "Дата добавления"
     }
 
     item_type: str
@@ -76,8 +79,15 @@ class DataItem:
             self.mod = 0
             self.size = 0
 
+        self.get_added()
+
+    def get_added(self):
         meta = OSXMetaData(self.abs_path)
-        self.added = int(meta.get("kMDItemDateAdded").timestamp())
+        added = meta.get("kMDItemDateAdded")
+        if added:
+            self.added = int(added.timestamp())
+        else:
+            self.added = Utils.get_now()
 
     @classmethod
     def sort_(cls, data_items: list["DataItem"], sort_item: SortItem):
