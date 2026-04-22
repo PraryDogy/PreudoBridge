@@ -208,6 +208,7 @@ class Thumb(QFrame):
             self.set_icon()
 
     def set_frame(self):
+        self.data_item.is_selected = True
         self.setStyleSheet(
             f"""
             #{Thumb.text_obj_name} {{
@@ -225,6 +226,7 @@ class Thumb(QFrame):
         )
 
     def set_no_frame(self):
+        self.data_item.is_selected = False
         self.setStyleSheet(
             f"""
             #{Thumb.text_obj_name} {{
@@ -297,12 +299,12 @@ class Grid(UScrollArea):
         self.url_to_wid: dict[str, Thumb] = {}
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
-        self.removed_urls: list[Thumb] = []
+        self.watchdog_modified_files = set()
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
 
-        self.dir_watcher_task = None
-        self.proc_timer_dict: dict[ProcessWorker, QTimer] = {}
+        self.watcdog_task = None
+        self.process_timer_dict: dict[ProcessWorker, QTimer] = {}
         self.loaded_thumbs: list[Thumb] = []
 
         self.grid_wid = QWidget()
@@ -336,8 +338,8 @@ class Grid(UScrollArea):
                 ms = fast_ms
             self.dir_watcher_timer.stop()
             events: list[FileSystemEvent] = []
-            while not self.dir_watcher_task.queue.empty():
-                events.append(self.dir_watcher_task.queue.get())
+            while not self.watcdog_task.queue.empty():
+                events.append(self.watcdog_task.queue.get())
             if events:
                 for i in events:
                     QTimer.singleShot(0, lambda ev=i: self.apply_changes(ev))
@@ -345,7 +347,7 @@ class Grid(UScrollArea):
                 QTimer.singleShot(0, self.rearrange_thumbs)
             self.dir_watcher_timer.start(ms)
 
-        self.dir_watcher_task = ProcessWorker(
+        self.watcdog_task = ProcessWorker(
             target=DirWatcher.start,
             args=(self.main_win_item.abs_current_dir, )
         )
@@ -354,45 +356,34 @@ class Grid(UScrollArea):
         self.dir_watcher_timer.setSingleShot(True)
 
         self.dir_watcher_timer.start(fast_ms)
-        self.dir_watcher_task.start()
+        self.watcdog_task.start()
 
     def apply_changes(self, e: FileSystemEvent):
-        is_selected = any(
-            i
-            for i in self.selected_thumbs
-            if i.data_item.abs_path==e.src_path
-        )
-        new_thumb = None
-        ev: Literal["deleted", "created", "moved", "modified"] = e.event_type
-        if ev == "deleted":
+        wid: Thumb = self.url_to_wid.get(e.src_path, None)
+        if e.event_type == "deleted":
             self.del_thumb(e.src_path)
-        # elif ev == "created":
-        #     new_thumb = self.new_thumb(e.src_path)
-        #     if e.src_path in self.removed_urls:
-        #         self.select_multiple_thumb(new_thumb)
-        #         self.removed_urls.remove(e.src_path)
-        # elif ev == "moved":
-        #     self.del_thumb(e.src_path)
-        #     new_thumb = self.new_thumb(e.dest_path)
-        #     if is_selected:
-        #         self.select_multiple_thumb(new_thumb)
-        # elif ev == "modified":
-        #     if not os.path.exists(e.src_path):
-        #         if is_selected:
-        #             self.removed_urls.append(e.src_path)
-        #         self.del_thumb(e.src_path)
-        #     elif e.src_path in self.url_to_wid:
-        #         wid = self.url_to_wid[e.src_path]
-        #         wid.data_item.set_properties()
-        #         wid.set_blue_text()
-
+            if wid and wid.data_item.is_selected:
+                self.watchdog_modified_files.add(e.src_path)
+        elif e.event_type == "created":
+            new_thumb = self.new_thumb(e.src_path)            
+            if e.src_path in self.watchdog_modified_files:
+                self.select_multiple_thumb(new_thumb)
+                self.watchdog_modified_files.remove(e.src_path)
+        elif e.event_type == "moved":
+            self.del_thumb(e.src_path)
+            new_thumb = self.new_thumb(e.dest_path)
+            if wid and wid.data_item.is_selected:
+                self.select_multiple_thumb(new_thumb)
+        # modified выпадает только на изменение директории
+        # можем игнорировать
+        # elif e.event_type == "modified":
+            # print(e.src_path)
 
         if not self.url_to_wid:
             self.remove_no_items_label()
             self.create_no_items_label(NoItemsLabel.no_files)
         else:
             self.remove_no_items_label()
-
 
     def load_visible_thumbs_images(self):
         if not self.grid_wid.isVisible():
@@ -462,7 +453,7 @@ class Grid(UScrollArea):
         img_timer = QTimer(self)
         img_timer.setSingleShot(True)
         img_timer.timeout.connect(lambda: poll_task(img_task, img_timer))
-        self.proc_timer_dict[img_task] = img_timer
+        self.process_timer_dict[img_task] = img_timer
         img_task.start()
         img_timer.start(self.img_timer_ms)
 
@@ -1227,9 +1218,9 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        if self.dir_watcher_task:
-            self.dir_watcher_task.terminate_join()
-        for proc, timer in self.proc_timer_dict.items():
+        if self.watcdog_task:
+            self.watcdog_task.terminate_join()
+        for proc, timer in self.process_timer_dict.items():
             timer.stop()
             proc.terminate_join()
         urls = [i.data_item.abs_path for i in self.selected_thumbs]
@@ -1237,9 +1228,9 @@ class Grid(UScrollArea):
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        if self.dir_watcher_task:
-            self.dir_watcher_task.terminate_join()
-        for proc, timer in self.proc_timer_dict.items():
+        if self.watcdog_task:
+            self.watcdog_task.terminate_join()
+        for proc, timer in self.process_timer_dict.items():
             timer.stop()
             proc.terminate_join()
         urls = [i.src for i in self.selected_thumbs]

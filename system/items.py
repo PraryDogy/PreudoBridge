@@ -62,6 +62,7 @@ class DataItem:
         self.size: int
 
         # в процессе работы и gui
+        self.is_selected: bool = False
         self.must_hidden: bool = False
         self.row, self.col = 0, 0
         # {"src": QImage(), 100: Qimage(), 200: QImage, ...}
