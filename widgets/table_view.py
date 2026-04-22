@@ -180,7 +180,6 @@ class TableView(QTableView):
                 if url in self.url_to_index:
                     index = self.url_to_index.get(url)
                     self.select_row(index)
-            self.main_win_item.urls_to_select.clear()
             QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
         self.setCurrentIndex(QModelIndex())

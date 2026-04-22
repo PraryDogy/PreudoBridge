@@ -354,7 +354,6 @@ class WinMain(WinBase):
         new_main_dir = os.path.dirname(self.main_win_item.abs_current_dir)
         if new_main_dir != os.sep:
             self.bar_top.new_history_item(new_main_dir)
-            self.main_win_item.urls_to_select.clear()
             self.load_st_grid(new_main_dir)
 
     def resize_timer_timeout(self):

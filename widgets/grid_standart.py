@@ -104,11 +104,6 @@ class GridStandart(Grid):
                     wid = self.url_to_wid.get(i)
                     self.selected_thumbs.append(wid)
                     wid.set_frame()
-            if self.selected_thumbs:
-                wid = self.selected_thumbs[-1]
-            self.main_win_item.urls_to_select.clear()
-        # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
-        # которая скроет из сетки не подходящие под фильтр виджеты
         if Dynamic.word_filters:
             self.filter_thumbs()
         # почему то без таймера срабатывает через раз
