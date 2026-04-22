@@ -267,7 +267,7 @@ class DirScaner(URunnable):
 
         self.dir_item.data_items = DataItem.sort_(
             data_items=self.dir_item.data_items,
-            sort_item=self.dir_item._sort_item
+            sort_item=self.dir_item.sort_item
         )
 
         self.remove_items()
