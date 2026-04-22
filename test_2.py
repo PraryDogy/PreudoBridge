@@ -1,13 +1,4 @@
-from dataclasses import dataclass
+a = 1
+b = str()
 
-
-@dataclass
-class Test:
-    test: str
-
-    def testing(self):
-        print(1)
-
-
-test = Test("hello")
-test.testing()
+print(b)

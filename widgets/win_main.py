@@ -104,8 +104,22 @@ class WinMain(WinBase):
         self.resize(Static.base_ww, Static.base_hh)
     
         self.main_win_list: list[WinMain] = []
-        self.search_item = SearchItem()
-        self.sort_item = SortItem()
+        self.search_item = SearchItem(
+            search_list=dict(),
+            missed_files=dict(),
+            root_dir=str(),
+            queue=None,
+            engine=None,
+            fs_id=str(),
+            rel_parent=str(),
+            db_items=dict(),
+            new_items=list()
+
+        )
+        self.sort_item = SortItem(
+            item_type=SortItem.filename,
+            reversed=False
+        )
         self.img_view_win = None
 
         self.main_win_item = MainWinItem()

@@ -10,7 +10,6 @@ from PyQt5.QtGui import QImage
 
 from cfg import Static
 
-from .database import CacheTable
 from .utils import Utils
 
 
@@ -28,8 +27,8 @@ class SortItem:
         mod : "Дата изменения"
     }
 
-    item_type: str = filename
-    reversed: bool = False
+    item_type: str
+    reversed: bool
 
 
 class DataItem:
@@ -190,30 +189,28 @@ class MultipleInfoItem:
     files: set
 
 
+@dataclass(slots=True)
 class SearchItem:
-    def __init__(self):
-        super().__init__()
+    # список для поиска:
+    # айтем в нижнем регистре: оригинальный айтем
+    search_list: dict[str, str]
+    # по мере поиска файлов, если файл найден, то он удаляется из
+    # missed files, и в конце поиска в missed files останутся только
+    # ненайденные файлы
+    missed_files: dict[str, str]
 
-        # список для поиска:
-        # айтем в нижнем регистре: оригинальный айтем
-        self.search_list: dict[str, str] = {}
-        # по мере поиска файлов, если файл найден, то он удаляется из
-        # missed files, и в конце поиска в missed files останутся только
-        # ненайденные файлы
-        self.missed_files: dict[str, str] = {}
+    root_dir: str
+    queue: Queue
+    engine: sqlalchemy.Engine
 
-        self.root_dir: str
-        self.queue: Queue
-        self.engine: sqlalchemy.Engine
-
-        # SINGLE DIR
-        # эти данные нужны когда поиск сканирует директорию
-        # данные динамически обновляются для новой директории
-        # смотри system multiprocess SearchTask
-        self.fs_id: str
-        self.rel_parent: str
-        self.db_items: dict
-        self.new_items: list[DataItem] = []
+    # SINGLE DIR
+    # эти данные нужны когда поиск сканирует директорию
+    # данные динамически обновляются для новой директории
+    # смотри system multiprocess SearchTask
+    fs_id: str
+    rel_parent: str
+    db_items: dict
+    new_items: list[DataItem]
 
 
 class CopyItem:
