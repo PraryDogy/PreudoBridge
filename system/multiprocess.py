@@ -200,15 +200,14 @@ class _DirChangedHandler(FileSystemEventHandler):
         self.callback = callback
 
     def on_any_event(self, event: FileSystemEvent):
-        if event.event_type == "deleted":
+        dest_path = getattr(event, "dest_path", "")
+        stmt = any((
+            event.src_path.lower().endswith(ImgUtils.ext_all),
+            dest_path.lower().endswith(ImgUtils.ext_all),
+            event.is_directory
+        ))
+        if stmt:
             self.callback(event)
-        else:
-            stmt = any((
-                event.src_path.endswith(ImgUtils.ext_all),
-                os.path.isdir(event.src_path)
-            ))
-            if stmt:
-                self.callback(event)
 
 
 class DirWatcher:
