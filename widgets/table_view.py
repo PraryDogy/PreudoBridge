@@ -183,7 +183,7 @@ class TableView(QTableView):
         for url in self.main_win_item.urls_to_select:
             if url in self.url_to_index:
                 index = self.url_to_index.get(url)
-                QTimer.singleShot(100, lambda: self.select_row(index))
+                self.select_row(index)
         QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
         self.setCurrentIndex(QModelIndex())
