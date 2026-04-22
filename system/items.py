@@ -6,6 +6,7 @@ from typing import Literal
 
 import numpy as np
 import sqlalchemy
+from osxmetadata import OSXMetaData
 from PyQt5.QtGui import QImage
 
 from cfg import Static
@@ -41,6 +42,7 @@ class DataItem:
         self.type_: str
         self.mod: int
         self.size: int
+        self.added: int
 
         # в процессе работы и gui
         self.is_selected: bool = False
@@ -73,6 +75,9 @@ class DataItem:
             print("items, BaseItem set properties error", e)
             self.mod = 0
             self.size = 0
+
+        meta = OSXMetaData(self.abs_path)
+        self.added = int(meta.get("kMDItemDateAdded").timestamp())
 
     @classmethod
     def sort_(cls, data_items: list["DataItem"], sort_item: SortItem):
