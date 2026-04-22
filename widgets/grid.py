@@ -81,16 +81,25 @@ class BlueTextWid(QLabel):
     
     def set_text(self, data_item: DataItem, sort_item: SortItem):
         if sort_item.item_type == sort_item.mod:
-            first_row = f"Изм: {SharedUtils.get_f_date(data_item.mod)}"
+            row = f"Изм: {SharedUtils.get_f_date(data_item.mod)}"
         elif sort_item.item_type == sort_item.added:
-            first_row = f"Доб: {SharedUtils.get_f_date(data_item.added)}"
-        else:
-            first_row = ""
-        if data_item.type_ != Static.folder_type:
-            sec_row = f"Размер: {SharedUtils.get_f_size(data_item.size, 0)}"
-        else:
-            sec_row = ""
-        self.setText("\n".join((first_row, sec_row)))
+            row = f"Доб: {SharedUtils.get_f_date(data_item.added)}"
+        elif sort_item.item_type == sort_item.type_:
+            row = f"Тип: {data_item.type_}"
+        elif sort_item.item_type == sort_item.size:
+            if data_item.type_ == Static.folder_type:
+                row = ""
+            else:
+                row = f"Размер: {SharedUtils.get_f_size(data_item.size)}"
+        elif sort_item.item_type == sort_item.filename:
+            if data_item.type_ == Static.folder_type:
+                row = ""
+            else:
+                row = (
+                    f"Изм: {SharedUtils.get_f_date(data_item.mod)}\n"
+                    f"Размер: {SharedUtils.get_f_size(data_item.size)}"
+                )
+        self.setText(row)
 
 
 class Thumb(QFrame):
@@ -185,6 +194,9 @@ class Thumb(QFrame):
         qimage = self.data_item.qimages[Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
+
+    def update_blue_text(self, sort_item: SortItem):
+        self.blue_text_wid.set_text(self.data_item, sort_item)
 
     def resize_(self, sort_item: SortItem):
         """
@@ -490,7 +502,9 @@ class Grid(UScrollArea):
         sorted_data_items = DataItem.sort_(data_items, self.sort_item)
         new_url_to_wid = {}
         for i in sorted_data_items:
-            new_url_to_wid[i.abs_path] = self.url_to_wid.get(i.abs_path)
+            wid = self.url_to_wid.get(i.abs_path)
+            new_url_to_wid[i.abs_path] = wid
+            wid.update_blue_text(self.sort_item)
         self.url_to_wid = new_url_to_wid
                 
     def filter_thumbs(self):

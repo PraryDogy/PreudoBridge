@@ -13,7 +13,7 @@ class Static:
     internal_scpt_dir = "./scripts"
     internal_images_dir = "./images"
 
-    folder_type = "folder"
+    folder_type = "Папка"
     rgba_gray = "rgba(128, 128, 128, 0.95)"
     rgba_blue = "rgb(70, 130, 240)"
     star_symbol = "\U00002605" # ★
