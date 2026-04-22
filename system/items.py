@@ -14,6 +14,7 @@ from .database import CacheTable
 from .utils import Utils
 
 
+@dataclass
 class SortItem:
     filename = "filename"
     type_ = "type_"
@@ -29,10 +30,10 @@ class SortItem:
         birth: "Дата создания"
     }
 
-    def __init__(self):
+    def __init__(self, type_: str = filename, reversed: bool = False):
         super().__init__()
-        self.type_: str = self.filename
-        self.reversed: bool = False
+        self.type_: str = type_
+        self.reversed: bool = reversed
                 
 
 class DataItem:
@@ -79,7 +80,7 @@ class DataItem:
             self.size = 0
 
     @classmethod
-    def sort_(cls, data_items: list["DataItem"], sort_item: SortItem) -> list["DataItem"]:
+    def sort_(cls, data_items: list["DataItem"], sort_item: SortItem):
 
         def get_nums(filename: str):
             """
@@ -106,20 +107,6 @@ class DataItem:
             data_items.sort(key=key, reverse=sort_item.reversed)
             return data_items
         
-    @classmethod
-    def get_folder_conds(cls, data_item: "DataItem"):
-        """
-        Возвращает условия для поиска папки в базе данных
-        """
-        conds = [
-            CacheTable.name == data_item.filename,
-            CacheTable.type == data_item.type_,
-            CacheTable.size == data_item.size,
-            CacheTable.birth == data_item.birth,
-            CacheTable.mod == data_item.mod,
-        ]
-        return sqlalchemy.and_(*conds)
-            
 
 class MainWinItem:
     def __init__(self):
@@ -169,38 +156,10 @@ class ClipboardItem:
     is_search: bool = False
     src_dir: str = ""
     dst_dir: str = ""
-
-    @classmethod
-    def set_src(cls, src: str):
-        cls.src_dir = src
-
-    @classmethod
-    def get_src(cls):
-        return cls.src_dir
     
     @classmethod
     def set_is_cut(cls, value: bool):
         cls.is_cut = value
-
-    @classmethod
-    def get_is_cut(cls):
-        return cls.is_cut
-    
-    @classmethod
-    def set_dest(cls, dest: str):
-        cls.dst_dir = dest
-
-    @classmethod
-    def get_dest(cls):
-        return cls.dst_dir
-    
-    @classmethod
-    def set_is_search(cls, value: bool):
-        cls.is_search = value
-
-    @classmethod
-    def get_is_search(cls):
-        return cls.is_search
 
     @classmethod
     def reset(cls):

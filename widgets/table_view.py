@@ -472,8 +472,8 @@ class TableView(QTableView):
         return Qt.ItemIsEnabled  # отключаем выбор/редактирование
 
     def setup_urls_to_copy(self, urls: list[str]):
-        ClipboardItem.set_src(self.main_win_item.abs_current_dir)
-        ClipboardItem.set_is_search(False)
+        ClipboardItem.src_dir = self.main_win_item.abs_current_dir
+        ClipboardItem.is_search = False
         ClipboardItem.src_urls.clear()
         for i in urls:
             ClipboardItem.src_urls.append(i)
@@ -578,7 +578,7 @@ class TableView(QTableView):
             print("нельзя копировать в себя через DropEvent")
             return
         else:
-            ClipboardItem.set_src(src)
+            ClipboardItem.src_dir = src
             ClipboardItem.src_urls = urls
             self.paste_files.emit()
         return super().dropEvent(a0)

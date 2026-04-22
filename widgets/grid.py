@@ -624,8 +624,8 @@ class Grid(UScrollArea):
         """
         Для cmd x, cmd c, вырезать, копировать
         """
-        ClipboardItem.set_src(self.main_win_item.abs_current_dir)
-        ClipboardItem.set_is_search(self.is_grid_search)
+        ClipboardItem.src_dir = self.main_win_item.abs_current_dir
+        ClipboardItem.is_search = self.is_grid_search
         ClipboardItem.src_urls.clear()
         for i in self.selected_thumbs:
             ClipboardItem.src_urls.append(i.data_item.abs_path)
@@ -1211,7 +1211,7 @@ class Grid(UScrollArea):
             print("нельзя копировать в себя через DropEvent")
             return
         else:
-            ClipboardItem.set_src(src)
+            ClipboardItem.src_dir = src
             ClipboardItem.src_urls = urls
             self.paste_files.emit()
         return super().dropEvent(a0)

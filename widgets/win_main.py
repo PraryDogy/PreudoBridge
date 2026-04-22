@@ -404,7 +404,7 @@ class WinMain(WinBase):
         self.info_win.show()
         
     def paste_files(self):
-        ClipboardItem.set_dest(self.main_win_item.abs_current_dir)
+        ClipboardItem.dst_dir = self.main_win_item.abs_current_dir
         self.win_copy = WinCopyFiles()
         self.win_copy.center(self.window())
         self.win_copy.show()
