@@ -186,9 +186,6 @@ class Thumb(QFrame):
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
 
-    def set_blue_text(self):
-        self.blue_text_wid.set_text(self.data_item)
-
     def resize_(self):
         """
         Устанавливает фиксированные размеры для дочерних виджетов Thumb     
@@ -196,11 +193,20 @@ class Thumb(QFrame):
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
         self.text_wid.set_text(self.data_item)
-        self.set_blue_text()
+        self.blue_text_wid.set_text(self.data_item)
 
-        self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
-        self.img_wid.setFixedSize(Thumb.current_image_size, Thumb.current_image_size)
-        self.img_frame.setFixedSize(Thumb.current_img_frame_size, Thumb.current_img_frame_size)
+        self.setFixedSize(
+            Thumb.thumb_w,
+            Thumb.thumb_h
+        )
+        self.img_wid.setFixedSize(
+            Thumb.current_image_size,
+            Thumb.current_image_size
+        )
+        self.img_frame.setFixedSize(
+            Thumb.current_img_frame_size,
+            Thumb.current_img_frame_size
+        )
 
         if self.data_item.qimages:
             self.set_image()
@@ -422,7 +428,6 @@ class Grid(UScrollArea):
 
         def update_thumb(data_item: DataItem):
             thumb = self.url_to_wid[data_item.abs_path]
-            thumb.set_blue_text()
             qimages = {}
             qimages["src"] = Utils.qimage_from_array(data_item._img_array)
             for size in Static.image_sizes:
