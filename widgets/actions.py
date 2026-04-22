@@ -254,14 +254,14 @@ class SortMenu(UMenu):
             cmd_ = lambda e, true_name=true_name: self.cmd_sort(true_name)
             action_.triggered.connect(cmd_)
 
-            if self.sort_item.type_ == true_name:
+            if self.sort_item.item_type == true_name:
                 action_.setChecked(True)
 
             self.addAction(action_)
 
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
-        self.sort_item.type_ = true_name
+        self.sort_item.item_type = true_name
         self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.sort_menu_update.emit()
