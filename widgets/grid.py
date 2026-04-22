@@ -84,6 +84,8 @@ class BlueTextWid(QLabel):
             first_row = f"Изм: {SharedUtils.get_f_date(data_item.mod)}"
         elif sort_item.item_type == sort_item.added:
             first_row = f"Доб: {SharedUtils.get_f_date(data_item.added)}"
+        else:
+            first_row = ""
         if data_item.type_ != Static.folder_type:
             sec_row = f"Размер: {SharedUtils.get_f_size(data_item.size, 0)}"
         else:
