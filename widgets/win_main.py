@@ -325,7 +325,7 @@ class WinMain(WinBase):
             if os.path.isdir(path):
                 self.load_st_grid(path)
             elif path.endswith(ImgUtils.ext_all):
-                self.main_win_item.go_to_widget = path
+                self.main_win_item.urls_to_select = [path, ]
                 self.load_st_grid(os.path.dirname(path))
 
         user_path = user_path.strip("\"\'\n ")
