@@ -31,8 +31,8 @@ class SortItem:
 
     def __init__(self):
         super().__init__()
-        self._sort_type: str = self.filename
-        self._reversed: bool = False
+        self.type_: str = self.filename
+        self.reversed: bool = False
                 
 
 class DataItem:
@@ -88,7 +88,7 @@ class DataItem:
             """
             return int(re.match(r'^\d+', filename).group())
         
-        if sort_item._sort_type == sort_item.filename:
+        if sort_item.type_ == sort_item.filename:
             num_data_items: list[DataItem] = []
             abc_data_items: list[DataItem] = []
             for i in data_items:
@@ -97,13 +97,13 @@ class DataItem:
                 else:
                     abc_data_items.append(i)
             key_num = lambda data_item: get_nums(data_item.filename)
-            key_abc = lambda data_item: getattr(data_item, sort_item._sort_type)
-            num_data_items.sort(key=key_num, reverse=sort_item._reversed)
-            abc_data_items.sort(key=key_abc, reverse=sort_item._reversed)
+            key_abc = lambda data_item: getattr(data_item, sort_item.type_)
+            num_data_items.sort(key=key_num, reverse=sort_item.reversed)
+            abc_data_items.sort(key=key_abc, reverse=sort_item.reversed)
             return [*num_data_items, *abc_data_items]
         else:
-            key = lambda data_otem: getattr(data_otem, sort_item._sort_type)
-            data_items.sort(key=key, reverse=sort_item._reversed)
+            key = lambda data_otem: getattr(data_otem, sort_item.type_)
+            data_items.sort(key=key, reverse=sort_item.reversed)
             return data_items
         
     @classmethod
