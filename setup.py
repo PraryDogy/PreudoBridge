@@ -89,8 +89,17 @@ PY2APP = "py2app" # DON'T CHANGE IT
 
 OPTIONS = {
     "iconfile": ICON_PATH,
-    "excludes": ["setuptools", ".DS_Store"],
-    "packages": ['numpy', 'cv2', 'PIL', 'cairosvg'],
+    "excludes": [
+        "setuptools",
+        ".DS_Store"
+    ],
+    "packages": [
+        'numpy',
+        'cv2',
+        'PIL',
+        'cairosvg',
+        'osxmetadata'
+    ],
     "plist": {
         "CFBundleName": APP_NAME,
         "CFBundleShortVersionString": APP_VER,
