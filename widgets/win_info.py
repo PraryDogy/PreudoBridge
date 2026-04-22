@@ -213,7 +213,10 @@ class WinInfo(WinMinCloseOnly):
             for i in self.data_items
         ]
 
-        self.info_task = ProcessWorker(target=MultipleInfo.start, args=(items, JsonData.show_hidden, ))
+        self.info_task = ProcessWorker(
+            target=MultipleInfo.start,
+            args=(items, )
+        )
         self.info_task.start()
         QTimer.singleShot(100, poll_task)
 
@@ -262,7 +265,10 @@ class WinInfo(WinMinCloseOnly):
             for i in self.data_items
         ]
 
-        self.info_task = ProcessWorker(target=MultipleInfo.start, args=(items, JsonData.show_hidden, ))
+        self.info_task = ProcessWorker(
+            target=MultipleInfo.start,
+            args=(items, )
+        )
         self.info_task.start()
         QTimer.singleShot(100, poll_task)
 

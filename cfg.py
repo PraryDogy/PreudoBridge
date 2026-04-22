@@ -38,7 +38,6 @@ class Static:
 
 class JsonData:
     favs = {}
-    show_hidden = False
     go_to_now = False
     dark_mode = None    
     show_text = False

@@ -327,7 +327,7 @@ class MultipleInfo:
     err = " Произошла ошибка"
 
     @staticmethod
-    def start(data_items: list[DataItem], show_hidden: bool, queue: Queue):
+    def start(data_items: list[DataItem], queue: Queue):
         info_item = MultipleInfoItem(
             total_size=0,
             total_files=0,
@@ -337,7 +337,7 @@ class MultipleInfo:
         )
 
         try:
-            MultipleInfo._task(data_items, info_item, show_hidden)
+            MultipleInfo._task(data_items, info_item)
             info_item.total_size = SharedUtils.get_f_size(info_item.total_size)
             info_item.total_files = len(list(info_item.files))
             info_item.total_files = format(info_item.total_files, ",").replace(",", " ")
@@ -353,17 +353,17 @@ class MultipleInfo:
             queue.put(info_item)
 
     @staticmethod
-    def _task(items: list[dict], info_item: MultipleInfoItem, show_hidden: bool):
+    def _task(items: list[dict], info_item: MultipleInfoItem):
         for i in items:
             if i["type_"] == Static.folder_type:
-                MultipleInfo.get_folder_size(i, info_item, show_hidden)
+                MultipleInfo.get_folder_size(i, info_item)
                 info_item.folders.add(i["src"])
             else:
                 info_item.total_size += i["size"]
                 info_item.files.add(i["src"])
 
     @staticmethod
-    def get_folder_size(item: dict, info_item: MultipleInfoItem, show_hidden: bool):
+    def get_folder_size(item: dict, info_item: MultipleInfoItem):
         stack = [item["src"]]
         while stack:
             current_dir = stack.pop()
@@ -373,16 +373,14 @@ class MultipleInfo:
                 print("tasks, MultipleItemsInfo error", e)
                 break
             for entry in os.scandir(current_dir):
+                if entry.name.startswith(Static.hidden_symbols):
+                    continue
                 if entry.is_dir():
                     info_item.folders.add(item["src"])
                     stack.append(entry.path)
                 else:
-                    if show_hidden:
-                        info_item.total_size += entry.stat().st_size
-                        info_item.files.add(entry.path)
-                    if not entry.name.startswith(Static.hidden_symbols):
-                        info_item.total_size += entry.stat().st_size
-                        info_item.files.add(entry.path)
+                    info_item.total_size += entry.stat().st_size
+                    info_item.files.add(entry.path)
 
 
 class CopyWorker(BaseProcessWorker):
