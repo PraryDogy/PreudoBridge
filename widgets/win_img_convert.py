@@ -28,7 +28,12 @@ class WinImgConvert(WinProgressbar):
             return
 
         self.progressbar.setMaximum(len(self.urls))
-        jpg_item = JpgConvertItem(self.urls)
+        jpg_item = JpgConvertItem(
+            current_count=0,
+            current_filename="",
+            msg="",
+            urls=self.urls
+        )
         self.jpg_task = ProcessWorker(target=JpgConverter.start, args=(jpg_item, ))
 
         self.jpg_timer = QTimer(self)

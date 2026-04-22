@@ -249,17 +249,17 @@ class PathFixer:
 class JpgConverter:
     @staticmethod
     def start(jpg_item: JpgConvertItem, queue: Queue):
-        jpg_item._urls = [
+        jpg_item.urls = [
             i
-            for i in jpg_item._urls
+            for i in jpg_item.urls
             if i.endswith(ImgUtils.ext_all)
         ]
-        jpg_item._urls.sort(key=lambda p: os.path.getsize(p))
+        jpg_item.urls.sort(key=lambda p: os.path.getsize(p))
 
         filename = ""
         new_urls: list[str] = []
 
-        for count, url in enumerate(jpg_item._urls, start=1):
+        for count, url in enumerate(jpg_item.urls, start=1):
             save_path = JpgConverter._save_jpg(url)
             if save_path:
                 new_urls.append(save_path)

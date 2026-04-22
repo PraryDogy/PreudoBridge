@@ -177,13 +177,12 @@ class DirItem:
     sort_item: SortItem
 
 
+@dataclass(slots=True)
 class JpgConvertItem:
-    def __init__(self, _urls: list[str]):
-        super().__init__()
-        self.current_count: int
-        self.current_filename: str
-        self.msg: Literal["", "finished"]
-        self._urls = _urls
+    current_count: int
+    current_filename: str
+    msg: Literal["", "finished"]
+    urls: list[str]
 
 
 class MultipleInfoItem:

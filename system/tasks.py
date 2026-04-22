@@ -255,7 +255,7 @@ class DirScaner(URunnable):
             self.sigs.finished_.emit(self.dir_item)
 
     def task_(self):
-        for entry in os.scandir(self.dir_item._main_win_item.abs_current_dir):
+        for entry in os.scandir(self.dir_item.main_win_item.abs_current_dir):
             if entry.name.startswith(Static.hidden_symbols):
                 continue
             if not os.access(entry.path, 4):
@@ -287,8 +287,8 @@ class DirScaner(URunnable):
             )
             stmt = (
                 sqlalchemy.select(*clmns)
-                .where(CacheTable.rel_parent==self.dir_item._main_win_item.rel_parent)
-                .where(CacheTable.fs_id==self.dir_item._main_win_item.fs_id)
+                .where(CacheTable.rel_parent==self.dir_item.main_win_item.rel_parent)
+                .where(CacheTable.fs_id==self.dir_item.main_win_item.fs_id)
             )
             db_items = {
                 (filename, mod, size): thumb_path
@@ -319,8 +319,8 @@ class DirScaner(URunnable):
         with Dbase.main_engine.begin() as conn:
             stmt = (
                 sqlalchemy.delete(CacheTable.table)
-                .where(CacheTable.fs_id==self.dir_item._main_win_item.fs_id)
-                .where(CacheTable.rel_parent==self.dir_item._main_win_item.rel_parent)
+                .where(CacheTable.fs_id==self.dir_item.main_win_item.fs_id)
+                .where(CacheTable.rel_parent==self.dir_item.main_win_item.rel_parent)
                 .where(CacheTable.thumb_path.in_(ok_thumb_paths))
             )
             conn.execute(stmt)
