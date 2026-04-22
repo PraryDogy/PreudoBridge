@@ -163,11 +163,11 @@ class ClipboardItem:
 
     @classmethod
     def reset(cls):
-        ClipboardItem.src_urls = []
-        ClipboardItem.is_cut = False
-        ClipboardItem.is_search = False
-        ClipboardItem.src_dir = ""
-        ClipboardItem.dst_dir = ""
+        cls.src_urls = []
+        cls.is_cut = False
+        cls.is_search = False
+        cls.src_dir = ""
+        cls.dst_dir = ""
 
 
 class DirItem:
