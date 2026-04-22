@@ -98,12 +98,16 @@ class GridStandart(Grid):
         add_one_thumb()
 
     def post_process(self):
-        if self.main_win_item.urls_to_select:
-            for i in self.main_win_item.urls_to_select:
-                if i in self.url_to_wid:
-                    wid = self.url_to_wid.get(i)
-                    self.selected_thumbs.append(wid)
-                    wid.set_frame()
+        if self.main_win_item.go_to_widget:
+            self.main_win_item.urls_to_select.append(
+                self.main_win_item.go_to_widget
+            )
+            self.main_win_item.go_to_widget = ""
+        for i in self.main_win_item.urls_to_select:
+            if i in self.url_to_wid:
+                wid = self.url_to_wid.get(i)
+                self.selected_thumbs.append(wid)
+                wid.set_frame()
         if Dynamic.word_filters:
             self.filter_thumbs()
         # почему то без таймера срабатывает через раз

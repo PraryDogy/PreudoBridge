@@ -175,12 +175,16 @@ class TableView(QTableView):
             path = self._model.filePath(index)
             self.url_to_index[path] = index
 
-        if self.main_win_item.urls_to_select:
-            for url in self.main_win_item.urls_to_select:
-                if url in self.url_to_index:
-                    index = self.url_to_index.get(url)
-                    self.select_row(index)
-            QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
+        if self.main_win_item.go_to_widget:
+            self.main_win_item.urls_to_select.append(
+                self.main_win_item.go_to_widget
+            )
+            self.main_win_item.go_to_widget = ""
+        for url in self.main_win_item.urls_to_select:
+            if url in self.url_to_index:
+                index = self.url_to_index.get(url)
+                QTimer.singleShot(100, lambda: self.select_row(index))
+        QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
         self.setCurrentIndex(QModelIndex())
         self.path_bar_update.emit(self.main_win_item.abs_current_dir)

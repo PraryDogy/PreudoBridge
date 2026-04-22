@@ -106,6 +106,7 @@ class DataItem:
 class MainWinItem:
     def __init__(self):
         self.urls_to_select: list[str] = []
+        self.go_to_widget: str = ""
         self.abs_current_dir: str = None
         self.view_mode: int = 0
         self.fs_id: str = None
