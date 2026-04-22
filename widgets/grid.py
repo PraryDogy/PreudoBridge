@@ -327,6 +327,9 @@ class Grid(UScrollArea):
     def dirs_watcher_start(self, fast_ms=300, slow_ms=1000):
 
         def poll_task():
+            # реже обновлять сетку когда идет процесс копирования
+            # иначе слишком часто будут создаваться виджеты с картинками
+            # и будет фризиться гуи 
             if ClipboardItem.src_urls:
                 ms = slow_ms
             else:
