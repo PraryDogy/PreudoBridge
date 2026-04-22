@@ -363,30 +363,30 @@ class Grid(UScrollArea):
             if i.data_item.abs_path==e.src_path
         )
         new_thumb = None
-        event: Literal["deleted", "created", "moved", "modified"] = e.event_type
-        if event == "deleted":
-            if is_selected:
-                self.removed_urls.append(e.src_path)
+        ev: Literal["deleted", "created", "moved", "modified"] = e.event_type
+        if ev == "deleted":
             self.del_thumb(e.src_path)
-        elif event == "created":
-            new_thumb = self.new_thumb(e.src_path)
-            if e.src_path in self.removed_urls:
-                self.select_multiple_thumb(new_thumb)
-                self.removed_urls.remove(e.src_path)
-        elif event == "moved":
-            self.del_thumb(e.src_path)
-            new_thumb = self.new_thumb(e.dest_path)
-            if is_selected:
-                self.select_multiple_thumb(new_thumb)
-        elif event == "modified":
-            if not os.path.exists(e.src_path):
-                if is_selected:
-                    self.removed_urls.append(e.src_path)
-                self.del_thumb(e.src_path)
-            elif e.src_path in self.url_to_wid:
-                wid = self.url_to_wid[e.src_path]
-                wid.data_item.set_properties()
-                wid.set_blue_text()
+        # elif ev == "created":
+        #     new_thumb = self.new_thumb(e.src_path)
+        #     if e.src_path in self.removed_urls:
+        #         self.select_multiple_thumb(new_thumb)
+        #         self.removed_urls.remove(e.src_path)
+        # elif ev == "moved":
+        #     self.del_thumb(e.src_path)
+        #     new_thumb = self.new_thumb(e.dest_path)
+        #     if is_selected:
+        #         self.select_multiple_thumb(new_thumb)
+        # elif ev == "modified":
+        #     if not os.path.exists(e.src_path):
+        #         if is_selected:
+        #             self.removed_urls.append(e.src_path)
+        #         self.del_thumb(e.src_path)
+        #     elif e.src_path in self.url_to_wid:
+        #         wid = self.url_to_wid[e.src_path]
+        #         wid.data_item.set_properties()
+        #         wid.set_blue_text()
+
+
         if not self.url_to_wid:
             self.remove_no_items_label()
             self.create_no_items_label(NoItemsLabel.no_files)
@@ -688,6 +688,12 @@ class Grid(UScrollArea):
         return thumb
 
     def del_thumb(self, url: str):
+        """
+        Удаляет виджет, удаляет данные виджета:
+        - из url to wid
+        - из selected thumbs
+        - из cell to wid
+        """
         wid = self.url_to_wid.get(url)
         if not wid:
             return
