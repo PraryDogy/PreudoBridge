@@ -33,22 +33,7 @@ class SortItem:
         super().__init__()
         self._sort_type: str = self.filename
         self._reversed: bool = False
-
-    def get_attrs(self):
-        return list(self.attr_lang.keys())
-
-    def set_reversed(self, value: bool):
-        self._reversed = value
-        
-    def get_reversed(self):
-        return self._reversed
-
-    def set_sort_type(self, value: str):
-        self._sort_type = value
-        
-    def get_sort_type(self):
-        return self._sort_type
-
+                
 
 class DataItem:
     def __init__(self, src: str):
@@ -103,7 +88,7 @@ class DataItem:
             """
             return int(re.match(r'^\d+', filename).group())
         
-        if sort_item.get_sort_type() == sort_item.filename:
+        if sort_item._sort_type == sort_item.filename:
             num_data_items: list[DataItem] = []
             abc_data_items: list[DataItem] = []
             for i in data_items:
@@ -112,13 +97,13 @@ class DataItem:
                 else:
                     abc_data_items.append(i)
             key_num = lambda data_item: get_nums(data_item.filename)
-            key_abc = lambda data_item: getattr(data_item, sort_item.get_sort_type())
-            num_data_items.sort(key=key_num, reverse=sort_item.get_reversed())
-            abc_data_items.sort(key=key_abc, reverse=sort_item.get_reversed())
+            key_abc = lambda data_item: getattr(data_item, sort_item._sort_type)
+            num_data_items.sort(key=key_num, reverse=sort_item._reversed)
+            abc_data_items.sort(key=key_abc, reverse=sort_item._reversed)
             return [*num_data_items, *abc_data_items]
         else:
-            key = lambda data_otem: getattr(data_otem, sort_item.get_sort_type())
-            data_items.sort(key=key, reverse=sort_item.get_reversed())
+            key = lambda data_otem: getattr(data_otem, sort_item._sort_type)
+            data_items.sort(key=key, reverse=sort_item._reversed)
             return data_items
         
     @classmethod
