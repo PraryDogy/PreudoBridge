@@ -17,10 +17,6 @@ class MenuFilters(QTabWidget):
     def __init__(self):
         super().__init__()
 
-        # layout_ = QVBoxLayout(self)
-        # layout_.setContentsMargins(0, 0, 0, 5)
-        # layout_.setSpacing(5)
-
         wid = QWidget()
         self.addTab(wid, "Фильтры")
         self.tabBar().hide()
@@ -72,3 +68,11 @@ class MenuFilters(QTabWidget):
             Dynamic.word_filters.clear()
             self.filter_thumbs.emit()
             self.rearrange_thumbs.emit()
+
+    def set_disabled(self, value: bool):
+        if value:
+            self.line_edit.setPlaceholderText("")
+            self.setDisabled(value)
+        else:
+            self.line_edit.setPlaceholderText(self.filter_placeholder)
+            self.setDisabled(value)

@@ -409,7 +409,7 @@ class WinMain(WinBase):
 
         self.setWindowTitle(self.search_text)
         self.scroll_up.hide()
-        self.menu_filters.setDisabled(True)
+        self.menu_filters.set_disabled(True)
         QTimer.singleShot(100, self.grid.setFocus)
 
     def info_win_open(self, data_items: list[DataItem]):
@@ -427,7 +427,7 @@ class WinMain(WinBase):
     def disable_wids(self, value: bool):
         self.bar_sort.sort_frame.setDisabled(value)
         self.bar_sort.slider.setDisabled(value)
-        self.menu_filters.setDisabled(value)
+        self.menu_filters.set_disabled(value)
 
     def load_st_grid(self, path: str):
 
