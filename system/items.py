@@ -150,7 +150,7 @@ class MainWinItem:
         return path
 
 
-class ClipboardItem:
+class ClipboardItemGlob:
     src_urls: list[str] = []
     is_cut: bool = False
     is_search: bool = False

@@ -11,7 +11,7 @@ from typing_extensions import Literal
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
-from system.items import (ClipboardItem, DataItem, ImgViewItem, MainWinItem,
+from system.items import (ClipboardItemGlob, DataItem, ImgViewItem, MainWinItem,
                           SortItem)
 from system.multiprocess import DirWatcher, ImgLoader, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
@@ -331,7 +331,7 @@ class Grid(UScrollArea):
             # реже обновлять сетку когда идет процесс копирования
             # иначе слишком часто будут создаваться виджеты с картинками
             # и будет фризиться гуи 
-            if ClipboardItem.src_urls:
+            if ClipboardItemGlob.src_urls:
                 ms = slow_ms
             else:
                 ms = fast_ms
@@ -624,11 +624,11 @@ class Grid(UScrollArea):
         """
         Для cmd x, cmd c, вырезать, копировать
         """
-        ClipboardItem.src_dir = self.main_win_item.abs_current_dir
-        ClipboardItem.is_search = self.is_grid_search
-        ClipboardItem.src_urls.clear()
+        ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
+        ClipboardItemGlob.is_search = self.is_grid_search
+        ClipboardItemGlob.src_urls.clear()
         for i in self.selected_thumbs:
-            ClipboardItem.src_urls.append(i.data_item.abs_path)
+            ClipboardItemGlob.src_urls.append(i.data_item.abs_path)
 
     def remove_no_items_label(self):
         wid = self.grid_wid.findChild(NoItemsLabel)
@@ -833,7 +833,7 @@ class Grid(UScrollArea):
         menu_.addAction(show_in_finder_action)
 
         copy_path = ItemActions.CopyPath(menu_, urls)
-        copy_path.triggered.connect(lambda: ClipboardItem.reset())
+        copy_path.triggered.connect(lambda: ClipboardItemGlob.reset())
         menu_.addAction(copy_path)
 
 
@@ -845,12 +845,12 @@ class Grid(UScrollArea):
 
         cut_objects = ItemActions.CutObjects(menu_)
         cut_objects.triggered.connect(self.set_transparent_thumbs)
-        cut_objects.triggered.connect(lambda: ClipboardItem.set_is_cut(True))
+        cut_objects.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(True))
         cut_objects.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(cut_objects)
 
         copy_files = ItemActions.CopyObjects(menu_)
-        copy_files.triggered.connect(lambda: ClipboardItem.set_is_cut(False))
+        copy_files.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(False))
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
@@ -914,16 +914,16 @@ class Grid(UScrollArea):
         menu_.addAction(reveal)
 
         copy_ = GridActions.CopyPath(menu_, urls)
-        copy_.triggered.connect(ClipboardItem.reset)
+        copy_.triggered.connect(ClipboardItemGlob.reset)
         menu_.addAction(copy_)
 
         copy_name = GridActions.CopyName(menu_, names)
-        copy_name.triggered.connect(ClipboardItem.reset)
+        copy_name.triggered.connect(ClipboardItemGlob.reset)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
-        if ClipboardItem.src_urls and not self.is_grid_search:
+        if ClipboardItemGlob.src_urls and not self.is_grid_search:
             paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files.emit)
             menu_.addAction(paste_files)
@@ -1068,15 +1068,15 @@ class Grid(UScrollArea):
             
             if a0.key() == Qt.Key.Key_X:
                 self.set_transparent_thumbs()
-                ClipboardItem.set_is_cut(True)
+                ClipboardItemGlob.set_is_cut(True)
                 self.setup_urls_to_copy()
 
             if a0.key() == Qt.Key.Key_C:
-                ClipboardItem.set_is_cut(False)
+                ClipboardItemGlob.set_is_cut(False)
                 self.setup_urls_to_copy()
 
             elif a0.key() == Qt.Key.Key_V:
-                if ClipboardItem.src_urls and not self.is_grid_search:
+                if ClipboardItemGlob.src_urls and not self.is_grid_search:
                     self.paste_files.emit()
 
             elif a0.key() == Qt.Key.Key_Up:
@@ -1211,8 +1211,8 @@ class Grid(UScrollArea):
             print("нельзя копировать в себя через DropEvent")
             return
         else:
-            ClipboardItem.src_dir = src
-            ClipboardItem.src_urls = urls
+            ClipboardItemGlob.src_dir = src
+            ClipboardItemGlob.src_urls = urls
             self.paste_files.emit()
         return super().dropEvent(a0)
 

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from cfg import Static
-from system.items import ClipboardItem, CopyItem
+from system.items import ClipboardItemGlob, CopyItem
 from system.multiprocess import CopyTask, CopyWorker
 
 from ._base_widgets import WinMinCloseOnly, SmallBtn, USvgSqareWidget
@@ -150,7 +150,7 @@ class WinCopyFiles(WinProgressbar):
 
     def __init__(self):
 
-        if ClipboardItem.is_cut:
+        if ClipboardItemGlob.is_cut:
             title_text = "Перемещаю файлы"
         else:
             title_text = "Копирую файлы"
@@ -159,8 +159,8 @@ class WinCopyFiles(WinProgressbar):
 
         self.dst_urls = []
 
-        src_txt = self.limit_string(os.path.basename(ClipboardItem.src_dir))
-        dest_txt = self.limit_string(os.path.basename(ClipboardItem.dst_dir))
+        src_txt = self.limit_string(os.path.basename(ClipboardItemGlob.src_dir))
+        dest_txt = self.limit_string(os.path.basename(ClipboardItemGlob.dst_dir))
         src_dest_text = f"Из \"{src_txt}\" в \"{dest_txt}\""
         self.above_label.setText(src_dest_text)
         self.below_label.setText(self.preparing_text)
@@ -170,11 +170,11 @@ class WinCopyFiles(WinProgressbar):
         self.adjustSize()
         
         self.copy_item = CopyItem(
-            src_dir=ClipboardItem.src_dir,
-            dst_dir=ClipboardItem.dst_dir,
-            src_urls=ClipboardItem.src_urls,
-            is_search=ClipboardItem.is_search,
-            is_cut=ClipboardItem.is_cut
+            src_dir=ClipboardItemGlob.src_dir,
+            dst_dir=ClipboardItemGlob.dst_dir,
+            src_urls=ClipboardItemGlob.src_urls,
+            is_search=ClipboardItemGlob.is_search,
+            is_cut=ClipboardItemGlob.is_cut
         )
 
         self.copy_task = CopyWorker(target=CopyTask.start, args=(self.copy_item, ))
@@ -264,9 +264,9 @@ class WinCopyFiles(WinProgressbar):
         self.copy_task.terminate_join()
 
     def closeEvent(self, a0):
-        ClipboardItem.reset()
+        ClipboardItemGlob.reset()
         return super().closeEvent(a0)
 
     def deleteLater(self):
-        ClipboardItem.reset()
+        ClipboardItemGlob.reset()
         super().deleteLater()
