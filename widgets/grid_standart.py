@@ -36,7 +36,11 @@ class GridStandart(Grid):
         self.scroll_timer.start(self.scroll_timer_ms)
 
     def start_dir_scaner(self):
-        dir_item = DirItem(self.main_win_item, self.sort_item, JsonData.show_hidden)
+        dir_item = DirItem(
+            data_items=[],
+            main_win_item=self.main_win_item,
+            sort_item=self.sort_item
+        )
         self.finder_task = DirScaner(dir_item)
         self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
         UThreadPool.start(self.finder_task)

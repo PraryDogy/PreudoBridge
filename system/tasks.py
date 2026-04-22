@@ -5,7 +5,6 @@ import os
 import shutil
 import subprocess
 import traceback
-import zipfile
 
 import numpy as np
 import sqlalchemy
@@ -13,10 +12,10 @@ from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage
 
 from cfg import Dynamic, Static
-from system.shared_utils import ImgUtils, SharedUtils
+from system.shared_utils import ImgUtils
 
 from .database import CacheTable, Dbase
-from .items import DataItem, DirItem, MainWinItem
+from .items import DataItem, DirItem
 from .utils import Utils
 
 

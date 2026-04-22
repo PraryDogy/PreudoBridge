@@ -170,13 +170,11 @@ class ClipboardItem:
         cls.dst_dir = ""
 
 
+@dataclass(slots=True)
 class DirItem:
-    def __init__(self, _main_win_item: MainWinItem, _sort_item: SortItem, _show_hidden: bool):
-        super().__init__()
-        self.data_items: list[DataItem] = []
-        self._main_win_item = _main_win_item
-        self._sort_item = _sort_item
-        self._show_hidden = _show_hidden
+    data_items: list[DataItem]
+    main_win_item: MainWinItem
+    sort_item: SortItem
 
 
 class JpgConvertItem:
