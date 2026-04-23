@@ -142,7 +142,6 @@ class GridStandart(Grid):
             while not img_task.queue.empty():
                 data_items.append(img_task.queue.get())
             load_qimages(data_items)
-            print(len(data_items))
             if not img_task.is_alive() and img_task.queue.empty():
                 img_task.terminate_join()
             else:
