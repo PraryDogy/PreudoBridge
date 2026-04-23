@@ -336,72 +336,13 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(flags)
         self.grid_wid.setLayout(self.grid_layout)
 
-        if not is_grid_search:
-            QTimer.singleShot(100, self.watchdog_start)
+        # if not is_grid_search:
+        #     QTimer.singleShot(100, self.watchdog_start)
 
     def set_files_icon(self, size: int = 64):
         path = os.path.join(Static.internal_images_dir, "files.svg")
         qimage = Utils.render_svg(path, 512)
         return Utils.scaled(qimage, size)
-
-    def watchdog_start(self, fast_ms=300, slow_ms=1000):
-
-        def poll_task():
-            # реже обновлять сетку когда идет процесс копирования
-            # иначе слишком часто будут создаваться виджеты с картинками
-            # и будет фризиться гуи 
-            if ClipboardItemGlob.src_urls:
-                ms = slow_ms
-            else:
-                ms = fast_ms
-            self.watchdog_timer.stop()
-            events: list[FileSystemEvent] = []
-            while not self.watcdog_task.queue.empty():
-                events.append(self.watcdog_task.queue.get())
-            if events:
-                for i in events:
-                    QTimer.singleShot(0, lambda ev=i: self.apply_changes(ev))
-                QTimer.singleShot(0, self.sort_thumbs)
-                QTimer.singleShot(0, self.rearrange_thumbs)
-            self.watchdog_timer.start(ms)
-
-        self.watcdog_task = ProcessWorker(
-            target=WatchdogTask.start,
-            args=(self.main_win_item.abs_current_dir, )
-        )
-        self.watchdog_timer = QTimer(self)
-        self.watchdog_timer.timeout.connect(poll_task)
-        self.watchdog_timer.setSingleShot(True)
-
-        self.watchdog_timer.start(fast_ms)
-        self.watcdog_task.start()
-
-    def apply_changes(self, e: FileSystemEvent):
-        wid: Thumb = self.url_to_wid.get(e.src_path, None)
-        if e.event_type == "deleted":
-            self.del_thumb(e.src_path)
-            if wid and wid.data_item.is_selected:
-                self.watchdog_modified_files.add(e.src_path)
-        elif e.event_type == "created":
-            new_thumb = self.new_thumb(e.src_path)            
-            if e.src_path in self.watchdog_modified_files:
-                self.select_multiple_thumb(new_thumb)
-                self.watchdog_modified_files.remove(e.src_path)
-        elif e.event_type == "moved":
-            self.del_thumb(e.src_path)
-            new_thumb = self.new_thumb(e.dest_path)
-            if wid and wid.data_item.is_selected:
-                self.select_multiple_thumb(new_thumb)
-        # modified выпадает только на изменение директории
-        # можем игнорировать
-        # elif e.event_type == "modified":
-            # print(e.src_path)
-
-        if not self.url_to_wid:
-            self.remove_no_items_label()
-            self.create_no_items_label(NoItemsLabel.no_files)
-        else:
-            self.remove_no_items_label()
 
     def load_visible_thumbs_images(self):
         if not self.grid_wid.isVisible():
@@ -1236,8 +1177,6 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        if self.watcdog_task:
-            self.watcdog_task.terminate_join()
         for proc, timer in self.process_timer_dict.items():
             timer.stop()
             proc.terminate_join()
@@ -1246,8 +1185,6 @@ class Grid(UScrollArea):
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        if self.watcdog_task:
-            self.watcdog_task.terminate_join()
         for proc, timer in self.process_timer_dict.items():
             timer.stop()
             proc.terminate_join()
