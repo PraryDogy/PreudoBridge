@@ -290,8 +290,8 @@ class WinImgView(WinBase):
         self.text_label.hide()
 
         if self.current_path in WinImgView.cached_images:
-            qimage = WinImgView.cached_images[self.current_path]
-            pixmap = QPixmap.fromImage(qimage)
+            pixmap = WinImgView.cached_images[self.current_path]
+            # pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)
 
         elif self.thumb.data_item.qimages:
@@ -327,8 +327,9 @@ class WinImgView(WinBase):
 
     def load_image(self):
         def fin(src: str, qimage: QImage):
-            self.cached_images[src] = qimage
-            self.restart_img_wid(QPixmap.fromImage(qimage))
+            pixmap = QPixmap.fromImage(qimage)
+            self.cached_images[src] = pixmap
+            self.restart_img_wid(pixmap)
 
         def poll_task():
             q = self.read_img_task.queue
