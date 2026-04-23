@@ -101,8 +101,6 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
-        # отключаем автоподгрузку изображений
-        # self.load_visible_thumbs_images = lambda *args, **kwargs: None
         self.start_search()
 
     def start_search(self):

@@ -200,6 +200,10 @@ class Thumb(QFrame):
         self.white_text_wid.set_text(self.data_item)
         self.blue_text_wid.set_text(self.data_item, sort_item)
 
+        if self.width() == Thumb.thumb_w:
+            print(123)
+            return
+
         self.setFixedSize(
             Thumb.thumb_w,
             Thumb.thumb_h
@@ -559,7 +563,7 @@ class Grid(UScrollArea):
             root = os.path.dirname(thumb.data_item.abs_path)
             new_url = os.path.join(root, text)
             os.rename(thumb.data_item.abs_path, new_url)
-            thumb.update_all()
+            thumb.update_all(self.sort_item)
 
         self.rename_win = WinRename(thumb.data_item.filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
