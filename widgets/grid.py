@@ -13,7 +13,7 @@ from watchdog.events import FileSystemEvent
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
                           MainWinItem, SortItem)
-from system.multiprocess import DirWatcher, ImgLoader, ProcessWorker
+from system.multiprocess import WatchdogTask, ImgLoader, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 from system.tasks import QImagesCreator, UThreadPool
 from system.utils import Utils
@@ -337,14 +337,14 @@ class Grid(UScrollArea):
         self.grid_wid.setLayout(self.grid_layout)
 
         if not is_grid_search:
-            QTimer.singleShot(100, self.dirs_watcher_start)
+            QTimer.singleShot(100, self.watchdog_start)
 
     def set_files_icon(self, size: int = 64):
         path = os.path.join(Static.internal_images_dir, "files.svg")
         qimage = Utils.render_svg(path, 512)
         return Utils.scaled(qimage, size)
 
-    def dirs_watcher_start(self, fast_ms=300, slow_ms=1000):
+    def watchdog_start(self, fast_ms=300, slow_ms=1000):
 
         def poll_task():
             # реже обновлять сетку когда идет процесс копирования
@@ -354,7 +354,7 @@ class Grid(UScrollArea):
                 ms = slow_ms
             else:
                 ms = fast_ms
-            self.dir_watcher_timer.stop()
+            self.watchdog_timer.stop()
             events: list[FileSystemEvent] = []
             while not self.watcdog_task.queue.empty():
                 events.append(self.watcdog_task.queue.get())
@@ -363,17 +363,17 @@ class Grid(UScrollArea):
                     QTimer.singleShot(0, lambda ev=i: self.apply_changes(ev))
                 QTimer.singleShot(0, self.sort_thumbs)
                 QTimer.singleShot(0, self.rearrange_thumbs)
-            self.dir_watcher_timer.start(ms)
+            self.watchdog_timer.start(ms)
 
         self.watcdog_task = ProcessWorker(
-            target=DirWatcher.start,
+            target=WatchdogTask.start,
             args=(self.main_win_item.abs_current_dir, )
         )
-        self.dir_watcher_timer = QTimer(self)
-        self.dir_watcher_timer.timeout.connect(poll_task)
-        self.dir_watcher_timer.setSingleShot(True)
+        self.watchdog_timer = QTimer(self)
+        self.watchdog_timer.timeout.connect(poll_task)
+        self.watchdog_timer.setSingleShot(True)
 
-        self.dir_watcher_timer.start(fast_ms)
+        self.watchdog_timer.start(fast_ms)
         self.watcdog_task.start()
 
     def apply_changes(self, e: FileSystemEvent):

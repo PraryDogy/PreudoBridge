@@ -210,7 +210,7 @@ class _DirChangedHandler(FileSystemEventHandler):
             self.callback(event)
 
 
-class DirWatcher:
+class WatchdogTask:
     @staticmethod
     def start(path: str, queue: Queue):
         if not path or not os.path.exists(path):
