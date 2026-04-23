@@ -1,12 +1,14 @@
 import os
 
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QImage
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
                              QWidget)
 
 from cfg import Static
+from system.utils import Utils
 
-from ._base_widgets import WinMinCloseOnly, USvgSqareWidget
+from ._base_widgets import USvgSqareWidget, WinMinCloseOnly
 
 
 class CancelBtn(USvgSqareWidget):
@@ -23,11 +25,14 @@ class CancelBtn(USvgSqareWidget):
 
 
 class WinProgressbar(WinMinCloseOnly):
-
+    files_icon = Utils.scaled(
+        qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
+        size=50
+    )
     progressbar_width = 300
     icon_size = 50
 
-    def __init__(self, title: str, svg_icon: str):
+    def __init__(self, title: str):
         super().__init__()
         # self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
         self.setWindowTitle(title)
@@ -37,7 +42,7 @@ class WinProgressbar(WinMinCloseOnly):
         main_lay.setSpacing(5)
         self.centralWidget().setLayout(main_lay)
 
-        left_side_icon = USvgSqareWidget(svg_icon, self.icon_size)
+        left_side_icon = USvgSqareWidget(self.files_icon, self.icon_size)
         main_lay.addWidget(left_side_icon)
 
         right_side_wid = QWidget()

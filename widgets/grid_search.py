@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QDragEnterEvent, QDropEvent
+from PyQt5.QtGui import QDragEnterEvent, QDropEvent, QImage
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from cfg import Static
@@ -22,8 +22,11 @@ class DirsWatched:
 class WinMissedFiles(WinMinCloseOnly):
     title_text = "Внимание!"
     descr_text = "Не найдены файлы:"
-    svg_size = 50
     ok_text = "Ок"
+    files_icon = Utils.scaled(
+        qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
+        size=50
+    )
 
     def __init__(self, files: list[str]):
         super().__init__()
@@ -40,7 +43,7 @@ class WinMissedFiles(WinMinCloseOnly):
         self.first_row_lay.setContentsMargins(0, 0, 0, 0)
         self.first_row_wid.setLayout(self.first_row_lay)
 
-        warn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "warning.svg"), WinMissedFiles.svg_size)
+        warn = USvgSqareWidget(self.files_icon)
         self.first_row_lay.addWidget(warn)
 
         label_ = QLabel(WinMissedFiles.descr_text)

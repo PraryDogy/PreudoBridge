@@ -1,13 +1,15 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import QImage
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from cfg import Static
 from system.items import ClipboardItemGlob, CopyItem
 from system.multiprocess import CopyTask, CopyWorker
+from system.utils import Utils
 
-from ._base_widgets import WinMinCloseOnly, SmallBtn, USvgSqareWidget
+from ._base_widgets import SmallBtn, USvgSqareWidget, WinMinCloseOnly
 from .win_progressbar import WinProgressbar
 
 
@@ -155,7 +157,7 @@ class WinCopyFiles(WinProgressbar):
         else:
             title_text = "Копирую файлы"
 
-        super().__init__(title_text, os.path.join(Static.internal_images_dir, "files.svg"))
+        super().__init__(title_text)
 
         self.dst_urls = []
 

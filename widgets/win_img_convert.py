@@ -16,7 +16,7 @@ class WinImgConvert(WinProgressbar):
     finished = pyqtSignal()
 
     def __init__(self, urls: list[str]):
-        super().__init__(self.title_text, os.path.join(Static.internal_images_dir, "files.svg"))
+        super().__init__(self.title_text)
         self.progressbar.setMinimum(0)
         self.urls = urls
 
