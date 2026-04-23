@@ -201,7 +201,6 @@ class Thumb(QFrame):
         self.blue_text_wid.set_text(self.data_item, sort_item)
 
         if self.width() == Thumb.thumb_w:
-            print(123)
             return
 
         self.setFixedSize(
