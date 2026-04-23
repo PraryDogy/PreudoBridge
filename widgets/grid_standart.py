@@ -18,9 +18,6 @@ class GridStandart(Grid):
     timeout_timer_ms = 15000
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
-        """
-        Стандартная сетка виджетов.
-        """
         super().__init__(main_win_item, is_grid_search)
         self.watchdog_modified_files = set()
         self.process_timer_dict: dict[ProcessWorker, QTimer] = {}
