@@ -14,8 +14,6 @@ from .win_rename import WinRename
 
 
 class GridStandart(Grid):
-    img_timer_ms = 500
-    scroll_timer_ms = 500
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__(main_win_item, is_grid_search)
@@ -28,9 +26,9 @@ class GridStandart(Grid):
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
         self.watchdog_start()
 
-    def on_scroll(self):
+    def on_scroll(self, ms: int = 500):
         self.scroll_timer.stop()
-        self.scroll_timer.start(self.scroll_timer_ms)
+        self.scroll_timer.start(ms)
 
     def watchdog_start(self, fast_ms=300, slow_ms=1000):
 
@@ -121,7 +119,7 @@ class GridStandart(Grid):
             self.loaded_thumbs.extend(thumbs)
             self._start_load_images_task(thumbs)
 
-    def _start_load_images_task(self, thumbs: list[Thumb]):
+    def _start_load_images_task(self, thumbs: list[Thumb], ms: int = 500):
         """
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
@@ -144,10 +142,11 @@ class GridStandart(Grid):
             while not img_task.queue.empty():
                 data_items.append(img_task.queue.get())
             load_qimages(data_items)
+            print(len(data_items))
             if not img_task.is_alive() and img_task.queue.empty():
                 img_task.terminate_join()
             else:
-                img_timer.start(self.img_timer_ms)
+                img_timer.start(ms)
 
         img_task = ProcessWorker(
             target=ImgLoader.start,
@@ -159,7 +158,7 @@ class GridStandart(Grid):
         img_timer.timeout.connect(lambda: poll_task(img_task, img_timer))
         self.process_timer_dict[img_task] = img_timer
         img_task.start()
-        img_timer.start(self.img_timer_ms)
+        img_timer.start(ms)
 
     def dir_scaner_start(self):
         dir_item = DirItem(
