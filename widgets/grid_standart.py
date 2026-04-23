@@ -94,7 +94,7 @@ class GridStandart(Grid):
     def load_visible_thumbs_images(self):
         if not self.grid_wid.isVisible():
             return
-        
+
         thumbs: list[Thumb] = []
         self.grid_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
