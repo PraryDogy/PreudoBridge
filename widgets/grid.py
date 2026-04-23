@@ -669,25 +669,6 @@ class Grid(UScrollArea):
             remove_files.triggered.connect(lambda: self.remove_files(urls))
             menu_.addAction(remove_files)
 
-    def new_folder(self):
-
-        def select(url):
-            self.clear_selected_widgets()
-            if url in self.url_to_wid:
-                self.select_multiple_thumb(self.url_to_wid[url])
-
-        def fin(name: str):
-            dest = os.path.join(self.main_win_item.abs_current_dir, name)
-            try:
-                os.mkdir(dest)
-                QTimer.singleShot(1050, lambda: select(dest))
-            except Exception as e:
-                Utils.print_error()
-        self.rename_win = WinRename(self.new_folder_text)
-        self.rename_win.center(self.window())
-        self.rename_win.finished_.connect(lambda name: fin(name))
-        self.rename_win.show()
-
     def context_grid(self, menu_: UMenu):
         self.bar_path_update(self.main_win_item.abs_current_dir)
         names = [os.path.basename(self.main_win_item.abs_current_dir)]
@@ -1005,28 +986,6 @@ class Grid(UScrollArea):
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         menu_.show_under_cursor()
     
-    def dragEnterEvent(self, a0):
-        if a0.mimeData().hasUrls():
-            a0.acceptProposedAction()
-        return super().dragEnterEvent(a0)
-    
-    def dropEvent(self, a0):
-        if not a0.mimeData().urls():
-            return
-        urls = [
-            i.toLocalFile().rstrip(os.sep)
-            for i in a0.mimeData().urls()
-        ]
-        src = os.path.dirname(urls[0])
-        if src == self.main_win_item.abs_current_dir:
-            print("нельзя копировать в себя через DropEvent")
-            return
-        else:
-            ClipboardItemGlob.src_dir = src
-            ClipboardItemGlob.src_urls = urls
-            self.paste_files.emit()
-        return super().dropEvent(a0)
-
     def deleteLater(self):
         urls = [i.data_item.abs_path for i in self.selected_thumbs]
         self.main_win_item.urls_to_select = urls

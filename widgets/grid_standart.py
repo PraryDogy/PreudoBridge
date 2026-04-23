@@ -10,6 +10,7 @@ from system.multiprocess import ImgLoader, ProcessWorker, WatchdogTask
 from system.tasks import DirScaner, QImagesCreator, UThreadPool
 
 from .grid import Grid, NoItemsLabel, Thumb
+from .win_rename import WinRename
 
 
 class GridStandart(Grid):
@@ -258,6 +259,21 @@ class GridStandart(Grid):
 
         return thumb
 
+    def new_folder(self):
+
+        def fin(name: str):
+            try:
+                os.mkdir(
+                    os.path.join(self.main_win_item.abs_current_dir, name)
+                )
+            except Exception as e:
+                ...
+
+        self.rename_win = WinRename(self.new_folder_text)
+        self.rename_win.center(self.window())
+        self.rename_win.finished_.connect(lambda name: fin(name))
+        self.rename_win.show()
+
     def rearrange_thumbs(self):
         super().rearrange_thumbs()
         self.load_visible_thumbs_images()
@@ -275,3 +291,25 @@ class GridStandart(Grid):
             timer.stop()
             proc.terminate_join()
         return super().closeEvent(a0)
+
+    def dragEnterEvent(self, a0):
+        if a0.mimeData().hasUrls():
+            a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
+    
+    def dropEvent(self, a0):
+        if not a0.mimeData().urls():
+            return
+        urls = [
+            i.toLocalFile().rstrip(os.sep)
+            for i in a0.mimeData().urls()
+        ]
+        src = os.path.dirname(urls[0])
+        if src == self.main_win_item.abs_current_dir:
+            print("нельзя копировать в себя через DropEvent")
+            return
+        else:
+            ClipboardItemGlob.src_dir = src
+            ClipboardItemGlob.src_urls = urls
+            self.paste_files.emit()
+        return super().dropEvent(a0)
