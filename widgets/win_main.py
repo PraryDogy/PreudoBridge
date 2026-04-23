@@ -368,14 +368,14 @@ class WinMain(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        self.grid.sort_menu_update.connect(self.bar_sort.sort_menu_update)
+        self.grid.menu_sort_update.connect(self.bar_sort.sort_menu_update)
         self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
         self.grid.path_bar_update.connect(self.bar_path.update)
         self.grid.add_fav.connect(self.menu_favs.add_fav)
         self.grid.del_fav.connect(self.menu_favs.del_fav)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
-        self.grid.open_in_new_win.connect(self.new_main_win_open)
+        self.grid.new_main_win_open.connect(self.new_main_win_open)
         self.grid.go_to_widget.connect(self.go_to_cmd)
         self.grid.level_up.connect(self.level_up)
         self.grid.new_history_item.connect(self.bar_top.new_history_item)

@@ -286,12 +286,11 @@ class Grid(UScrollArea):
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
-    open_in_new_win = pyqtSignal(str)
+    new_main_win_open = pyqtSignal(str)
     go_to_widget = pyqtSignal(str)
     level_up = pyqtSignal()
-    sort_menu_update = pyqtSignal()
+    menu_sort_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
-    download_cache = pyqtSignal(list)
     open_win_info = pyqtSignal(list)
     img_view_win = pyqtSignal(ImgViewItem)
     paste_files = pyqtSignal()
@@ -583,7 +582,7 @@ class Grid(UScrollArea):
         elif wid.data_item.type_ == Static.folder_type:
             new_win = ItemActions.OpenInNewWindow(menu_)
             new_win.triggered.connect(
-                lambda: self.open_in_new_win.emit(wid.data_item.abs_path)
+                lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
             )
             menu_.addAction(new_win)
 
@@ -714,7 +713,7 @@ class Grid(UScrollArea):
         sort_menu = GridActions.SortMenu(menu_, self.sort_item)
         sort_menu.sort_grid_sig.connect(lambda: self.sort_thumbs())
         sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange_thumbs())
-        sort_menu.sort_menu_update.connect(lambda: self.sort_menu_update.emit())
+        sort_menu.sort_menu_update.connect(lambda: self.menu_sort_update.emit())
         menu_.addMenu(sort_menu)
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
