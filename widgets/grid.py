@@ -41,7 +41,7 @@ class ImgFrameWidget(QFrame):
         super().__init__()
 
 
-class FileNameWidget(QLabel):
+class WhiteTextWid(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -142,9 +142,9 @@ class Thumb(QFrame):
         self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.img_frame_lay.addWidget(self.img_wid)
 
-        self.text_wid = FileNameWidget()
-        self.text_wid.setObjectName(Thumb.text_obj_name)
-        self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.white_text_wid = WhiteTextWid()
+        self.white_text_wid.setObjectName(Thumb.text_obj_name)
+        self.v_lay.addWidget(self.white_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.blue_text_wid = BlueTextWid()
         self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -196,16 +196,8 @@ class Thumb(QFrame):
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
 
-    def update_blue_text(self, sort_item: SortItem):
-        self.blue_text_wid.set_text(self.data_item, sort_item)
-
-    def resize_(self, sort_item: SortItem):
-        """
-        Устанавливает фиксированные размеры для дочерних виджетов Thumb     
-        Устанавливает текст в дочерних виджетах в соответствии с размерами  
-        Устанавливает изображение в дочерних виджетах в соответствии в размерами
-        """
-        self.text_wid.set_text(self.data_item)
+    def update_all(self, sort_item: SortItem):
+        self.white_text_wid.set_text(self.data_item)
         self.blue_text_wid.set_text(self.data_item, sort_item)
 
         self.setFixedSize(
@@ -359,7 +351,7 @@ class Grid(UScrollArea):
         for i in sorted_data_items:
             wid = self.url_to_wid.get(i.abs_path)
             new_url_to_wid[i.abs_path] = wid
-            wid.update_blue_text(self.sort_item)
+            wid.update_all(self.sort_item)
         self.url_to_wid = new_url_to_wid
                 
     def filter_thumbs(self):
@@ -386,7 +378,7 @@ class Grid(UScrollArea):
     def resize_thumbs(self):
         Thumb.calc_size()
         for wid in self.url_to_wid.values():
-            wid.resize_(self.sort_item)
+            wid.update_all(self.sort_item)
         for i in self.selected_thumbs:
             i.set_frame()
 
@@ -545,7 +537,7 @@ class Grid(UScrollArea):
         """
         wid = QApplication.widgetAt(a0.globalPos())
 
-        if isinstance(wid, (FileNameWidget, BlueTextWid, ImgFrameWidget)):
+        if isinstance(wid, (WhiteTextWid, BlueTextWid, ImgFrameWidget)):
             return wid.parent()
         elif isinstance(wid, QLabel):
             return wid.parent().parent()
@@ -567,6 +559,7 @@ class Grid(UScrollArea):
             root = os.path.dirname(thumb.data_item.abs_path)
             new_url = os.path.join(root, text)
             os.rename(thumb.data_item.abs_path, new_url)
+            thumb.update_all()
 
         self.rename_win = WinRename(thumb.data_item.filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
@@ -769,7 +762,7 @@ class Grid(UScrollArea):
             ctrl = a0.modifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier)
             for wid in self.cell_to_wid.values():
                 intersects = False
-                inner_widgets = wid.findChildren((FileNameWidget, ImgFrameWidget))
+                inner_widgets = wid.findChildren((WhiteTextWid, ImgFrameWidget))
                 for w in inner_widgets:
                     top_left = w.mapTo(self.grid_wid, QPoint(0, 0))
                     w_rect = QRect(top_left, w.size())
