@@ -1,4 +1,5 @@
 import os
+from time import perf_counter
 
 from PyQt5.QtCore import QRect, QSize, QTimer
 from watchdog.events import FileSystemEvent
@@ -8,6 +9,7 @@ from system.items import (ClipboardItemGlob, DataItem, DirItem, MainWinItem,
                           TotalCountItem)
 from system.multiprocess import ImgLoader, ProcessWorker, WatchdogTask
 from system.tasks import DirScaner, QImagesCreator, UThreadPool
+from system.utils import Utils
 
 from .grid import Grid, NoItemsLabel, Thumb
 from .win_rename import WinRename
@@ -117,35 +119,31 @@ class GridStandart(Grid):
 
         if thumbs:
             self.loaded_thumbs.extend(thumbs)
-            self._start_load_images_task(thumbs)
+            self.img_loader_start(thumbs)
 
-    def _start_load_images_task(self, thumbs: list[Thumb], ms: int = 500):
-        """
-        Запускает фоновую задачу загрузки изображений для списка Thumb.
-        Изображения загружаются из базы данных или из директории, если в БД нет.
-        """
+    def img_loader_start(self, thumbs: list[Thumb]):
 
-        def update_thumbs(data_items: list[DataItem]):
-            for i in data_items:
-                thumb = self.url_to_wid[i.abs_path]
-                thumb.data_item.qimages.update(i.qimages)
-                thumb.set_image()
+        def process_item(item: DataItem):
+            qimages = {"src": Utils.qimage_from_array(item._img_array)}
+            for i in Static.image_sizes: # 100, 150, 200, 250
+                qimages[i] = Utils.scaled(qimages["src"], i)
+            thumb = self.url_to_wid[item.abs_path] # QLabel
+            thumb.data_item.qimages.update(qimages)
+            thumb.set_image()
 
-        def load_qimages(data_items: list[DataItem]):
-            task = QImagesCreator(data_items)
-            task.sigs.finished_.connect(update_thumbs)
-            UThreadPool.start(task)
-
-        def poll_task(img_task: ProcessWorker, img_timer: QTimer):
+        def poll_task(img_task: ProcessWorker, img_timer: QTimer, sec = 0.004):
             img_timer.stop()
-            data_items: list[DataItem] = []
+            start = perf_counter()
+
             while not img_task.queue.empty():
-                data_items.append(img_task.queue.get())
-            load_qimages(data_items)
+                process_item(img_task.queue.get())
+                if perf_counter() - start > sec:
+                    break
+
             if not img_task.is_alive() and img_task.queue.empty():
                 img_task.terminate_join()
             else:
-                img_timer.start(ms)
+                img_timer.start(0)
 
         img_task = ProcessWorker(
             target=ImgLoader.start,
@@ -157,7 +155,7 @@ class GridStandart(Grid):
         img_timer.timeout.connect(lambda: poll_task(img_task, img_timer))
         self.process_timer_dict[img_task] = img_timer
         img_task.start()
-        img_timer.start(ms)
+        img_timer.start(0)
 
     def dir_scaner_start(self):
         dir_item = DirItem(
