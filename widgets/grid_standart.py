@@ -125,11 +125,20 @@ class GridStandart(Grid):
 
         def process_item(item: DataItem):
             qimages = {"src": Utils.qimage_from_array(item._img_array)}
-            for i in Static.image_sizes: # 100, 150, 200, 250
-                qimages[i] = Utils.scaled(qimages["src"], i)
+            current_size = Thumb.current_image_size
+            qimages[current_size] = Utils.scaled(
+                qimage=qimages["src"],
+                size=current_size
+            )
             thumb = self.url_to_wid[item.abs_path] # QLabel
             thumb.data_item.qimages.update(qimages)
             thumb.set_image()
+
+            # for i in Static.image_sizes: # 100, 150, 200, 250
+            #     qimages[i] = Utils.scaled(qimages["src"], i)
+            # thumb = self.url_to_wid[item.abs_path] # QLabel
+            # thumb.data_item.qimages.update(qimages)
+            # thumb.set_image()
 
         def poll_task(img_task: ProcessWorker, img_timer: QTimer, sec = 0.004):
             img_timer.stop()
