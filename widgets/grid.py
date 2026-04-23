@@ -458,17 +458,15 @@ class Grid(UScrollArea):
             ClipboardItemGlob.src_urls.append(i.data_item.abs_path)
 
     def no_items_label_remove(self):
+        self.ignore_mouse = False
         wid = self.grid_wid.findChild(NoItemsLabel)
         if wid:
             wid.deleteLater()
             flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
             self.grid_layout.setAlignment(flags)
-            try:
-                del self.mouseMoveEvent
-            except AttributeError:
-                ...
 
     def no_items_label_create(self, text: str):
+        self.ignore_mouse = True
         no_images = NoItemsLabel(text)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.addWidget(no_images, 0, 0)
