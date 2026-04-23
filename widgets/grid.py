@@ -308,6 +308,7 @@ class Grid(UScrollArea):
         self.selected_thumbs: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
         self.loaded_thumbs: list[Thumb] = []
+        self.ignore_mouse = False
 
         self.grid_wid = QWidget()
         self.setWidget(self.grid_wid)
@@ -801,6 +802,8 @@ class Grid(UScrollArea):
         return super().mousePressEvent(a0)
 
     def mouseMoveEvent(self, a0):
+        if self.ignore_mouse:
+            return
         try:
             current_pos = self.grid_wid.mapFrom(self, a0.pos())
             distance = (current_pos - self.origin_pos).manhattanLength()
@@ -947,6 +950,8 @@ class Grid(UScrollArea):
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        if self.ignore_mouse:
+            return
         menu_ = UMenu(parent=self)
         self.wid_under_mouse = self.get_wid_under_mouse(a0)
         # клик по пустому пространству

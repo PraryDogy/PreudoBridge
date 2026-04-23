@@ -160,6 +160,7 @@ class GridStandart(Grid):
         img_timer.start(0)
 
     def dir_scaner_start(self):
+        self.ignore_mouse = True
         dir_item = DirItem(
             data_items=[],
             main_win_item=self.main_win_item,
@@ -185,42 +186,31 @@ class GridStandart(Grid):
         self.create_thumbs_start(dir_item.data_items)
 
     def create_thumbs_start(self, data_items: list[DataItem]):
-        self.col_count = self.get_clmn_count()
-        self._thumb_index = 0
-        self.data_items = data_items
-        self.row = 0
-        self.col = 0
-
         def add_one_thumb():
             if self._thumb_index >= len(self.data_items):
-                # Все виджеты добавлены
                 self.data_items = None
                 self._thumb_index = 0
                 self.create_thumbs_end()
                 return
-
-            # Создание и настройка виджета
             data_item = self.data_items[self._thumb_index]
             thumb = Thumb(data_item)
             thumb.update_all(self.sort_item)
             thumb.set_no_frame()
             thumb.set_icon()
-
-            # Добавление в layout и внутренние структуры
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
-
-            # Обновление позиции в сетке
             self.col += 1
             if self.col >= self.col_count:
                 self.col = 0
                 self.row += 1
-
             self._thumb_index += 1
-
-            # Планируем добавление следующего виджета
             QTimer.singleShot(0, add_one_thumb)
 
+        self.col_count = self.get_clmn_count()
+        self._thumb_index = 0
+        self.data_items = data_items
+        self.row = 0
+        self.col = 0
         add_one_thumb()
 
     def create_thumbs_end(self):
@@ -239,6 +229,7 @@ class GridStandart(Grid):
         # почему то без таймера срабатывает через раз
         QTimer.singleShot(0, self.rearrange_thumbs)
         self.load_finished.emit()
+        self.ignore_mouse = False
 
     def new_thumb(self, url: str):
         data = DataItem(url)
