@@ -265,3 +265,8 @@ class ImgViewItem:
     start_url: str
     url_to_wid: dict[str, object]
     is_selection: bool
+
+
+class TotalCountItem:
+    selected: int
+    total: int
