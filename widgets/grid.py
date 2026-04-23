@@ -297,7 +297,7 @@ class Grid(UScrollArea):
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
     download_cache = pyqtSignal(list)
-    info_win = pyqtSignal(list)
+    open_win_info = pyqtSignal(list)
     img_view_win = pyqtSignal(ImgViewItem)
     paste_files = pyqtSignal()
     load_finished = pyqtSignal()
@@ -480,6 +480,7 @@ class Grid(UScrollArea):
                 )
                 self.img_view_win.emit(item)
 
+
     def fav_cmd(self, offset: int, src: str):
         """
         Добавляет / удаляет папку в меню избранного. Аргументы:
@@ -487,12 +488,6 @@ class Grid(UScrollArea):
         - src: путь к папке
         """
         (self.add_fav if offset == 1 else self.del_fav).emit(src)
-
-    def open_win_info(self, items: list[DataItem]):
-        """
-        Открыть окно информации о файле / папке
-        """
-        self.info_win.emit(items)
 
     def show_in_folder_cmd(self, wid: Thumb):
         QTimer.singleShot(
@@ -689,7 +684,9 @@ class Grid(UScrollArea):
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(
-            lambda: self.open_win_info([i.data_item for i in self.selected_thumbs])
+            lambda: self.open_win_info.emit(
+                [i.data_item for i in self.selected_thumbs]
+            )
         )
         menu_.addAction(info)
 
@@ -761,8 +758,8 @@ class Grid(UScrollArea):
         self.path_bar_update_delayed(self.main_win_item.abs_current_dir)
         names = [os.path.basename(self.main_win_item.abs_current_dir)]
         urls = [self.main_win_item.abs_current_dir]
-        data = DataItem(self.main_win_item.abs_current_dir)
-        data.set_properties()
+        item = DataItem(self.main_win_item.abs_current_dir)
+        item.set_properties()
 
         if not self.is_grid_search:
             new_folder = GridActions.NewFolder(menu_)
@@ -771,9 +768,7 @@ class Grid(UScrollArea):
 
         if not self.is_grid_search:
             info = GridActions.Info(menu_)
-            info.triggered.connect(
-                lambda: self.open_win_info([data, ])
-            )
+            info.triggered.connect(lambda: self.open_win_info.emit([item, ]))
             menu_.addAction(info)
 
         if self.main_win_item.abs_current_dir in JsonData.favs:
@@ -973,11 +968,13 @@ class Grid(UScrollArea):
             elif a0.key() == Qt.Key.Key_I:
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
-                    self.open_win_info([i.data_item for i in self.selected_thumbs])
+                    self.open_win_info.emit(
+                        [i.data_item for i in self.selected_thumbs]
+                    )
                 else:
                     data = DataItem(self.main_win_item.abs_current_dir)
                     data.set_properties()
-                    self.open_win_info([data, ])
+                    self.open_win_info.emit([data, ])
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1

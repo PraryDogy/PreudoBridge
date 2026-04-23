@@ -380,7 +380,7 @@ class WinMain(WinBase):
         self.grid.level_up.connect(self.level_up)
         self.grid.new_history_item.connect(self.bar_top.new_history_item)
         self.grid.change_view.connect(self.change_view_cmd)
-        self.grid.info_win.connect(self.info_win_open)
+        self.grid.open_win_info.connect(self.info_win_open)
         self.grid.img_view_win.connect(self.img_view_win_open)
         self.grid.paste_files.connect(self.paste_files)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
