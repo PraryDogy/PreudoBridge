@@ -9,17 +9,18 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QLabel, QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import ClipboardItemGlob, DataItem, MainWinItem
-from system.shared_utils import ImgUtils, SharedUtils
+from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
+                          MainWinItem, TotalCountItem)
+from system.shared_utils import ImgUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu
 from .actions import GridActions, ItemActions
 # main win
 from .grid import Thumb
+from .win_img_convert import WinImgConvert
 from .win_remove_files import WinRemoveFiles
 from .win_rename import WinRename
-from .win_img_convert import WinImgConvert
 
 
 class MyFileSystemModel(QFileSystemModel):
@@ -95,16 +96,19 @@ class TableView(QTableView):
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
-    open_in_new_win = pyqtSignal(str)
+    new_main_win_open = pyqtSignal(str)
+    go_to_widget = pyqtSignal(str)
     level_up = pyqtSignal()
-    sort_menu_update = pyqtSignal()
-    total_count_update = pyqtSignal(tuple)
-    download_cache = pyqtSignal(list)
-    info_win = pyqtSignal(list)
-    img_view_win = pyqtSignal(dict)
+    menu_sort_update = pyqtSignal()
+    total_count_update = pyqtSignal(TotalCountItem)
+    open_win_info = pyqtSignal(list)
+    img_view_win = pyqtSignal(ImgViewItem)
     paste_files = pyqtSignal()
     load_finished = pyqtSignal()
-    go_to_widget = pyqtSignal(str)
+    files_icon = Utils.scaled(
+        qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
+        size=64
+    )
 
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
     empty_text = "Нет файлов"
@@ -125,7 +129,6 @@ class TableView(QTableView):
         self.main_win_item = main_win_item
         self.url_to_index: dict[str, QModelIndex] = {}
         self.main_win_item = main_win_item
-        self.copy_files_icon: QImage = self.set_files_icon()
 
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSortingEnabled(True)
@@ -159,11 +162,6 @@ class TableView(QTableView):
 
         self._model.directoryLoaded.connect(self.set_url_to_index_)
 
-    def set_files_icon(self, size: int = 64):
-        path = os.path.join(Static.internal_images_dir, "files.svg")
-        qimage = Utils.render_svg(path, 512)
-        return Utils.scaled(qimage, size)
-
     def set_url_to_index_(self):
         self.hide()
 
@@ -188,7 +186,6 @@ class TableView(QTableView):
 
         self.setCurrentIndex(QModelIndex())
         self.path_bar_update.emit(self.main_win_item.abs_current_dir)
-        self.total_count_update.emit((0, row_count))
         self.load_finished.emit()
 
         if row_count == 0:
@@ -265,7 +262,7 @@ class TableView(QTableView):
             ]
 
             for i in folders:
-                self.open_in_new_win.emit(i)
+                self.new_main_win_open.emit(i)
 
             files = [
                 i
@@ -293,7 +290,7 @@ class TableView(QTableView):
     def toggle_is_cut(self, value: bool):
         Dynamic.is_cut = value
 
-    def open_win_info(self, src_list: list[str]):
+    def open_win_info_cmd(self, src_list: list[str]):
         """
         Открыть окно информации о файле / папке
         """
@@ -302,7 +299,7 @@ class TableView(QTableView):
             data_item = DataItem(i)
             data_item.set_properties()
             data_items.append(data_item)
-        self.info_win.emit(data_items)
+        self.open_win_info.emit(data_items)
 
     def get_selected_urls(self):
         urls = []
@@ -346,7 +343,7 @@ class TableView(QTableView):
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(
-            lambda: self.open_win_info(urls)
+            lambda: self.open_win_info_cmd(urls)
         )
         menu_.addAction(info)
 
@@ -368,13 +365,6 @@ class TableView(QTableView):
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls))
             menu_.addAction(convert_action)
-
-        if os.path.isdir(selected_path):
-            download_cache = ItemActions.DownloadCache(menu_)
-            download_cache.triggered.connect(
-                lambda: self.download_cache.emit(dirs)
-            )
-            menu_.addAction(download_cache)
 
         menu_.addSeparator()
 
@@ -420,7 +410,7 @@ class TableView(QTableView):
 
         info = GridActions.Info(menu_)
         info.triggered.connect(
-            lambda: self.open_win_info([selected_path, ])
+            lambda: self.open_win_info_cmd([selected_path, ])
         )
         menu_.addAction(info)
 
@@ -523,7 +513,7 @@ class TableView(QTableView):
                 urls = self.get_selected_urls()
                 if not urls:
                     urls = [self.main_win_item.abs_current_dir, ]
-                self.open_win_info(urls)
+                self.open_win_info_cmd(urls)
                 # return
 
             elif a0.key() == Qt.Key.Key_Backspace:

@@ -286,6 +286,10 @@ class Grid(UScrollArea):
     img_view_win = pyqtSignal(ImgViewItem)
     paste_files = pyqtSignal()
     load_finished = pyqtSignal()
+    files_icon = Utils.scaled(
+        qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
+        size=64
+    )
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__()
@@ -303,7 +307,6 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
-        self.copy_files_icon: QImage = self.create_files_icon()
         self.loaded_thumbs: list[Thumb] = []
 
         self.grid_wid = QWidget()
@@ -317,11 +320,6 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         )
-
-    def create_files_icon(self, size: int = 64):
-        path = os.path.join(Static.internal_images_dir, "files.svg")
-        qimage = Utils.render_svg(path, 512)
-        return Utils.scaled(qimage, size)
 
     def reload_rubber(self):
         self.rubberBand.deleteLater()
@@ -821,7 +819,7 @@ class Grid(UScrollArea):
             self.select_single_thumb(self.wid_under_mouse)
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-        img_ = QPixmap.fromImage(self.copy_files_icon)
+        img_ = QPixmap.fromImage(self.files_icon)
         self.drag.setPixmap(img_)
         urls = [QUrl.fromLocalFile(i.data_item.abs_path) for i in self.selected_thumbs]        
         if urls:
