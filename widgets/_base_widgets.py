@@ -5,10 +5,10 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
                          QPalette, QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsDropShadowEffect,
-                             QHBoxLayout, QLabel, QLineEdit, QMainWindow,
-                             QMenu, QPushButton, QScrollArea, QSlider,
-                             QTextEdit, QWidget)
+from PyQt5.QtWidgets import (QAction, QApplication, QFrame,
+                             QGraphicsDropShadowEffect, QHBoxLayout, QLabel,
+                             QLineEdit, QMainWindow, QMenu, QPushButton,
+                             QScrollArea, QSlider, QTextEdit, QWidget)
 
 from cfg import Static
 
@@ -47,6 +47,15 @@ class UMenu(QMenu):
 
     def show_under_cursor(self):
         self.exec_(QCursor.pos())
+
+    def add_action(self, action: QAction | QMenu, cmd: callable):
+        if cmd is not None:
+            action.triggered.connect(cmd)
+        if isinstance(action, QAction):
+            self.addAction(action)
+        else:
+            self.addMenu(action)
+
 
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.RightButton:

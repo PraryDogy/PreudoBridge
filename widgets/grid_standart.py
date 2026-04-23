@@ -4,14 +4,16 @@ from time import perf_counter
 from PyQt5.QtCore import QRect, QSize, QTimer
 from watchdog.events import FileSystemEvent
 
-from cfg import Dynamic, Static
-from system.items import (ClipboardItemGlob, DataItem, DirItem, MainWinItem,
-                          TotalCountItem)
+from cfg import Dynamic, Static, JsonData
+from system.items import (ClipboardItemGlob, ContextItem, DataItem, DirItem,
+                          MainWinItem, TotalCountItem)
 from system.multiprocess import (ImgLoader, ImgLoaderHelper, ProcessWorker,
                                  WatchdogTask)
 from system.tasks import DirScaner, UThreadPool
 from system.utils import Utils
 
+from ._base_widgets import UMenu
+from .actions import Actions
 from .grid import Grid, NoItemsLabel, Thumb
 from .win_rename import WinRename
 
@@ -311,3 +313,80 @@ class GridStandart(Grid):
             ClipboardItemGlob.src_urls = urls
             self.paste_files.emit()
         return super().dropEvent(a0)
+    
+    def contextMenuEvent(self, a0):
+        super().contextMenuEvent(a0)
+        data_items = [i.data_item for i in self.selected_thumbs]
+        urls = [i.data_item.abs_path for i in self.selected_thumbs]
+        item = ContextItem(
+            main_win_item=self.main_win_item,
+            sort_item=self.sort_item,
+            urls=urls
+        )
+        menu_ = UMenu()
+        wid = self.wid_under_mouse
+        if self.wid_under_mouse:
+            actions = Actions(menu_, item)
+
+            cmd = lambda: self.open_thumb()
+            menu_.add_action(actions.open_thumb, lambda: self.open_thumb())
+
+            menu_.add_action(actions.open_in_app, None)
+
+            if wid.data_item.type_ == Static.folder_type:
+                cmd = lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
+                menu_.add_action(actions.new_main_win, cmd)
+                if wid.data_item.abs_path in JsonData.favs:
+                    cmd = lambda: self.fav_cmd(offset=-1, src=wid.data_item.abs_path)
+                    menu_.add_action(actions.fav_remove, cmd)
+                else:
+                    cmd = lambda: self.fav_cmd(offset=1, src=wid.data_item.abs_path)
+                    menu_.add_action(actions.fav_add, cmd)
+            else:
+                cmd = lambda: self.open_img_convert_win(urls)
+                menu_.add_action(actions.convert_to_jpg, cmd)
+
+            cmd = lambda: self.open_win_info.emit(data_items)
+            menu_.add_action(actions.win_info, cmd)
+
+            cmd = lambda: actions.reveal.cmd()
+            menu_.add_action(actions.reveal, cmd)
+
+        menu_.show_under_cursor()
+
+    
+        #     show_in_folder = ItemActions.ShowInGrid(menu_)
+        #     cmd_ = lambda: self.show_in_folder_cmd(wid)
+        #     show_in_folder.triggered.connect(cmd_)
+        #     menu_.addAction(show_in_folder)
+
+        #     show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
+        #     menu_.addAction(show_in_finder_action)
+
+        #     copy_path = ItemActions.CopyPath(menu_, urls)
+        #     copy_path.triggered.connect(lambda: ClipboardItemGlob.reset())
+        #     menu_.addAction(copy_path)
+
+        #     menu_.addSeparator()
+
+        #     rename = ItemActions.Rename(menu_)
+        #     rename.triggered.connect(lambda: self.rename_thumb(wid))
+        #     menu_.addAction(rename)
+
+        #     cut_objects = ItemActions.CutFiles(menu_)
+        #     cut_objects.triggered.connect(self.set_transparent_thumbs)
+        #     cut_objects.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(True))
+        #     cut_objects.triggered.connect(self.setup_urls_to_copy)
+        #     menu_.addAction(cut_objects)
+
+        #     copy_files = ItemActions.CopyFiles(menu_)
+        #     copy_files.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(False))
+        #     copy_files.triggered.connect(self.setup_urls_to_copy)
+        #     menu_.addAction(copy_files)
+
+        #     remove_files = ItemActions.RemoveFiles(menu_)
+        #     remove_files.triggered.connect(lambda: self.remove_files(urls))
+        #     menu_.addAction(remove_files)
+
+        # else:
+        #     actions = GridActions()

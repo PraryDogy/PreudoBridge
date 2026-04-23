@@ -10,7 +10,6 @@ from system.items import MainWinItem
 from system.utils import Utils
 
 from ._base_widgets import UMenu
-from .actions import ItemActions
 # в main_win
 from .win_rename import WinRename
 
@@ -56,6 +55,7 @@ class FavItem(QLabel):
         return super().mouseReleaseEvent(ev)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        return
         urls = [self.src]
         names = [os.path.basename(i) for i in urls]
         total = 1

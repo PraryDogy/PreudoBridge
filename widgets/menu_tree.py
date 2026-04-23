@@ -7,7 +7,6 @@ from cfg import JsonData
 from system.items import MainWinItem
 
 from ._base_widgets import UMenu
-from .actions import ItemActions
 
 
 class MenuTree(QTreeView):
@@ -60,6 +59,7 @@ class MenuTree(QTreeView):
         )
 
     def contextMenuEvent(self, event):
+        return
         index = self.indexAt(event.pos())
         if not index.isValid():
             return

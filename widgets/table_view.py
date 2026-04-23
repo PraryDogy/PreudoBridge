@@ -15,7 +15,7 @@ from system.shared_utils import ImgUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu
-from .actions import GridActions, ItemActions
+from .actions import Actions
 # main win
 from .grid import Thumb
 from .win_img_convert import WinImgConvert
@@ -310,6 +310,7 @@ class TableView(QTableView):
         self.rename_win.show()
 
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
+        return
         urls = self.get_selected_urls()
         dirs = [i for i in urls if os.path.isdir(i)]
 
@@ -383,6 +384,7 @@ class TableView(QTableView):
         menu_.addAction(remove_objects)  
 
     def grid_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
+        return
 
         new_folder = GridActions.NewFolder(menu_)
         new_folder.triggered.connect(self.new_folder)

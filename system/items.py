@@ -271,3 +271,10 @@ class ImgViewItem:
 class TotalCountItem:
     selected: int
     total: int
+
+
+@dataclass(slots=True)
+class ContextItem:
+    main_win_item: MainWinItem
+    sort_item: SortItem
+    urls: list[str]

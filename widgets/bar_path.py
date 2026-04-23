@@ -9,8 +9,7 @@ from system.items import DataItem, MainWinItem
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
-from ._base_widgets import UMenu, USvgSqareWidget
-from .actions import ItemActions
+from ._base_widgets import UMenu
 
 
 class Icons:
@@ -131,6 +130,7 @@ class PathItem(QWidget):
         QTimer.singleShot(500, self.collapse)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        return
         urls = [self.main_win_item.abs_current_dir]
         menu_ = UMenu(parent=self)
 

@@ -5,14 +5,14 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
 from cfg import Dynamic, Static
-from system.items import SortItem
+from system.items import ContextItem
 from system.tasks import RevealFiles, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu
 
 
-class RevealInFinder(QAction):
+class Reveal(QAction):
     text_ = "Показать в Finder"
     def __init__(self, parent: UMenu, urls: list[str]):
         super().__init__(self.text_, parent)
@@ -27,8 +27,6 @@ class RevealInFinder(QAction):
                 self.cmd = self.files_cmd
         else:
             self.cmd = self.files_cmd
-
-        self.triggered.connect(self.cmd)
 
     def cmd(self):
         ...
@@ -212,10 +210,9 @@ class SortMenu(UMenu):
     text_ascending = "По возрастанию"
     text_discenging = "По убыванию"
 
-    def __init__(self, parent: UMenu, sort_item: SortItem):
+    def __init__(self, parent: UMenu, context_item: ContextItem):
         super().__init__(self.text_menu, parent)
-        self.sort_item = sort_item
-
+        self.context_item = context_item
         ascending = QAction(self.text_ascending, self)
         # добавляем свойство прямой / обратной сортировки
         # прямая сортировка А > Я
@@ -235,7 +232,7 @@ class SortMenu(UMenu):
             # если свойство rev совпадает с пользовательским свойством reversed
             # то отмечаем галочкой
             # JsonData - пользовательские данные из .json файла
-            if i.rev == self.sort_item.reversed:
+            if i.rev == context_item.sort_item.reversed:
                 i.setChecked(True)
 
         self.addSeparator()
@@ -244,7 +241,7 @@ class SortMenu(UMenu):
         # text_name - текстовое обозначение колонки CACHE, основанное на
         # комментарии колонки (CACHE.column.comment)
         # смотри database.py > CACHE
-        for true_name, text_name in SortItem.attr_lang.items():
+        for true_name, text_name in context_item.sort_item.attr_lang.items():
 
             action_ = QAction(text_name, self)
             action_.setCheckable(True)
@@ -254,21 +251,21 @@ class SortMenu(UMenu):
             cmd_ = lambda e, true_name=true_name: self.cmd_sort(true_name)
             action_.triggered.connect(cmd_)
 
-            if self.sort_item.item_type == true_name:
+            if context_item.sort_item.item_type == true_name:
                 action_.setChecked(True)
 
             self.addAction(action_)
 
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
-        self.sort_item.item_type = true_name
+        self.context_item.sort_item.item_type = true_name
         self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.sort_menu_update.emit()
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
-        self.sort_item.reversed = reversed
+        self.context_item.sort_item.reversed = reversed
         self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.sort_menu_update.emit()
@@ -392,8 +389,9 @@ class Rename(QAction):
         super().__init__(self.text_, parent)
 
 
-class ThumbActions:
-    def __init__(self, menu_: UMenu, urls: list[str]):
+class Actions:
+    def __init__(self, menu_: UMenu, item: ContextItem):
+        urls = item.urls
         self.open_thumb = OpenThumb(menu_)
         self.open_in_app = OpenInApp(menu_, urls)
         self.new_main_win = NewMainWin(menu_)
@@ -402,24 +400,15 @@ class ThumbActions:
         self.win_info = WinInfo(menu_)
         self.convert_to_jpg = ImgConvert(menu_)
         self.show_in_folder = ShowInGrid(menu_)
-        self.show_in_finder = RevealInFinder(menu_, urls)
-        self.copy_path = CopyPath(menu_, urls)
+        self.reveal = Reveal(menu_, urls)
         self.rename = Rename(menu_)
         self.cut_files = CutFiles(menu_)
         self.copy_files = CopyFiles(menu_)
         self.remove_files = RemoveFiles(menu_)
-
-
-class GridActions_:
-    def __init__(self, menu_: UMenu, urls: list[str]):
         self.new_folder = NewFolder(menu_)
-        self.info = WinInfo(menu_)
-        self.fav_action = FavRemove(menu_)
-        self.fav_action = FavAdd(menu_)
-        self.reveal = RevealInFinder(menu_, urls)
         self.copy_ = CopyPath(menu_, urls)
         self.copy_name = CopyName(menu_, urls)
         self.paste_files = PasteFiles(menu_)
         self.upd_ = UpdateGrid(menu_)
-        self.change_view = ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
-        self.sort_menu = SortMenu(menu_, self.sort_item)
+        self.change_view = ChangeViewMenu(menu_, item)
+        self.sort_menu = SortMenu(menu_, item)

@@ -14,7 +14,8 @@ from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
-from ._base_widgets import UMenu, UScrollArea
+from ._base_widgets import UScrollArea
+from .actions import Actions
 # в main win
 from .win_img_convert import WinImgConvert
 from .win_remove_files import WinRemoveFiles
@@ -502,6 +503,7 @@ class Grid(UScrollArea):
             return None
 
     def open_img_convert_win(self, urls: list[str]):
+        urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
         self.convert_win = WinImgConvert(urls)
         self.convert_win.center(self.window())
         self.convert_win.show()

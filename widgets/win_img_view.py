@@ -15,7 +15,6 @@ from system.tasks import ImgArrayQImage, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
-from .actions import ItemActions
 from .grid import Thumb
 
 
@@ -493,6 +492,7 @@ class WinImgView(WinBase):
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        return
         urls = [self.current_path]
         names = [os.path.basename(i) for i in urls]
 

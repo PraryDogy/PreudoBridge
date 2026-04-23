@@ -11,7 +11,7 @@ from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
 from ._base_widgets import UMenu, WinMinCloseOnly
-from .actions import CopyText, RevealInFinder
+from .actions import CopyText, Reveal
 
 
 class ULabel(QLabel):
@@ -52,7 +52,7 @@ class SelectableLabel(ULabel):
 
         menu.addSeparator()
 
-        reveal_action = RevealInFinder(menu, [src, ])
+        reveal_action = Reveal(menu, [src, ])
         menu.addAction(reveal_action)
 
         menu.show_under_cursor()
