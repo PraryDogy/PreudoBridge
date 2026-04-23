@@ -16,8 +16,6 @@ from .win_rename import WinRename
 class GridStandart(Grid):
     img_timer_ms = 500
     scroll_timer_ms = 500
-    finder_timer_ms = 200
-    timeout_timer_ms = 15000
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__(main_win_item, is_grid_search)
