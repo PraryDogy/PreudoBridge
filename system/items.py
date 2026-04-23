@@ -87,7 +87,7 @@ class DataItem:
         if added:
             self.added = int(added.timestamp())
         else:
-            self.added = Utils.get_now()
+            self.added = int(os.path.getctime(self.abs_path))
 
     @classmethod
     def sort_(cls, data_items: list["DataItem"], sort_item: SortItem):
