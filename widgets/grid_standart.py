@@ -1,13 +1,13 @@
 import os
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import QRect, QSize, Qt, QTimer
 from PyQt5.QtWidgets import QLabel
 from watchdog.events import FileSystemEvent
 
-from cfg import Dynamic, JsonData
+from cfg import Dynamic, Static
 from system.items import ClipboardItemGlob, DataItem, DirItem, MainWinItem
-from system.multiprocess import ProcessWorker, WatchdogTask
-from system.tasks import DirScaner, UThreadPool
+from system.multiprocess import ImgLoader, ProcessWorker, WatchdogTask
+from system.tasks import DirScaner, QImagesCreator, UThreadPool
 
 from .grid import Grid, NoItemsLabel, Thumb
 
@@ -22,17 +22,14 @@ class GridStandart(Grid):
         Стандартная сетка виджетов.
         """
         super().__init__(main_win_item, is_grid_search)
-
-        self.tasker = None
+        self.watchdog_modified_files = set()
+        self.process_timer_dict: dict[ProcessWorker, QTimer] = {}
 
         self.scroll_timer = QTimer(self)
-        self.scroll_timer.timeout.connect(self.scroll_timer_cmd)
+        self.scroll_timer.timeout.connect(self.load_visible_thumbs_images)
         self.scroll_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
         self.watchdog_start()
-
-    def scroll_timer_cmd(self):
-        self.load_visible_thumbs_images()
 
     def on_scroll(self):
         self.scroll_timer.stop()
@@ -54,7 +51,7 @@ class GridStandart(Grid):
                 events.append(self.watchdog_task.queue.get())
             if events:
                 for i in events:
-                    QTimer.singleShot(0, lambda ev=i: self.apply_changes(ev))
+                    QTimer.singleShot(0, lambda ev=i: self.watchdog_apply(ev))
                 QTimer.singleShot(0, self.sort_thumbs)
                 QTimer.singleShot(0, self.rearrange_thumbs)
             self.watchdog_timer.start(ms)
@@ -70,7 +67,7 @@ class GridStandart(Grid):
         self.watchdog_timer.start(fast_ms)
         self.watchdog_task.start()
 
-    def apply_changes(self, e: FileSystemEvent):
+    def watchdog_apply(self, e: FileSystemEvent):
         wid: Thumb = self.url_to_wid.get(e.src_path, None)
         if e.event_type == "deleted":
             self.del_thumb(e.src_path)
@@ -96,6 +93,76 @@ class GridStandart(Grid):
             self.create_no_items_label(NoItemsLabel.no_files)
         else:
             self.remove_no_items_label()
+
+    def load_visible_thumbs_images(self):
+        if not self.grid_wid.isVisible():
+            return
+        
+        thumbs: list[Thumb] = []
+        self.grid_wid.layout().activate() 
+        visible_rect = self.viewport().rect()  # область видимой части
+        for thumb in self.url_to_wid.values():
+            stmt = (
+                # если у виджета уже есть изображения
+                thumb.data_item.qimages,
+                # если виджет это папка
+                thumb.data_item.type_ == Static.folder_type,
+                # если виджет в загруженных
+                thumb in self.loaded_thumbs
+            )
+            if any(stmt):
+                continue
+            widget_rect = self.viewport().mapFromGlobal(
+                thumb.mapToGlobal(thumb.rect().topLeft())
+            )
+            qsize = QSize(thumb.width(), thumb.height())
+            widget_rect = QRect(widget_rect, qsize)
+            if visible_rect.intersects(widget_rect):
+                thumbs.append(thumb)
+
+        if thumbs:
+            self.loaded_thumbs.extend(thumbs)
+            self._start_load_images_task(thumbs)
+
+    def _start_load_images_task(self, thumbs: list[Thumb]):
+        """
+        Запускает фоновую задачу загрузки изображений для списка Thumb.
+        Изображения загружаются из базы данных или из директории, если в БД нет.
+        """
+
+        def update_thumbs(data_items: list[DataItem]):
+            for i in data_items:
+                thumb = self.url_to_wid[i.abs_path]
+                thumb.data_item.qimages.update(i.qimages)
+                thumb.set_image()
+
+        def load_qimages(data_items: list[DataItem]):
+            task = QImagesCreator(data_items)
+            task.sigs.finished_.connect(update_thumbs)
+            UThreadPool.start(task)
+
+        def poll_task(img_task: ProcessWorker, img_timer: QTimer):
+            img_timer.stop()
+            data_items: list[DataItem] = []
+            while not img_task.queue.empty():
+                data_items.append(img_task.queue.get())
+            load_qimages(data_items)
+            if not img_task.is_alive() and img_task.queue.empty():
+                img_task.terminate_join()
+            else:
+                img_timer.start(self.img_timer_ms)
+
+        img_task = ProcessWorker(
+            target=ImgLoader.start,
+            args=([i.data_item for i in thumbs], self.main_win_item, )
+        )
+
+        img_timer = QTimer(self)
+        img_timer.setSingleShot(True)
+        img_timer.timeout.connect(lambda: poll_task(img_task, img_timer))
+        self.process_timer_dict[img_task] = img_timer
+        img_task.start()
+        img_timer.start(self.img_timer_ms)
 
     def dir_scaner_start(self):
         dir_item = DirItem(
@@ -175,11 +242,21 @@ class GridStandart(Grid):
         # почему то без таймера срабатывает через раз
         QTimer.singleShot(0, self.rearrange_thumbs)
         self.load_finished.emit()
+
+    def rearrange_thumbs(self):
+        super().rearrange_thumbs()
+        self.load_visible_thumbs_images()
     
     def deleteLater(self):
         self.watchdog_task.terminate_join()
+        for proc, timer in self.process_timer_dict.items():
+            timer.stop()
+            proc.terminate_join()
         return super().deleteLater()
     
     def closeEvent(self, a0):
         self.watchdog_task.terminate_join()
+        for proc, timer in self.process_timer_dict.items():
+            timer.stop()
+            proc.terminate_join()
         return super().closeEvent(a0)

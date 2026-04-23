@@ -318,11 +318,8 @@ class Grid(UScrollArea):
         self.url_to_wid: dict[str, Thumb] = {}
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
-        self.watchdog_modified_files = set()
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
-        self.watcdog_task = None
-        self.process_timer_dict: dict[ProcessWorker, QTimer] = {}
         self.loaded_thumbs: list[Thumb] = []
 
         self.grid_wid = QWidget()
@@ -340,76 +337,6 @@ class Grid(UScrollArea):
         path = os.path.join(Static.internal_images_dir, "files.svg")
         qimage = Utils.render_svg(path, 512)
         return Utils.scaled(qimage, size)
-
-    def load_visible_thumbs_images(self):
-        if not self.grid_wid.isVisible():
-            return
-        
-        thumbs: list[Thumb] = []
-        self.grid_wid.layout().activate() 
-        visible_rect = self.viewport().rect()  # область видимой части
-        for thumb in self.url_to_wid.values():
-            stmt = (
-                # если у виджета уже есть изображения
-                thumb.data_item.qimages,
-                # если виджет это папка
-                thumb.data_item.type_ == Static.folder_type,
-                # если виджет в загруженных
-                thumb in self.loaded_thumbs
-            )
-            if any(stmt):
-                continue
-            widget_rect = self.viewport().mapFromGlobal(
-                thumb.mapToGlobal(thumb.rect().topLeft())
-            )
-            qsize = QSize(thumb.width(), thumb.height())
-            widget_rect = QRect(widget_rect, qsize)
-            if visible_rect.intersects(widget_rect):
-                thumbs.append(thumb)
-
-        if thumbs:
-            self.loaded_thumbs.extend(thumbs)
-            self._start_load_images_task(thumbs)
-
-    def _start_load_images_task(self, thumbs: list[Thumb]):
-        """
-        Запускает фоновую задачу загрузки изображений для списка Thumb.
-        Изображения загружаются из базы данных или из директории, если в БД нет.
-        """
-
-        def update_thumbs(data_items: list[DataItem]):
-            for i in data_items:
-                thumb = self.url_to_wid[i.abs_path]
-                thumb.data_item.qimages.update(i.qimages)
-                thumb.set_image()
-
-        def load_qimages(data_items: list[DataItem]):
-            task = QImagesCreator(data_items)
-            task.sigs.finished_.connect(update_thumbs)
-            UThreadPool.start(task)
-
-        def poll_task(img_task: ProcessWorker, img_timer: QTimer):
-            img_timer.stop()
-            data_items: list[DataItem] = []
-            while not img_task.queue.empty():
-                data_items.append(img_task.queue.get())
-            load_qimages(data_items)
-            if not img_task.is_alive() and img_task.queue.empty():
-                img_task.terminate_join()
-            else:
-                img_timer.start(self.img_timer_ms)
-
-        img_task = ProcessWorker(
-            target=ImgLoader.start,
-            args=([i.data_item for i in thumbs], self.main_win_item, )
-        )
-
-        img_timer = QTimer(self)
-        img_timer.setSingleShot(True)
-        img_timer.timeout.connect(lambda: poll_task(img_task, img_timer))
-        self.process_timer_dict[img_task] = img_timer
-        img_task.start()
-        img_timer.start(self.img_timer_ms)
 
     def reload_rubber(self):
         self.rubberBand.deleteLater()
@@ -506,7 +433,6 @@ class Grid(UScrollArea):
                 self.col = 0
                 self.row += 1
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
-        self.load_visible_thumbs_images()
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         """
@@ -1174,17 +1100,11 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        for proc, timer in self.process_timer_dict.items():
-            timer.stop()
-            proc.terminate_join()
         urls = [i.data_item.abs_path for i in self.selected_thumbs]
         self.main_win_item.urls_to_select = urls
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        for proc, timer in self.process_timer_dict.items():
-            timer.stop()
-            proc.terminate_join()
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.urls_to_select = urls
         return super().closeEvent(a0)
