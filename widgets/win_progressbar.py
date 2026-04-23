@@ -25,12 +25,7 @@ class CancelBtn(USvgSqareWidget):
 
 
 class WinProgressbar(WinMinCloseOnly):
-    files_icon = Utils.scaled(
-        qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
-        size=50
-    )
     progressbar_width = 300
-    icon_size = 50
 
     def __init__(self, title: str):
         super().__init__()
@@ -42,7 +37,8 @@ class WinProgressbar(WinMinCloseOnly):
         main_lay.setSpacing(5)
         self.centralWidget().setLayout(main_lay)
 
-        left_side_icon = USvgSqareWidget(self.files_icon, self.icon_size)
+        icon = os.path.join(Static.internal_images_dir, "сopy_files.svg")
+        left_side_icon = USvgSqareWidget(icon, 50)
         main_lay.addWidget(left_side_icon)
 
         right_side_wid = QWidget()
