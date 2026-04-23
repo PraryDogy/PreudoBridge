@@ -272,6 +272,16 @@ class GridStandart(Grid):
         self.rename_win.finished_.connect(lambda name: fin(name))
         self.rename_win.show()
 
+    def del_thumb(self, url: str):
+        wid = self.url_to_wid.get(url)
+        if not wid:
+            return
+        if wid in self.selected_thumbs:
+            self.selected_thumbs.remove(wid)
+        self.cell_to_wid.pop((wid.data_item.row, wid.data_item.col))
+        self.url_to_wid.pop(url)
+        wid.deleteLater()
+
     def rearrange_thumbs(self):
         super().rearrange_thumbs()
         self.load_visible_thumbs_images()

@@ -484,22 +484,6 @@ class Grid(UScrollArea):
         self.rem_win = WinRemoveFiles(self.main_win_item, urls)
         self.rem_win.center(self.window())
         self.rem_win.show()
-
-    def del_thumb(self, url: str):
-        """
-        Удаляет виджет, удаляет данные виджета:
-        - из url to wid
-        - из selected thumbs
-        - из cell to wid
-        """
-        wid = self.url_to_wid.get(url)
-        if not wid:
-            return
-        if wid in self.selected_thumbs:
-            self.selected_thumbs.remove(wid)
-        self.cell_to_wid.pop((wid.data_item.row, wid.data_item.col))
-        self.url_to_wid.pop(url)
-        wid.deleteLater()
         
     def clear_selected_widgets(self):
         """
