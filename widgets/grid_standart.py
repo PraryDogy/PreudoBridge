@@ -7,8 +7,9 @@ from watchdog.events import FileSystemEvent
 from cfg import Dynamic, Static
 from system.items import (ClipboardItemGlob, DataItem, DirItem, MainWinItem,
                           TotalCountItem)
-from system.multiprocess import ImgLoader, ProcessWorker, WatchdogTask
-from system.tasks import DirScaner, QImagesCreator, UThreadPool
+from system.multiprocess import (ImgLoader, ImgLoaderHelper, ProcessWorker,
+                                 WatchdogTask)
+from system.tasks import DirScaner, UThreadPool
 from system.utils import Utils
 
 from .grid import Grid, NoItemsLabel, Thumb
@@ -21,7 +22,7 @@ class GridStandart(Grid):
         super().__init__(main_win_item, is_grid_search)
         self.setAcceptDrops(True)
         self.watchdog_modified_files = set()
-        self.process_timer_dict: dict[ProcessWorker, QTimer] = {}
+        self.helpers: list[ImgLoaderHelper] = []
         self.scroll_timer = QTimer(self)
         self.scroll_timer.timeout.connect(self.load_visible_thumbs_images)
         self.scroll_timer.setSingleShot(True)
@@ -121,48 +122,40 @@ class GridStandart(Grid):
             self.loaded_thumbs.extend(thumbs)
             self.img_loader_start(thumbs)
 
-    def img_loader_start(self, thumbs: list[Thumb]):
+    def img_loader_start(self, thumbs: list[Thumb], sec = 0.004):
 
         def process_item(item: DataItem):
             qimages = {"src": Utils.qimage_from_array(item._img_array)}
-            current_size = Thumb.current_image_size
-            qimages[current_size] = Utils.scaled(
-                qimage=qimages["src"],
-                size=current_size
-            )
+            for i in Static.image_sizes:
+                qimages[i] = Utils.scaled(qimages["src"], i)
             thumb = self.url_to_wid[item.abs_path] # QLabel
             thumb.data_item.qimages.update(qimages)
             thumb.set_image()
 
-            # for i in Static.image_sizes: # 100, 150, 200, 250
-            #     qimages[i] = Utils.scaled(qimages["src"], i)
-            # thumb = self.url_to_wid[item.abs_path] # QLabel
-            # thumb.data_item.qimages.update(qimages)
-            # thumb.set_image()
-
-        def poll_task(img_task: ProcessWorker, img_timer: QTimer, sec = 0.004):
-            img_timer.stop()
+        def poll_task(helper: ImgLoaderHelper):
+            helper.timer.stop()
             start = perf_counter()
-
-            while not img_task.queue.empty():
-                process_item(img_task.queue.get())
+            while not helper.task.queue.empty():
+                process_item(helper.task.queue.get())
                 if perf_counter() - start > sec:
                     break
-
-            if not img_task.is_alive() and img_task.queue.empty():
-                img_task.terminate_join()
+            if not helper.task.is_alive() and helper.task.queue.empty():
+                helper.task.terminate_join()
             else:
-                img_timer.start(0)
+                helper.timer.start(0)
 
         img_task = ProcessWorker(
             target=ImgLoader.start,
             args=([i.data_item for i in thumbs], self.main_win_item, )
         )
-
         img_timer = QTimer(self)
+        helper = ImgLoaderHelper(
+            task=img_task,
+            timer=img_timer
+        )
         img_timer.setSingleShot(True)
-        img_timer.timeout.connect(lambda: poll_task(img_task, img_timer))
-        self.process_timer_dict[img_task] = img_timer
+        img_timer.timeout.connect(lambda: poll_task(helper))
+        self.helpers.append(helper)
         img_task.start()
         img_timer.start(0)
 
@@ -294,16 +287,16 @@ class GridStandart(Grid):
     
     def deleteLater(self):
         self.watchdog_task.terminate_join()
-        for proc, timer in self.process_timer_dict.items():
-            timer.stop()
-            proc.terminate_join()
+        for i in self.helpers:
+            i.timer.stop()
+            i.task.terminate_join()
         return super().deleteLater()
     
     def closeEvent(self, a0):
         self.watchdog_task.terminate_join()
-        for proc, timer in self.process_timer_dict.items():
-            timer.stop()
-            proc.terminate_join()
+        for i in self.helpers:
+            i.timer.stop()
+            i.task.terminate_join()
         return super().closeEvent(a0)
 
     def dragEnterEvent(self, a0):

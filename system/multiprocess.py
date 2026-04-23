@@ -1,5 +1,6 @@
 import os
 import shutil
+from dataclasses import dataclass
 from multiprocessing import Process, Queue
 from pathlib import Path
 from time import sleep
@@ -7,6 +8,7 @@ from time import sleep
 import numpy as np
 import sqlalchemy
 from PIL import Image
+from PyQt5.QtCore import QTimer
 from sqlalchemy.exc import OperationalError
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
@@ -67,6 +69,12 @@ class ProcessWorker(BaseProcessWorker):
     def __init__(self, target: callable, args: tuple):
         self.queue = Queue()
         super().__init__(target, (*args, self.queue))
+
+
+@dataclass(slots=True)
+class ImgLoaderHelper:
+    task: ProcessWorker
+    timer: QTimer
 
 
 class ImgLoader:
