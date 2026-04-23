@@ -7,15 +7,11 @@ from PyQt5.QtGui import (QContextMenuEvent, QDrag, QImage, QKeyEvent,
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QVBoxLayout,
                              QWidget)
-from typing_extensions import Literal
-from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
                           MainWinItem, SortItem)
-from system.multiprocess import WatchdogTask, ImgLoader, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
-from system.tasks import QImagesCreator, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
