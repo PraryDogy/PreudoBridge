@@ -260,7 +260,6 @@ class GridStandart(Grid):
         return thumb
 
     def new_folder(self):
-
         def fin(name: str):
             try:
                 os.mkdir(
@@ -268,7 +267,6 @@ class GridStandart(Grid):
                 )
             except Exception as e:
                 ...
-
         self.rename_win = WinRename(self.new_folder_text)
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(lambda name: fin(name))
