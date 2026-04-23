@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QVBoxLayout,
                              QWidget)
 
-from cfg import Dynamic, JsonData, Static
+from cfg import Dynamic, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
                           MainWinItem, SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
@@ -916,13 +916,10 @@ class Grid(UScrollArea):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         if self.ignore_mouse:
             return
-        menu_ = UMenu(parent=self)
         self.wid_under_mouse = self.get_wid_under_mouse(a0)
-        # клик по пустому пространству
+        # клик по пустой сетке
         if not self.wid_under_mouse:
             self.clear_selected_widgets()
-            self.context_grid(menu_)
-
         # клик по виджету
         else:
             # если не было выделено ни одного виджет ранее
@@ -934,18 +931,11 @@ class Grid(UScrollArea):
             elif self.wid_under_mouse not in self.selected_thumbs:
                 self.clear_selected_widgets()
                 self.select_multiple_thumb(self.wid_under_mouse)
-            
-            if isinstance(self.wid_under_mouse, (DataItem, Thumb)):
-                self.thumb_actions(menu_, self.wid_under_mouse)
-            else:
-                self.context_grid(menu_)
-
         item = TotalCountItem(
             selected=len(self.selected_thumbs),
             total=len(self.cell_to_wid)
         )
         self.total_count_update.emit(item)
-        menu_.show_under_cursor()
     
     def deleteLater(self):
         urls = [i.data_item.abs_path for i in self.selected_thumbs]
