@@ -430,9 +430,10 @@ class Grid(UScrollArea):
                 for wid in img_widgets
             }
             if img_widgets:
+
                 wid = img_widgets[-1]
                 item = ImgViewItem(
-                    start_url=wid.data_item,
+                    start_url=wid.data_item.abs_path,
                     url_to_wid=url_to_wid,
                     is_selection=True
                 )

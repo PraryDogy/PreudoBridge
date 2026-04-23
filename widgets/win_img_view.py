@@ -234,6 +234,7 @@ class WinImgView(WinBase):
         self.url_to_wid: dict[str, Thumb] = item.url_to_wid
         self.urls: list = [i for i in self.url_to_wid]
         self.current_path: str = item.start_url
+
         self.thumb: Thumb = self.url_to_wid.get(item.start_url)
         self.thumb.text_changed.connect(self.set_title)
 
