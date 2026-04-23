@@ -336,9 +336,6 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(flags)
         self.grid_wid.setLayout(self.grid_layout)
 
-        # if not is_grid_search:
-        #     QTimer.singleShot(100, self.watchdog_start)
-
     def set_files_icon(self, size: int = 64):
         path = os.path.join(Static.internal_images_dir, "files.svg")
         qimage = Utils.render_svg(path, 512)
