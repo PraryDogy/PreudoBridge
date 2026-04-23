@@ -20,9 +20,9 @@ class GridStandart(Grid):
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__(main_win_item, is_grid_search)
+        self.setAcceptDrops(True)
         self.watchdog_modified_files = set()
         self.process_timer_dict: dict[ProcessWorker, QTimer] = {}
-
         self.scroll_timer = QTimer(self)
         self.scroll_timer.timeout.connect(self.load_visible_thumbs_images)
         self.scroll_timer.setSingleShot(True)

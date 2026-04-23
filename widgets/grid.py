@@ -299,7 +299,6 @@ class Grid(UScrollArea):
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__()
-        self.setAcceptDrops(True)
         self.setWidgetResizable(True)
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
