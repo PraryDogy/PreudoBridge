@@ -107,6 +107,7 @@ class ImgLoader:
         for data, thumb_path in db_items_dict.items():
             if data in finder_items_dict:
                 data_item = finder_items_dict[data]
+                # print("yes", data_item.filename)
                 data_item._img_array = Utils.read_thumb(thumb_path)
                 if data_item._img_array is None:
                     new_items.append(data_item)
@@ -115,6 +116,7 @@ class ImgLoader:
 
         for (filename, mod, size), data_item in finder_items_dict.items():
             if (filename, mod, size) not in db_items_dict:
+                # print("new", data_item.filename)
                 new_items.append(data_item)
 
         if new_items:
