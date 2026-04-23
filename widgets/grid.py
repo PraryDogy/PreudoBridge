@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, SortItem)
+                          MainWinItem, SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
@@ -281,7 +281,7 @@ class Grid(UScrollArea):
     go_to_widget = pyqtSignal(str)
     level_up = pyqtSignal()
     menu_sort_update = pyqtSignal()
-    total_count_update = pyqtSignal(tuple)
+    total_count_update = pyqtSignal(TotalCountItem)
     open_win_info = pyqtSignal(list)
     img_view_win = pyqtSignal(ImgViewItem)
     paste_files = pyqtSignal()
@@ -387,9 +387,11 @@ class Grid(UScrollArea):
             if self.col >= self.col_count:
                 self.col = 0
                 self.row += 1
-        self.total_count_update.emit(
-            (len(self.selected_thumbs), len(self.cell_to_wid))
-            )
+        item = TotalCountItem(
+            selected=len(self.selected_thumbs),
+            total=len(self.cell_to_wid)
+        )
+        self.total_count_update.emit(item)
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.data_item.row, wid.data_item.col = row, col

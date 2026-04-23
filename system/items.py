@@ -267,6 +267,7 @@ class ImgViewItem:
     is_selection: bool
 
 
+@dataclass(slots=True)
 class TotalCountItem:
     selected: int
     total: int
