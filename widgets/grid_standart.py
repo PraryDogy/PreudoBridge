@@ -35,17 +35,17 @@ class GridStandart(Grid):
         self.scroll_timer.stop()
         self.scroll_timer.start(self.scroll_timer_ms)
 
-    def start_dir_scaner(self):
+    def dir_scaner_start(self):
         dir_item = DirItem(
             data_items=[],
             main_win_item=self.main_win_item,
             sort_item=self.sort_item
         )
         self.finder_task = DirScaner(dir_item)
-        self.finder_task.sigs.finished_.connect(self.finalize_dir_scaner)
+        self.finder_task.sigs.finished_.connect(self.dir_scaner_end)
         UThreadPool.start(self.finder_task)
 
-    def finalize_dir_scaner(self, dir_item: DirItem):
+    def dir_scaner_end(self, dir_item: DirItem):
         if len(dir_item.data_items) == 0:
             self.create_no_items_label(NoItemsLabel.no_files)
             self.load_finished.emit()
@@ -56,9 +56,9 @@ class GridStandart(Grid):
         self.total_count_update.emit(
             (len(self.selected_thumbs), len(dir_item.data_items))
         )
-        self.create_thumbs(dir_item.data_items)
+        self.create_thumbs_start(dir_item.data_items)
 
-    def create_thumbs(self, data_items: list[DataItem]):
+    def create_thumbs_start(self, data_items: list[DataItem]):
         self.col_count = self.get_clmn_count()
         self._thumb_index = 0
         self.data_items = data_items
@@ -70,7 +70,7 @@ class GridStandart(Grid):
                 # Все виджеты добавлены
                 self.data_items = None
                 self._thumb_index = 0
-                self.post_process()
+                self.create_thumbs_end()
                 return
 
             # Создание и настройка виджета
@@ -97,7 +97,7 @@ class GridStandart(Grid):
 
         add_one_thumb()
 
-    def post_process(self):
+    def create_thumbs_end(self):
         if self.main_win_item.go_to_widget:
             self.main_win_item.urls_to_select.append(
                 self.main_win_item.go_to_widget
@@ -113,7 +113,6 @@ class GridStandart(Grid):
         # почему то без таймера срабатывает через раз
         QTimer.singleShot(0, self.rearrange_thumbs)
         self.load_finished.emit()
-
     
     def deleteLater(self):
         self.finder_task.terminate_join()
