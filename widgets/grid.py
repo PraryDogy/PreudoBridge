@@ -303,7 +303,7 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
-        self.copy_files_icon: QImage = self.set_files_icon()
+        self.copy_files_icon: QImage = self.create_files_icon()
         self.loaded_thumbs: list[Thumb] = []
 
         self.grid_wid = QWidget()
@@ -318,7 +318,7 @@ class Grid(UScrollArea):
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         )
 
-    def set_files_icon(self, size: int = 64):
+    def create_files_icon(self, size: int = 64):
         path = os.path.join(Static.internal_images_dir, "files.svg")
         qimage = Utils.render_svg(path, 512)
         return Utils.scaled(qimage, size)
