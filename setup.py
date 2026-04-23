@@ -98,7 +98,8 @@ OPTIONS = {
         'cv2',
         'PIL',
         'cairosvg',
-        'osxmetadata'
+        'osxmetadata',
+        'bitstring'
     ],
     "plist": {
         "CFBundleName": APP_NAME,
