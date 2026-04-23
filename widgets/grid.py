@@ -327,11 +327,12 @@ class Grid(UScrollArea):
         self.origin_pos = QPoint()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
 
-        flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(self.spacing_value)
-        self.grid_layout.setAlignment(flags)
         self.grid_wid.setLayout(self.grid_layout)
+        self.grid_layout.setSpacing(self.spacing_value)
+        self.grid_layout.setAlignment(
+            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
+        )
 
     def set_files_icon(self, size: int = 64):
         path = os.path.join(Static.internal_images_dir, "files.svg")
@@ -343,10 +344,6 @@ class Grid(UScrollArea):
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
     
     def get_clmn_count(self):
-        """
-        Получает количество столбцов для сетки по формуле:  
-        Ширина окна минус ширина левого виджета в сплиттере (левое меню)
-        """
         try:
             return self.viewport().width() // Thumb.thumb_w
         except ZeroDivisionError:
@@ -358,9 +355,7 @@ class Grid(UScrollArea):
         Действие отложено по таймеру, т.к. без таймера действие может быть
         заблокировано например контекстным меню
         """
-        def path_bar_update_delayed():
-            self.path_bar_update.emit(src)
-        QTimer.singleShot(0, path_bar_update_delayed)
+        QTimer.singleShot(0, lambda: self.path_bar_update.emit(src))
     
     def sort_thumbs(self):
         data_items = [i.data_item for i in self.url_to_wid.values()]
@@ -458,7 +453,12 @@ class Grid(UScrollArea):
                     not wid.data_item.must_hidden
                 }
                 if url_to_wid:
-                    self.open_img_view(wid.data_item.abs_path, url_to_wid, False)
+                    item = ImgViewItem(
+                        start_url=wid.data_item.abs_path,
+                        url_to_wid=url_to_wid,
+                        is_selection=False
+                    )
+                    self.img_view_win.emit(item)
         else:
             img_widgets = [
                 wid
@@ -473,15 +473,12 @@ class Grid(UScrollArea):
             }
             if img_widgets:
                 wid = img_widgets[-1]
-                self.open_img_view(wid.data_item.abs_path, url_to_wid, True)
-
-    def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
-        item = ImgViewItem(
-            start_url=start_url,
-            url_to_wid=url_to_wid,
-            is_selection=is_selection
-        )
-        self.img_view_win.emit(item)
+                item = ImgViewItem(
+                    start_url=wid.data_item,
+                    url_to_wid=url_to_wid,
+                    is_selection=True
+                )
+                self.img_view_win.emit(item)
 
     def fav_cmd(self, offset: int, src: str):
         """
