@@ -486,15 +486,7 @@ class Grid(UScrollArea):
         self.grid_layout.addWidget(no_images, 0, 0)
 
     def remove_files(self, urls: list[str]):
-
-        def update_search_grid(urls):
-            if self.is_grid_search:
-                for i in urls:
-                    self.del_thumb(i)
-                self.rearrange_thumbs()
-
         self.rem_win = WinRemoveFiles(self.main_win_item, urls)
-        self.rem_win.finished_.connect(update_search_grid)
         self.rem_win.center(self.window())
         self.rem_win.show()
 
@@ -677,9 +669,10 @@ class Grid(UScrollArea):
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
-        remove_files = ItemActions.RemoveObjects(menu_)
-        remove_files.triggered.connect(lambda: self.remove_files(urls))
-        menu_.addAction(remove_files)
+        if not self.is_grid_search:
+            remove_files = ItemActions.RemoveObjects(menu_)
+            remove_files.triggered.connect(lambda: self.remove_files(urls))
+            menu_.addAction(remove_files)
 
     def new_folder(self):
 
