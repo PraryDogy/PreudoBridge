@@ -86,10 +86,10 @@ class GridStandart(Grid):
             # print(e.src_path)
 
         if not self.url_to_wid:
-            self.remove_no_items_label()
-            self.create_no_items_label(NoItemsLabel.no_files)
+            self.no_items_label_remove()
+            self.no_items_label_create(NoItemsLabel.no_files)
         else:
-            self.remove_no_items_label()
+            self.no_items_label_remove()
 
     def load_visible_thumbs_images(self):
         if not self.grid_wid.isVisible():
@@ -173,7 +173,7 @@ class GridStandart(Grid):
 
     def dir_scaner_end(self, dir_item: DirItem):
         if len(dir_item.data_items) == 0:
-            self.create_no_items_label(NoItemsLabel.no_files)
+            self.no_items_label_create(NoItemsLabel.no_files)
             self.load_finished.emit()
             return
         Thumb.calc_size()
@@ -239,6 +239,24 @@ class GridStandart(Grid):
         # почему то без таймера срабатывает через раз
         QTimer.singleShot(0, self.rearrange_thumbs)
         self.load_finished.emit()
+
+    def new_thumb(self, url: str):
+        data = DataItem(url)
+        data.set_properties()
+        thumb = Thumb(data)
+        thumb.resize_(self.sort_item)
+        thumb.set_no_frame()
+        thumb.set_icon()
+
+        self.add_widget_data(thumb, self.row, self.col)
+        self.grid_layout.addWidget(thumb, self.row, self.col)
+
+        self.col += 1
+        if self.col >= self.col_count:
+            self.col = 0
+            self.row += 1
+
+        return thumb
 
     def rearrange_thumbs(self):
         super().rearrange_thumbs()

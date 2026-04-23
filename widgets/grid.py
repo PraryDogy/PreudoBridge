@@ -349,12 +349,7 @@ class Grid(UScrollArea):
         except ZeroDivisionError:
             return 1
 
-    def path_bar_update_delayed(self, src: str):
-        """
-        Указывает новый путь для path_bar.py > PathBar.  
-        Действие отложено по таймеру, т.к. без таймера действие может быть
-        заблокировано например контекстным меню
-        """
+    def bar_path_update(self, src: str):
         QTimer.singleShot(0, lambda: self.path_bar_update.emit(src))
     
     def sort_thumbs(self):
@@ -368,13 +363,6 @@ class Grid(UScrollArea):
         self.url_to_wid = new_url_to_wid
                 
     def filter_thumbs(self):
-        """
-        Скрывает виджеты, не соответствующие установленному фильтру.    
-        Например, если фильтр установлен "отобразить 5 звезд",     
-        то будут отображены только виджеты с рейтингом 5, остальные скрыты,     
-        но не удалены.  
-        Необходимо затем вызвать метод rearrange
-        """
         visible_thumbs = 0
         for wid in self.url_to_wid.values():
             show_widget = True
@@ -390,17 +378,12 @@ class Grid(UScrollArea):
                 wid.data_item.must_hidden = True
                 wid.hide()
         if visible_thumbs == 0:
-            self.remove_no_items_label()
-            self.create_no_items_label(NoItemsLabel.no_filter)
+            self.no_items_label_remove()
+            self.no_items_label_create(NoItemsLabel.no_filter)
         else:
-            self.remove_no_items_label()
+            self.no_items_label_remove()
 
     def resize_thumbs(self):
-        """
-        Изменяет размер виджетов Thumb. Подготавливает дочерние виджеты Thumb
-        к новым размерам.   
-        Необходимо затем вызвать метод rearrange
-        """
         Thumb.calc_size()
         for wid in self.url_to_wid.values():
             wid.resize_(self.sort_item)
@@ -408,13 +391,6 @@ class Grid(UScrollArea):
             i.set_frame()
 
     def rearrange_thumbs(self):
-        """
-        Устанавливает col_count     
-        Перетасовывает виджеты в сетке из url_to_wid.     
-        Например был изменен размер виджета Thumb с 10x10 на 15x15,     
-        соответственно число столбцов и строк в сетке виджетов Thumb    
-        должно измениться, и для этого вызывается метод rearrange
-        """
         self.cell_to_wid.clear()
         self.row, self.col = 0, 0
         self.col_count = self.get_clmn_count()
@@ -430,10 +406,6 @@ class Grid(UScrollArea):
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
-        """
-        Устанавливает thumb.row, thumb.col
-        Добавляет thumb в cell to wid, url to wid
-        """
         wid.data_item.row, wid.data_item.col = row, col
         self.cell_to_wid[row, col] = wid
         self.url_to_wid[wid.data_item.abs_path] = wid
@@ -482,11 +454,6 @@ class Grid(UScrollArea):
 
 
     def fav_cmd(self, offset: int, src: str):
-        """
-        Добавляет / удаляет папку в меню избранного. Аргументы:
-        - offset: -1 (удалить из избранного) или 1(добавить в избранное)
-        - src: путь к папке
-        """
         (self.add_fav if offset == 1 else self.del_fav).emit(src)
 
     def show_in_folder_cmd(self, wid: Thumb):
@@ -496,16 +463,13 @@ class Grid(UScrollArea):
         )
 
     def setup_urls_to_copy(self):
-        """
-        Для cmd x, cmd c, вырезать, копировать
-        """
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
         ClipboardItemGlob.is_search = self.is_grid_search
         ClipboardItemGlob.src_urls.clear()
         for i in self.selected_thumbs:
             ClipboardItemGlob.src_urls.append(i.data_item.abs_path)
 
-    def remove_no_items_label(self):
+    def no_items_label_remove(self):
         wid = self.grid_wid.findChild(NoItemsLabel)
         if wid:
             wid.deleteLater()
@@ -516,7 +480,7 @@ class Grid(UScrollArea):
             except AttributeError:
                 ...
 
-    def create_no_items_label(self, text: str):
+    def no_items_label_create(self, text: str):
         no_images = NoItemsLabel(text)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.addWidget(no_images, 0, 0)
@@ -533,24 +497,6 @@ class Grid(UScrollArea):
         self.rem_win.finished_.connect(update_search_grid)
         self.rem_win.center(self.window())
         self.rem_win.show()
-
-    def new_thumb(self, url: str):
-        data = DataItem(url)
-        data.set_properties()
-        thumb = Thumb(data)
-        thumb.resize_(self.sort_item)
-        thumb.set_no_frame()
-        thumb.set_icon()
-
-        self.add_widget_data(thumb, self.row, self.col)
-        self.grid_layout.addWidget(thumb, self.row, self.col)
-
-        self.col += 1
-        if self.col >= self.col_count:
-            self.col = 0
-            self.row += 1
-
-        return thumb
 
     def del_thumb(self, url: str):
         """
@@ -582,7 +528,7 @@ class Grid(UScrollArea):
         Выделяет виджет, добавляет его в список выделенных виджетов.
         """
         if isinstance(wid, Thumb):
-            self.path_bar_update_delayed(wid.data_item.abs_path)
+            self.bar_path_update(wid.data_item.abs_path)
             self.clear_selected_widgets()
             wid.set_frame()
             self.selected_thumbs.append(wid)
@@ -652,7 +598,7 @@ class Grid(UScrollArea):
             for i in self.selected_thumbs
             if i.data_item.type_ == Static.folder_type
         ]
-        self.path_bar_update_delayed(wid.data_item.abs_path)
+        self.bar_path_update(wid.data_item.abs_path)
 
         menu_.setMinimumWidth(215)
 
@@ -755,7 +701,7 @@ class Grid(UScrollArea):
         self.rename_win.show()
 
     def context_grid(self, menu_: UMenu):
-        self.path_bar_update_delayed(self.main_win_item.abs_current_dir)
+        self.bar_path_update(self.main_win_item.abs_current_dir)
         names = [os.path.basename(self.main_win_item.abs_current_dir)]
         urls = [self.main_win_item.abs_current_dir]
         item = DataItem(self.main_win_item.abs_current_dir)
@@ -854,7 +800,7 @@ class Grid(UScrollArea):
 
         elif self.wid_under_mouse is None:
             self.clear_selected_widgets()
-            self.path_bar_update_delayed(self.main_win_item.abs_current_dir)
+            self.bar_path_update(self.main_win_item.abs_current_dir)
         
         elif a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
             # шифт клик: если не было выделенных виджетов
@@ -888,7 +834,7 @@ class Grid(UScrollArea):
             # комманд клик: виджет не был виделен, выделить
             else:
                 self.select_multiple_thumb(self.wid_under_mouse)
-                self.path_bar_update_delayed(self.wid_under_mouse.data_item.abs_path)
+                self.bar_path_update(self.wid_under_mouse.data_item.abs_path)
         else:
             self.select_single_thumb(self.wid_under_mouse)
 
@@ -931,7 +877,7 @@ class Grid(UScrollArea):
         if urls:
             self.mime_data.setUrls(urls)
         if self.wid_under_mouse:
-            self.path_bar_update_delayed(self.wid_under_mouse.data_item.abs_path)
+            self.bar_path_update(self.wid_under_mouse.data_item.abs_path)
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         self.drag.setMimeData(self.mime_data)
         self.setup_urls_to_copy()
