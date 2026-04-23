@@ -74,7 +74,7 @@ class MenuTree(QTreeView):
         menu.addAction(open_finder_action)
 
         if os.path.isdir(src):
-            new_win = ItemActions.OpenInNewWindow(menu)
+            new_win = ItemActions.NewMainWin(menu)
             new_win.triggered.connect(lambda: self.new_main_win.emit(src))
             menu.addAction(new_win)
 

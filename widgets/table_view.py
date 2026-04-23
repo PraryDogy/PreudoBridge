@@ -321,7 +321,7 @@ class TableView(QTableView):
             open_in_app = ItemActions.OpenInApp(menu_, urls)
             menu_.addMenu(open_in_app)
 
-        info = ItemActions.Info(menu_)
+        info = ItemActions.WinInfo(menu_)
         info.triggered.connect(
             lambda: self.open_win_info_cmd(urls)
         )
@@ -368,17 +368,17 @@ class TableView(QTableView):
         rename.triggered.connect(lambda: self.rename_row(selected_path))
         menu_.addAction(rename)
 
-        cut_objects = ItemActions.CutObjects(menu_)
+        cut_objects = ItemActions.CutFiles(menu_)
         cut_objects.triggered.connect(lambda e: ClipboardItemGlob.set_is_cut(True))
         cut_objects.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(cut_objects)
 
-        copy_files = ItemActions.CopyObjects(menu_)
+        copy_files = ItemActions.CopyFiles(menu_)
         copy_files.triggered.connect(lambda e: ClipboardItemGlob.set_is_cut(False))
         copy_files.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(copy_files)
 
-        remove_objects = ItemActions.RemoveObjects(menu_)
+        remove_objects = ItemActions.RemoveFiles(menu_)
         remove_objects.triggered.connect(lambda: self.remove_files_cmd(urls))
         menu_.addAction(remove_objects)  
 

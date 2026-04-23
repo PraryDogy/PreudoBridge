@@ -66,7 +66,7 @@ class FavItem(QLabel):
         view_ac.triggered.connect(self.view_fav)
         menu_.addAction(view_ac)
 
-        open_new_win = ItemActions.OpenInNewWindow(menu_)
+        open_new_win = ItemActions.NewMainWin(menu_)
         open_new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.src))
         menu_.addAction(open_new_win)
 

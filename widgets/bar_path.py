@@ -145,7 +145,7 @@ class PathItem(QWidget):
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
 
-        info = ItemActions.Info(menu_)
+        info = ItemActions.WinInfo(menu_)
         info.triggered.connect(self.open_info_win)
         menu_.addAction(info)
 

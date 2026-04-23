@@ -503,7 +503,7 @@ class WinImgView(WinBase):
 
         menu.addSeparator()
 
-        info = ItemActions.Info(menu)
+        info = ItemActions.WinInfo(menu)
         info.triggered.connect(lambda: self.win_info_cmd(self.current_path))
         menu.addAction(info)
 

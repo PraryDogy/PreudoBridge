@@ -44,7 +44,7 @@ class RevealInFinder(QAction):
         UThreadPool.start(self.task_)
 
 
-class Info(QAction):
+class WinInfo(QAction):
     text_ = "Инфо"
     def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
@@ -326,31 +326,31 @@ class RotateMenu(UMenu):
         self.addAction(list_)
 
 
-class OpenInNewWindow(QAction):
+class NewMainWin(QAction):
     text_ = "Открыть в новом окне"
     def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
 
 
-class CutObjects(QAction):
+class CutFiles(QAction):
     text_ = "Вырезать"
     def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
 
 
-class CopyObjects(QAction):
+class CopyFiles(QAction):
     text_ = "Скопировать"
     def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
 
 
-class RemoveObjects(QAction):
+class RemoveFiles(QAction):
     text_ = "Удалить"
     def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
 
 
-class PasteObjects(QAction):
+class PasteFiles(QAction):
     text_ = "Вставить"
     def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
@@ -392,37 +392,34 @@ class Rename(QAction):
         super().__init__(self.text_, parent)
 
 
-class ItemActions:
-    class OpenThumb(OpenThumb): ...
-    class OpenInApp(OpenInApp): ...
-    class OpenSingle(OpenSingle): ...
-    class OpenInNewWindow(OpenInNewWindow): ...
-    # "Separator"
-
-    class Info(Info): ...
-    class RevealInFinder(RevealInFinder): ...
-    class CopyPath(CopyPath): ...
-    class CopyName(CopyName): ...
-    class CutObjects(CutObjects): ...
-    class CopyObjects(CopyObjects): ...
-    class FavRemove(FavRemove): ...
-    class FavAdd(FavAdd): ...
-    class ShowInGrid(ShowInGrid): ...
-    class RemoveObjects(RemoveObjects): ...
-    class ImgConvert(ImgConvert): ...
-    class Rename(Rename): ...
-    class RotateMenu(RotateMenu): ...
+class ThumbActions:
+    def __init__(self, menu_: UMenu, urls: list[str]):
+        self.open_thumb = OpenThumb(menu_)
+        self.open_in_app = OpenInApp(menu_, urls)
+        self.new_main_win = NewMainWin(menu_)
+        self.fav_add = FavAdd(menu_)
+        self.fav_remove = FavRemove(menu_)
+        self.win_info = WinInfo(menu_)
+        self.convert_to_jpg = ImgConvert(menu_)
+        self.show_in_folder = ShowInGrid(menu_)
+        self.show_in_finder = RevealInFinder(menu_, urls)
+        self.copy_path = CopyPath(menu_, urls)
+        self.rename = Rename(menu_)
+        self.cut_files = CutFiles(menu_)
+        self.copy_files = CopyFiles(menu_)
+        self.remove_files = RemoveFiles(menu_)
 
 
-class GridActions:
-    class NewFolder(NewFolder): ...
-    class Info(Info): ...
-    class RevealInFinder(RevealInFinder): ...
-    class CopyPath(CopyPath): ...
-    class CopyName(CopyName): ...
-    class FavRemove(FavRemove): ...
-    class FavAdd(FavAdd): ...
-    class ChangeViewMenu(ChangeViewMenu): ...
-    class SortMenu(SortMenu): ...
-    class PasteObjects(PasteObjects): ...
-    class UpdateGrid(UpdateGrid): ...
+class GridActions_:
+    def __init__(self, menu_: UMenu, urls: list[str]):
+        self.new_folder = NewFolder(menu_)
+        self.info = WinInfo(menu_)
+        self.fav_action = FavRemove(menu_)
+        self.fav_action = FavAdd(menu_)
+        self.reveal = RevealInFinder(menu_, urls)
+        self.copy_ = CopyPath(menu_, urls)
+        self.copy_name = CopyName(menu_, urls)
+        self.paste_files = PasteFiles(menu_)
+        self.upd_ = UpdateGrid(menu_)
+        self.change_view = ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
+        self.sort_menu = SortMenu(menu_, self.sort_item)

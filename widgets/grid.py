@@ -15,7 +15,6 @@ from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
-from .actions import GridActions, ItemActions
 # в main win
 from .win_img_convert import WinImgConvert
 from .win_remove_files import WinRemoveFiles
@@ -477,18 +476,11 @@ class Grid(UScrollArea):
         self.rem_win.show()
         
     def clear_selected_widgets(self):
-        """
-        Очищает список выделенных виджетов и снимает визуальное выделение с них
-        """
         for i in self.selected_thumbs:
             i.set_no_frame()
         self.selected_thumbs.clear()
 
     def select_single_thumb(self, wid: DataItem | Thumb):
-        """
-        Очищает визуальное выделение с выделенных виджетов и очищает список.  
-        Выделяет виджет, добавляет его в список выделенных виджетов.
-        """
         if isinstance(wid, Thumb):
             self.bar_path_update(wid.data_item.abs_path)
             self.clear_selected_widgets()
@@ -496,25 +488,12 @@ class Grid(UScrollArea):
             self.selected_thumbs.append(wid)
 
     def select_multiple_thumb(self, wid: Thumb):
-        """
-        Добавляет виджет в список выделенных виджетов и выделяет виджет визуально.  
-        Метод похож на select_one_widget, но поддерживает выделение нескольких  
-        виджетов.
-        """
         if isinstance(wid, Thumb):
             self.selected_thumbs.append(wid)
             wid.set_frame()
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
-        """
-        Получает виджет Thumb, по которому произошел клик.  
-        Клик засчитывается, если он произошел по дочерним виджетам Thumb:   
-        TextWidget, ImgFrame     
-        QLabel и QSvgWidget являются дочерними виджетами ImgFrame, поэтому  
-        в случае клика по ним, возвращается .parent().parent()
-        """
         wid = QApplication.widgetAt(a0.globalPos())
-
         if isinstance(wid, (WhiteTextWid, BlueTextWid, ImgFrameWidget)):
             return wid.parent()
         elif isinstance(wid, QLabel):
@@ -544,170 +523,157 @@ class Grid(UScrollArea):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
-    def context_thumb(self, menu_: UMenu, wid: Thumb):
-        # собираем пути к файлам / папкам у выделенных виджетов
-        urls = [
-            i.data_item.abs_path
-            for i in self.selected_thumbs
-        ]
-        urls_img = [
-            i.data_item.abs_path
-            for i in self.selected_thumbs
-            if i.data_item.abs_path.endswith(ImgUtils.ext_all)
-        ]
-        dirs = [
-            i.data_item.abs_path
-            for i in self.selected_thumbs
-            if i.data_item.type_ == Static.folder_type
-        ]
-        self.bar_path_update(wid.data_item.abs_path)
+    # def thumb_actions(self, menu_: UMenu, wid: Thumb):
+    #     self.bar_path_update(wid.data_item.abs_path)
+    #     menu_.setMinimumWidth(215)
+    #     urls = [
+    #         i.data_item.abs_path
+    #         for i in self.selected_thumbs
+    #     ]
+    #     urls_img = [
+    #         i.data_item.abs_path
+    #         for i in self.selected_thumbs
+    #         if i.data_item.abs_path.endswith(ImgUtils.ext_all)
+    #     ]
 
-        menu_.setMinimumWidth(215)
+    #     actions = ThumbActions(menu_, urls)
 
-        view_action = ItemActions.OpenThumb(menu_)
-        view_action.triggered.connect(lambda: self.open_thumb())
-        menu_.addAction(view_action)
+    #     self.actions._open_thumb_action.triggered.connect(lambda: self.open_thumb())
+    #     menu_.addAction(self._open_thumb_action)
 
-        if wid.data_item.type_ in ImgUtils.ext_all:
-            open_in_app = ItemActions.OpenInApp(menu_, urls)
-            menu_.addMenu(open_in_app)
+    #     self.open_in_app_action = ItemActions.OpenInApp(menu_, urls)
+    #     menu_.addMenu(self.open_in_app_action)
 
-        elif wid.data_item.type_ == Static.folder_type:
-            new_win = ItemActions.OpenInNewWindow(menu_)
-            new_win.triggered.connect(
-                lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
-            )
-            menu_.addAction(new_win)
+    #     self.new_main_win_action = ItemActions.NewMainWin(menu_)
+    #     self.new_main_win_action.triggered.connect(
+    #         lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
+    #     )
+    #     menu_.addAction(self.new_main_win_action)
 
-            if wid.data_item.abs_path in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.data_item.abs_path)
-                fav_action = ItemActions.FavRemove(menu_)
-                fav_action.triggered.connect(cmd_)
-                menu_.addAction(fav_action)
-            else:
-                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.data_item.abs_path)
-                fav_action = ItemActions.FavAdd(menu_)
-                fav_action.triggered.connect(cmd_)
-                menu_.addAction(fav_action)
+    #     if wid.data_item.abs_path in JsonData.favs:
+    #         cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.data_item.abs_path)
+    #         fav_action = ItemActions.FavRemove(menu_)
+    #         fav_action.triggered.connect(cmd_)
+    #         menu_.addAction(fav_action)
+    #     else:
+    #         cmd_ = lambda: self.fav_cmd(offset=1, src=wid.data_item.abs_path)
+    #         fav_action = ItemActions.FavAdd(menu_)
+    #         fav_action.triggered.connect(cmd_)
+    #         menu_.addAction(fav_action)
 
-        info = ItemActions.Info(menu_)
-        info.triggered.connect(
-            lambda: self.open_win_info.emit(
-                [i.data_item for i in self.selected_thumbs]
-            )
-        )
-        menu_.addAction(info)
+    #     info = ItemActions.WinInfo(menu_)
+    #     info.triggered.connect(
+    #         lambda: self.open_win_info.emit(
+    #             [i.data_item for i in self.selected_thumbs]
+    #         )
+    #     )
+    #     menu_.addAction(info)
 
-        menu_.addSeparator()
+    #     menu_.addSeparator()
 
-        if wid.data_item.type_ in ImgUtils.ext_all and not self.is_grid_search:
-            convert_action = ItemActions.ImgConvert(menu_)
-            convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
-            menu_.addAction(convert_action)
+    #     convert_action = ItemActions.ImgConvert(menu_)
+    #     convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
+    #     menu_.addAction(convert_action)
 
-        menu_.addSeparator()
+    #     menu_.addSeparator()
+   
+    #     show_in_folder = ItemActions.ShowInGrid(menu_)
+    #     cmd_ = lambda: self.show_in_folder_cmd(wid)
+    #     show_in_folder.triggered.connect(cmd_)
+    #     menu_.addAction(show_in_folder)
 
-        # is grid search устанавливается на True при инициации GridSearch
-        if self.is_grid_search:
-            show_in_folder = ItemActions.ShowInGrid(menu_)
-            cmd_ = lambda: self.show_in_folder_cmd(wid)
-            show_in_folder.triggered.connect(cmd_)
-            menu_.addAction(show_in_folder)
+    #     show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
+    #     menu_.addAction(show_in_finder_action)
 
-        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
-        menu_.addAction(show_in_finder_action)
+    #     copy_path = ItemActions.CopyPath(menu_, urls)
+    #     copy_path.triggered.connect(lambda: ClipboardItemGlob.reset())
+    #     menu_.addAction(copy_path)
 
-        copy_path = ItemActions.CopyPath(menu_, urls)
-        copy_path.triggered.connect(lambda: ClipboardItemGlob.reset())
-        menu_.addAction(copy_path)
+    #     menu_.addSeparator()
 
+    #     rename = ItemActions.Rename(menu_)
+    #     rename.triggered.connect(lambda: self.rename_thumb(wid))
+    #     menu_.addAction(rename)
 
-        menu_.addSeparator()
+    #     cut_objects = ItemActions.CutFiles(menu_)
+    #     cut_objects.triggered.connect(self.set_transparent_thumbs)
+    #     cut_objects.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(True))
+    #     cut_objects.triggered.connect(self.setup_urls_to_copy)
+    #     menu_.addAction(cut_objects)
 
-        rename = ItemActions.Rename(menu_)
-        rename.triggered.connect(lambda: self.rename_thumb(wid))
-        menu_.addAction(rename)
+    #     copy_files = ItemActions.CopyFiles(menu_)
+    #     copy_files.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(False))
+    #     copy_files.triggered.connect(self.setup_urls_to_copy)
+    #     menu_.addAction(copy_files)
 
-        cut_objects = ItemActions.CutObjects(menu_)
-        cut_objects.triggered.connect(self.set_transparent_thumbs)
-        cut_objects.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(True))
-        cut_objects.triggered.connect(self.setup_urls_to_copy)
-        menu_.addAction(cut_objects)
+    #     remove_files = ItemActions.RemoveFiles(menu_)
+    #     remove_files.triggered.connect(lambda: self.remove_files(urls))
+    #     menu_.addAction(remove_files)
 
-        copy_files = ItemActions.CopyObjects(menu_)
-        copy_files.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(False))
-        copy_files.triggered.connect(self.setup_urls_to_copy)
-        menu_.addAction(copy_files)
+    # def context_grid(self, menu_: UMenu):
+        # self.bar_path_update(self.main_win_item.abs_current_dir)
+        # names = [os.path.basename(self.main_win_item.abs_current_dir)]
+        # urls = [self.main_win_item.abs_current_dir]
+        # item = DataItem(self.main_win_item.abs_current_dir)
+        # item.set_properties()
 
-        if not self.is_grid_search:
-            remove_files = ItemActions.RemoveObjects(menu_)
-            remove_files.triggered.connect(lambda: self.remove_files(urls))
-            menu_.addAction(remove_files)
+        # if not self.is_grid_search:
+        #     new_folder = GridActions.NewFolder(menu_)
+        #     new_folder.triggered.connect(self.new_folder)
+        #     menu_.addAction(new_folder)
 
-    def context_grid(self, menu_: UMenu):
-        self.bar_path_update(self.main_win_item.abs_current_dir)
-        names = [os.path.basename(self.main_win_item.abs_current_dir)]
-        urls = [self.main_win_item.abs_current_dir]
-        item = DataItem(self.main_win_item.abs_current_dir)
-        item.set_properties()
+        # if not self.is_grid_search:
+        #     info = GridActions.Info(menu_)
+        #     info.triggered.connect(lambda: self.open_win_info.emit([item, ]))
+        #     menu_.addAction(info)
 
-        if not self.is_grid_search:
-            new_folder = GridActions.NewFolder(menu_)
-            new_folder.triggered.connect(self.new_folder)
-            menu_.addAction(new_folder)
+        # if self.main_win_item.abs_current_dir in JsonData.favs:
+        #     cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.abs_current_dir)
+        #     fav_action = GridActions.FavRemove(menu_)
+        #     fav_action.triggered.connect(cmd_)
+        #     menu_.addAction(fav_action)
 
-        if not self.is_grid_search:
-            info = GridActions.Info(menu_)
-            info.triggered.connect(lambda: self.open_win_info.emit([item, ]))
-            menu_.addAction(info)
+        # else:
+        #     cmd_ = lambda: self.fav_cmd(+1, self.main_win_item.abs_current_dir)
+        #     fav_action = GridActions.FavAdd(menu_)
+        #     fav_action.triggered.connect(cmd_)
+        #     menu_.addAction(fav_action)
 
-        if self.main_win_item.abs_current_dir in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.abs_current_dir)
-            fav_action = GridActions.FavRemove(menu_)
-            fav_action.triggered.connect(cmd_)
-            menu_.addAction(fav_action)
+        # menu_.addSeparator()
 
-        else:
-            cmd_ = lambda: self.fav_cmd(+1, self.main_win_item.abs_current_dir)
-            fav_action = GridActions.FavAdd(menu_)
-            fav_action.triggered.connect(cmd_)
-            menu_.addAction(fav_action)
+        # reveal = GridActions.RevealInFinder(menu_, urls)
+        # menu_.addAction(reveal)
 
-        menu_.addSeparator()
+        # copy_ = GridActions.CopyPath(menu_, urls)
+        # copy_.triggered.connect(ClipboardItemGlob.reset)
+        # menu_.addAction(copy_)
 
-        reveal = GridActions.RevealInFinder(menu_, urls)
-        menu_.addAction(reveal)
+        # copy_name = GridActions.CopyName(menu_, names)
+        # copy_name.triggered.connect(ClipboardItemGlob.reset)
+        # menu_.addAction(copy_name)
 
-        copy_ = GridActions.CopyPath(menu_, urls)
-        copy_.triggered.connect(ClipboardItemGlob.reset)
-        menu_.addAction(copy_)
+        # menu_.addSeparator()
 
-        copy_name = GridActions.CopyName(menu_, names)
-        copy_name.triggered.connect(ClipboardItemGlob.reset)
-        menu_.addAction(copy_name)
+        # if ClipboardItemGlob.src_urls and not self.is_grid_search:
+        #     paste_files = GridActions.PasteObjects(menu_)
+        #     paste_files.triggered.connect(self.paste_files.emit)
+        #     menu_.addAction(paste_files)
 
-        menu_.addSeparator()
+        #     menu_.addSeparator()
 
-        if ClipboardItemGlob.src_urls and not self.is_grid_search:
-            paste_files = GridActions.PasteObjects(menu_)
-            paste_files.triggered.connect(self.paste_files.emit)
-            menu_.addAction(paste_files)
+        # upd_ = GridActions.UpdateGrid(menu_)
+        # upd_.triggered.connect(lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir))
+        # menu_.addAction(upd_)
 
-            menu_.addSeparator()
+        # change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
+        # change_view.triggered.connect(lambda: self.change_view.emit())
+        # menu_.addMenu(change_view)
 
-        upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir))
-        menu_.addAction(upd_)
-
-        change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
-        change_view.triggered.connect(lambda: self.change_view.emit())
-        menu_.addMenu(change_view)
-
-        sort_menu = GridActions.SortMenu(menu_, self.sort_item)
-        sort_menu.sort_grid_sig.connect(lambda: self.sort_thumbs())
-        sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange_thumbs())
-        sort_menu.sort_menu_update.connect(lambda: self.menu_sort_update.emit())
-        menu_.addMenu(sort_menu)
+        # sort_menu = GridActions.SortMenu(menu_, self.sort_item)
+        # sort_menu.sort_grid_sig.connect(lambda: self.sort_thumbs())
+        # sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange_thumbs())
+        # sort_menu.sort_menu_update.connect(lambda: self.menu_sort_update.emit())
+        # menu_.addMenu(sort_menu)
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
@@ -970,7 +936,7 @@ class Grid(UScrollArea):
                 self.select_multiple_thumb(self.wid_under_mouse)
             
             if isinstance(self.wid_under_mouse, (DataItem, Thumb)):
-                self.context_thumb(menu_, self.wid_under_mouse)
+                self.thumb_actions(menu_, self.wid_under_mouse)
             else:
                 self.context_grid(menu_)
 
