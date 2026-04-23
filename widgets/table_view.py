@@ -226,25 +226,27 @@ class TableView(QTableView):
 
     def open_thumb(self, urls: list[str]):
         if len(urls) == 1:
-            if urls[0].endswith(ImgUtils.ext_all):
+            data_item = DataItem(urls[0])
+            data_item.set_properties()
+            thumb = Thumb(data_item)
+            if data_item.type_ == Static.folder_type:
+                self.new_history_item.emit(data_item.abs_path)
+                self.load_st_grid.emit(data_item.abs_path)
+            else:
                 url_to_wid = {}
                 for url, _ in self.url_to_index.items():
                     if url.endswith(ImgUtils.ext_all):
                         data = DataItem(url)
                         data.set_properties()
-                        thumb = Thumb(data)
-                        url_to_wid[url] = thumb
-                item = ImgViewItem(
-                    start_url=urls[0],
-                    url_to_wid=url_to_wid,
-                    is_selection=False
-                )
-                self.img_view_win.emit(item)
-            elif os.path.isdir(urls[0]):
-                self.new_history_item.emit(urls[0])
-                self.load_st_grid.emit(urls[0])
-            else:
-                Utils.open_in_def_app(urls[0])
+                        url_to_wid[url] = Thumb(data)
+
+                if url_to_wid:
+                    item = ImgViewItem(
+                        start_url=urls[0],
+                        url_to_wid=url_to_wid,
+                        is_selection=False
+                    )
+                    self.img_view_win.emit(item)
         else:
             url_to_wid = {}
             for url in self.get_selected_urls():
@@ -259,26 +261,6 @@ class TableView(QTableView):
                 is_selection=True
             )
             self.img_view_win.emit(item)
-
-            folders = [
-                i
-                for i in urls
-                if os.path.isdir(i)
-            ]
-
-            for i in folders:
-                self.new_main_win_open.emit(i)
-
-            files = [
-                i
-                for i in urls
-                if not i.endswith(ImgUtils.ext_all)
-                and
-                os.path.isfile(i)
-            ]
-
-            for i in files:
-                Utils.open_in_def_app(i)
 
     def save_sort_settings(self, index):
         TableView.col = index
