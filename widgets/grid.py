@@ -272,11 +272,6 @@ class NoItemsLabel(QLabel):
 
 
 class Grid(UScrollArea):
-    test = []
-    spacing_value = 5
-    img_timer_ms = 500
-    new_files_key = "new_files"
-    del_files_key = "del files"
     new_folder_text = "Новая папка"
 
     new_history_item = pyqtSignal(str)
@@ -322,7 +317,7 @@ class Grid(UScrollArea):
 
         self.grid_layout = QGridLayout()
         self.grid_wid.setLayout(self.grid_layout)
-        self.grid_layout.setSpacing(self.spacing_value)
+        self.grid_layout.setSpacing(5)
         self.grid_layout.setAlignment(
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         )

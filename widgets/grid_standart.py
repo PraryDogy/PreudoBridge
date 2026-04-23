@@ -14,6 +14,7 @@ from .win_rename import WinRename
 
 
 class GridStandart(Grid):
+    img_timer_ms = 500
     scroll_timer_ms = 500
     finder_timer_ms = 200
     timeout_timer_ms = 15000
