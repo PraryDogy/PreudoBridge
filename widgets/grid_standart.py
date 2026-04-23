@@ -1,7 +1,6 @@
 import os
 
-from PyQt5.QtCore import QRect, QSize, Qt, QTimer
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtCore import QRect, QSize, QTimer
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, Static
