@@ -10,11 +10,11 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.items import (ClipboardItemGlob, DataItem, ImgViewItem, MainWinItem,
-                          SearchItem, SortItem)
+from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
+                          MainWinItem, SearchItem, SortItem, TotalCountItem)
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
-from system.shared_utils import ImgUtils, SharedUtils
+from system.shared_utils import ImgUtils
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase

@@ -5,13 +5,15 @@ from PyQt5.QtGui import QDragEnterEvent, QDropEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from cfg import Static
-from system.items import DataItem, MainWinItem, SearchItem, SortItem
+from system.items import (DataItem, MainWinItem, SearchItem, SortItem,
+                          TotalCountItem)
 from system.multiprocess import ProcessWorker, SearchTask
+from system.utils import Utils
 
 from ._base_widgets import (NotifyWid, SmallBtn, USvgSqareWidget, UTextEdit,
                             WinMinCloseOnly)
 from .grid import Grid, Thumb
-from system.utils import Utils
+
 
 class DirsWatched:
     def set_should_run(self): ...
@@ -158,7 +160,11 @@ class GridSearch(Grid):
                 for i in data_items:
                     create_thumb(i)
             selected, total = 0, self.total
-            self.total_count_update.emit((selected, total))
+            item = TotalCountItem(
+                selected=selected,
+                total=total
+            )
+            self.total_count_update.emit(item)
             if not self.search_task.is_alive() and self.search_task.queue.empty():
                 self.search_task.terminate_join()
             else:
@@ -178,10 +184,6 @@ class GridSearch(Grid):
 
         self.search_task.start()
         self.search_timer.start(self.search_timer_ms)
-
-    def update_gui(self):
-        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
-        self.path_bar_update.emit(self.main_win_item.abs_current_dir)
 
     def sort_thumbs(self):
         self.search_task.pause = True

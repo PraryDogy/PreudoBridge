@@ -4,7 +4,8 @@ from PyQt5.QtCore import QRect, QSize, QTimer
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, Static
-from system.items import ClipboardItemGlob, DataItem, DirItem, MainWinItem
+from system.items import (ClipboardItemGlob, DataItem, DirItem, MainWinItem,
+                          TotalCountItem)
 from system.multiprocess import ImgLoader, ProcessWorker, WatchdogTask
 from system.tasks import DirScaner, QImagesCreator, UThreadPool
 
@@ -178,9 +179,11 @@ class GridStandart(Grid):
         Thumb.calc_size()
 
         self.path_bar_update.emit(self.main_win_item.abs_current_dir)
-        self.total_count_update.emit(
-            (len(self.selected_thumbs), len(dir_item.data_items))
+        item = TotalCountItem(
+            selected=len(self.selected_thumbs),
+            total=len(dir_item.data_items)
         )
+        self.total_count_update.emit(item)
         self.create_thumbs_start(dir_item.data_items)
 
     def create_thumbs_start(self, data_items: list[DataItem]):

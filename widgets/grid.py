@@ -784,7 +784,11 @@ class Grid(UScrollArea):
         else:
             self.select_single_thumb(self.wid_under_mouse)
 
-        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+        item = TotalCountItem(
+            selected=len(self.selected_thumbs),
+            total=len(self.cell_to_wid)
+        )
+        self.total_count_update.emit(item)
 
     def mouseDoubleClickEvent(self, a0):
         if self.wid_under_mouse:
@@ -824,7 +828,11 @@ class Grid(UScrollArea):
             self.mime_data.setUrls(urls)
         if self.wid_under_mouse:
             self.bar_path_update(self.wid_under_mouse.data_item.abs_path)
-        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+        item = TotalCountItem(
+            selected=len(self.selected_thumbs),
+            total=len(self.cell_to_wid)
+        )
+        self.total_count_update.emit(item)
         self.drag.setMimeData(self.mime_data)
         self.setup_urls_to_copy()
         self.drag.exec_(Qt.DropAction.CopyAction)
@@ -932,7 +940,11 @@ class Grid(UScrollArea):
                 self.ensureWidgetVisible(next_wid)
                 self.wid_under_mouse = next_wid
 
-        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+        item = TotalCountItem(
+            selected=len(self.selected_thumbs),
+            total=len(self.cell_to_wid)
+        )
+        self.total_count_update.emit(item)
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
@@ -960,7 +972,11 @@ class Grid(UScrollArea):
             else:
                 self.context_grid(menu_)
 
-        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+        item = TotalCountItem(
+            selected=len(self.selected_thumbs),
+            total=len(self.cell_to_wid)
+        )
+        self.total_count_update.emit(item)
         menu_.show_under_cursor()
     
     def deleteLater(self):
