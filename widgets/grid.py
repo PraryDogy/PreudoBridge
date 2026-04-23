@@ -570,7 +570,6 @@ class Grid(UScrollArea):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
-
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [
