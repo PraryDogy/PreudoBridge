@@ -11,10 +11,11 @@ from typing_extensions import Literal
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
-from system.items import (ClipboardItemGlob, DataItem, ImgViewItem, MainWinItem,
-                          SortItem)
+from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
+                          MainWinItem, SortItem)
 from system.multiprocess import DirWatcher, ImgLoader, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
+from system.tasks import QImagesCreator, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -438,24 +439,23 @@ class Grid(UScrollArea):
         Изображения загружаются из базы данных или из директории, если в БД нет.
         """
 
-        def update_thumb(data_item: DataItem):
-            thumb = self.url_to_wid[data_item.abs_path]
-            qimages = {}
-            qimages["src"] = Utils.qimage_from_array(data_item._img_array)
-            for size in Static.image_sizes:
-                resized = Utils.scaled(qimages["src"], size)
-                qimages[size] = resized
-                thumb.data_item.qimages = qimages
-            thumb.set_image()
+        def update_thumbs(data_items: list[DataItem]):
+            for i in data_items:
+                thumb = self.url_to_wid[i.abs_path]
+                thumb.data_item.qimages.update(i.qimages)
+                thumb.set_image()
+
+        def load_qimages(data_items: list[DataItem]):
+            task = QImagesCreator(data_items)
+            task.sigs.finished_.connect(update_thumbs)
+            UThreadPool.start(task)
 
         def poll_task(img_task: ProcessWorker, img_timer: QTimer):
             img_timer.stop()
+            data_items: list[DataItem] = []
             while not img_task.queue.empty():
-                data_item: DataItem = img_task.queue.get()
-                try:
-                    update_thumb(data_item)
-                except RuntimeError:
-                    pass
+                data_items.append(img_task.queue.get())
+            load_qimages(data_items)
             if not img_task.is_alive() and img_task.queue.empty():
                 img_task.terminate_join()
             else:

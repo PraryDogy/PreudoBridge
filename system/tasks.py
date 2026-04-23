@@ -347,3 +347,25 @@ class ImgArrayQImage(URunnable):
         self.sigs.finished_.emit(
             Utils.qimage_from_array(self.img_array)
         )
+
+
+class QImagesCreator(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal(list)
+
+    def __init__(self, data_items: list[DataItem]):
+        super().__init__()
+        self.sigs = self.Sigs()
+        self.data_items = data_items
+
+    def task(self):
+        for item in self.data_items:
+            item.qimages.update(self.get_qimages(item))
+        self.sigs.finished_.emit(self.data_items)
+
+    def get_qimages(self, item: DataItem):
+        qimages = {"src": Utils.qimage_from_array(item._img_array)}
+        for i in Static.image_sizes:
+            qimages[i] = Utils.scaled(qimages["src"], i)
+        return qimages
