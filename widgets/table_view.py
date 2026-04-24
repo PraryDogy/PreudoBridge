@@ -296,19 +296,6 @@ class TableView(QTableView):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
         self.img_convert_win.emit(urls)
 
-    def rename_row(self, url: str):
-        
-        def finished(text: str):
-            root = os.path.dirname(url)
-            new_url = os.path.join(root, text)
-            os.rename(url, new_url)
-            QTimer.singleShot(500, lambda: self.select_path(new_url))
-
-        self.rename_win = WinRename(os.path.basename(url))
-        self.rename_win.finished_.connect(lambda text: finished(text))
-        self.rename_win.center(self.window())
-        self.rename_win.show()
-
     def flags(self, index: QModelIndex):
         return Qt.ItemIsEnabled  # отключаем выбор/редактирование
 
@@ -373,7 +360,7 @@ class TableView(QTableView):
         )
         menu.add_action(
             action=actions.rename,
-            cmd=lambda: self.rename_row(path)
+            cmd=lambda: self.rename.emit(self.url_to_item[path])
         )
         menu.add_action(
             action=common_actions.reveal,
