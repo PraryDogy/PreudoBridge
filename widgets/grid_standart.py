@@ -283,9 +283,6 @@ class GridStandart(Grid):
                 cmd=lambda: self.paste_files.emit()
             )
 
-    def base_thumb_actions(self, menu, item):
-        super().base_thumb_actions(menu, item)
-
     def deleteLater(self):
         self.watchdog_task.terminate_join()
         for i in self.helpers:
