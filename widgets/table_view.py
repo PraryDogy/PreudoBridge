@@ -448,9 +448,12 @@ class TableView(QTableView):
 
         if index.isValid():
             item.urls = self.get_selected_urls()
+            # если выделены другие строка но кликнутая не выделена
+            # то выделяем только ее
             if selected_path not in item.urls:
+                item.urls.clear()
                 self.select_row(index)
-            urls = self.get_selected_urls()
+                item.urls = self.get_selected_urls()
             item.data_items = [self.url_to_item[i] for i in item.urls]
             self.base_thumb_actions(menu_, item, selected_path)
 
