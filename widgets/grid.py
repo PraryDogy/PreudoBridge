@@ -291,6 +291,8 @@ class Grid(UScrollArea):
     copy_names = pyqtSignal(list)
     img_convert_win = pyqtSignal(list)
 
+    open_in_app = pyqtSignal(tuple)
+
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
         size=64
@@ -522,10 +524,6 @@ class Grid(UScrollArea):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
-    def open_in_app(self, urls: list[str], app_path: str):
-        for i in urls:
-            Utils.open_in_app(path=i, app_path=app_path)
-
     def setup_clipboard(self, is_cut: bool):
         if is_cut:
             self.set_transparent_thumbs()
@@ -578,7 +576,7 @@ class Grid(UScrollArea):
         else:
             menu.add_menu(
                 menu=actions.open_in_app_menu,
-                cmd=lambda app_path: self.open_in_app(item.urls, app_path)
+                cmd=lambda app_path: self.open_in_app.emit((item.urls, app_path))
             )
             menu.add_action(
                 action=actions.convert_to_jpg,

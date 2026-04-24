@@ -110,6 +110,8 @@ class TableView(QTableView):
     copy_names = pyqtSignal(list)
     img_convert_win = pyqtSignal(list)
 
+    open_in_app = pyqtSignal(tuple)
+
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
         size=64
@@ -328,10 +330,6 @@ class TableView(QTableView):
         for i in urls:
             ClipboardItemGlob.src_urls.append(i)
 
-    def open_in_app(self, urls: list[str], app_path: str):
-        for i in urls:
-            Utils.open_in_app(path=i, app_path=app_path)
-
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = WinRemoveFiles(self.main_win_item, urls)
         self.rem_win.center(self.window())
@@ -376,7 +374,7 @@ class TableView(QTableView):
         else:
             menu.add_menu(
                 menu=actions.open_in_app_menu,
-                cmd=lambda app_path: self.open_in_app(item.urls, app_path)
+                cmd=lambda app_path: self.open_in_app.emit((item.urls, app_path))
             )
             menu.add_action(
                 action=actions.convert_to_jpg,

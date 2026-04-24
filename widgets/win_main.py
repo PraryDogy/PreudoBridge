@@ -397,6 +397,8 @@ class WinMain(WinBase):
         self.grid.copy_names.connect(self.copy_names)
         self.grid.img_convert_win.connect(self.img_convert_win_open)
 
+        self.grid.open_in_app.connect(self.open_in_app)
+
     def load_search_grid(self):
         QTimer.singleShot(
             1500,
@@ -524,6 +526,11 @@ class WinMain(WinBase):
             self.main_win_item.set_view_mode(0)
 
         self.load_st_grid(self.main_win_item.abs_current_dir)
+
+    def open_in_app(self, data: tuple[list[str], str]):
+        urls, app_path = data
+        for i in urls:
+            Utils.open_in_app(path=i, app_path=app_path)
 
     def servers_win_open(self):
         self.servers_win = WinServers()
