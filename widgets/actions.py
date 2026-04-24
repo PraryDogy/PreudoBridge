@@ -380,11 +380,11 @@ class Rename(QAction):
 
 class GridActions:
     def __init__(self, menu_: UMenu, item: ContextItem):
-        self.paste_files = PasteFiles(menu_)
+        self.new_folder = NewFolder(menu_)
         self.upd_ = UpdateGrid(menu_)
         self.change_view = ChangeViewMenu(menu_, item)
         self.sort_menu = SortMenu(menu_, item)
-        self.new_folder = NewFolder(menu_)
+        self.paste_files = PasteFiles(menu_)
 
 
 class CommonActions:
