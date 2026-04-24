@@ -67,14 +67,9 @@ class FavAdd(QAction):
         super().__init__(self.text_, parent)
 
 
-# Меню со списком приложений, при помощи которых можно открыть изображение
-# Например Photoshop, стандартный просмотрщик Mac Os, Capture One
-# список приложений формируется при инициации приложения
-# смотри cfg.py
 class OpenInApp(UMenu):
     text_menu = "Открыть в приложении"
     def_text = "Открыть по умолчанию"
-    # open_in_app = pyqtSignal(str)
     triggered = pyqtSignal(str)
 
     def __init__(self, parent: UMenu, urls: list):
@@ -94,8 +89,6 @@ class OpenInApp(UMenu):
             self.addAction(wid)
 
 
-# удалить текст из виджета и скопировать в буфер обмена удаленную часть текста
-# только для QLineEdit / QTextEdit
 class CutText(QAction):
     text_ = "Вырезать"
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
@@ -116,8 +109,6 @@ class CutText(QAction):
         Utils.write_to_clipboard(selection)
 
 
-# Копировать выделенный текст в буфер обмена
-# Допускается QLabel с возможностью выделения текста
 class CopyText(QAction):
     text_ = "Копировать"
     def __init__(self, parent: UMenu, widget: QLineEdit | QLabel | QTextEdit):
@@ -168,9 +159,7 @@ class TextSelectAll(QAction):
 
 
 class SortMenu(UMenu):
-    sort_grid_sig = pyqtSignal()
-    rearrange_grid_sig = pyqtSignal()
-    sort_menu_update = pyqtSignal()
+    triggered = pyqtSignal()
     text_menu = "Сортировать"
     text_ascending = "По возрастанию"
     text_discenging = "По убыванию"
@@ -222,49 +211,41 @@ class SortMenu(UMenu):
             self.addAction(action_)
 
     def cmd_sort(self, true_name: str):
-        # записываем true_name (тип сортировки) в пользовательский .json
         self.context_item.sort_item.item_type = true_name
-        self.sort_grid_sig.emit()
-        self.rearrange_grid_sig.emit()
-        self.sort_menu_update.emit()
+        self.triggered.emit()
 
     def cmd_revers(self, reversed: bool):
-        # записываем порядок сортировки в пользовательский .json
         self.context_item.sort_item.reversed = reversed
-        self.sort_grid_sig.emit()
-        self.rearrange_grid_sig.emit()
-        self.sort_menu_update.emit()
+        self.triggered.emit()
 
 
-# показать сетку / список - GridStandart / GridSearch / ListFileSystem
-# list_file_system.py > ListFileSystem
 class ChangeViewMenu(UMenu):
-    change_view_sig = pyqtSignal(int)
+    triggered = pyqtSignal(int)
     text_menu = "Вид"
     text_grid = "Сетка"
     text_list = "Список"
 
-    def __init__(self, parent: UMenu, view_index: int):
+    def __init__(self, parent: UMenu, item: ContextItem):
         super().__init__(self.text_menu, parent)
 
         # отобразить сеткой
         grid_ = QAction(self.text_grid, self)
-        grid_.triggered.connect(lambda: self.change_view_sig.emit(0))
+        grid_.triggered.connect(lambda: self.triggered.emit(0))
         grid_.setCheckable(True)
         self.addAction(grid_)
 
         # отобразить списком
         list_ = QAction(self.text_list, self)
-        list_.triggered.connect(lambda: self.change_view_sig.emit(1))
+        list_.triggered.connect(lambda: self.triggered.emit(1))
         list_.setCheckable(True)
         self.addAction(list_)
 
         # grid_view_type отвечает за тип отображения
         # 0 отображать сеткой, 1 отображать списком
-        if view_index == 0:
+        if item.main_win_item.view_mode == 0:
             grid_.setChecked(True)
 
-        elif view_index == 1:
+        elif item.main_win_item.view_mode == 1:
             list_.setChecked(True)
 
 
@@ -357,7 +338,7 @@ class Rename(QAction):
 class GridActions:
     def __init__(self, menu_: UMenu, item: ContextItem):
         self.new_folder = NewFolder(menu_)
-        self.upd_ = UpdateGrid(menu_)
+        self.update_grid = UpdateGrid(menu_)
         self.change_view = ChangeViewMenu(menu_, item)
         self.sort_menu = SortMenu(menu_, item)
         self.paste_files = PasteFiles(menu_)

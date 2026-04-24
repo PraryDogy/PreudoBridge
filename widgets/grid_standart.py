@@ -250,19 +250,6 @@ class GridStandart(Grid):
 
         return thumb
 
-    def new_folder(self):
-        def fin(name: str):
-            try:
-                os.mkdir(
-                    os.path.join(self.main_win_item.abs_current_dir, name)
-                )
-            except Exception as e:
-                ...
-        self.rename_win = WinRename(self.new_folder_text)
-        self.rename_win.center(self.window())
-        self.rename_win.finished_.connect(lambda name: fin(name))
-        self.rename_win.show()
-
     def del_thumb(self, url: str):
         wid = self.url_to_wid.get(url)
         if not wid:
@@ -330,7 +317,7 @@ class GridStandart(Grid):
         if self.wid_under_mouse:
             self.base_thumb_actions(menu, item)
         else:
-            ...
+            self.base_grid_actions(menu, item)
         menu.show_under_cursor()
         
 

@@ -530,15 +530,27 @@ class Grid(UScrollArea):
         for i in urls:
             Utils.open_in_app(path=i, app_path=app_path)
 
-    def setup_files(self, is_cut: bool):
+    def setup_clipboard(self, is_cut: bool):
         if is_cut:
             self.set_transparent_thumbs()
         ClipboardItemGlob.set_is_cut(True)
         self.setup_urls_to_copy()
 
+    def new_folder(self):
+        def fin(name: str):
+            try:
+                root = os.path.join(self.main_win_item.abs_current_dir, name)
+                os.mkdir(root)
+            except Exception as e:
+                ...
+        self.rename_win = WinRename(self.new_folder_text)
+        self.rename_win.center(self.window())
+        self.rename_win.finished_.connect(lambda name: fin(name))
+        self.rename_win.show()
+
     def folder_actions(self, menu_: UMenu, item: ContextItem):
-        wid = self.wid_under_mouse
         actions = ThumbActions(menu_, item)
+        wid = self.wid_under_mouse
         menu_.add_action(
             action=actions.new_main_win,
             cmd=lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
@@ -592,22 +604,36 @@ class Grid(UScrollArea):
         )
         menu.add_action(
             action=actions.cut_files,
-            cmd=lambda: self.setup_files(is_cut=True)
+            cmd=lambda: self.setup_clipboard(is_cut=True)
         )
         menu.add_action(
             action=actions.copy_files,
-            cmd=lambda: self.setup_files(is_cut=False)
+            cmd=lambda: self.setup_clipboard(is_cut=False)
         )
         menu.add_action(
             action=actions.remove_files,
             cmd=lambda: self.remove_files(item.urls)
         )
 
-    # def thumb_actions(self, menu_: UMenu, wid: Thumb):
-    #     show_in_folder = ItemActions.ShowInGrid(menu_)
-    #     cmd_ = lambda: self.show_in_folder_cmd(wid)
-    #     show_in_folder.triggered.connect(cmd_)
-    #     menu_.addAction(show_in_folder)
+    def base_grid_actions(self, menu: UMenu, item: ContextItem):
+        actions = GridActions(menu, item)
+
+        menu.add_action(
+            action=actions.new_folder,
+            cmd=lambda: self.new_folder()
+        )
+        menu.add_action(
+            action=actions.update_grid,
+            cmd=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
+        )
+        menu.add_menu(
+            menu=actions.change_view,
+            cmd=lambda: self.change_view.emit()
+        )
+        menu.add_menu(
+            menu=actions.sort_menu,
+            cmd=lambda: (self.sort_thumbs(), self.rearrange_thumbs())
+        )
 
     # def context_grid(self, menu_: UMenu):
         # self.bar_path_update(self.main_win_item.abs_current_dir)
