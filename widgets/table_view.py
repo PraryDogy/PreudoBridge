@@ -388,6 +388,14 @@ class TableView(QTableView):
         actions = GridActions(menu, item)
         common_actions = CommonActions(menu, item)
         menu.add_action(
+            action=actions.new_folder,
+            cmd=lambda: self.new_folder.emit()
+        )
+        menu.add_action(
+            action=actions.update_grid,
+            cmd=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
+        )
+        menu.add_action(
             action=common_actions.win_info,
             cmd=lambda: self.open_win_info.emit(item.data_items)
         )
@@ -410,10 +418,12 @@ class TableView(QTableView):
             menu=actions.change_view,
             cmd=lambda: self.change_view.emit()
         )
-        menu.add_menu(
-            menu=actions.sort_menu,
-            cmd=lambda: (self.sort_thumbs(), self.rearrange_thumbs())
-        )
+        if ClipboardItemGlob.src_dir:
+            menu.addSeparator()
+            menu.add_action(
+                action=actions.paste_files,
+                cmd=lambda: self.paste_files.emit()
+            )
 
     def contextMenuEvent(self, event: QContextMenuEvent):
         # определяем выделена ли строка
@@ -439,12 +449,12 @@ class TableView(QTableView):
             self.base_thumb_actions(menu_, item, selected_path)
 
         else:
-            return
-            selected_path = self.main_win_item.abs_current_dir
-            urls = [self.main_win_item.abs_current_dir]
-            names = [os.path.basename(i) for i in urls]
-            total = len(urls)
-            self.grid_context(menu_, selected_path, urls, names, total)
+
+            data_item = DataItem(self.main_win_item.abs_current_dir)
+            data_item.set_properties()
+            item.urls = [self.main_win_item.abs_current_dir, ]
+            item.data_items = [data_item, ]
+            self.base_grid_actions(menu_, item)
 
         menu_.show_under_cursor()
 
