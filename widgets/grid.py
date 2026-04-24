@@ -17,7 +17,6 @@ from system.utils import Utils
 from ._base_widgets import UMenu, UScrollArea
 from .actions import CommonActions, GridActions, ThumbActions
 # в main win
-from .win_img_convert import WinImgConvert
 from .win_remove_files import WinRemoveFiles
 from .win_rename import WinRename
 
@@ -290,6 +289,7 @@ class Grid(UScrollArea):
     reveal_urls = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
+    img_convert_win = pyqtSignal(list)
 
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
@@ -503,9 +503,7 @@ class Grid(UScrollArea):
 
     def open_img_convert_win(self, urls: list[str]):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
-        self.convert_win = WinImgConvert(urls)
-        self.convert_win.center(self.window())
-        self.convert_win.show()
+        self.img_convert_win.emit(urls)
 
     def set_transparent_thumbs(self):
         for i in self.selected_thumbs:

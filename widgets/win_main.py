@@ -32,6 +32,7 @@ from .menu_tree import MenuTree
 from .table_view import TableView
 from .win_copy_files import WinCopyFiles
 from .win_go_to import WinGoTo
+from .win_img_convert import WinImgConvert
 from .win_img_view import WinImgView
 from .win_info import WinInfo
 from .win_servers import WinServers
@@ -340,6 +341,11 @@ class WinMain(WinBase):
         else:
             finalize(user_path)
 
+    def img_convert_win_open(self, urls: list[str]):
+        self.convert_win = WinImgConvert(urls)
+        self.convert_win.center(self.window())
+        self.convert_win.show()
+
     def settings_win_open(self, *args):
         self.sett_win = WinSettings()
         self.sett_win.show_texts_sig.connect(
@@ -389,6 +395,7 @@ class WinMain(WinBase):
         self.grid.reveal_urls.connect(self.reveal_urls)
         self.grid.copy_urls.connect(self.copy_urls)
         self.grid.copy_names.connect(self.copy_names)
+        self.grid.img_convert_win.connect(self.img_convert_win_open)
 
     def load_search_grid(self):
         QTimer.singleShot(

@@ -17,7 +17,6 @@ from system.utils import Utils
 from ._base_widgets import UMenu
 # main win
 from .grid import Thumb
-from .win_img_convert import WinImgConvert
 from .win_remove_files import WinRemoveFiles
 from .win_rename import WinRename
 
@@ -89,7 +88,7 @@ class TableView(QTableView):
     sizes: list = [250, 100, 100, 150]
 
     new_history_item = pyqtSignal(str)
-    path_bar_update = pyqtSignal(str)
+    bar_path_update = pyqtSignal(str)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
@@ -104,6 +103,12 @@ class TableView(QTableView):
     img_view_win = pyqtSignal(ImgViewItem)
     paste_files = pyqtSignal()
     load_finished = pyqtSignal()
+
+    reveal_urls = pyqtSignal(list)
+    copy_urls = pyqtSignal(list)
+    copy_names = pyqtSignal(list)
+    img_convert_win = pyqtSignal(list)
+
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
         size=64
@@ -184,7 +189,7 @@ class TableView(QTableView):
         QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
         self.setCurrentIndex(QModelIndex())
-        self.path_bar_update.emit(self.main_win_item.abs_current_dir)
+        self.bar_path_update.emit(self.main_win_item.abs_current_dir)
         self.load_finished.emit()
 
         if row_count == 0:
@@ -291,9 +296,7 @@ class TableView(QTableView):
 
     def open_img_convert_win(self, urls: list[str]):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
-        self.convert_win = WinImgConvert(urls)
-        self.convert_win.center(self.window())
-        self.convert_win.show()
+        self.img_convert_win.emit(urls)
 
     def rename_row(self, url: str):
         
