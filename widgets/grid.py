@@ -449,12 +449,6 @@ class Grid(UScrollArea):
     def fav_cmd(self, offset: int, src: str):
         (self.add_fav if offset == 1 else self.del_fav).emit(src)
 
-    def show_in_folder_cmd(self, wid: Thumb):
-        QTimer.singleShot(
-            100,
-            lambda: self.go_to_widget.emit(wid.data_item.abs_path)
-        )
-
     def setup_urls_to_copy(self):
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
         ClipboardItemGlob.is_search = self.is_grid_search

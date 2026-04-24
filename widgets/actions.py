@@ -341,7 +341,6 @@ class ThumbActions:
         self.open_thumb = OpenThumb(menu)
         self.open_in_app_menu = OpenInApp(menu)
         self.convert_to_jpg = ImgConvert(menu)
-        self.show_in_folder = ShowInGrid(menu)
         self.rename = Rename(menu)
         self.cut_files = CutFiles(menu)
         self.copy_files = CopyFiles(menu)
@@ -350,6 +349,8 @@ class ThumbActions:
         self.new_main_win = NewMainWin(menu)
         self.fav_add = FavAdd(menu)
         self.fav_remove = FavRemove(menu)
+
+        self.show_in_folder = ShowInGrid(menu)
 
 
 class TextActions:

@@ -5,13 +5,14 @@ from PyQt5.QtGui import QDragEnterEvent, QDropEvent, QImage
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from cfg import Static
-from system.items import (DataItem, MainWinItem, SearchItem, SortItem,
-                          TotalCountItem)
+from system.items import (ContextItem, DataItem, MainWinItem, SearchItem,
+                          SortItem, TotalCountItem)
 from system.multiprocess import ProcessWorker, SearchTask
 from system.utils import Utils
 
-from ._base_widgets import (NotifyWid, SmallBtn, USvgSqareWidget, UTextEdit,
-                            WinMinCloseOnly)
+from ._base_widgets import (NotifyWid, SmallBtn, UMenu, USvgSqareWidget,
+                            UTextEdit, WinMinCloseOnly)
+from .actions import ThumbActions
 from .grid import Grid, Thumb
 
 
@@ -218,6 +219,15 @@ class GridSearch(Grid):
         self.search_task.pause = value
         self.pause_by_btn = value
 
+    def base_thumb_actions(self, menu: UMenu, item: ContextItem):
+        actions = ThumbActions(menu, item)
+        super().base_thumb_actions(menu, item)
+        menu.addSeparator()
+        menu.add_action(
+            action=actions.show_in_folder,
+            cmd=lambda: self.go_to_widget.emit(item.urls[-1])
+        )
+
     def resizeEvent(self, a0):
         self.resize_thumbs()
         return super().resizeEvent(a0)
@@ -238,3 +248,28 @@ class GridSearch(Grid):
     def dropEvent(self, a0: QDropEvent):
         noti = NotifyWid(self, self.noti_text, self.warning_svg)
         noti._show()
+
+    def contextMenuEvent(self, a0):
+        super().contextMenuEvent(a0)
+        urls: list[str] = []
+        data_items: list[DataItem] = []
+        for i in self.selected_thumbs:
+            urls.append(i.data_item.abs_path)
+            data_items.append(i.data_item)
+        if not data_items:
+            item = DataItem(self.main_win_item.abs_current_dir)
+            item.set_properties()
+            data_items.append(item)
+            urls.append(item.abs_path)
+        item = ContextItem(
+            main_win_item=self.main_win_item,
+            sort_item=self.sort_item,
+            urls=urls,
+            data_items=data_items
+        )
+        menu = UMenu(parent=self)
+        if self.wid_under_mouse:
+            self.base_thumb_actions(menu, item)
+        else:
+            self.base_grid_actions(menu, item)
+        menu.show_under_cursor()
