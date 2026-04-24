@@ -632,17 +632,6 @@ class Grid(UScrollArea):
     def base_grid_actions(self, menu: UMenu, item: ContextItem):
         actions = GridActions(menu, item)
         common_actions = CommonActions(menu, item)
-        root = self.main_win_item.abs_current_dir
-
-        menu.add_action(
-            action=actions.new_folder,
-            cmd=lambda: self.new_folder()
-        )
-        menu.add_action(
-            action=actions.update_grid,
-            cmd=lambda: self.load_st_grid.emit(root)
-        )
-        menu.addSeparator()
         menu.add_action(
             action=common_actions.win_info,
             cmd=lambda: self.open_win_info.emit(item.data_items)

@@ -13,7 +13,7 @@ from system.tasks import DirScaner, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu
-from .actions import GridActions
+from .actions import GridActions, ThumbActions
 from .grid import Grid, NoItemsLabel, Thumb
 
 
@@ -264,12 +264,27 @@ class GridStandart(Grid):
         super().rearrange_thumbs()
         self.load_visible_thumbs_images()
 
-    def standart_grid_actions(self, menu: UMenu, item: ContextItem):
+    def base_grid_actions(self, menu: UMenu, item: ContextItem):
         actions = GridActions(menu, item)
         menu.add_action(
-            action=actions.paste_files,
-            cmd=lambda: self.paste_files.emit()
+            action=actions.new_folder,
+            cmd=lambda: self.new_folder()
         )
+        menu.add_action(
+            action=actions.update_grid,
+            cmd=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
+        )
+        menu.addSeparator()
+        super().base_grid_actions(menu, item)
+        if ClipboardItemGlob.src_dir:
+            menu.addSeparator()
+            menu.add_action(
+                action=actions.paste_files,
+                cmd=lambda: self.paste_files.emit()
+            )
+
+    def base_thumb_actions(self, menu, item):
+        super().base_thumb_actions(menu, item)
 
     def deleteLater(self):
         self.watchdog_task.terminate_join()
@@ -330,6 +345,4 @@ class GridStandart(Grid):
             self.base_thumb_actions(menu, item)
         else:
             self.base_grid_actions(menu, item)
-            if ClipboardItemGlob.src_dir:
-                self.standart_grid_actions(menu, item)
         menu.show_under_cursor()
