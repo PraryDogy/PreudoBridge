@@ -926,8 +926,6 @@ class Grid(UScrollArea):
             # если есть выделенные виджеты, но кликнутый виджет не выделен
             # то снимаем выделение с других и выделяем кликнутый
             elif self.wid_under_mouse not in self.selected_thumbs:
-                self.clear_selected_widgets()
-                # self.select_multiple_thumb(self.wid_under_mouse)
                 self.select_single_thumb(self.wid_under_mouse)
         item = TotalCountItem(
             selected=len(self.selected_thumbs),
