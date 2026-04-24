@@ -35,6 +35,8 @@ from .win_go_to import WinGoTo
 from .win_img_convert import WinImgConvert
 from .win_img_view import WinImgView
 from .win_info import WinInfo
+from .win_remove_files import WinRemoveFiles
+from .win_rename import WinRename
 from .win_servers import WinServers
 from .win_settings import WinSettings
 from .win_warn import WinWarn
@@ -398,6 +400,8 @@ class WinMain(WinBase):
         self.grid.img_convert_win.connect(self.img_convert_win_open)
 
         self.grid.open_in_app.connect(self.open_in_app)
+        self.grid.remove_files.connect(self.remove_files_win_open)
+        self.grid.rename.connect(self.rename_file)
 
     def load_search_grid(self):
         QTimer.singleShot(
@@ -458,6 +462,18 @@ class WinMain(WinBase):
             else:
                 names.append(os.path.splitext(basename)[0])
         Utils.write_to_clipboard("\n".join(names))
+
+    def rename_file(self, data_item: DataItem):
+        
+        def finished(text: str):
+            root = os.path.dirname(data_item.abs_path)
+            new_url = os.path.join(root, text)
+            os.rename(data_item.abs_path, new_url)
+
+        self.rename_win = WinRename(data_item.filename)
+        self.rename_win.finished_.connect(lambda text: finished(text))
+        self.rename_win.center(self.window())
+        self.rename_win.show()
 
     def load_st_grid(self, path: str):
 
@@ -531,6 +547,11 @@ class WinMain(WinBase):
         urls, app_path = data
         for i in urls:
             Utils.open_in_app(path=i, app_path=app_path)
+
+    def remove_files_win_open(self, urls: list[str]):
+        self.rem_win = WinRemoveFiles(self.main_win_item, urls)
+        self.rem_win.center(self.window())
+        self.rem_win.show()
 
     def servers_win_open(self):
         self.servers_win = WinServers()

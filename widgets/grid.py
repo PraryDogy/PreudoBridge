@@ -16,9 +16,6 @@ from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
 from .actions import CommonActions, GridActions, ThumbActions
-# в main win
-from .win_remove_files import WinRemoveFiles
-from .win_rename import WinRename
 
 FONT_SIZE = 11
 BORDER_RADIUS = 4
@@ -292,6 +289,8 @@ class Grid(UScrollArea):
     img_convert_win = pyqtSignal(list)
 
     open_in_app = pyqtSignal(tuple)
+    remove_files = pyqtSignal(list)
+    rename = pyqtSignal(DataItem)
 
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
@@ -471,11 +470,6 @@ class Grid(UScrollArea):
         no_images = NoItemsLabel(text)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.addWidget(no_images, 0, 0)
-
-    def remove_files(self, urls: list[str]):
-        self.rem_win = WinRemoveFiles(self.main_win_item, urls)
-        self.rem_win.center(self.window())
-        self.rem_win.show()
         
     def clear_selected_widgets(self):
         for i in self.selected_thumbs:
@@ -511,19 +505,6 @@ class Grid(UScrollArea):
         for i in self.selected_thumbs:
             i.set_transparent_frame(0.5)
 
-    def rename_thumb(self, thumb: Thumb):
-        
-        def finished(text: str):
-            root = os.path.dirname(thumb.data_item.abs_path)
-            new_url = os.path.join(root, text)
-            os.rename(thumb.data_item.abs_path, new_url)
-            thumb.update_all(self.sort_item)
-
-        self.rename_win = WinRename(thumb.data_item.filename)
-        self.rename_win.finished_.connect(lambda text: finished(text))
-        self.rename_win.center(self.window())
-        self.rename_win.show()
-
     def setup_clipboard(self, is_cut: bool):
         if is_cut:
             self.set_transparent_thumbs()
@@ -531,6 +512,7 @@ class Grid(UScrollArea):
         self.setup_urls_to_copy()
 
     def new_folder(self):
+        return
         def fin(name: str):
             try:
                 root = os.path.join(self.main_win_item.abs_current_dir, name)
@@ -589,7 +571,7 @@ class Grid(UScrollArea):
         )
         menu.add_action(
             action=actions.rename,
-            cmd=lambda: self.rename_thumb(wid)
+            cmd=lambda: self.rename.emit(wid.data_item)
         )
         menu.add_action(
             action=common_actions.reveal,
@@ -616,7 +598,7 @@ class Grid(UScrollArea):
         menu.addSeparator()
         menu.add_action(
             action=actions.remove_files,
-            cmd=lambda: self.remove_files(item.urls)
+            cmd=lambda: self.remove_files.emit(item.urls)
         )
 
     def base_grid_actions(self, menu: UMenu, item: ContextItem):
@@ -834,7 +816,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = [i.data_item.abs_path for i in self.selected_thumbs]
-                self.remove_files(urls)
+                self.remove_files.emit(urls)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             if self.selected_thumbs:

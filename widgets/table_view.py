@@ -111,6 +111,8 @@ class TableView(QTableView):
     img_convert_win = pyqtSignal(list)
 
     open_in_app = pyqtSignal(tuple)
+    remove_files = pyqtSignal(list)
+    rename = pyqtSignal(DataItem)
 
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
