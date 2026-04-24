@@ -18,8 +18,6 @@ from ._base_widgets import UMenu
 from .actions import CommonActions, GridActions, ThumbActions
 # main win
 from .grid import Thumb
-from .win_remove_files import WinRemoveFiles
-from .win_rename import WinRename
 
 
 class MyFileSystemModel(QFileSystemModel):
@@ -296,20 +294,16 @@ class TableView(QTableView):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
         self.img_convert_win.emit(urls)
 
-    def flags(self, index: QModelIndex):
-        return Qt.ItemIsEnabled  # отключаем выбор/редактирование
+    # def flags(self, index: QModelIndex):
+        # return Qt.ItemIsEnabled 
 
-    def setup_urls_to_copy(self, urls: list[str]):
+    def setup_clipboard(self, urls: list[str], is_cut: bool):
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
         ClipboardItemGlob.is_search = False
+        ClipboardItemGlob.set_is_cut(is_cut)
         ClipboardItemGlob.src_urls.clear()
         for i in urls:
             ClipboardItemGlob.src_urls.append(i)
-
-    def remove_files_cmd(self, urls: list[str]):
-        self.rem_win = WinRemoveFiles(self.main_win_item, urls)
-        self.rem_win.center(self.window())
-        self.rem_win.show()
 
     def select_row(self, index: QModelIndex):
         self.setCurrentIndex(index)
@@ -378,11 +372,11 @@ class TableView(QTableView):
         menu.addSeparator()
         menu.add_action(
             action=actions.cut_files,
-            cmd=lambda: self.setup_clipboard(is_cut=True)
+            cmd=lambda: self.setup_clipboard(item.urls, True)
         )
         menu.add_action(
             action=actions.copy_files,
-            cmd=lambda: self.setup_clipboard(is_cut=False)
+            cmd=lambda: self.setup_clipboard(item.urls, False)
         )
         menu.addSeparator()
         menu.add_action(
@@ -475,19 +469,17 @@ class TableView(QTableView):
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = self.get_selected_urls()
                 if urls:
-                    self.remove_files_cmd(urls)
+                    self.remove_files.emit(urls)
 
             elif a0.key() == Qt.Key.Key_X:
                 urls = self.get_selected_urls()
                 if urls:
-                    ClipboardItemGlob.set_is_cut(True)
-                    self.setup_urls_to_copy(urls)
+                    self.setup_clipboard(urls, True)
 
             elif a0.key() == Qt.Key.Key_C:
                 urls = self.get_selected_urls()
                 if urls:
-                    ClipboardItemGlob.set_is_cut(False)
-                    self.setup_urls_to_copy(urls)
+                    self.setup_clipboard(urls, False)
 
             elif a0.key() == Qt.Key.Key_V:
                 if ClipboardItemGlob.src_urls:
