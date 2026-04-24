@@ -12,7 +12,6 @@ from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, ContextItem, DataItem,
                           ImgViewItem, MainWinItem, SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
-from system.tasks import RevealFiles, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
