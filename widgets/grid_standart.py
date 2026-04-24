@@ -320,6 +320,8 @@ class GridStandart(Grid):
             self.base_thumb_actions(menu)
         else:
             ...
+
+        menu.show_under_cursor()
         
 
     

@@ -525,128 +525,93 @@ class Grid(UScrollArea):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
+    def open_in_app(self, urls: list[str], app_path: str):
+        for i in urls:
+            Utils.open_in_app(path=i, app_path=app_path)
+
+    def setup_files(self, is_cut: bool):
+        if is_cut:
+            self.set_transparent_thumbs()
+        ClipboardItemGlob.set_is_cut(True)
+        self.setup_urls_to_copy()
+
     def base_thumb_actions(self, menu_: UMenu):
-        urls = [
-            i.data_item.abs_path
-            for i in self.selected_thumbs
-        ]
+        urls: list[str] = []
+        data_items: list[DataItem] = []
+        for i in self.selected_thumbs:
+            urls.append(i.data_item.abs_path)
+            data_items.append(i.data_item)
+
         item = ContextItem(
             main_win_item=self.main_win_item,
             sort_item=self.sort_item,
             urls=urls
         )
         actions = Actions(menu_, item)
+        wid = self.wid_under_mouse
 
-        cmd = lambda: self.open_thumb()
-        menu_.add_action(actions.open_thumb, cmd)
-
-        menu_.add_action(actions.open_in_app, None)
-
+        menu_.add_action(
+            action=actions.open_thumb,
+            cmd=lambda: self.open_thumb()
+        )
+        menu_.add_menu(
+            menu=actions.open_in_app_menu,
+            cmd=lambda app_path: self.open_in_app(urls, app_path)
+        )
         if wid.data_item.type_ == Static.folder_type:
-            cmd = lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
-            menu_.add_action(actions.new_main_win, cmd)
+            menu_.add_action(
+                action=actions.new_main_win,
+                cmd=lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
+            )
             if wid.data_item.abs_path in JsonData.favs:
-                cmd = lambda: self.fav_cmd(offset=-1, src=wid.data_item.abs_path)
-                menu_.add_action(actions.fav_remove, cmd)
+                menu_.add_action(
+                    action=actions.fav_remove,
+                    cmd=lambda: self.fav_cmd(-1, wid.data_item.abs_path)
+                )
             else:
-                cmd = lambda: self.fav_cmd(offset=1, src=wid.data_item.abs_path)
-                menu_.add_action(actions.fav_add, cmd)
+                menu_.add_action(
+                    action=actions.fav_add,
+                    cmd=lambda: self.fav_cmd(1, wid.data_item.abs_path)
+                )
         else:
-            cmd = lambda: self.open_img_convert_win(urls)
-            menu_.add_action(actions.convert_to_jpg, cmd)
-
-        cmd = lambda: self.open_win_info.emit(data_items)
-        menu_.add_action(actions.win_info, cmd)
-
-        cmd = lambda: actions.reveal.cmd()
-        menu_.add_action(actions.reveal, cmd)
+            menu_.add_action(
+                action=actions.convert_to_jpg,
+                cmd=lambda: self.open_img_convert_win(urls)
+            )
+        menu_.add_action(
+            action=actions.win_info,
+            cmd=lambda: self.open_win_info.emit(data_items)
+        )
+        menu_.add_action(
+            action=actions.reveal,
+            cmd=lambda: actions.reveal.cmd()
+        )
+        menu_.add_action(
+            action=actions.copy_path,
+            cmd=lambda: Utils.write_to_clipboard("\n".join(urls))
+        )
+        menu_.add_action(
+            action=actions.rename,
+            cmd=lambda: self.rename_thumb(wid)
+        )
+        menu_.add_action(
+            action=actions.cut_files,
+            cmd=lambda: self.setup_files(is_cut=True)
+        )
+        menu_.add_action(
+            action=actions.copy_files,
+            cmd=lambda: self.setup_files(is_cut=False)
+        )
+        menu_.add_action(
+            action=actions.remove_files,
+            cmd=lambda: self.remove_files(urls)
+        )
 
     # def thumb_actions(self, menu_: UMenu, wid: Thumb):
-    #     self.bar_path_update(wid.data_item.abs_path)
-    #     menu_.setMinimumWidth(215)
-    #     urls = [
-    #         i.data_item.abs_path
-    #         for i in self.selected_thumbs
-    #     ]
-    #     urls_img = [
-    #         i.data_item.abs_path
-    #         for i in self.selected_thumbs
-    #         if i.data_item.abs_path.endswith(ImgUtils.ext_all)
-    #     ]
-
-    #     actions = ThumbActions(menu_, urls)
-
-    #     self.actions._open_thumb_action.triggered.connect(lambda: self.open_thumb())
-    #     menu_.addAction(self._open_thumb_action)
-
-    #     self.open_in_app_action = ItemActions.OpenInApp(menu_, urls)
-    #     menu_.addMenu(self.open_in_app_action)
-
-    #     self.new_main_win_action = ItemActions.NewMainWin(menu_)
-    #     self.new_main_win_action.triggered.connect(
-    #         lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
-    #     )
-    #     menu_.addAction(self.new_main_win_action)
-
-    #     if wid.data_item.abs_path in JsonData.favs:
-    #         cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.data_item.abs_path)
-    #         fav_action = ItemActions.FavRemove(menu_)
-    #         fav_action.triggered.connect(cmd_)
-    #         menu_.addAction(fav_action)
-    #     else:
-    #         cmd_ = lambda: self.fav_cmd(offset=1, src=wid.data_item.abs_path)
-    #         fav_action = ItemActions.FavAdd(menu_)
-    #         fav_action.triggered.connect(cmd_)
-    #         menu_.addAction(fav_action)
-
-    #     info = ItemActions.WinInfo(menu_)
-    #     info.triggered.connect(
-    #         lambda: self.open_win_info.emit(
-    #             [i.data_item for i in self.selected_thumbs]
-    #         )
-    #     )
-    #     menu_.addAction(info)
-
-    #     menu_.addSeparator()
-
-    #     convert_action = ItemActions.ImgConvert(menu_)
-    #     convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
-    #     menu_.addAction(convert_action)
-
-    #     menu_.addSeparator()
-   
     #     show_in_folder = ItemActions.ShowInGrid(menu_)
     #     cmd_ = lambda: self.show_in_folder_cmd(wid)
     #     show_in_folder.triggered.connect(cmd_)
     #     menu_.addAction(show_in_folder)
-
-    #     show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
-    #     menu_.addAction(show_in_finder_action)
-
-    #     copy_path = ItemActions.CopyPath(menu_, urls)
-    #     copy_path.triggered.connect(lambda: ClipboardItemGlob.reset())
-    #     menu_.addAction(copy_path)
-
-    #     menu_.addSeparator()
-
-    #     rename = ItemActions.Rename(menu_)
-    #     rename.triggered.connect(lambda: self.rename_thumb(wid))
-    #     menu_.addAction(rename)
-
-    #     cut_objects = ItemActions.CutFiles(menu_)
-    #     cut_objects.triggered.connect(self.set_transparent_thumbs)
-    #     cut_objects.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(True))
-    #     cut_objects.triggered.connect(self.setup_urls_to_copy)
-    #     menu_.addAction(cut_objects)
-
-    #     copy_files = ItemActions.CopyFiles(menu_)
-    #     copy_files.triggered.connect(lambda: ClipboardItemGlob.set_is_cut(False))
-    #     copy_files.triggered.connect(self.setup_urls_to_copy)
-    #     menu_.addAction(copy_files)
-
-    #     remove_files = ItemActions.RemoveFiles(menu_)
-    #     remove_files.triggered.connect(lambda: self.remove_files(urls))
-    #     menu_.addAction(remove_files)
 
     # def context_grid(self, menu_: UMenu):
         # self.bar_path_update(self.main_win_item.abs_current_dir)

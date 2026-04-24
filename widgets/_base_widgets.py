@@ -48,14 +48,13 @@ class UMenu(QMenu):
     def show_under_cursor(self):
         self.exec_(QCursor.pos())
 
-    def add_action(self, action: QAction | QMenu, cmd: callable):
-        if cmd is not None:
-            action.triggered.connect(cmd)
-        if isinstance(action, QAction):
-            self.addAction(action)
-        else:
-            self.addMenu(action)
+    def add_action(self, action: QAction, cmd: callable):
+        action.triggered.connect(cmd)
+        self.addAction(action)
 
+    def add_menu(self, menu: QMenu, cmd: callable):
+        menu.triggered.connect(cmd)
+        self.addMenu(menu)
 
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.RightButton:

@@ -52,11 +52,6 @@ class CopyPath(QAction):
     text_ = "Скопировать путь"
     def __init__(self, parent: UMenu, urls: list[str]):
         super().__init__(self.text_, parent)
-        self.urls = urls
-        self.triggered.connect(self.cmd_)
-
-    def cmd_(self):
-        Utils.write_to_clipboard("\n".join(self.urls))
 
 
 class CopyName(QAction):
@@ -103,30 +98,24 @@ class FavAdd(QAction):
 class OpenInApp(UMenu):
     text_menu = "Открыть в приложении"
     def_text = "Открыть по умолчанию"
+    # open_in_app = pyqtSignal(str)
+    triggered = pyqtSignal(str)
 
     def __init__(self, parent: UMenu, urls: list):
         super().__init__(parent=parent, title=self.text_menu)
         self.urls = urls
 
         default = QAction(self.def_text, self)
-        default.triggered.connect(lambda: self.open_default())
+        default.triggered.connect(lambda e: self.triggered.emit(""))
         self.addAction(default)
         self.addSeparator()
 
         for app_path in Dynamic.image_apps:
             wid = QAction(os.path.basename(app_path), self)
-            cmd_ = lambda e, app_path=app_path: self.open_in_app_cmd(app_path)
-            wid.triggered.connect(cmd_)
+            wid.triggered.connect(
+                lambda e, x=app_path: self.triggered.emit(x)
+            )
             self.addAction(wid)
-
-    def open_default(self):
-        for i in self.urls:
-            subprocess.Popen(["open", i])
-
-    def open_in_app_cmd(self, app_path: str):
-        # открыть в приложении, путь к которому указан в app_path
-        for i in self.urls:
-            Utils.open_in_app(i, app_path)
 
 
 # удалить текст из виджета и скопировать в буфер обмена удаленную часть текста
@@ -393,7 +382,7 @@ class Actions:
     def __init__(self, menu_: UMenu, item: ContextItem):
         urls = item.urls
         self.open_thumb = OpenThumb(menu_)
-        self.open_in_app = OpenInApp(menu_, urls)
+        self.open_in_app_menu = OpenInApp(menu_, urls)
         self.new_main_win = NewMainWin(menu_)
         self.fav_add = FavAdd(menu_)
         self.fav_remove = FavRemove(menu_)
@@ -406,7 +395,7 @@ class Actions:
         self.copy_files = CopyFiles(menu_)
         self.remove_files = RemoveFiles(menu_)
         self.new_folder = NewFolder(menu_)
-        self.copy_ = CopyPath(menu_, urls)
+        self.copy_path = CopyPath(menu_, urls)
         self.copy_name = CopyName(menu_, urls)
         self.paste_files = PasteFiles(menu_)
         self.upd_ = UpdateGrid(menu_)

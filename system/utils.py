@@ -29,14 +29,13 @@ class Utils:
     def read_from_clipboard(cls):
         clipboard = QApplication.clipboard()
         return clipboard.text()
-        
-    @classmethod
-    def open_in_def_app(cls, path: str):
-        subprocess.Popen(["open", path])
 
     @classmethod
     def open_in_app(cls, path: str, app_path: str):
-        subprocess.Popen(["open", "-a", app_path, path])
+        if app_path:
+            subprocess.Popen(["open", "-a", app_path, path])
+        else:
+            subprocess.Popen(["open", path])
 
     @classmethod
     def print_error(self):
