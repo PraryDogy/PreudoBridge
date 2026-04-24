@@ -378,26 +378,34 @@ class Rename(QAction):
         super().__init__(self.text_, parent)
 
 
-class Actions:
+class GridActions:
     def __init__(self, menu_: UMenu, item: ContextItem):
-        urls = item.urls
-        self.open_thumb = OpenThumb(menu_)
-        self.open_in_app_menu = OpenInApp(menu_, urls)
-        self.new_main_win = NewMainWin(menu_)
-        self.fav_add = FavAdd(menu_)
-        self.fav_remove = FavRemove(menu_)
-        self.win_info = WinInfo(menu_)
-        self.convert_to_jpg = ImgConvert(menu_)
-        self.show_in_folder = ShowInGrid(menu_)
-        self.reveal = Reveal(menu_, urls)
-        self.rename = Rename(menu_)
-        self.cut_files = CutFiles(menu_)
-        self.copy_files = CopyFiles(menu_)
-        self.remove_files = RemoveFiles(menu_)
-        self.new_folder = NewFolder(menu_)
-        self.copy_path = CopyPath(menu_, urls)
-        self.copy_name = CopyName(menu_, urls)
         self.paste_files = PasteFiles(menu_)
         self.upd_ = UpdateGrid(menu_)
         self.change_view = ChangeViewMenu(menu_, item)
         self.sort_menu = SortMenu(menu_, item)
+        self.new_folder = NewFolder(menu_)
+
+
+class CommonActions:
+    def __init__(self, menu_: UMenu, item: ContextItem):
+        self.win_info = WinInfo(menu_)
+        self.reveal = Reveal(menu_, item.urls)
+        self.copy_path = CopyPath(menu_, item.urls)
+        self.copy_name = CopyName(menu_, item.urls)
+
+
+class ThumbActions:
+    def __init__(self, menu_: UMenu, item: ContextItem):
+        self.open_thumb = OpenThumb(menu_)
+        self.open_in_app_menu = OpenInApp(menu_, item.urls)
+        self.convert_to_jpg = ImgConvert(menu_)
+        self.show_in_folder = ShowInGrid(menu_)
+        self.rename = Rename(menu_)
+        self.cut_files = CutFiles(menu_)
+        self.copy_files = CopyFiles(menu_)
+        self.remove_files = RemoveFiles(menu_)
+
+        self.new_main_win = NewMainWin(menu_)
+        self.fav_add = FavAdd(menu_)
+        self.fav_remove = FavRemove(menu_)

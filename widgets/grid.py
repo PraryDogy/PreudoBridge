@@ -535,6 +535,22 @@ class Grid(UScrollArea):
         ClipboardItemGlob.set_is_cut(True)
         self.setup_urls_to_copy()
 
+    def folder_actions(self, menu: UMenu):
+        menu_.add_action(
+            action=actions.new_main_win,
+            cmd=lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
+        )
+        if wid.data_item.abs_path in JsonData.favs:
+            menu_.add_action(
+                action=actions.fav_remove,
+                cmd=lambda: self.fav_cmd(-1, wid.data_item.abs_path)
+            )
+        else:
+            menu_.add_action(
+                action=actions.fav_add,
+                cmd=lambda: self.fav_cmd(1, wid.data_item.abs_path)
+            )
+
     def base_thumb_actions(self, menu_: UMenu):
         urls: list[str] = []
         data_items: list[DataItem] = []
@@ -559,20 +575,7 @@ class Grid(UScrollArea):
             cmd=lambda app_path: self.open_in_app(urls, app_path)
         )
         if wid.data_item.type_ == Static.folder_type:
-            menu_.add_action(
-                action=actions.new_main_win,
-                cmd=lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
-            )
-            if wid.data_item.abs_path in JsonData.favs:
-                menu_.add_action(
-                    action=actions.fav_remove,
-                    cmd=lambda: self.fav_cmd(-1, wid.data_item.abs_path)
-                )
-            else:
-                menu_.add_action(
-                    action=actions.fav_add,
-                    cmd=lambda: self.fav_cmd(1, wid.data_item.abs_path)
-                )
+            self.folder_actions
         else:
             menu_.add_action(
                 action=actions.convert_to_jpg,
