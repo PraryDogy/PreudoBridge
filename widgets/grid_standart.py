@@ -178,7 +178,7 @@ class GridStandart(Grid):
             return
         Thumb.calc_size()
 
-        self.path_bar_update.emit(self.main_win_item.abs_current_dir)
+        self.bar_path_update.emit(self.main_win_item.abs_current_dir)
         item = TotalCountItem(
             selected=len(self.selected_thumbs),
             total=len(dir_item.data_items)

@@ -15,6 +15,7 @@ from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils
+from system.tasks import RevealFiles, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -370,7 +371,7 @@ class WinMain(WinBase):
     def setup_grid_signals(self):
         self.grid.menu_sort_update.connect(self.bar_sort.sort_menu_update)
         self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
-        self.grid.path_bar_update.connect(self.bar_path.update)
+        self.grid.bar_path_update.connect(self.bar_path.update)
         self.grid.add_fav.connect(self.menu_favs.add_fav)
         self.grid.del_fav.connect(self.menu_favs.del_fav)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
@@ -384,6 +385,10 @@ class WinMain(WinBase):
         self.grid.img_view_win.connect(self.img_view_win_open)
         self.grid.paste_files.connect(self.paste_files)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
+
+        self.grid.reveal_urls.connect(self.reveal_urls)
+        self.grid.copy_urls.connect(self.copy_urls)
+        self.grid.copy_names.connect(self.copy_names)
 
     def load_search_grid(self):
         QTimer.singleShot(
@@ -428,6 +433,22 @@ class WinMain(WinBase):
         self.bar_sort.sort_frame.setDisabled(value)
         self.bar_sort.slider.setDisabled(value)
         self.menu_filters.set_disabled(value)
+
+    def copy_urls(self, urls: list[str]):
+        Utils.write_to_clipboard("\n".join(urls))
+
+    def reveal_urls(self, urls: list[str]):
+        UThreadPool.start(RevealFiles(urls))
+
+    def copy_names(self, urls: list[str]):
+        names = []
+        for i in urls:
+            basename = os.path.basename(i)
+            if os.path.isdir(i):
+                names.append(basename)
+            else:
+                names.append(os.path.splitext(basename)[0])
+        Utils.write_to_clipboard("\n".join(names))
 
     def load_st_grid(self, path: str):
 

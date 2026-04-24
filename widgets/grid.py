@@ -272,7 +272,7 @@ class Grid(UScrollArea):
     new_folder_text = "Новая папка"
 
     new_history_item = pyqtSignal(str)
-    path_bar_update = pyqtSignal(str)
+    bar_path_update = pyqtSignal(str)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
@@ -287,6 +287,11 @@ class Grid(UScrollArea):
     img_view_win = pyqtSignal(ImgViewItem)
     paste_files = pyqtSignal()
     load_finished = pyqtSignal()
+
+    reveal_urls = pyqtSignal(list)
+    copy_urls = pyqtSignal(list)
+    copy_names = pyqtSignal(list)
+
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
         size=64
@@ -333,8 +338,8 @@ class Grid(UScrollArea):
         except ZeroDivisionError:
             return 1
 
-    def bar_path_update(self, src: str):
-        QTimer.singleShot(0, lambda: self.path_bar_update.emit(src))
+    def bar_path_update_cmd(self, src: str):
+        QTimer.singleShot(0, lambda: self.bar_path_update.emit(src))
     
     def sort_thumbs(self):
         data_items = [i.data_item for i in self.url_to_wid.values()]
@@ -484,7 +489,7 @@ class Grid(UScrollArea):
 
     def select_single_thumb(self, wid: DataItem | Thumb):
         if isinstance(wid, Thumb):
-            self.bar_path_update(wid.data_item.abs_path)
+            self.bar_path_update_cmd(wid.data_item.abs_path)
             self.clear_selected_widgets()
             wid.set_frame()
             self.selected_thumbs.append(wid)
@@ -551,19 +556,21 @@ class Grid(UScrollArea):
     def folder_actions(self, menu_: UMenu, item: ContextItem):
         actions = ThumbActions(menu_, item)
         wid = self.wid_under_mouse
+        root = wid.data_item.abs_path
+
         menu_.add_action(
             action=actions.new_main_win,
-            cmd=lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
+            cmd=lambda: self.new_main_win_open.emit(root)
         )
         if wid.data_item.abs_path in JsonData.favs:
             menu_.add_action(
                 action=actions.fav_remove,
-                cmd=lambda: self.fav_cmd(-1, wid.data_item.abs_path)
+                cmd=lambda: self.fav_cmd(-1, root)
             )
         else:
             menu_.add_action(
                 action=actions.fav_add,
-                cmd=lambda: self.fav_cmd(1, wid.data_item.abs_path)
+                cmd=lambda: self.fav_cmd(1, root)
             )
 
     def base_thumb_actions(self, menu: UMenu, item: ContextItem):
@@ -592,11 +599,11 @@ class Grid(UScrollArea):
         )
         menu.add_action(
             action=common_actions.reveal,
-            cmd=lambda: UThreadPool.start(RevealFiles(item.urls))
+            cmd=lambda: self.reveal_urls.emit(item.urls)
         )
         menu.add_action(
             action=common_actions.copy_path,
-            cmd=lambda: Utils.write_to_clipboard("\n".join(item.urls))
+            cmd=lambda: self.copy_urls.emit(item.urls)
         )
         menu.add_action(
             action=actions.rename,
@@ -614,9 +621,15 @@ class Grid(UScrollArea):
             action=actions.remove_files,
             cmd=lambda: self.remove_files(item.urls)
         )
+        menu.add_action(
+            action=common_actions.copy_name,
+            cmd=lambda: self.copy_names.emit(item.urls)
+        )
 
     def base_grid_actions(self, menu: UMenu, item: ContextItem):
         actions = GridActions(menu, item)
+        common_actions = CommonActions(menu, item)
+        root = self.main_win_item.abs_current_dir
 
         menu.add_action(
             action=actions.new_folder,
@@ -624,7 +637,7 @@ class Grid(UScrollArea):
         )
         menu.add_action(
             action=actions.update_grid,
-            cmd=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
+            cmd=lambda: self.load_st_grid.emit(root)
         )
         menu.add_menu(
             menu=actions.change_view,
@@ -634,71 +647,23 @@ class Grid(UScrollArea):
             menu=actions.sort_menu,
             cmd=lambda: (self.sort_thumbs(), self.rearrange_thumbs())
         )
-
-    # def context_grid(self, menu_: UMenu):
-        # self.bar_path_update(self.main_win_item.abs_current_dir)
-        # names = [os.path.basename(self.main_win_item.abs_current_dir)]
-        # urls = [self.main_win_item.abs_current_dir]
-        # item = DataItem(self.main_win_item.abs_current_dir)
-        # item.set_properties()
-
-        # if not self.is_grid_search:
-        #     new_folder = GridActions.NewFolder(menu_)
-        #     new_folder.triggered.connect(self.new_folder)
-        #     menu_.addAction(new_folder)
-
-        # if not self.is_grid_search:
-        #     info = GridActions.Info(menu_)
-        #     info.triggered.connect(lambda: self.open_win_info.emit([item, ]))
-        #     menu_.addAction(info)
-
-        # if self.main_win_item.abs_current_dir in JsonData.favs:
-        #     cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.abs_current_dir)
-        #     fav_action = GridActions.FavRemove(menu_)
-        #     fav_action.triggered.connect(cmd_)
-        #     menu_.addAction(fav_action)
-
-        # else:
-        #     cmd_ = lambda: self.fav_cmd(+1, self.main_win_item.abs_current_dir)
-        #     fav_action = GridActions.FavAdd(menu_)
-        #     fav_action.triggered.connect(cmd_)
-        #     menu_.addAction(fav_action)
-
-        # menu_.addSeparator()
-
-        # reveal = GridActions.RevealInFinder(menu_, urls)
-        # menu_.addAction(reveal)
-
-        # copy_ = GridActions.CopyPath(menu_, urls)
-        # copy_.triggered.connect(ClipboardItemGlob.reset)
-        # menu_.addAction(copy_)
-
-        # copy_name = GridActions.CopyName(menu_, names)
-        # copy_name.triggered.connect(ClipboardItemGlob.reset)
-        # menu_.addAction(copy_name)
-
-        # menu_.addSeparator()
-
-        # if ClipboardItemGlob.src_urls and not self.is_grid_search:
-        #     paste_files = GridActions.PasteObjects(menu_)
-        #     paste_files.triggered.connect(self.paste_files.emit)
-        #     menu_.addAction(paste_files)
-
-        #     menu_.addSeparator()
-
-        # upd_ = GridActions.UpdateGrid(menu_)
-        # upd_.triggered.connect(lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir))
-        # menu_.addAction(upd_)
-
-        # change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
-        # change_view.triggered.connect(lambda: self.change_view.emit())
-        # menu_.addMenu(change_view)
-
-        # sort_menu = GridActions.SortMenu(menu_, self.sort_item)
-        # sort_menu.sort_grid_sig.connect(lambda: self.sort_thumbs())
-        # sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange_thumbs())
-        # sort_menu.sort_menu_update.connect(lambda: self.menu_sort_update.emit())
-        # menu_.addMenu(sort_menu)
+        menu.add_action(
+            action=common_actions.win_info,
+            cmd=lambda: self.open_win_info.emit()
+        )
+        menu.add_action(
+            action=common_actions.reveal,
+            cmd=lambda: self.reveal_urls.emit(item.urls)
+        )
+        menu.add_action(
+            action=common_actions.copy_path,
+            cmd=lambda: self.copy_urls.emit(item.urls)
+            
+        )
+        menu.add_action(
+            action=common_actions.copy_name,
+            cmd=lambda: self.copy_names.emit(item.urls)
+        )
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
@@ -735,7 +700,7 @@ class Grid(UScrollArea):
 
         elif self.wid_under_mouse is None:
             self.clear_selected_widgets()
-            self.bar_path_update(self.main_win_item.abs_current_dir)
+            self.bar_path_update_cmd(self.main_win_item.abs_current_dir)
         
         elif a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
             # шифт клик: если не было выделенных виджетов
@@ -769,7 +734,7 @@ class Grid(UScrollArea):
             # комманд клик: виджет не был виделен, выделить
             else:
                 self.select_multiple_thumb(self.wid_under_mouse)
-                self.bar_path_update(self.wid_under_mouse.data_item.abs_path)
+                self.bar_path_update_cmd(self.wid_under_mouse.data_item.abs_path)
         else:
             self.select_single_thumb(self.wid_under_mouse)
 
@@ -818,7 +783,7 @@ class Grid(UScrollArea):
         if urls:
             self.mime_data.setUrls(urls)
         if self.wid_under_mouse:
-            self.bar_path_update(self.wid_under_mouse.data_item.abs_path)
+            self.bar_path_update_cmd(self.wid_under_mouse.data_item.abs_path)
         item = TotalCountItem(
             selected=len(self.selected_thumbs),
             total=len(self.cell_to_wid)

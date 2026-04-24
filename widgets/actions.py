@@ -1,12 +1,10 @@
 import os
-import subprocess
 
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
 from cfg import Dynamic, Static
 from system.items import ContextItem
-from system.tasks import RevealFiles, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu
@@ -33,20 +31,8 @@ class CopyPath(QAction):
 class CopyName(QAction):
     text_ = "Скопировать имя"
 
-    def __init__(self, parent: UMenu, urls: list[str]):
+    def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
-        self.urls = urls
-        self.triggered.connect(self.cmd_)
-
-    def cmd_(self):
-        names = []
-        for i in self.urls:
-            basename = os.path.basename(i)
-            if os.path.isdir(i):
-                names.append(basename)
-            else:
-                names.append(os.path.splitext(basename)[0])
-        Utils.write_to_clipboard("\n".join(names))
 
 
 class OpenThumb(QAction):
@@ -336,33 +322,33 @@ class Rename(QAction):
 
 
 class GridActions:
-    def __init__(self, menu_: UMenu, item: ContextItem):
-        self.new_folder = NewFolder(menu_)
-        self.update_grid = UpdateGrid(menu_)
-        self.change_view = ChangeViewMenu(menu_, item)
-        self.sort_menu = SortMenu(menu_, item)
-        self.paste_files = PasteFiles(menu_)
+    def __init__(self, menu: UMenu, item: ContextItem):
+        self.new_folder = NewFolder(menu)
+        self.update_grid = UpdateGrid(menu)
+        self.change_view = ChangeViewMenu(menu, item)
+        self.sort_menu = SortMenu(menu, item)
+        self.paste_files = PasteFiles(menu)
 
 
 class CommonActions:
-    def __init__(self, menu_: UMenu, item: ContextItem):
-        self.win_info = WinInfo(menu_)
-        self.reveal = Reveal(menu_, item.urls)
-        self.copy_path = CopyPath(menu_, item.urls)
-        self.copy_name = CopyName(menu_, item.urls)
+    def __init__(self, menu: UMenu, item: ContextItem):
+        self.win_info = WinInfo(menu)
+        self.reveal = Reveal(menu, item)
+        self.copy_path = CopyPath(menu, item)
+        self.copy_name = CopyName(menu)
 
 
 class ThumbActions:
-    def __init__(self, menu_: UMenu, item: ContextItem):
-        self.open_thumb = OpenThumb(menu_)
-        self.open_in_app_menu = OpenInApp(menu_, item.urls)
-        self.convert_to_jpg = ImgConvert(menu_)
-        self.show_in_folder = ShowInGrid(menu_)
-        self.rename = Rename(menu_)
-        self.cut_files = CutFiles(menu_)
-        self.copy_files = CopyFiles(menu_)
-        self.remove_files = RemoveFiles(menu_)
+    def __init__(self, menu: UMenu, item: ContextItem):
+        self.open_thumb = OpenThumb(menu)
+        self.open_in_app_menu = OpenInApp(menu, item)
+        self.convert_to_jpg = ImgConvert(menu)
+        self.show_in_folder = ShowInGrid(menu)
+        self.rename = Rename(menu)
+        self.cut_files = CutFiles(menu)
+        self.copy_files = CopyFiles(menu)
+        self.remove_files = RemoveFiles(menu)
 
-        self.new_main_win = NewMainWin(menu_)
-        self.fav_add = FavAdd(menu_)
-        self.fav_remove = FavRemove(menu_)
+        self.new_main_win = NewMainWin(menu)
+        self.fav_add = FavAdd(menu)
+        self.fav_remove = FavRemove(menu)
