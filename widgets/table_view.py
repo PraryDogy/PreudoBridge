@@ -400,7 +400,7 @@ class TableView(QTableView):
         menu.addSeparator()
         menu.add_action(
             action=actions.remove_files,
-            cmd=lambda: self.remove_files(item.urls)
+            cmd=lambda: self.remove_files.emit(item.urls)
         )
 
     def base_grid_actions(self, menu: UMenu, item: ContextItem):
