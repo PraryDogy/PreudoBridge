@@ -304,7 +304,7 @@ class Grid(UScrollArea):
 
         self.is_grid_search: bool = is_grid_search
         self.main_win_item: MainWinItem = main_win_item
-        self.sort_item: SortItem = 1
+        self.sort_item: SortItem
         self.col_count: int = 0
         self.row: int = 0
         self.col: int = 0

@@ -9,12 +9,13 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QLabel, QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, TotalCountItem)
+from system.items import (ClipboardItemGlob, ContextItem, DataItem,
+                          ImgViewItem, MainWinItem, SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu
+from .actions import CommonActions, GridActions, ThumbActions
 # main win
 from .grid import Thumb
 from .win_remove_files import WinRemoveFiles
@@ -125,6 +126,7 @@ class TableView(QTableView):
         self.setAcceptDrops(True)
         self.setDragDropMode(QAbstractItemView.DragDrop)
         self.setDropIndicatorShown(True)
+        self.sort_item: SortItem
 
         # Заглушка (placeholder) для grid_wid. 
         # Используется для предотвращения ошибок при вызове .hide() в MainWin.
@@ -132,6 +134,7 @@ class TableView(QTableView):
 
         self.main_win_item = main_win_item
         self.url_to_index: dict[str, QModelIndex] = {}
+        self.url_to_item: dict[str, DataItem] = {}
         self.main_win_item = main_win_item
 
         self.setSelectionBehavior(QTableView.SelectRows)
@@ -176,6 +179,10 @@ class TableView(QTableView):
             index = self._model.index(row, 0, root_index)
             path = self._model.filePath(index)
             self.url_to_index[path] = index
+
+            item = DataItem(path)
+            item.set_properties()
+            self.url_to_item[path] = item
 
         if self.main_win_item.go_to_widget:
             self.main_win_item.urls_to_select.append(
@@ -321,6 +328,10 @@ class TableView(QTableView):
         for i in urls:
             ClipboardItemGlob.src_urls.append(i)
 
+    def open_in_app(self, urls: list[str], app_path: str):
+        for i in urls:
+            Utils.open_in_app(path=i, app_path=app_path)
+
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = WinRemoveFiles(self.main_win_item, urls)
         self.rem_win.center(self.window())
@@ -331,20 +342,136 @@ class TableView(QTableView):
         tags = QItemSelectionModel.Select | QItemSelectionModel.Rows
         self.selectionModel().select(index, tags)
 
+    def folder_actions(self, menu_: UMenu, item: ContextItem):
+        actions = ThumbActions(menu_, item)
+        wid = self.wid_under_mouse
+        root = wid.data_item.abs_path
+
+        menu_.add_action(
+            action=actions.new_main_win,
+            cmd=lambda: self.new_main_win_open.emit(root)
+        )
+        if wid.data_item.abs_path in JsonData.favs:
+            menu_.add_action(
+                action=actions.fav_remove,
+                cmd=lambda: self.fav_cmd(-1, root)
+            )
+        else:
+            menu_.add_action(
+                action=actions.fav_add,
+                cmd=lambda: self.fav_cmd(1, root)
+            )
+
+    def base_thumb_actions(self, menu: UMenu, item: ContextItem, path: str):
+        actions = ThumbActions(menu, item)
+        common_actions = CommonActions(menu, item)
+        # wid = self.wid_under_mouse
+
+        menu.add_action(
+            action=actions.open_thumb,
+            cmd=lambda: self.open_thumb()
+        )
+        if not path.endswith(ImgUtils.ext_all):
+            self.folder_actions(menu, item)
+        else:
+            menu.add_menu(
+                menu=actions.open_in_app_menu,
+                cmd=lambda app_path: self.open_in_app(item.urls, app_path)
+            )
+            menu.add_action(
+                action=actions.convert_to_jpg,
+                cmd=lambda: self.open_img_convert_win(item.urls)
+            )
+        menu.addSeparator()
+        menu.add_action(
+            action=common_actions.win_info,
+            cmd=lambda: self.open_win_info.emit(item.data_items)
+        )
+        menu.add_action(
+            action=actions.rename,
+            cmd=lambda: self.rename_row(path)
+        )
+        menu.add_action(
+            action=common_actions.reveal,
+            cmd=lambda: self.reveal_urls.emit(item.urls)
+        )
+        menu.addSeparator()
+        menu.add_action(
+            action=common_actions.copy_path,
+            cmd=lambda: self.copy_urls.emit(item.urls)
+        )
+        menu.add_action(
+            action=common_actions.copy_name,
+            cmd=lambda: self.copy_names.emit(item.urls)
+        )
+        menu.addSeparator()
+        menu.add_action(
+            action=actions.cut_files,
+            cmd=lambda: self.setup_clipboard(is_cut=True)
+        )
+        menu.add_action(
+            action=actions.copy_files,
+            cmd=lambda: self.setup_clipboard(is_cut=False)
+        )
+        menu.addSeparator()
+        menu.add_action(
+            action=actions.remove_files,
+            cmd=lambda: self.remove_files(item.urls)
+        )
+
+    def base_grid_actions(self, menu: UMenu, item: ContextItem):
+        actions = GridActions(menu, item)
+        common_actions = CommonActions(menu, item)
+        menu.add_action(
+            action=common_actions.win_info,
+            cmd=lambda: self.open_win_info.emit(item.data_items)
+        )
+        menu.add_action(
+            action=common_actions.reveal,
+            cmd=lambda: self.reveal_urls.emit(item.urls)
+        )
+        menu.addSeparator()
+        menu.add_action(
+            action=common_actions.copy_path,
+            cmd=lambda: self.copy_urls.emit(item.urls)
+            
+        )
+        menu.add_action(
+            action=common_actions.copy_name,
+            cmd=lambda: self.copy_names.emit(item.urls)
+        )
+        menu.addSeparator()
+        menu.add_menu(
+            menu=actions.change_view,
+            cmd=lambda: self.change_view.emit()
+        )
+        menu.add_menu(
+            menu=actions.sort_menu,
+            cmd=lambda: (self.sort_thumbs(), self.rearrange_thumbs())
+        )
+
     def contextMenuEvent(self, event: QContextMenuEvent):
         # определяем выделена ли строка
         index = self.indexAt(event.pos())
         selected_path = self._model.filePath(index)
+        item = ContextItem(
+            main_win_item=self.main_win_item,
+            sort_item=self.sort_item,
+            urls=[],
+            data_items=[]
+        )
         menu_ = UMenu(parent=self)
 
         if index.isValid():
-            urls = self.get_selected_urls()
-            if selected_path not in urls:
-                self.select_row(index)
-            urls = self.get_selected_urls()
-            names = [os.path.basename(i) for i in urls]
-            total = len(urls)
-            self.item_context(menu_, selected_path, urls, names, total)
+            item.urls = self.get_selected_urls()
+            item.data_items = [self.url_to_item[i] for i in item.urls]
+            self.base_thumb_actions(menu_, item, selected_path)
+            # if selected_path not in urls:
+                # self.select_row(index)
+            # urls = self.get_selected_urls()
+
+            # names = [os.path.basename(i) for i in urls]
+            # total = len(urls)
         else:
             selected_path = self.main_win_item.abs_current_dir
             urls = [self.main_win_item.abs_current_dir]
