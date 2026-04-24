@@ -646,7 +646,7 @@ class Grid(UScrollArea):
         menu.addSeparator()
         menu.add_action(
             action=common_actions.win_info,
-            cmd=lambda: self.open_win_info.emit()
+            cmd=lambda: self.open_win_info.emit(item.data_items)
         )
         menu.add_action(
             action=common_actions.reveal,

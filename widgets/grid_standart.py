@@ -307,6 +307,10 @@ class GridStandart(Grid):
         for i in self.selected_thumbs:
             urls.append(i.data_item.abs_path)
             data_items.append(i.data_item)
+        if not data_items:
+            item = DataItem(self.main_win_item.abs_current_dir)
+            item.set_properties()
+            data_items.append(item)
         item = ContextItem(
             main_win_item=self.main_win_item,
             sort_item=self.sort_item,
