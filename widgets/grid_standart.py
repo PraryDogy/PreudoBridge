@@ -268,7 +268,7 @@ class GridStandart(Grid):
         actions = GridActions(menu, item)
         menu.add_action(
             action=actions.new_folder,
-            cmd=lambda: self.new_folder()
+            cmd=lambda: self.new_folder.emit()
         )
         menu.add_action(
             action=actions.update_grid,

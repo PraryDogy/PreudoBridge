@@ -402,6 +402,7 @@ class WinMain(WinBase):
         self.grid.open_in_app.connect(self.open_in_app)
         self.grid.remove_files.connect(self.remove_files_win_open)
         self.grid.rename.connect(self.rename_file)
+        self.grid.new_folder.connect(self.new_folder)
 
     def load_search_grid(self):
         QTimer.singleShot(
@@ -482,7 +483,7 @@ class WinMain(WinBase):
                 os.mkdir(root)
             except Exception as e:
                 ...
-        self.rename_win = WinRename(self.new_folder_text)
+        self.rename_win = WinRename("Новая папка")
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(lambda name: fin(name))
         self.rename_win.show()

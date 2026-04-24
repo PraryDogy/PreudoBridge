@@ -264,8 +264,6 @@ class NoItemsLabel(QLabel):
 
 
 class Grid(UScrollArea):
-    new_folder_text = "Новая папка"
-
     new_history_item = pyqtSignal(str)
     bar_path_update = pyqtSignal(str)
     add_fav = pyqtSignal(str)
@@ -291,6 +289,7 @@ class Grid(UScrollArea):
     open_in_app = pyqtSignal(tuple)
     remove_files = pyqtSignal(list)
     rename = pyqtSignal(DataItem)
+    new_folder = pyqtSignal()
 
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
