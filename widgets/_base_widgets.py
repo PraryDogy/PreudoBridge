@@ -173,7 +173,7 @@ class ULineEdit(QLineEdit):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         # Предотвращаем круговой импорт, т.к. в actions.py есть импорт UMenu
-        from .actions import CopyText, CutText, PasteText, TextSelectAll
+        from .actions import CopyText, CutText, PasteText, SelectAllText
 
         menu = UMenu()
 
@@ -188,7 +188,7 @@ class ULineEdit(QLineEdit):
 
         menu.addSeparator()
 
-        select_all_a = TextSelectAll(menu, self)
+        select_all_a = SelectAllText(menu, self)
         menu.addAction(select_all_a)
 
         menu.show_under_cursor()
@@ -207,7 +207,7 @@ class UTextEdit(QTextEdit):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         # Предотвращаем круговой импорт, т.к. в actions.py есть импорт UMenu
-        from .actions import CopyText, CutText, PasteText, TextSelectAll
+        from .actions import CopyText, CutText, PasteText, SelectAllText
 
         menu = UMenu()
 
@@ -222,7 +222,7 @@ class UTextEdit(QTextEdit):
 
         menu.addSeparator()
 
-        select_all_a = TextSelectAll(menu, self)
+        select_all_a = SelectAllText(menu, self)
         menu.addAction(select_all_a)
 
         menu.show_under_cursor()

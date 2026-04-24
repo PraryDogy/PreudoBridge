@@ -12,7 +12,7 @@ from ._base_widgets import UMenu
 
 class Reveal(QAction):
     text_ = "Показать в Finder"
-    def __init__(self, parent: UMenu, urls: list[str]):
+    def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
 
 
@@ -24,13 +24,12 @@ class WinInfo(QAction):
 
 class CopyPath(QAction):
     text_ = "Скопировать путь"
-    def __init__(self, parent: UMenu, urls: list[str]):
+    def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
 
 
 class CopyName(QAction):
     text_ = "Скопировать имя"
-
     def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
 
@@ -58,9 +57,8 @@ class OpenInApp(UMenu):
     def_text = "Открыть по умолчанию"
     triggered = pyqtSignal(str)
 
-    def __init__(self, parent: UMenu, urls: list):
+    def __init__(self, parent: UMenu):
         super().__init__(parent=parent, title=self.text_menu)
-        self.urls = urls
 
         default = QAction(self.def_text, self)
         default.triggered.connect(lambda e: self.triggered.emit(""))
@@ -136,7 +134,7 @@ class PasteText(QAction):
             self.wid.setText(new_text)
 
 
-class TextSelectAll(QAction):
+class SelectAllText(QAction):
     text_ = "Выделить все"
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
         super().__init__(self.text_, parent)
@@ -333,15 +331,15 @@ class GridActions:
 class CommonActions:
     def __init__(self, menu: UMenu, item: ContextItem):
         self.win_info = WinInfo(menu)
-        self.reveal = Reveal(menu, item)
-        self.copy_path = CopyPath(menu, item)
+        self.reveal = Reveal(menu)
+        self.copy_path = CopyPath(menu)
         self.copy_name = CopyName(menu)
 
 
 class ThumbActions:
     def __init__(self, menu: UMenu, item: ContextItem):
         self.open_thumb = OpenThumb(menu)
-        self.open_in_app_menu = OpenInApp(menu, item)
+        self.open_in_app_menu = OpenInApp(menu)
         self.convert_to_jpg = ImgConvert(menu)
         self.show_in_folder = ShowInGrid(menu)
         self.rename = Rename(menu)
@@ -352,3 +350,11 @@ class ThumbActions:
         self.new_main_win = NewMainWin(menu)
         self.fav_add = FavAdd(menu)
         self.fav_remove = FavRemove(menu)
+
+
+class TextActions:
+    def __init__(self):
+        self.cut = CutText()
+        self.copy = CopyText()
+        self.paste = PasteText()
+        self.select_all = SelectAllText()
