@@ -122,7 +122,6 @@ class TableView(QTableView):
 
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
     empty_text = "Нет файлов"
-    new_folder_text = "Новая папка"
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -227,19 +226,6 @@ class TableView(QTableView):
     def double_clicked(self, index):
         self.open_thumb(self.get_selected_urls())
 
-    def new_folder(self):
-        def fin(name: str):
-            dest = os.path.join(self.main_win_item.abs_current_dir, name)
-            try:
-                os.mkdir(dest)
-                QTimer.singleShot(100, lambda: self.select_path(dest))
-            except Exception as e:
-                Utils.print_error()
-        self.rename_win = WinRename(self.new_folder_text)
-        self.rename_win.center(self.window())
-        self.rename_win.finished_.connect(lambda name: fin(name))
-        self.rename_win.show()
-
     def open_thumb(self, urls: list[str]):
         if len(urls) == 1:
             data_item = DataItem(urls[0])
@@ -343,37 +329,34 @@ class TableView(QTableView):
         tags = QItemSelectionModel.Select | QItemSelectionModel.Rows
         self.selectionModel().select(index, tags)
 
-    def folder_actions(self, menu_: UMenu, item: ContextItem):
+    def folder_actions(self, menu_: UMenu, item: ContextItem, path: str):
         actions = ThumbActions(menu_, item)
-        wid = self.wid_under_mouse
-        root = wid.data_item.abs_path
 
         menu_.add_action(
             action=actions.new_main_win,
-            cmd=lambda: self.new_main_win_open.emit(root)
+            cmd=lambda: self.new_main_win_open.emit(path)
         )
-        if wid.data_item.abs_path in JsonData.favs:
+        if path in JsonData.favs:
             menu_.add_action(
                 action=actions.fav_remove,
-                cmd=lambda: self.fav_cmd(-1, root)
+                cmd=lambda: self.fav_cmd(-1, path)
             )
         else:
             menu_.add_action(
                 action=actions.fav_add,
-                cmd=lambda: self.fav_cmd(1, root)
+                cmd=lambda: self.fav_cmd(1, path)
             )
 
     def base_thumb_actions(self, menu: UMenu, item: ContextItem, path: str):
         actions = ThumbActions(menu, item)
         common_actions = CommonActions(menu, item)
-        # wid = self.wid_under_mouse
 
         menu.add_action(
             action=actions.open_thumb,
-            cmd=lambda: self.open_thumb()
+            cmd=lambda: self.open_thumb(item.urls)
         )
         if not path.endswith(ImgUtils.ext_all):
-            self.folder_actions(menu, item)
+            self.folder_actions(menu, item, path)
         else:
             menu.add_menu(
                 menu=actions.open_in_app_menu,
@@ -465,15 +448,14 @@ class TableView(QTableView):
 
         if index.isValid():
             item.urls = self.get_selected_urls()
+            if selected_path not in item.urls:
+                self.select_row(index)
+            urls = self.get_selected_urls()
             item.data_items = [self.url_to_item[i] for i in item.urls]
             self.base_thumb_actions(menu_, item, selected_path)
-            # if selected_path not in urls:
-                # self.select_row(index)
-            # urls = self.get_selected_urls()
 
-            # names = [os.path.basename(i) for i in urls]
-            # total = len(urls)
         else:
+            return
             selected_path = self.main_win_item.abs_current_dir
             urls = [self.main_win_item.abs_current_dir]
             names = [os.path.basename(i) for i in urls]
