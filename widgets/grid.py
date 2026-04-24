@@ -8,13 +8,13 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QVBoxLayout,
                              QWidget)
 
-from cfg import Dynamic, Static
-from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, SortItem, TotalCountItem)
+from cfg import Dynamic, JsonData, Static
+from system.items import (ClipboardItemGlob, ContextItem, DataItem,
+                          ImgViewItem, MainWinItem, SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
-from ._base_widgets import UScrollArea
+from ._base_widgets import UMenu, UScrollArea
 from .actions import Actions
 # в main win
 from .win_img_convert import WinImgConvert
@@ -525,6 +525,42 @@ class Grid(UScrollArea):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
+    def base_thumb_actions(self, menu_: UMenu):
+        urls = [
+            i.data_item.abs_path
+            for i in self.selected_thumbs
+        ]
+        item = ContextItem(
+            main_win_item=self.main_win_item,
+            sort_item=self.sort_item,
+            urls=urls
+        )
+        actions = Actions(menu_, item)
+
+        cmd = lambda: self.open_thumb()
+        menu_.add_action(actions.open_thumb, cmd)
+
+        menu_.add_action(actions.open_in_app, None)
+
+        if wid.data_item.type_ == Static.folder_type:
+            cmd = lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
+            menu_.add_action(actions.new_main_win, cmd)
+            if wid.data_item.abs_path in JsonData.favs:
+                cmd = lambda: self.fav_cmd(offset=-1, src=wid.data_item.abs_path)
+                menu_.add_action(actions.fav_remove, cmd)
+            else:
+                cmd = lambda: self.fav_cmd(offset=1, src=wid.data_item.abs_path)
+                menu_.add_action(actions.fav_add, cmd)
+        else:
+            cmd = lambda: self.open_img_convert_win(urls)
+            menu_.add_action(actions.convert_to_jpg, cmd)
+
+        cmd = lambda: self.open_win_info.emit(data_items)
+        menu_.add_action(actions.win_info, cmd)
+
+        cmd = lambda: actions.reveal.cmd()
+        menu_.add_action(actions.reveal, cmd)
+
     # def thumb_actions(self, menu_: UMenu, wid: Thumb):
     #     self.bar_path_update(wid.data_item.abs_path)
     #     menu_.setMinimumWidth(215)
@@ -938,6 +974,8 @@ class Grid(UScrollArea):
             total=len(self.cell_to_wid)
         )
         self.total_count_update.emit(item)
+
+        return UMenu(parent=self)
     
     def deleteLater(self):
         urls = [i.data_item.abs_path for i in self.selected_thumbs]
