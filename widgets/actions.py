@@ -16,30 +16,6 @@ class Reveal(QAction):
     text_ = "Показать в Finder"
     def __init__(self, parent: UMenu, urls: list[str]):
         super().__init__(self.text_, parent)
-        self.urls = urls
-
-        if len(urls) == 1:
-            if os.path.isdir(urls[0]):
-                self.cmd = self.app_cmd
-            elif urls[0].endswith(Static.app_exts):
-                self.cmd = self.app_cmd
-            else:
-                self.cmd = self.files_cmd
-        else:
-            self.cmd = self.files_cmd
-
-    def cmd(self):
-        ...
-
-    def app_cmd(self):
-        subprocess.Popen(["open", "-R", self.urls[0]])
-
-    def dir_cmd(self):
-        subprocess.Popen(["open", self.urls[0]])
-
-    def files_cmd(self):
-        self.task_ = RevealFiles(self.urls)
-        UThreadPool.start(self.task_)
 
 
 class WinInfo(QAction):

@@ -4,7 +4,7 @@ from time import perf_counter
 from PyQt5.QtCore import QRect, QSize, QTimer
 from watchdog.events import FileSystemEvent
 
-from cfg import Dynamic, Static, JsonData
+from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, ContextItem, DataItem, DirItem,
                           MainWinItem, TotalCountItem)
 from system.multiprocess import (ImgLoader, ImgLoaderHelper, ProcessWorker,
@@ -13,7 +13,6 @@ from system.tasks import DirScaner, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu
-from .actions import Actions
 from .grid import Grid, NoItemsLabel, Thumb
 from .win_rename import WinRename
 
@@ -315,12 +314,23 @@ class GridStandart(Grid):
         return super().dropEvent(a0)
     
     def contextMenuEvent(self, a0):
-        menu: UMenu = super().contextMenuEvent(a0)
+        super().contextMenuEvent(a0)
+        urls: list[str] = []
+        data_items: list[DataItem] = []
+        for i in self.selected_thumbs:
+            urls.append(i.data_item.abs_path)
+            data_items.append(i.data_item)
+        item = ContextItem(
+            main_win_item=self.main_win_item,
+            sort_item=self.sort_item,
+            urls=urls,
+            data_items=data_items
+        )
+        menu = UMenu(parent=self)
         if self.wid_under_mouse:
-            self.base_thumb_actions(menu)
+            self.base_thumb_actions(menu, item)
         else:
             ...
-
         menu.show_under_cursor()
         
 

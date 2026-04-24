@@ -278,3 +278,4 @@ class ContextItem:
     main_win_item: MainWinItem
     sort_item: SortItem
     urls: list[str]
+    data_items: list[DataItem]

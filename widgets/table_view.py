@@ -15,7 +15,6 @@ from system.shared_utils import ImgUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu
-from .actions import Actions
 # main win
 from .grid import Thumb
 from .win_img_convert import WinImgConvert

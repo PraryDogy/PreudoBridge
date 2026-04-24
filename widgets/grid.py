@@ -12,10 +12,11 @@ from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, ContextItem, DataItem,
                           ImgViewItem, MainWinItem, SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
+from system.tasks import RevealFiles, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
-from .actions import Actions
+from .actions import CommonActions, GridActions, ThumbActions
 # в main win
 from .win_img_convert import WinImgConvert
 from .win_remove_files import WinRemoveFiles
@@ -535,7 +536,9 @@ class Grid(UScrollArea):
         ClipboardItemGlob.set_is_cut(True)
         self.setup_urls_to_copy()
 
-    def folder_actions(self, menu: UMenu):
+    def folder_actions(self, menu_: UMenu, item: ContextItem):
+        wid = self.wid_under_mouse
+        actions = ThumbActions(menu_, item)
         menu_.add_action(
             action=actions.new_main_win,
             cmd=lambda: self.new_main_win_open.emit(wid.data_item.abs_path)
@@ -551,63 +554,53 @@ class Grid(UScrollArea):
                 cmd=lambda: self.fav_cmd(1, wid.data_item.abs_path)
             )
 
-    def base_thumb_actions(self, menu_: UMenu):
-        urls: list[str] = []
-        data_items: list[DataItem] = []
-        for i in self.selected_thumbs:
-            urls.append(i.data_item.abs_path)
-            data_items.append(i.data_item)
-
-        item = ContextItem(
-            main_win_item=self.main_win_item,
-            sort_item=self.sort_item,
-            urls=urls
-        )
-        actions = Actions(menu_, item)
+    def base_thumb_actions(self, menu: UMenu, item: ContextItem):
+        actions = ThumbActions(menu, item)
+        common_actions = CommonActions(menu, item)
         wid = self.wid_under_mouse
 
-        menu_.add_action(
+        menu.add_action(
             action=actions.open_thumb,
             cmd=lambda: self.open_thumb()
         )
-        menu_.add_menu(
+        menu.add_menu(
             menu=actions.open_in_app_menu,
-            cmd=lambda app_path: self.open_in_app(urls, app_path)
+            cmd=lambda app_path: self.open_in_app(item.urls, app_path)
         )
         if wid.data_item.type_ == Static.folder_type:
-            self.folder_actions
+            self.folder_actions(menu, item)
         else:
-            menu_.add_action(
+            menu.add_action(
                 action=actions.convert_to_jpg,
-                cmd=lambda: self.open_img_convert_win(urls)
+                cmd=lambda: self.open_img_convert_win(item.urls)
             )
-        menu_.add_action(
-            action=actions.win_info,
-            cmd=lambda: self.open_win_info.emit(data_items)
+        menu.add_action(
+            action=common_actions.win_info,
+            cmd=lambda: self.open_win_info.emit(item.data_items)
         )
-        menu_.add_action(
-            action=actions.reveal,
-            cmd=lambda: actions.reveal.cmd()
+        menu.add_action(
+            action=common_actions.reveal,
+            cmd=lambda: UThreadPool.start(RevealFiles(item.urls))
         )
-        menu_.add_action(
-            action=actions.copy_path,
-            cmd=lambda: Utils.write_to_clipboard("\n".join(urls))
+        menu.add_action(
+            action=common_actions.copy_path,
+            cmd=lambda: Utils.write_to_clipboard("\n".join(item.urls))
         )
-        menu_.add_action(
+        menu.add_action(
             action=actions.rename,
             cmd=lambda: self.rename_thumb(wid)
         )
-        menu_.add_action(
+        menu.add_action(
             action=actions.cut_files,
             cmd=lambda: self.setup_files(is_cut=True)
         )
-        menu_.add_action(
+        menu.add_action(
             action=actions.copy_files,
             cmd=lambda: self.setup_files(is_cut=False)
         )
-        menu_.add_action(
+        menu.add_action(
             action=actions.remove_files,
-            cmd=lambda: self.remove_files(urls)
+            cmd=lambda: self.remove_files(item.urls)
         )
 
     # def thumb_actions(self, menu_: UMenu, wid: Thumb):
@@ -942,8 +935,6 @@ class Grid(UScrollArea):
             total=len(self.cell_to_wid)
         )
         self.total_count_update.emit(item)
-
-        return UMenu(parent=self)
     
     def deleteLater(self):
         urls = [i.data_item.abs_path for i in self.selected_thumbs]
