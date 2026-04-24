@@ -475,6 +475,18 @@ class WinMain(WinBase):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
+    def new_folder(self):
+        def fin(name: str):
+            try:
+                root = os.path.join(self.main_win_item.abs_current_dir, name)
+                os.mkdir(root)
+            except Exception as e:
+                ...
+        self.rename_win = WinRename(self.new_folder_text)
+        self.rename_win.center(self.window())
+        self.rename_win.finished_.connect(lambda name: fin(name))
+        self.rename_win.show()
+
     def load_st_grid(self, path: str):
 
         def _load():

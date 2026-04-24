@@ -511,19 +511,6 @@ class Grid(UScrollArea):
         ClipboardItemGlob.set_is_cut(True)
         self.setup_urls_to_copy()
 
-    def new_folder(self):
-        return
-        def fin(name: str):
-            try:
-                root = os.path.join(self.main_win_item.abs_current_dir, name)
-                os.mkdir(root)
-            except Exception as e:
-                ...
-        self.rename_win = WinRename(self.new_folder_text)
-        self.rename_win.center(self.window())
-        self.rename_win.finished_.connect(lambda name: fin(name))
-        self.rename_win.show()
-
     def folder_actions(self, menu_: UMenu, item: ContextItem):
         actions = ThumbActions(menu_, item)
         wid = self.wid_under_mouse
