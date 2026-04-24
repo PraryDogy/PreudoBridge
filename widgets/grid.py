@@ -582,33 +582,40 @@ class Grid(UScrollArea):
             action=actions.open_thumb,
             cmd=lambda: self.open_thumb()
         )
-        menu.add_menu(
-            menu=actions.open_in_app_menu,
-            cmd=lambda app_path: self.open_in_app(item.urls, app_path)
-        )
         if wid.data_item.type_ == Static.folder_type:
             self.folder_actions(menu, item)
         else:
+            menu.add_menu(
+                menu=actions.open_in_app_menu,
+                cmd=lambda app_path: self.open_in_app(item.urls, app_path)
+            )
             menu.add_action(
                 action=actions.convert_to_jpg,
                 cmd=lambda: self.open_img_convert_win(item.urls)
             )
+        menu.addSeparator()
         menu.add_action(
             action=common_actions.win_info,
             cmd=lambda: self.open_win_info.emit(item.data_items)
         )
         menu.add_action(
+            action=actions.rename,
+            cmd=lambda: self.rename_thumb(wid)
+        )
+        menu.add_action(
             action=common_actions.reveal,
             cmd=lambda: self.reveal_urls.emit(item.urls)
         )
+        menu.addSeparator()
         menu.add_action(
             action=common_actions.copy_path,
             cmd=lambda: self.copy_urls.emit(item.urls)
         )
         menu.add_action(
-            action=actions.rename,
-            cmd=lambda: self.rename_thumb(wid)
+            action=common_actions.copy_name,
+            cmd=lambda: self.copy_names.emit(item.urls)
         )
+        menu.addSeparator()
         menu.add_action(
             action=actions.cut_files,
             cmd=lambda: self.setup_clipboard(is_cut=True)
@@ -617,13 +624,10 @@ class Grid(UScrollArea):
             action=actions.copy_files,
             cmd=lambda: self.setup_clipboard(is_cut=False)
         )
+        menu.addSeparator()
         menu.add_action(
             action=actions.remove_files,
             cmd=lambda: self.remove_files(item.urls)
-        )
-        menu.add_action(
-            action=common_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(item.urls)
         )
 
     def base_grid_actions(self, menu: UMenu, item: ContextItem):
@@ -639,14 +643,7 @@ class Grid(UScrollArea):
             action=actions.update_grid,
             cmd=lambda: self.load_st_grid.emit(root)
         )
-        menu.add_menu(
-            menu=actions.change_view,
-            cmd=lambda: self.change_view.emit()
-        )
-        menu.add_menu(
-            menu=actions.sort_menu,
-            cmd=lambda: (self.sort_thumbs(), self.rearrange_thumbs())
-        )
+        menu.addSeparator()
         menu.add_action(
             action=common_actions.win_info,
             cmd=lambda: self.open_win_info.emit()
@@ -655,6 +652,7 @@ class Grid(UScrollArea):
             action=common_actions.reveal,
             cmd=lambda: self.reveal_urls.emit(item.urls)
         )
+        menu.addSeparator()
         menu.add_action(
             action=common_actions.copy_path,
             cmd=lambda: self.copy_urls.emit(item.urls)
@@ -663,6 +661,15 @@ class Grid(UScrollArea):
         menu.add_action(
             action=common_actions.copy_name,
             cmd=lambda: self.copy_names.emit(item.urls)
+        )
+        menu.addSeparator()
+        menu.add_menu(
+            menu=actions.change_view,
+            cmd=lambda: self.change_view.emit()
+        )
+        menu.add_menu(
+            menu=actions.sort_menu,
+            cmd=lambda: (self.sort_thumbs(), self.rearrange_thumbs())
         )
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
