@@ -491,8 +491,8 @@ class Grid(UScrollArea):
         if isinstance(wid, Thumb):
             self.bar_path_update_cmd(wid.data_item.abs_path)
             self.clear_selected_widgets()
-            wid.set_frame()
             self.selected_thumbs.append(wid)
+            wid.set_frame()
 
     def select_multiple_thumb(self, wid: Thumb):
         if isinstance(wid, Thumb):
@@ -922,12 +922,13 @@ class Grid(UScrollArea):
             # если не было выделено ни одного виджет ранее
             # то выделяем кликнутый
             if not self.selected_thumbs:
-                self.select_multiple_thumb(self.wid_under_mouse)
-            # если есть выделенные виджеты, но кликнутый виджет не выделены
+                self.select_single_thumb(self.wid_under_mouse)
+            # если есть выделенные виджеты, но кликнутый виджет не выделен
             # то снимаем выделение с других и выделяем кликнутый
             elif self.wid_under_mouse not in self.selected_thumbs:
                 self.clear_selected_widgets()
-                self.select_multiple_thumb(self.wid_under_mouse)
+                # self.select_multiple_thumb(self.wid_under_mouse)
+                self.select_single_thumb(self.wid_under_mouse)
         item = TotalCountItem(
             selected=len(self.selected_thumbs),
             total=len(self.cell_to_wid)
