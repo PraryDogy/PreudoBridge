@@ -141,11 +141,10 @@ class MenuFavs(QListWidget):
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
         self.main_win_item = main_win_item
+        self.url_to_item: dict[str, QListWidgetItem] = {}
+
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
-        self.items: dict[str, QListWidgetItem] = {}
-        self.fixed_items: dict[str, QListWidgetItem] = {}
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.create_icons()
@@ -159,7 +158,7 @@ class MenuFavs(QListWidget):
 
     def init_ui(self):
         self.clear()
-        self.items.clear()
+        self.url_to_item.clear()
 
         user = os.path.expanduser("~")
         icloud = "Library/Mobile Documents/com~apple~CloudDocs"
@@ -174,6 +173,7 @@ class MenuFavs(QListWidget):
             list_item = FavItemPin(name, src, self.main_win_item, self)
             list_item.setIcon(self.folder_pin_icon)
             self.addItem(list_item)
+            self.url_to_item[src] = list_item
 
             if self.main_win_item.abs_current_dir == src:
                 self.setCurrentItem(list_item)
@@ -185,16 +185,15 @@ class MenuFavs(QListWidget):
             list_item = FavItemNew(name, src, self.main_win_item, self)
             list_item.setIcon(self.folder_icon)
             self.addItem(list_item)
+            self.url_to_item[src] = list_item
 
             if self.main_win_item.abs_current_dir == src:
                 self.setCurrentItem(list_item)
 
     def select_fav(self, src: str):
-        wid = self.items.get(src, None)
-        if wid is None:
-            self.clearSelection()
-        else:
-            self.setCurrentItem(wid)
+        self.clearSelection()
+        if src in self.url_to_item:
+            self.setCurrentItem(self.url_to_item[src])
 
     def add_fav(self, src: str):
         if src not in JsonData.favs and src not in self.fixed_items:
