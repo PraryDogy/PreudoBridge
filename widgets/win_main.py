@@ -423,8 +423,7 @@ class WinMain(WinBase):
         self.grid = GridSearch(
             main_win_item=self.main_win_item,
             search_item=self.search_item,
-            parent=self,
-            is_grid_search=True,
+            parent=self
         )
         Utils.fill_missing_methods(TableView, Grid)
         self.setup_grid_signals()

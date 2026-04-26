@@ -19,8 +19,8 @@ from .grid import Grid, NoItemsLabel, Thumb
 
 class GridStandart(Grid):
 
-    def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
-        super().__init__(main_win_item, is_grid_search)
+    def __init__(self, main_win_item: MainWinItem):
+        super().__init__(main_win_item)
         self.setAcceptDrops(True)
         self.watchdog_modified_files = set()
         self.helpers: list[ImgLoaderHelper] = []

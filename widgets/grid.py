@@ -296,13 +296,12 @@ class Grid(UScrollArea):
         size=64
     )
 
-    def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
+    def __init__(self, main_win_item: MainWinItem):
         super().__init__()
         self.setWidgetResizable(True)
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        self.is_grid_search: bool = is_grid_search
         self.main_win_item: MainWinItem = main_win_item
         self.col_count: int = 0
         self.row: int = 0
@@ -450,7 +449,6 @@ class Grid(UScrollArea):
 
     def setup_urls_to_copy(self):
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
-        ClipboardItemGlob.is_search = self.is_grid_search
         ClipboardItemGlob.src_urls.clear()
         for i in self.selected_thumbs:
             ClipboardItemGlob.src_urls.append(i.data_item.abs_path)

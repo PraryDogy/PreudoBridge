@@ -403,12 +403,9 @@ class CopyWorker(BaseProcessWorker):
 class CopyTask:
     @staticmethod
     def start(copy_item: CopyItem, queue: Queue, gui_queue: Queue):
-
         if copy_item.src_dir != copy_item.dst_dir:
-            print(1)
             src_dst_urls = CopyTask.get_another_dir_urls(copy_item)
         else:
-            print(2)
             src_dst_urls = CopyTask.get_same_dir_urls(copy_item)
 
         copy_item.dst_urls = [dst for src, dst in src_dst_urls]
@@ -451,11 +448,11 @@ class CopyTask:
                 copy_item.msg = "error"
                 queue.put(copy_item)
                 return
-            if copy_item.is_cut and not copy_item.is_search:
+            if copy_item.is_cut:
                 os.remove(src)
                 "удаляем файлы чтобы очистить директории"
 
-        if copy_item.is_cut and not copy_item.is_search:
+        if copy_item.is_cut:
             for src, dst in src_dst_urls:
                 if src.is_dir() and src.exists():
                     try:

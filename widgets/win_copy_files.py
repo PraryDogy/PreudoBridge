@@ -175,7 +175,6 @@ class WinCopyFiles(WinProgressbar):
             src_dir=ClipboardItemGlob.src_dir,
             dst_dir=ClipboardItemGlob.dst_dir,
             src_urls=ClipboardItemGlob.src_urls,
-            is_search=ClipboardItemGlob.is_search,
             is_cut=ClipboardItemGlob.is_cut
         )
 

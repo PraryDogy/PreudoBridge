@@ -298,7 +298,6 @@ class TableView(QTableView):
 
     def setup_clipboard(self, urls: list[str], is_cut: bool):
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
-        ClipboardItemGlob.is_search = False
         ClipboardItemGlob.set_is_cut(is_cut)
         ClipboardItemGlob.src_urls.clear()
         for i in urls:

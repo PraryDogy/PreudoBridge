@@ -86,11 +86,10 @@ class GridSearch(Grid):
             self,
             main_win_item: MainWinItem,
             search_item: SearchItem,
-            parent: QWidget,
-            is_grid_search: bool
+            parent: QWidget
     ):
 
-        super().__init__(main_win_item, is_grid_search)
+        super().__init__(main_win_item)
         self.setParent(parent)
         self.search_item = search_item
         self.total = 0
@@ -166,7 +165,6 @@ class GridSearch(Grid):
                 self.search_timer.start(self.search_timer_ms)
 
 
-        self.is_grid_search = True
         Thumb.calc_size()
         self.search_item.root_dir = self.main_win_item.abs_current_dir
         self.search_task = ProcessWorker(
