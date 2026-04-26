@@ -24,8 +24,6 @@ class FavItem(QLabel):
     reveal = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
-
-    rename_text = "Переименовать"
     item_height = 25
 
     def __init__(self, name: str, src: str, main_win_item: MainWinItem, fixed: bool):
