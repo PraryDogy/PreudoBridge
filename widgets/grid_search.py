@@ -95,6 +95,7 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
         self.start_search()
+        self.watchdog_start()
 
     def start_search(self):
 
@@ -204,8 +205,8 @@ class GridSearch(Grid):
         wid: Thumb = self.url_to_wid.get(e.src_path, None)
         if e.event_type == "deleted":
             self.del_thumb(e.src_path)
-            if wid and wid.data_item.is_selected:
-                self.watchdog_modified_files.add(e.src_path)
+            # if wid and wid.data_item.is_selected:
+                # self.watchdog_modified_files.add(e.src_path)
         # elif e.event_type == "created":
         #     new_thumb = self.new_thumb(e.src_path)            
         #     if e.src_path in self.watchdog_modified_files:

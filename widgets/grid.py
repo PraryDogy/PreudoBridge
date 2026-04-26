@@ -337,7 +337,17 @@ class Grid(UScrollArea):
 
     def bar_path_update_cmd(self, src: str):
         QTimer.singleShot(0, lambda: self.bar_path_update.emit(src))
-    
+
+    def del_thumb(self, url: str):
+        wid = self.url_to_wid.get(url)
+        if not wid:
+            return
+        if wid in self.selected_thumbs:
+            self.selected_thumbs.remove(wid)
+        self.cell_to_wid.pop((wid.data_item.row, wid.data_item.col))
+        self.url_to_wid.pop(url)
+        wid.deleteLater()
+
     def sort_thumbs(self):
         data_items = [i.data_item for i in self.url_to_wid.values()]
         sorted_data_items = DataItem.sort_(data_items, self.main_win_item.sort_item)
