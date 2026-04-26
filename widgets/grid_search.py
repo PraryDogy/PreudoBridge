@@ -213,7 +213,7 @@ class GridSearch(Grid):
         self.search_task.pause = value
         self.pause_by_btn = value
 
-    def base_thumb_actions(self, menu: UMenu, item: ContextItem):
+    def thumb_actions(self, menu: UMenu, item: ContextItem):
         actions = ThumbActions(menu, item)
         super().base_thumb_actions(menu, item)
         menu.addSeparator()
@@ -262,7 +262,7 @@ class GridSearch(Grid):
         )
         menu = UMenu(parent=self)
         if self.wid_under_mouse:
-            self.base_thumb_actions(menu, item)
+            self.thumb_actions(menu, item)
         else:
             self.base_grid_actions(menu, item)
         menu.show_under_cursor()

@@ -235,7 +235,7 @@ class GridStandart(Grid):
         data = DataItem(url)
         data.set_properties()
         thumb = Thumb(data)
-        thumb.update_all(self.sort_item)
+        thumb.update_all(self.main_win_item.sort_item)
         thumb.set_no_frame()
         thumb.set_icon()
 
