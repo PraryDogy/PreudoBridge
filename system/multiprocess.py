@@ -404,9 +404,11 @@ class CopyTask:
     @staticmethod
     def start(copy_item: CopyItem, queue: Queue, gui_queue: Queue):
 
-        if copy_item.is_search or copy_item.src_dir != copy_item.dst_dir:
+        if copy_item.src_dir != copy_item.dst_dir:
+            print(1)
             src_dst_urls = CopyTask.get_another_dir_urls(copy_item)
         else:
+            print(2)
             src_dst_urls = CopyTask.get_same_dir_urls(copy_item)
 
         copy_item.dst_urls = [dst for src, dst in src_dst_urls]
