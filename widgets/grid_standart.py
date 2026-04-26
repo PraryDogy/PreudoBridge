@@ -264,7 +264,7 @@ class GridStandart(Grid):
         super().rearrange_thumbs()
         self.load_visible_thumbs_images()
 
-    def base_grid_actions(self, menu: UMenu, item: ContextItem):
+    def grid_actions(self, menu: UMenu, item: ContextItem):
         actions = GridActions(menu, item)
         menu.add_action(
             action=actions.new_folder,
@@ -341,5 +341,5 @@ class GridStandart(Grid):
         if self.wid_under_mouse:
             self.base_thumb_actions(menu, item)
         else:
-            self.base_grid_actions(menu, item)
+            self.grid_actions(menu, item)
         menu.show_under_cursor()
