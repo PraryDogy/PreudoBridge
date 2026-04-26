@@ -359,3 +359,9 @@ class TextActions:
         self.copy = CopyText()
         self.paste = PasteText()
         self.select_all = SelectAllText()
+
+
+class FavActions:
+    def __init__(self, parent: UMenu, item: ContextItem):
+        self.fav_add = FavAdd(parent)
+        self.fav_remove = FavRemove(parent)

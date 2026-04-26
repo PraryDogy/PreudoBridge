@@ -82,8 +82,12 @@ class DataItem:
         self.get_added()
 
     def get_added(self):
-        meta = OSXMetaData(self.abs_path)
-        added = meta.get("kMDItemDateAdded")
+        try:
+            meta = OSXMetaData(self.abs_path)
+            added = meta.get("kMDItemDateAdded")
+        except OSError:
+            self.added = int(os.path.getctime(self.abs_path))
+            return
         if added:
             self.added = int(added.timestamp())
         else:

@@ -249,6 +249,7 @@ class WinMain(WinBase):
         self.menu_favs.load_st_grid.connect(self.load_st_grid)
         self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
         self.menu_favs.new_main_win.connect(self.new_main_win_open)
+        self.menu_favs.reveal.connect(self.reveal_urls)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
@@ -458,6 +459,7 @@ class WinMain(WinBase):
         Utils.write_to_clipboard("\n".join(urls))
 
     def reveal_urls(self, urls: list[str]):
+        print(urls)
         UThreadPool.start(RevealFiles(urls))
 
     def copy_names(self, urls: list[str]):

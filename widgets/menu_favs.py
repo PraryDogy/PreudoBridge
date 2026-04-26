@@ -6,10 +6,11 @@ from PyQt5.QtGui import (QContextMenuEvent, QDropEvent, QIcon, QImage,
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
-from system.items import MainWinItem
+from system.items import ContextItem, MainWinItem
 from system.utils import Utils
 
 from ._base_widgets import UMenu
+from .actions import CommonActions, FavActions, ThumbActions
 # в main_win
 from .win_rename import WinRename
 
@@ -20,6 +21,7 @@ class FavItem(QLabel):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
+    reveal = pyqtSignal(list)
     rename_text = "Переименовать"
     item_height = 25
 
@@ -55,25 +57,33 @@ class FavItem(QLabel):
         return super().mouseReleaseEvent(ev)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        urls = [self.src, ]
+        item = ContextItem(
+            main_win_item=self.main_win_item,
+            urls=urls,
+            data_items=list()
+        )
+        menu = UMenu(parent=self)
+        thumb_actions = ThumbActions(menu, item)
+        fav_action = FavActions(menu, item)
+        common_actions = CommonActions(menu, item)
+
+        menu.add_action(
+            action=thumb_actions.open_thumb,
+            cmd=lambda: self.view_fav()
+        )
+        menu.add_action(
+            action=thumb_actions.new_main_win,
+            cmd=lambda: self.open_in_new_win.emit(self.src)
+        )
+        menu.addSeparator()
+        menu.add_action(
+            common_actions.reveal,
+            cmd=lambda: self.reveal.emit(urls)
+        )
+
+        menu.show_under_cursor()
         return
-        urls = [self.src]
-        names = [os.path.basename(i) for i in urls]
-        total = 1
-
-        menu_ = UMenu(parent=self)
-
-        view_ac = ItemActions.OpenSingle(menu_)
-        view_ac.triggered.connect(self.view_fav)
-        menu_.addAction(view_ac)
-
-        open_new_win = ItemActions.NewMainWin(menu_)
-        open_new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.src))
-        menu_.addAction(open_new_win)
-
-        menu_.addSeparator()
-
-        open_finder_action = ItemActions.RevealInFinder(menu_, urls)
-        menu_.addAction(open_finder_action)
 
         copy_path_action = ItemActions.CopyPath(menu_, urls)
         menu_.addAction(copy_path_action)
@@ -109,6 +119,7 @@ class MenuFavs(QListWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
     new_main_win = pyqtSignal(str)
+    reveal = pyqtSignal(list)
     svg_size = 16
     folder_icon: QIcon
     folder_pin_icon: QIcon
@@ -193,6 +204,7 @@ class MenuFavs(QListWidget):
         fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
         fav_item.open_in_new_win.connect(lambda dir: self.new_main_win.emit(dir))
         fav_item.renamed.connect(lambda name: self.update_name(src, name))
+        fav_item.reveal.connect(self.reveal.emit)
 
         list_item = QListWidgetItem(parent=self)
         if fixed_item:
@@ -240,7 +252,3 @@ class MenuFavs(QListWidget):
             url_ = url_.rstrip(os.sep)
             if os.path.isdir(url_):
                 self.add_fav(src=url_)
-
-    # def mouseReleaseEvent(self, e):
-    #     print(123)
-    #     return super().mouseReleaseEvent(e)
