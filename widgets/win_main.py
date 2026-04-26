@@ -501,7 +501,7 @@ class WinMain(WinBase):
             self.menu_tree.expand_path(path)
             self.grid.deleteLater()
 
-            if self.main_win_item.get_view_mode() == 0:
+            if self.main_win_item.view_mode == 0:
                 self.grid = GridStandart(self.main_win_item, False)
                 self.grid.load_finished.connect(self.grid.grid_wid.show)
                 self.grid.load_finished.connect(self.grid.setFocus)
@@ -511,7 +511,7 @@ class WinMain(WinBase):
                 self.disable_wids(False)
                 self.grid.dir_scaner_start()
 
-            elif self.main_win_item.get_view_mode() == 1:
+            elif self.main_win_item.view_mode == 1:
                 self.grid = TableView(self.main_win_item)
                 self.grid.load_finished.connect(self.grid.show)
                 self.grid.load_finished.connect(self.grid.setFocus)
@@ -540,19 +540,19 @@ class WinMain(WinBase):
             QTimer.singleShot(100, lambda: _show_win(self.no_path_win))
 
     def change_view_cmd(self):
-        if self.main_win_item.get_view_mode() == 0:
+        if self.main_win_item.view_mode == 0:
             self.bar_top.change_view_btn.load(
                 os.path.join(Static.internal_images_dir, "grid.svg")
             )
             self.bar_top.change_view_btn.lbl.setText(self.grid_text)
-            self.main_win_item.set_view_mode(1)
+            self.main_win_item.view_mode = 1
 
         else:
             self.bar_top.change_view_btn.load(
                 os.path.join(Static.internal_images_dir, "list.svg")
             )
             self.bar_top.change_view_btn.lbl.setText(self.list_text)
-            self.main_win_item.set_view_mode(0)
+            self.main_win_item.view_mode = 0
 
         self.load_st_grid(self.main_win_item.abs_current_dir)
 

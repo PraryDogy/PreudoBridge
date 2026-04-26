@@ -126,15 +126,7 @@ class MainWinItem:
         self.view_mode: int = 0
         self.fs_id: str = None
         self.rel_parent: str = None
-
-    def set_view_mode(self, value: int):
-        self.view_mode = value
-
-    def get_view_mode(self):
-        """
-        0 вид сетка, 1 вид список
-        """
-        return self.view_mode
+        self.sort_item: SortItem
     
     def set_current_dir(self, path: str):
         if not os.path.exists(path):

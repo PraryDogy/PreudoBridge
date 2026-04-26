@@ -359,7 +359,7 @@ class BarTop(QWidget):
 
         self.change_view_btn = BarTopBtn()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()
-        if self.main_win_item.get_view_mode() == 0:
+        if self.main_win_item.view_mode == 0:
             self.change_view_btn.load(os.path.join(Static.internal_images_dir, "list.svg"))
         else:
             self.change_view_btn.load(os.path.join(Static.internal_images_dir, "grid.svg"))
