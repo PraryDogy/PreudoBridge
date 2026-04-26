@@ -227,7 +227,7 @@ class WatchdogTask:
             return
         observer = Observer()
         handler = _DirChangedHandler(lambda e: queue.put(e))
-        observer.schedule(handler, path, recursive=False)
+        observer.schedule(handler, path, recursive=True)
         observer.start()
         try:
             while True:

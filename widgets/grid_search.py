@@ -202,26 +202,8 @@ class GridSearch(Grid):
         self.watchdog_task.start()
 
     def watchdog_apply(self, e: FileSystemEvent):
-        print(e.event_type, e.src_path)
-        wid: Thumb = self.url_to_wid.get(e.src_path, None)
         if e.event_type == "deleted":
             self.del_thumb(e.src_path)
-            # if wid and wid.data_item.is_selected:
-                # self.watchdog_modified_files.add(e.src_path)
-        # elif e.event_type == "created":
-        #     new_thumb = self.new_thumb(e.src_path)            
-        #     if e.src_path in self.watchdog_modified_files:
-        #         self.select_multiple_thumb(new_thumb)
-        #         self.watchdog_modified_files.remove(e.src_path)
-        # elif e.event_type == "moved":
-        #     self.del_thumb(e.src_path)
-        #     new_thumb = self.new_thumb(e.dest_path)
-        #     if wid and wid.data_item.is_selected:
-        #         self.select_multiple_thumb(new_thumb)
-        # modified выпадает только на изменение директории
-        # можем игнорировать
-        # elif e.event_type == "modified":
-            # print(e.src_path)
 
         if not self.url_to_wid:
             self.no_items_label_remove()
