@@ -118,7 +118,7 @@ class DataItem:
             return data_items
         
 
-@dataclass
+@dataclass(slots=True)
 class MainWinItem:
     urls_to_select: list[str]
     go_to_widget: str
