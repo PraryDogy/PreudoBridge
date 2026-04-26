@@ -9,16 +9,14 @@ import numpy as np
 import sqlalchemy
 from PIL import Image
 from PyQt5.QtCore import QTimer
-from sqlalchemy.exc import OperationalError
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Static
 from system.database import CacheTable, Dbase
 from system.items import (CopyItem, DataItem, ImgLoaderItem, JpgConvertItem,
-                          MainWinItem, MultipleInfoItem, PathFixerItem,
-                          SearchItem)
-from system.shared_utils import ImgUtils, PathFinder, SharedUtils
+                          MainWinItem, MultipleInfoItem, SearchItem)
+from system.shared_utils import ImgUtils, SharedUtils
 from system.tasks import Utils
 
 
@@ -238,23 +236,6 @@ class WatchdogTask:
         finally:
             observer.stop()
             observer.join()
-
-
-class PathFixer:
-    @staticmethod
-    def start(path: str, queue: Queue):
-        if not path:
-            result = PathFixerItem(None, None)
-        elif os.path.exists(path):
-            result = PathFixerItem(path, os.path.isdir(path))
-        else:
-            path_finder = PathFinder(path)
-            fixed_path = path_finder.get_result()
-            if fixed_path is not None:
-                result = PathFixerItem(fixed_path, os.path.isdir(fixed_path))
-            else:
-                result = PathFixerItem(None, None)
-        queue.put(result)
 
 
 class JpgConverter:

@@ -233,13 +233,6 @@ class CopyItem:
         self.msg: Literal["", "error", "need_replace", "replace_one", "replace_all", "finished"]
 
 
-class PathFixerItem:
-    def __init__(self, fixed_path: str | None, is_dir: bool | None):
-        super().__init__()
-        self.fixed_path = fixed_path
-        self.is_dir = is_dir
-
-
 @dataclass(slots=True)
 class ImgLoaderItem:
     engine: sqlalchemy.Engine
