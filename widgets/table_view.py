@@ -128,7 +128,6 @@ class TableView(QTableView):
         self.setAcceptDrops(True)
         self.setDragDropMode(QAbstractItemView.DragDrop)
         self.setDropIndicatorShown(True)
-        self.sort_item: SortItem
 
         # Заглушка (placeholder) для grid_wid. 
         # Используется для предотвращения ошибок при вызове .hide() в MainWin.

@@ -85,7 +85,6 @@ class GridSearch(Grid):
     def __init__(
             self,
             main_win_item: MainWinItem,
-            sort_item: SortItem,
             search_item: SearchItem,
             parent: QWidget,
             is_grid_search: bool
@@ -93,24 +92,19 @@ class GridSearch(Grid):
 
         super().__init__(main_win_item, is_grid_search)
         self.setParent(parent)
-
         self.search_item = search_item
-        self.sort_item = sort_item
-
         self.total = 0
         self.pause_by_btn: bool = False
-
         self.pause_timer = QTimer(self)
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
-
         self.start_search()
 
     def start_search(self):
 
         def create_thumb(data_item: DataItem):
             thumb = Thumb(data_item)
-            thumb.update_all(self.sort_item)
+            thumb.update_all(self.main_win_item.sort_item)
             thumb.set_no_frame()
 
             if thumb.data_item._img_array is not None:

@@ -304,7 +304,6 @@ class Grid(UScrollArea):
 
         self.is_grid_search: bool = is_grid_search
         self.main_win_item: MainWinItem = main_win_item
-        self.sort_item: SortItem
         self.col_count: int = 0
         self.row: int = 0
         self.col: int = 0
@@ -374,7 +373,7 @@ class Grid(UScrollArea):
     def resize_thumbs(self):
         Thumb.calc_size()
         for wid in self.url_to_wid.values():
-            wid.update_all(self.sort_item)
+            wid.update_all(self.main_win_item.sort_item)
         for i in self.selected_thumbs:
             i.set_frame()
 
