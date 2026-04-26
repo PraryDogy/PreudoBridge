@@ -427,7 +427,7 @@ class WinMain(WinBase):
         )
         Utils.fill_missing_methods(TableView, Grid)
         self.setup_grid_signals()
-        self.grid.finished_.connect(
+        self.grid.search_finished.connect(
             lambda: self.setWindowTitle(self.search_fin_text)
         )
         self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)

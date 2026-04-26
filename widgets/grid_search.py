@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from cfg import Static
 from system.items import (ContextItem, DataItem, MainWinItem, SearchItem,
-                          SortItem, TotalCountItem)
+                          TotalCountItem)
 from system.multiprocess import ProcessWorker, SearchTask
 from system.utils import Utils
 
@@ -75,7 +75,7 @@ class WinMissedFiles(WinMinCloseOnly):
 
 
 class GridSearch(Grid):
-    finished_ = pyqtSignal()
+    search_finished = pyqtSignal()
     no_result_text = "Ничего не найдено"
     noti_text = "Завершите поиск, затем перетащите файлы"
     warning_svg = os.path.join(Static.internal_images_dir, "warning.svg")
@@ -126,7 +126,7 @@ class GridSearch(Grid):
                 self.row += 1
 
         def fin(missed_files: dict[str, str]):
-            self.finished_.emit()
+            self.search_finished.emit()
             
             if not self.cell_to_wid:
                 no_images = QLabel(GridSearch.no_result_text)
