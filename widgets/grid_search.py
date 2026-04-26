@@ -1,23 +1,20 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QDragEnterEvent, QDropEvent, QImage
+from PyQt5.QtGui import QDragEnterEvent, QDropEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from watchdog.events import FileSystemEvent
 
 from cfg import Static
 from system.items import (ContextItem, DataItem, MainWinItem, SearchItem,
                           TotalCountItem)
-from system.multiprocess import ProcessWorker, SearchTask
+from system.multiprocess import ProcessWorker, SearchTask, WatchdogTask
 from system.utils import Utils
 
 from ._base_widgets import (NotifyWid, SmallBtn, UMenu, USvgSqareWidget,
                             UTextEdit, WinMinCloseOnly)
 from .actions import ThumbActions
-from .grid import Grid, Thumb
-
-
-class DirsWatched:
-    def set_should_run(self): ...
+from .grid import Grid, NoItemsLabel, Thumb
 
 
 class WinMissedFiles(WinMinCloseOnly):
@@ -177,6 +174,58 @@ class GridSearch(Grid):
 
         self.search_task.start()
         self.search_timer.start(self.search_timer_ms)
+
+    def watchdog_start(self, fast_ms=300, slow_ms=1000):
+
+        def poll_task():
+            self.watchdog_timer.stop()
+            events: list[FileSystemEvent] = []
+            while not self.watchdog_task.queue.empty():
+                events.append(self.watchdog_task.queue.get())
+            if events:
+                for i in events:
+                    QTimer.singleShot(0, lambda ev=i: self.watchdog_apply(ev))
+                QTimer.singleShot(0, self.sort_thumbs)
+                QTimer.singleShot(0, self.rearrange_thumbs)
+            self.watchdog_timer.start(fast_ms)
+
+        self.watchdog_task = ProcessWorker(
+            target=WatchdogTask.start,
+            args=(self.main_win_item.abs_current_dir, )
+        )
+        self.watchdog_timer = QTimer(self)
+        self.watchdog_timer.timeout.connect(poll_task)
+        self.watchdog_timer.setSingleShot(True)
+
+        self.watchdog_timer.start(fast_ms)
+        self.watchdog_task.start()
+
+    def watchdog_apply(self, e: FileSystemEvent):
+        wid: Thumb = self.url_to_wid.get(e.src_path, None)
+        if e.event_type == "deleted":
+            self.del_thumb(e.src_path)
+            if wid and wid.data_item.is_selected:
+                self.watchdog_modified_files.add(e.src_path)
+        # elif e.event_type == "created":
+        #     new_thumb = self.new_thumb(e.src_path)            
+        #     if e.src_path in self.watchdog_modified_files:
+        #         self.select_multiple_thumb(new_thumb)
+        #         self.watchdog_modified_files.remove(e.src_path)
+        # elif e.event_type == "moved":
+        #     self.del_thumb(e.src_path)
+        #     new_thumb = self.new_thumb(e.dest_path)
+        #     if wid and wid.data_item.is_selected:
+        #         self.select_multiple_thumb(new_thumb)
+        # modified выпадает только на изменение директории
+        # можем игнорировать
+        # elif e.event_type == "modified":
+            # print(e.src_path)
+
+        if not self.url_to_wid:
+            self.no_items_label_remove()
+            self.no_items_label_create(NoItemsLabel.no_files)
+        else:
+            self.no_items_label_remove()
 
     def sort_thumbs(self):
         self.search_task.pause = True
