@@ -92,10 +92,34 @@ class FavItem(QLabel):
         menu.show_under_cursor()
 
 
-class UListSpacerItem(QListWidgetItem):
-    def __init__(self, parent: QListWidget, height: int = 10):
+class FavItemBase(QListWidgetItem):
+    hh = 30
+
+    def __init__(self, name: str, src: str, main_win_item: MainWinItem, parent: QListWidget):
         super().__init__()
-        self.setSizeHint(QSize(parent.width(), height))
+        self.setSizeHint(QSize(parent.width(), self.hh))
+        self.setText(name)
+
+        self.main_win_item = main_win_item
+        self.name = name
+        self.src = src
+
+
+class FavItemNew(FavItemBase):
+    def __init__(self, name, src, main_win_item, parent):
+        super().__init__(name, src, main_win_item, parent)
+
+
+class FavItemPin(FavItemBase):
+    def __init__(self, name, src, main_win_item, parent):
+        super().__init__(name, src, main_win_item, parent)
+
+
+class FavItemSpacer(QListWidgetItem):
+    hh = 10
+    def __init__(self, parent: QListWidget):
+        super().__init__()
+        self.setSizeHint(QSize(parent.width(), self.hh))
         self.setFlags(Qt.ItemFlag.NoItemFlags)
 
 
@@ -139,32 +163,31 @@ class MenuFavs(QListWidget):
 
         user = os.path.expanduser("~")
         icloud = "Library/Mobile Documents/com~apple~CloudDocs"
-        fixed = {
+        fav_pin = {
             "/Volumes": "Компьютер",
             os.path.join(user, icloud): "iCloud Drive",
             os.path.join(user, "Desktop"): "Рабочий стол",
             os.path.join(user, "Downloads"): "Загрузки"
         }
 
-        for src, name in fixed.items():
-            if src in JsonData.favs:
-                JsonData.favs.pop(src)
-            result = self.add_fav_item(name, src, True)
-            item: QListWidgetItem = result[self.LIST_ITEM]
-            self.fixed_items[src] = item
+        for src, name in fav_pin.items():
+            list_item = FavItemPin(name, src, self.main_win_item, self)
+            list_item.setIcon(self.folder_pin_icon)
+            self.addItem(list_item)
 
-        item = UListSpacerItem(self)
+            if self.main_win_item.abs_current_dir == src:
+                self.setCurrentItem(list_item)
+
+        item = FavItemSpacer(self)
         self.addItem(item)
 
         for src, name in JsonData.favs.items():
-            if src in self.fixed_items:
-                continue
-            result = self.add_fav_item(name, src, False)
-            item: QListWidgetItem = result[self.LIST_ITEM]
-            self.items[src] = item
+            list_item = FavItemNew(name, src, self.main_win_item, self)
+            list_item.setIcon(self.folder_icon)
+            self.addItem(list_item)
 
             if self.main_win_item.abs_current_dir == src:
-                self.setCurrentItem(item)
+                self.setCurrentItem(list_item)
 
     def select_fav(self, src: str):
         wid = self.items.get(src, None)
@@ -204,10 +227,8 @@ class MenuFavs(QListWidget):
         else:
             list_item.setIcon(self.folder_icon)
         list_item.setSizeHint(fav_item.sizeHint())
-
         self.addItem(list_item)
         self.setItemWidget(list_item, fav_item)
-
         self.items[src] = list_item
 
         return {self.LIST_ITEM: list_item, self.FAV_ITEM: fav_item}
