@@ -222,12 +222,15 @@ class _DirChangedHandler(FileSystemEventHandler):
 
 class WatchdogTask:
     @staticmethod
-    def start(path: str, queue: Queue):
+    def start(path: str, recursive: bool, queue: Queue):
         if not path or not os.path.exists(path):
             return
+        
+        print(recursive)
+
         observer = Observer()
         handler = _DirChangedHandler(lambda e: queue.put(e))
-        observer.schedule(handler, path, recursive=True)
+        observer.schedule(handler, path, recursive=recursive)
         observer.start()
         try:
             while True:

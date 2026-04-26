@@ -192,7 +192,7 @@ class GridSearch(Grid):
 
         self.watchdog_task = ProcessWorker(
             target=WatchdogTask.start,
-            args=(self.main_win_item.abs_current_dir, )
+            args=(self.main_win_item.abs_current_dir, True, )
         )
         self.watchdog_timer = QTimer(self)
         self.watchdog_timer.timeout.connect(poll_task)
