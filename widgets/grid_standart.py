@@ -164,8 +164,7 @@ class GridStandart(Grid):
         self.ignore_mouse = True
         dir_item = DirItem(
             data_items=[],
-            main_win_item=self.main_win_item,
-            sort_item=self.sort_item
+            main_win_item=self.main_win_item
         )
         self.finder_task = DirScaner(dir_item)
         self.finder_task.sigs.finished_.connect(self.dir_scaner_end)
@@ -195,7 +194,7 @@ class GridStandart(Grid):
                 return
             data_item = self.data_items[self._thumb_index]
             thumb = Thumb(data_item)
-            thumb.update_all(self.sort_item)
+            thumb.update_all(self.main_win_item.sort_item)
             thumb.set_no_frame()
             thumb.set_icon()
             self.add_widget_data(thumb, self.row, self.col)

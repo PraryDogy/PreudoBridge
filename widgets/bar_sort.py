@@ -53,12 +53,12 @@ class SortFrame(UFrame):
     asc_text = "по убыв."
     desc_text = "по возр."
 
-    def __init__(self, sort_item: SortItem):
+    def __init__(self, main_win_item: MainWinItem):
         """
         Виджет с раскрывающимся меню, которое предлагает сортировку сетки
         """
         super().__init__()
-        self.sort_item = sort_item
+        self.sort_item = main_win_item.sort_item
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(2, 0, 2, 0)
@@ -168,7 +168,7 @@ class BarSort(QWidget):
     go_to_win_open = pyqtSignal()
     height_ = 25
 
-    def __init__(self, sort_item: SortItem, main_win_item: MainWinItem):
+    def __init__(self, main_win_item: MainWinItem):
         """
         Состав:
 
@@ -179,7 +179,6 @@ class BarSort(QWidget):
 
         super().__init__()
         self.setFixedHeight(BarSort.height_)
-        self.sort_item = sort_item
         self.main_win_item = main_win_item
 
         self.init_ui()
@@ -210,7 +209,7 @@ class BarSort(QWidget):
 
     def create_sort_button(self):
         """Создает кнопку сортировки"""
-        self.sort_frame = SortFrame(self.sort_item)
+        self.sort_frame = SortFrame(self.main_win_item)
         self.sort_frame.sort_thumbs.connect(self.sort_thumbs.emit)
         self.sort_frame.rearrange_thumbs.connect(self.rearrange_thumbs.emit)
         self.main_lay.addWidget(self.sort_frame)

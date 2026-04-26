@@ -118,15 +118,15 @@ class DataItem:
             return data_items
         
 
+@dataclass
 class MainWinItem:
-    def __init__(self):
-        self.urls_to_select: list[str] = []
-        self.go_to_widget: str = ""
-        self.abs_current_dir: str = None
-        self.view_mode: int = 0
-        self.fs_id: str = None
-        self.rel_parent: str = None
-        self.sort_item: SortItem
+    urls_to_select: list[str]
+    go_to_widget: str
+    abs_current_dir: str
+    view_mode: int
+    fs_id: str
+    rel_parent: str
+    sort_item: SortItem
     
     def set_current_dir(self, path: str):
         if not os.path.exists(path):
@@ -176,7 +176,6 @@ class ClipboardItemGlob:
 class DirItem:
     data_items: list[DataItem]
     main_win_item: MainWinItem
-    sort_item: SortItem
 
 
 @dataclass(slots=True)

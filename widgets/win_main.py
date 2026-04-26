@@ -120,13 +120,21 @@ class WinMain(WinBase):
             new_items=list()
 
         )
-        self.sort_item = SortItem(
+        sort_item = SortItem(
             item_type=SortItem.added,
             reversed=True
         )
         self.img_view_win = None
 
-        self.main_win_item = MainWinItem()
+        self.main_win_item = MainWinItem(
+            urls_to_select=[],
+            go_to_widget="",
+            abs_current_dir=dir,
+            view_mode=0,
+            fs_id="",
+            rel_parent="",
+            sort_item=sort_item
+        )
         self.main_win_item.set_current_dir(dir)
 
         if WinMain.first_load:
@@ -199,7 +207,7 @@ class WinMain(WinBase):
         self.right_side_layout.insertWidget(5, self.bar_path)
         self.right_side_layout.insertWidget(6, USep())
 
-        self.bar_sort = BarSort(self.sort_item, self.main_win_item)
+        self.bar_sort = BarSort(self.main_win_item)
         self.bar_sort.sort_menu_update()
         self.right_side_layout.insertWidget(7, self.bar_sort)
 
@@ -414,7 +422,6 @@ class WinMain(WinBase):
         self.grid.deleteLater()
         self.grid = GridSearch(
             main_win_item=self.main_win_item,
-            sort_item=self.sort_item,
             search_item=self.search_item,
             parent=self,
             is_grid_search=True,
@@ -507,7 +514,6 @@ class WinMain(WinBase):
                 self.grid.load_finished.connect(self.grid.setFocus)
                 self.grid.grid_wid.hide()
                 classes = (TableView, Grid)
-                self.grid.sort_item = self.sort_item
                 self.disable_wids(False)
                 self.grid.dir_scaner_start()
 
@@ -515,7 +521,6 @@ class WinMain(WinBase):
                 self.grid = TableView(self.main_win_item)
                 self.grid.load_finished.connect(self.grid.show)
                 self.grid.load_finished.connect(self.grid.setFocus)
-                self.grid.sort_item = self.sort_item
                 classes = (Grid, TableView)
                 self.disable_wids(True)
 
