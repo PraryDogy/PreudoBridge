@@ -459,7 +459,6 @@ class WinMain(WinBase):
         Utils.write_to_clipboard("\n".join(urls))
 
     def reveal_urls(self, urls: list[str]):
-        print(urls)
         UThreadPool.start(RevealFiles(urls))
 
     def copy_names(self, urls: list[str]):
