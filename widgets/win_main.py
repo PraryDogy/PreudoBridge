@@ -127,12 +127,12 @@ class WinMain(WinBase):
         self.img_view_win = None
 
         self.main_win_item = MainWinItem(
-            urls_to_select=[],
-            go_to_widget="",
+            urls_to_select=list(),
+            go_to_widget=str(),
             abs_current_dir=dir,
             view_mode=0,
-            fs_id="",
-            rel_parent="",
+            fs_id=str(),
+            rel_parent=str(),
             sort_item=sort_item
         )
         self.main_win_item.set_current_dir(dir)
