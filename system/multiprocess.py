@@ -225,8 +225,6 @@ class WatchdogTask:
     def start(path: str, recursive: bool, queue: Queue):
         if not path or not os.path.exists(path):
             return
-        
-        print(recursive)
 
         observer = Observer()
         handler = _DirChangedHandler(lambda e: queue.put(e))
