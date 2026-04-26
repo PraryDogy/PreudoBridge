@@ -431,7 +431,6 @@ class TableView(QTableView):
         selected_path = self._model.filePath(index)
         item = ContextItem(
             main_win_item=self.main_win_item,
-            sort_item=self.sort_item,
             urls=[],
             data_items=[]
         )

@@ -342,12 +342,12 @@ class Grid(UScrollArea):
     
     def sort_thumbs(self):
         data_items = [i.data_item for i in self.url_to_wid.values()]
-        sorted_data_items = DataItem.sort_(data_items, self.sort_item)
+        sorted_data_items = DataItem.sort_(data_items, self.main_win_item.sort_item)
         new_url_to_wid = {}
         for i in sorted_data_items:
             wid = self.url_to_wid.get(i.abs_path)
             new_url_to_wid[i.abs_path] = wid
-            wid.update_all(self.sort_item)
+            wid.update_all(self.main_win_item.sort_item)
         self.url_to_wid = new_url_to_wid
                 
     def filter_thumbs(self):

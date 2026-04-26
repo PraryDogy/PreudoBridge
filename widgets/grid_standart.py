@@ -332,7 +332,6 @@ class GridStandart(Grid):
             urls.append(item.abs_path)
         item = ContextItem(
             main_win_item=self.main_win_item,
-            sort_item=self.sort_item,
             urls=urls,
             data_items=data_items
         )

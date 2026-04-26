@@ -5,7 +5,7 @@ from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import Dynamic, Static
-from system.items import MainWinItem, SortItem, TotalCountItem
+from system.items import MainWinItem, SortItem, TotalCountItem, ContextItem
 
 from ._base_widgets import UFrame, USlider, USvgSqareWidget
 from .actions import SortMenu
@@ -58,7 +58,7 @@ class SortFrame(UFrame):
         Виджет с раскрывающимся меню, которое предлагает сортировку сетки
         """
         super().__init__()
-        self.sort_item = main_win_item.sort_item
+        self.main_win_item = main_win_item
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(2, 0, 2, 0)
@@ -76,11 +76,11 @@ class SortFrame(UFrame):
         Сортировка: имя (по возраст.)
         """
         # получаем текстовое имя сортировки на основе внутреннего имени сортировки
-        sort_ = SortItem.attr_lang.get(self.sort_item.item_type)
+        sort_ = SortItem.attr_lang.get(self.main_win_item.sort_item.item_type)
         sort_ = sort_.lower()
 
         # получаем текстовое имя обратной или прямой сортировки
-        rev = SortFrame.asc_text if self.sort_item.reversed else SortFrame.desc_text
+        rev = SortFrame.asc_text if self.main_win_item.sort_item.reversed else SortFrame.desc_text
 
         text_ = f"{SortFrame.sort_text}: {sort_} ({rev})"
         self.sort_wid.setText(text_)
@@ -99,7 +99,12 @@ class SortFrame(UFrame):
         - Сортировка сетки
         - Перетасовка сетки
         """
-        menu_ = SortMenu(self, self.sort_item)
+        item = ContextItem(
+            main_win_item=self.main_win_item,
+            urls=[],
+            data_items=[]
+        )
+        menu_ = SortMenu(self, item)
         menu_.sort_grid_sig.connect(self.sort_thumbs.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
         menu_.sort_menu_update.connect(lambda: self.set_sort_text())

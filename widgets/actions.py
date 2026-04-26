@@ -170,7 +170,7 @@ class SortMenu(UMenu):
             # если свойство rev совпадает с пользовательским свойством reversed
             # то отмечаем галочкой
             # JsonData - пользовательские данные из .json файла
-            if i.rev == context_item.sort_item.reversed:
+            if i.rev == context_item.main_win_item.sort_item.reversed:
                 i.setChecked(True)
 
         self.addSeparator()
@@ -179,7 +179,7 @@ class SortMenu(UMenu):
         # text_name - текстовое обозначение колонки CACHE, основанное на
         # комментарии колонки (CACHE.column.comment)
         # смотри database.py > CACHE
-        for true_name, text_name in context_item.sort_item.attr_lang.items():
+        for true_name, text_name in context_item.main_win_item.sort_item.attr_lang.items():
 
             action_ = QAction(text_name, self)
             action_.setCheckable(True)
@@ -189,17 +189,17 @@ class SortMenu(UMenu):
             cmd_ = lambda e, true_name=true_name: self.cmd_sort(true_name)
             action_.triggered.connect(cmd_)
 
-            if context_item.sort_item.item_type == true_name:
+            if context_item.main_win_item.sort_item.item_type == true_name:
                 action_.setChecked(True)
 
             self.addAction(action_)
 
     def cmd_sort(self, true_name: str):
-        self.context_item.sort_item.item_type = true_name
+        self.context_item.main_win_item.sort_item.item_type = true_name
         self.triggered.emit()
 
     def cmd_revers(self, reversed: bool):
-        self.context_item.sort_item.reversed = reversed
+        self.context_item.main_win_item.sort_item.reversed = reversed
         self.triggered.emit()
 
 
