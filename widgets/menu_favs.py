@@ -22,6 +22,9 @@ class FavItem(QLabel):
     load_st_grid = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
     reveal = pyqtSignal(list)
+    copy_urls = pyqtSignal(list)
+    copy_names = pyqtSignal(list)
+
     rename_text = "Переименовать"
     item_height = 25
 
@@ -81,29 +84,23 @@ class FavItem(QLabel):
             common_actions.reveal,
             cmd=lambda: self.reveal.emit(urls)
         )
-
-        menu.show_under_cursor()
-        return
-
-        copy_path_action = ItemActions.CopyPath(menu_, urls)
-        menu_.addAction(copy_path_action)
-
-        copy_name = ItemActions.CopyName(menu_, names)
-        menu_.addAction(copy_name)
-
-        if not self.fixed:
-            menu_.addSeparator()
-
-            rename_action = QAction(FavItem.rename_text, menu_)
-            rename_action.triggered.connect(self.rename_cmd)
-            menu_.addAction(rename_action)
-
-            cmd_ = lambda: self.remove_fav_item.emit()
-            fav_action = ItemActions.FavRemove(menu_)
-            fav_action.triggered.connect(cmd_)
-            menu_.addAction(fav_action)
-
-        menu_.show_under_cursor()
+        menu.add_action(
+            common_actions.copy_path,
+            cmd=lambda: self.copy_urls.emit(urls)
+        )
+        menu.add_action(
+            common_actions.copy_name,
+            cmd=lambda: self.copy_names.emit(urls)
+        )
+        menu.addSeparator()
+        menu.add_action(
+            action=thumb_actions.rename,
+            cmd=lambda: print("rename fav")
+        )
+        menu.add_action(
+            action=fav_action.fav_remove,
+            cmd=lambda: self.remove_fav_item.emit()
+        )
 
 
 class UListSpacerItem(QListWidgetItem):
@@ -114,12 +111,16 @@ class UListSpacerItem(QListWidgetItem):
 
 
 class MenuFavs(QListWidget):
-    LIST_ITEM = "list_item"
-    FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
     new_main_win = pyqtSignal(str)
     reveal = pyqtSignal(list)
+    copy_urls = pyqtSignal(list)
+    copy_names = pyqtSignal(list)
+
+    LIST_ITEM = "list_item"
+    FAV_ITEM = "fav_item"
+
     svg_size = 16
     folder_icon: QIcon
     folder_pin_icon: QIcon
@@ -205,6 +206,8 @@ class MenuFavs(QListWidget):
         fav_item.open_in_new_win.connect(lambda dir: self.new_main_win.emit(dir))
         fav_item.renamed.connect(lambda name: self.update_name(src, name))
         fav_item.reveal.connect(self.reveal.emit)
+        fav_item.copy_urls.connect(self.copy_urls.emit)
+        fav_item.copy_names.connect(self.copy_names.emit)
 
         list_item = QListWidgetItem(parent=self)
         if fixed_item:
