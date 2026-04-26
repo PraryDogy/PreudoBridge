@@ -196,7 +196,7 @@ class MenuFavs(QListWidget):
             self.setCurrentItem(self.url_to_item[src])
 
     def add_fav(self, src: str):
-        if src not in JsonData.favs and src not in self.fixed_items:
+        if src not in JsonData.favs:
             cmd_ = lambda name: self.on_finished_rename(src, name)
             name = os.path.basename(src)
             self.win_set_name = WinRename(name)
