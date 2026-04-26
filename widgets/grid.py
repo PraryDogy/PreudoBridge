@@ -758,10 +758,6 @@ class Grid(UScrollArea):
                 ClipboardItemGlob.set_is_cut(False)
                 self.setup_urls_to_copy()
 
-            elif a0.key() == Qt.Key.Key_V:
-                if ClipboardItemGlob.src_urls and not self.is_grid_search:
-                    self.paste_files.emit()
-
             elif a0.key() == Qt.Key.Key_Up:
                 self.level_up.emit()
 

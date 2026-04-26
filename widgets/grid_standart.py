@@ -1,10 +1,10 @@
 import os
 from time import perf_counter
 
-from PyQt5.QtCore import QRect, QSize, QTimer
+from PyQt5.QtCore import QRect, QSize, Qt, QTimer
 from watchdog.events import FileSystemEvent
 
-from cfg import Dynamic, JsonData, Static
+from cfg import Dynamic, Static
 from system.items import (ClipboardItemGlob, ContextItem, DataItem, DirItem,
                           MainWinItem, TotalCountItem)
 from system.multiprocess import (ImgLoader, ImgLoaderHelper, ProcessWorker,
@@ -13,7 +13,7 @@ from system.tasks import DirScaner, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu
-from .actions import GridActions, ThumbActions
+from .actions import GridActions
 from .grid import Grid, NoItemsLabel, Thumb
 
 
@@ -341,3 +341,9 @@ class GridStandart(Grid):
         else:
             self.grid_actions(menu, item)
         menu.show_under_cursor()
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_V:
+            if ClipboardItemGlob.src_urls:
+                self.paste_files.emit()
+        return super().keyPressEvent(a0)
