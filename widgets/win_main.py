@@ -197,7 +197,7 @@ class WinMain(WinBase):
         self.right_side_layout.insertWidget(0, self.bar_top)
         self.right_side_layout.insertWidget(1, USep())
 
-        self.grid = Grid(self.main_win_item, False)
+        self.grid = Grid(self.main_win_item)
         Utils.fill_missing_methods(GridSearch, Grid)
         self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
         self.right_side_layout.insertWidget(4, USep())
@@ -508,7 +508,7 @@ class WinMain(WinBase):
             self.grid.deleteLater()
 
             if self.main_win_item.view_mode == 0:
-                self.grid = GridStandart(self.main_win_item, False)
+                self.grid = GridStandart(self.main_win_item)
                 self.grid.load_finished.connect(self.grid.grid_wid.show)
                 self.grid.load_finished.connect(self.grid.setFocus)
                 self.grid.grid_wid.hide()

@@ -92,6 +92,11 @@ class SortFrame(UFrame):
             text_ = f"{self.total_text}: {str(item.total)}"
         QTimer.singleShot(10, lambda: self.total_text_label.setText(text_))
 
+    def sort_menu_triggered(self):
+        self.sort_thumbs.emit(),
+        self.rearrange_thumbs.emit(),
+        self.set_sort_text()
+
     def mouseReleaseEvent(self, a0: QMouseEvent):
         """
         При клике на выбранный пункт меню произойдет:
@@ -105,9 +110,7 @@ class SortFrame(UFrame):
             data_items=[]
         )
         menu_ = SortMenu(self, item)
-        menu_.sort_grid_sig.connect(self.sort_thumbs.emit)
-        menu_.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
-        menu_.sort_menu_update.connect(lambda: self.set_sort_text())
+        menu_.triggered.connect(self.sort_menu_triggered)
 
         widget_rect = self.rect()
         menu_size = menu_.sizeHint()
