@@ -35,17 +35,6 @@ class FavItem(QLabel):
         self.setFixedHeight(FavItem.item_height)
         self.setContentsMargins(10, 0, 10, 0)
 
-    def rename_cmd(self):
-        self.win_rename = WinRename(self.name)
-        self.win_rename.finished_.connect(self.rename_finished_cmd)
-        self.win_rename.center(self.window())
-        self.win_rename.show()
-
-    def rename_finished_cmd(self, text: str):
-        self.setText(text)
-        self.renamed.emit(text)
-        JsonData.write_json_data()
-
     def view_fav(self):
         self.new_history_item.emit(self.src)
         self.load_st_grid.emit(self.src)
