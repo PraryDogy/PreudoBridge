@@ -102,6 +102,8 @@ class FavItem(QLabel):
             cmd=lambda: self.remove_fav_item.emit()
         )
 
+        menu.show_under_cursor()
+
 
 class UListSpacerItem(QListWidgetItem):
     def __init__(self, parent: QListWidget, height: int = 10):

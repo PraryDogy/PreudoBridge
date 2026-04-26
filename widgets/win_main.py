@@ -251,7 +251,7 @@ class WinMain(WinBase):
         self.menu_favs.new_main_win.connect(self.new_main_win_open)
         self.menu_favs.reveal.connect(self.reveal_urls)
         self.menu_favs.copy_urls.connect(self.copy_urls)
-        self.copy_names()
+        self.menu_favs.copy_names.connect(self.copy_names)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
