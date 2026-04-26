@@ -202,6 +202,7 @@ class GridSearch(Grid):
         self.watchdog_task.start()
 
     def watchdog_apply(self, e: FileSystemEvent):
+        print(e.event_type, e.src_path)
         wid: Thumb = self.url_to_wid.get(e.src_path, None)
         if e.event_type == "deleted":
             self.del_thumb(e.src_path)
