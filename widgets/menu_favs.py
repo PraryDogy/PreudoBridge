@@ -213,15 +213,10 @@ class MenuFavs(QListWidget):
         if index < 5:
             e.ignore()
         else:
-            e.acceptProposedAction()
             super().dragMoveEvent(e)
 
     def dragEnterEvent(self, e):
         e.acceptProposedAction()
-        return
-        item: FavItemBase = self.currentItem()
-        if isinstance(item, FavItemNew):
-            e.acceptProposedAction()
     
     def dropEvent(self, a0: QDropEvent | None) -> None:        
         urls = a0.mimeData().urls()
