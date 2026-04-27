@@ -457,7 +457,8 @@ class Grid(UScrollArea):
     def fav_cmd(self, offset: int, src: str):
         fav_item = NamePathItem(
             filename=os.path.basename(src),
-            filepath=src
+            filepath=src,
+            urls=[]
         )
         if offset == 1:
             self.add_fav.emit(fav_item)

@@ -507,7 +507,7 @@ class WinMain(WinBase):
                 os.path.dirname(item.filepath),
                 text
             )
-            os.rename(item.text, new_url)
+            os.rename(item.filepath, new_url)
 
         self.rename_win = WinRename(item.filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
