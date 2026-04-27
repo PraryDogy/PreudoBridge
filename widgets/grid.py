@@ -528,10 +528,9 @@ class Grid(UScrollArea):
     def rename_file_cmd(self, filepath: str):
         item = RenameItem(
             filepath=filepath,
-            callback=lambda x: print(x)
+            callback=None
         )
         self.rename_file.emit(item)
-
 
     def folder_actions(self, menu_: UMenu, item: ContextItem):
         actions = ThumbActions(menu_, item)
