@@ -255,6 +255,7 @@ class WinMain(WinBase):
         self.menu_favs.copy_names.connect(self.copy_names)
         self.menu_favs.rename_fav.connect(self.rename_fav)
         self.menu_favs.remove_fav.connect(self.remove_fav)
+        self.menu_favs.add_fav.connect(self.add_fav)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
@@ -485,13 +486,14 @@ class WinMain(WinBase):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
-    def add_fav(self, path: str):
+    def add_fav(self, fav_item: FavItem):
         
         def finished(text: str):
-            self.menu_favs.add_fav_cmd(path, text)
+            fav_item.text = text
+            self.menu_favs.add_fav_cmd(fav_item)
 
-        if path not in JsonData.favs:
-            self.rename_win = WinRename(os.path.basename(path))
+        if fav_item.path not in JsonData.favs:
+            self.rename_win = WinRename(fav_item.text)
             self.rename_win.finished_.connect(lambda text: finished(text))
             self.rename_win.center(self.window())
             self.rename_win.show()

@@ -5,8 +5,7 @@ from PyQt5.QtGui import QDropEvent, QIcon
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
-from system.items import (ContextItem, FavItem, MainWinItem, RemoveItem,
-                          RenameItem)
+from system.items import ContextItem, FavItem, MainWinItem, RenameItem
 
 from ._base_widgets import UMenu
 from .actions import CommonActions, FavActions, ThumbActions
@@ -53,6 +52,7 @@ class MenuFavs(QListWidget):
     copy_names = pyqtSignal(list)
     rename_fav = pyqtSignal(FavItem)
     remove_fav = pyqtSignal(FavItem)
+    add_fav = pyqtSignal(FavItem)
     folder_icon: QIcon
     folder_pin_icon: QIcon
 
@@ -113,13 +113,13 @@ class MenuFavs(QListWidget):
         if src in self.url_to_item:
             self.setCurrentItem(self.url_to_item[src])
     
-    def add_fav_cmd(self, path: str, text: str):
-        JsonData.favs[path] = text
+    def add_fav_cmd(self, fav_item: FavItem):
+        JsonData.favs[fav_item.path] = fav_item.text
         JsonData.write_json_data()
-        list_item = ListItem(text, path, self.main_win_item, self)
+        list_item = ListItem(fav_item.text, fav_item.path, self.main_win_item, self)
         list_item.setIcon(self.folder_icon)
         self.addItem(list_item)
-        self.url_to_item[path] = list_item
+        self.url_to_item[fav_item.path] = list_item
 
     def rename_fav_finalize(self, fav_item: FavItem):
         item = self.url_to_item[fav_item.path]
@@ -221,9 +221,9 @@ class MenuFavs(QListWidget):
             super().dropEvent(a0)
             new_order = {}
             for i in range(self.count()):
-                fav_item = self.item(i)
-                if isinstance(fav_item, ListItem):
-                    new_order[fav_item.src] = fav_item.name
+                list_item = self.item(i)
+                if isinstance(list_item, ListItem):
+                    new_order[list_item.src] = list_item.name
                 else:
                     continue
             if new_order:
@@ -232,10 +232,9 @@ class MenuFavs(QListWidget):
         else:
             url_ = urls[-1].toLocalFile()
             url_ = url_.rstrip(os.sep)
-            if os.path.isdir(url_) and url_ not in JsonData.favs:
-                print(123)
-                item = RenameItem(
+            if os.path.isdir(url_):
+                fav_item = FavItem(
                     text=os.path.basename(url_),
-                    callback=lambda text: self.add_fav_cmd(url_, text)
+                    path=url_
                 )
-                self.rename_fav.emit(item)
+                self.add_fav.emit(fav_item)
