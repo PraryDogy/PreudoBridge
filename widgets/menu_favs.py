@@ -193,52 +193,16 @@ class MenuFavs(QListWidget):
         self.clearSelection()
         if src in self.url_to_item:
             self.setCurrentItem(self.url_to_item[src])
+    
+    def remove_fav_cmd(self):
+        pass
 
-    def add_fav(self, src: str):
-        if src not in JsonData.favs:
-            cmd_ = lambda name: self.on_finished_rename(src, name)
-            name = os.path.basename(src)
-            self.win_set_name = WinRename(name)
-            self.win_set_name.finished_.connect(cmd_)
-            self.win_set_name.center(self.window())
-            self.win_set_name.show()
-
-    def on_finished_rename(self, src: str, name: str):
-        JsonData.favs[src] = name
-        self.add_fav_item(name, src, False)
-        JsonData.write_json_data()
-
-    def add_fav_item(self, name: str, src: str, fixed_item: bool) -> dict:
-        fav_item = FavItem(name, src, self.main_win_item, fixed_item)
-        fav_item.new_history_item.connect(self.new_history_item)
-        fav_item.load_st_grid.connect(lambda path: self.load_st_grid.emit(path))
-        fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
-        fav_item.open_in_new_win.connect(lambda dir: self.new_main_win.emit(dir))
-        fav_item.renamed.connect(lambda name: self.update_name(src, name))
-        fav_item.reveal.connect(self.reveal.emit)
-        fav_item.copy_urls.connect(self.copy_urls.emit)
-        fav_item.copy_names.connect(self.copy_names.emit)
-
-        list_item = QListWidgetItem(parent=self)
-        if fixed_item:
-            list_item.setIcon(self.folder_pin_icon)
-        else:
-            list_item.setIcon(self.folder_icon)
-        list_item.setSizeHint(fav_item.sizeHint())
+    def add_fav_cmd(self, fav_item: FavItemBase):
+        return
+        list_item = FavItemNew(name, src, self.main_win_item, self)
+        list_item.setIcon(self.folder_icon)
         self.addItem(list_item)
-        self.setItemWidget(list_item, fav_item)
-        self.items[src] = list_item
-
-        return {self.LIST_ITEM: list_item, self.FAV_ITEM: fav_item}
-
-    def update_name(self, src: str, new_name: str):
-        if src in JsonData.favs:
-            JsonData.favs[src] = new_name
-
-    def del_fav(self, src: str):
-        JsonData.favs.pop(src)
-        JsonData.write_json_data()
-        self.init_ui()
+        self.url_to_item[src] = list_item
 
     def rename_fav_cmd(self, fav_item: FavItemBase):
 

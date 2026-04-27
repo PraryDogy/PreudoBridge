@@ -242,8 +242,8 @@ class WinMain(WinBase):
         )
 
         self.menu_tree.load_st_grid_sig.connect(self.load_st_grid)
-        self.menu_tree.add_fav.connect(self.menu_favs.add_fav)
-        self.menu_tree.del_fav.connect(self.menu_favs.del_fav)
+        self.menu_tree.add_fav.connect(self.menu_favs.add_fav_cmd)
+        self.menu_tree.del_fav.connect(self.menu_favs.remove_fav_cmd)
         self.menu_tree.new_history_item.connect(self.bar_top.new_history_item)
         self.menu_tree.new_main_win.connect(self.new_main_win_open)
 
@@ -276,8 +276,8 @@ class WinMain(WinBase):
         self.bar_path.new_history_item.connect(self.bar_top.new_history_item)
         self.bar_path.load_st_grid.connect(self.load_st_grid)
         self.bar_path.info_win_open.connect(self.info_win_open)
-        self.bar_path.add_fav.connect(self.menu_favs.add_fav)
-        self.bar_path.del_fav.connect(self.menu_favs.del_fav)
+        self.bar_path.add_fav.connect(self.menu_favs.add_fav_cmd)
+        self.bar_path.del_fav.connect(self.menu_favs.remove_fav_cmd)
 
         self.bar_sort.go_to_win_open.connect(
             self.go_to_toggle
@@ -394,8 +394,8 @@ class WinMain(WinBase):
         self.grid.menu_sort_update.connect(self.bar_sort.sort_menu_update)
         self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
         self.grid.bar_path_update.connect(self.bar_path.update)
-        self.grid.add_fav.connect(self.menu_favs.add_fav)
-        self.grid.del_fav.connect(self.menu_favs.del_fav)
+        self.grid.add_fav.connect(self.menu_favs.add_fav_cmd)
+        self.grid.del_fav.connect(self.menu_favs.remove_fav_cmd)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
         self.grid.new_main_win_open.connect(self.new_main_win_open)
