@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt, pyqtSignal, QTimer
+from PyQt5.QtCore import QDir, QFileInfo, Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 
 from cfg import JsonData
@@ -15,6 +15,7 @@ class MenuTree(QTreeView):
     new_main_win = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     add_fav = pyqtSignal(str)
+    macintosh = [i for i in os.scandir("/Volumes")][0].path
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -50,6 +51,9 @@ class MenuTree(QTreeView):
         return super().mouseReleaseEvent(event)
 
     def expand_path(self, root: str):
+        if root.startswith(os.path.expanduser("~")):
+            root = os.path.join(self.macintosh, root.lstrip(os.sep))
+
         index = self.c_model.index(root)
         self.setCurrentIndex(index)
         self.expand(index)
