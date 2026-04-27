@@ -4,7 +4,7 @@ from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 
 from cfg import JsonData
-from system.items import ContextItem, MainWinItem, NamePathItem
+from system.items import MainWinItem, NamePathItem
 
 from ._base_widgets import UMenu
 from .actions import CommonActions, ThumbActions

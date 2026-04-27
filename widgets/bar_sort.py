@@ -5,7 +5,7 @@ from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import Dynamic, Static
-from system.items import MainWinItem, SortItem, TotalCountItem, ContextItem
+from system.items import MainWinItem, SortItem, TotalCountItem
 
 from ._base_widgets import UFrame, USlider, USvgSqareWidget
 from .actions import SortMenu
@@ -104,12 +104,7 @@ class SortFrame(UFrame):
         - Сортировка сетки
         - Перетасовка сетки
         """
-        item = ContextItem(
-            main_win_item=self.main_win_item,
-            urls=[],
-            data_items=[]
-        )
-        menu_ = SortMenu(self, item)
+        menu_ = SortMenu(self, self.main_win_item)
         menu_.triggered.connect(self.sort_menu_triggered)
 
         widget_rect = self.rect()

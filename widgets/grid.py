@@ -9,9 +9,8 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import (ClipboardItemGlob, ContextItem, DataItem,
-                          ImgViewItem, MainWinItem, NamePathItem, SortItem,
-                          TotalCountItem)
+from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
+                          MainWinItem, NamePathItem, SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
@@ -530,8 +529,8 @@ class Grid(UScrollArea):
         )
         self.rename_file.emit(item)
 
-    def folder_actions(self, menu_: UMenu, item: ContextItem):
-        actions = ThumbActions(menu_, item)
+    def folder_actions(self, menu_: UMenu):
+        actions = ThumbActions(menu_)
         wid = self.wid_under_mouse
         root = wid.data_item.abs_path
 
@@ -550,7 +549,7 @@ class Grid(UScrollArea):
                 cmd=lambda: self.fav_cmd(1, root)
             )
 
-    def base_thumb_actions(self, menu: UMenu, item: ContextItem):
+    def base_thumb_actions(self, menu: UMenu):
         actions = ThumbActions(menu)
         common_actions = CommonActions(menu)
         wid = self.wid_under_mouse
@@ -560,7 +559,7 @@ class Grid(UScrollArea):
             cmd=lambda: self.open_thumb()
         )
         if wid.data_item.type_ == Static.folder_type:
-            self.folder_actions(menu, item)
+            self.folder_actions(menu)
         else:
             menu.add_menu(
                 menu=actions.open_in_app_menu,
@@ -607,8 +606,8 @@ class Grid(UScrollArea):
             cmd=lambda: self.remove_files_cmd(item.urls)
         )
 
-    def base_grid_actions(self, menu: UMenu, item: ContextItem):
-        actions = GridActions(menu, item)
+    def base_grid_actions(self, menu: UMenu):
+        actions = GridActions(menu, self.main_win_item)
         common_actions = CommonActions(menu)
         menu.add_action(
             action=common_actions.win_info,

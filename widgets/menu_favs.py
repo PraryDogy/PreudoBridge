@@ -5,7 +5,7 @@ from PyQt5.QtGui import QDropEvent, QIcon
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
-from system.items import ContextItem, MainWinItem, NamePathItem
+from system.items import MainWinItem, NamePathItem
 
 from ._base_widgets import UMenu
 from .actions import CommonActions, FavActions, ThumbActions

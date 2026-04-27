@@ -5,8 +5,7 @@ from PyQt5.QtGui import QContextMenuEvent, QImage, QPixmap
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import JsonData, Static
-from system.items import (ContextItem, DataItem, ImgViewItem, MainWinItem,
-                          NamePathItem)
+from system.items import DataItem, ImgViewItem, MainWinItem, NamePathItem
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
@@ -255,10 +254,6 @@ class BarPath(QWidget):
 
         urls = [self.main_win_item.abs_current_dir, ]
         menu = UMenu(parent=self)
-        context_item = ContextItem(
-            urls=urls,
-            data_items=[]
-        )
         common_actions = CommonActions(menu)
         actions = ThumbActions(menu)
         if os.path.isdir(wid.item_dir):

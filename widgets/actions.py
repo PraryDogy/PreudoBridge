@@ -4,7 +4,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
 from cfg import Dynamic, Static
-from system.items import ContextItem
+from system.items import MainWinItem
 from system.utils import Utils
 
 from ._base_widgets import UMenu
@@ -148,9 +148,9 @@ class SortMenu(UMenu):
     text_ascending = "По возрастанию"
     text_discenging = "По убыванию"
 
-    def __init__(self, parent: UMenu, context_item: ContextItem):
+    def __init__(self, parent: UMenu, main_win_item: MainWinItem):
         super().__init__(self.text_menu, parent)
-        self.context_item = context_item
+        self.sort_item = main_win_item.sort_item
         ascending = QAction(self.text_ascending, self)
         # добавляем свойство прямой / обратной сортировки
         # прямая сортировка А > Я
@@ -170,7 +170,7 @@ class SortMenu(UMenu):
             # если свойство rev совпадает с пользовательским свойством reversed
             # то отмечаем галочкой
             # JsonData - пользовательские данные из .json файла
-            if i.rev == context_item.main_win_item.sort_item.reversed:
+            if i.rev == self.sort_item.reversed:
                 i.setChecked(True)
 
         self.addSeparator()
@@ -179,7 +179,7 @@ class SortMenu(UMenu):
         # text_name - текстовое обозначение колонки CACHE, основанное на
         # комментарии колонки (CACHE.column.comment)
         # смотри database.py > CACHE
-        for true_name, text_name in context_item.main_win_item.sort_item.attr_lang.items():
+        for true_name, text_name in self.sort_item.attr_lang.items():
 
             action_ = QAction(text_name, self)
             action_.setCheckable(True)
@@ -189,17 +189,17 @@ class SortMenu(UMenu):
             cmd_ = lambda e, true_name=true_name: self.cmd_sort(true_name)
             action_.triggered.connect(cmd_)
 
-            if context_item.main_win_item.sort_item.item_type == true_name:
+            if self.sort_item.item_type == true_name:
                 action_.setChecked(True)
 
             self.addAction(action_)
 
     def cmd_sort(self, true_name: str):
-        self.context_item.main_win_item.sort_item.item_type = true_name
+        self.sort_item.item_type = true_name
         self.triggered.emit()
 
     def cmd_revers(self, reversed: bool):
-        self.context_item.main_win_item.sort_item.reversed = reversed
+        self.sort_item.reversed = reversed
         self.triggered.emit()
 
 
@@ -209,7 +209,7 @@ class ChangeViewMenu(UMenu):
     text_grid = "Сетка"
     text_list = "Список"
 
-    def __init__(self, parent: UMenu, item: ContextItem):
+    def __init__(self, parent: UMenu, main_win_item: MainWinItem):
         super().__init__(self.text_menu, parent)
 
         # отобразить сеткой
@@ -226,10 +226,10 @@ class ChangeViewMenu(UMenu):
 
         # grid_view_type отвечает за тип отображения
         # 0 отображать сеткой, 1 отображать списком
-        if item.main_win_item.view_mode == 0:
+        if main_win_item.view_mode == 0:
             grid_.setChecked(True)
 
-        elif item.main_win_item.view_mode == 1:
+        elif main_win_item.view_mode == 1:
             list_.setChecked(True)
 
 
@@ -320,11 +320,11 @@ class Rename(QAction):
 
 
 class GridActions:
-    def __init__(self, menu: UMenu, item: ContextItem):
+    def __init__(self, menu: UMenu, main_win_item: MainWinItem):
         self.new_folder = NewFolder(menu)
         self.update_grid = UpdateGrid(menu)
-        self.change_view = ChangeViewMenu(menu, item)
-        self.sort_menu = SortMenu(menu, item)
+        self.change_view = ChangeViewMenu(menu, main_win_item)
+        self.sort_menu = SortMenu(menu, main_win_item)
         self.paste_files = PasteFiles(menu)
 
 

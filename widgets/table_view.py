@@ -9,9 +9,8 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QLabel, QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import (ClipboardItemGlob, ContextItem, DataItem,
-                          ImgViewItem, MainWinItem, NamePathItem,
-                          TotalCountItem)
+from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
+                          MainWinItem, NamePathItem, TotalCountItem)
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
@@ -302,8 +301,8 @@ class TableView(QTableView):
         )
         self.rename_file.emit(item)
 
-    def folder_actions(self, menu_: UMenu, item: ContextItem, path: str):
-        actions = ThumbActions(menu_, item)
+    def folder_actions(self, menu_: UMenu, path: str):
+        actions = ThumbActions(menu_)
 
         menu_.add_action(
             action=actions.new_main_win,
@@ -320,7 +319,7 @@ class TableView(QTableView):
                 cmd=lambda: self.fav_cmd(1, path)
             )
 
-    def base_thumb_actions(self, menu: UMenu, item: ContextItem, path: str):
+    def base_thumb_actions(self, menu: UMenu, path: str):
         actions = ThumbActions(menu)
         common_actions = CommonActions(menu)
 
@@ -376,9 +375,9 @@ class TableView(QTableView):
             cmd=lambda: self.remove_files_cmd(item.urls)
         )
 
-    def base_grid_actions(self, menu: UMenu, item: ContextItem):
-        actions = GridActions(menu, item)
-        common_actions = CommonActions(menu, item)
+    def base_grid_actions(self, menu: UMenu):
+        actions = GridActions(menu, self.main_win_item)
+        common_actions = CommonActions(menu)
         menu.add_action(
             action=actions.new_folder,
             cmd=lambda: self.new_folder.emit()
@@ -421,11 +420,6 @@ class TableView(QTableView):
         # определяем выделена ли строка
         index = self.indexAt(event.pos())
         selected_path = self._model.filePath(index)
-        item = ContextItem(
-            main_win_item=self.main_win_item,
-            urls=[],
-            data_items=[]
-        )
         menu_ = UMenu(parent=self)
 
         if index.isValid():

@@ -258,12 +258,6 @@ class TotalCountItem:
 
 
 @dataclass(slots=True)
-class ContextItem:
-    urls: list[str]
-    data_items: list[DataItem]
-
-
-@dataclass(slots=True)
 class NamePathItem:
     filename: str
     filepath: str

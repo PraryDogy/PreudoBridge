@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QLabel, QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.items import ContextItem, DataItem, ImgViewItem
+from system.items import DataItem, ImgViewItem
 from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
 

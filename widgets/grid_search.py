@@ -6,8 +6,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from watchdog.events import FileSystemEvent
 
 from cfg import Static
-from system.items import (ContextItem, DataItem, MainWinItem, SearchItem,
-                          TotalCountItem)
+from system.items import DataItem, MainWinItem, SearchItem, TotalCountItem
 from system.multiprocess import ProcessWorker, SearchTask, WatchdogTask
 from system.utils import Utils
 
@@ -244,9 +243,9 @@ class GridSearch(Grid):
         self.search_task.pause = value
         self.pause_by_btn = value
 
-    def thumb_actions(self, menu: UMenu, item: ContextItem):
-        actions = ThumbActions(menu, item)
-        super().base_thumb_actions(menu, item)
+    def thumb_actions(self, menu: UMenu):
+        actions = ThumbActions(menu)
+        super().base_thumb_actions(menu)
         menu.addSeparator()
         menu.add_action(
             action=actions.show_in_folder,
@@ -286,11 +285,6 @@ class GridSearch(Grid):
             item.set_properties()
             data_items.append(item)
             urls.append(item.abs_path)
-        item = ContextItem(
-            main_win_item=self.main_win_item,
-            urls=urls,
-            data_items=data_items
-        )
         menu = UMenu(parent=self)
         if self.wid_under_mouse:
             self.thumb_actions(menu, item)

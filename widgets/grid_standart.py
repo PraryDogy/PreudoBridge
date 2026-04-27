@@ -5,8 +5,8 @@ from PyQt5.QtCore import QRect, QSize, Qt, QTimer
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, Static
-from system.items import (ClipboardItemGlob, ContextItem, DataItem, DirItem,
-                          MainWinItem, TotalCountItem)
+from system.items import (ClipboardItemGlob, DataItem, DirItem, MainWinItem,
+                          TotalCountItem)
 from system.multiprocess import (ImgLoader, ImgLoaderHelper, ProcessWorker,
                                  WatchdogTask)
 from system.tasks import DirScaner, UThreadPool
@@ -253,8 +253,8 @@ class GridStandart(Grid):
         super().rearrange_thumbs()
         self.load_visible_thumbs_images()
 
-    def grid_actions(self, menu: UMenu, item: ContextItem):
-        actions = GridActions(menu, item)
+    def grid_actions(self, menu: UMenu):
+        actions = GridActions(menu, self.main_win_item)
         menu.add_action(
             action=actions.new_folder,
             cmd=lambda: self.new_folder.emit()
@@ -320,16 +320,11 @@ class GridStandart(Grid):
             item.set_properties()
             data_items.append(item)
             urls.append(item.abs_path)
-        item = ContextItem(
-            main_win_item=self.main_win_item,
-            urls=urls,
-            data_items=data_items
-        )
         menu = UMenu(parent=self)
         if self.wid_under_mouse:
-            self.base_thumb_actions(menu, item)
+            self.base_thumb_actions(menu)
         else:
-            self.grid_actions(menu, item)
+            self.grid_actions(menu)
         menu.show_under_cursor()
 
     def keyPressEvent(self, a0):
