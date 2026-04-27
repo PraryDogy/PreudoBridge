@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, ContextItem, DataItem,
-                          ImgViewItem, MainWinItem, SortItem, TotalCountItem)
+                          ImgViewItem, MainWinItem, RemoveItem, RenameItem,
+                          TotalCountItem)
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
@@ -109,8 +110,8 @@ class TableView(QTableView):
     img_convert_win = pyqtSignal(list)
 
     open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(list)
-    rename = pyqtSignal(DataItem)
+    remove_files = pyqtSignal(RemoveItem)
+    rename_file = pyqtSignal(RenameItem)
     new_folder = pyqtSignal()
 
     files_icon = Utils.scaled(
@@ -308,6 +309,20 @@ class TableView(QTableView):
         tags = QItemSelectionModel.Select | QItemSelectionModel.Rows
         self.selectionModel().select(index, tags)
 
+    def remove_files_cmd(self, urls: list[str]):
+        item = RemoveItem(
+            urls=urls,
+            callback=None
+        )
+        self.remove_files.emit(item)
+
+    def rename_file_cmd(self, filepath: str):
+        item = RenameItem(
+            filepath=filepath,
+            callback=None
+        )
+        self.rename_file.emit(item)
+
     def folder_actions(self, menu_: UMenu, item: ContextItem, path: str):
         actions = ThumbActions(menu_, item)
 
@@ -352,7 +367,7 @@ class TableView(QTableView):
         )
         menu.add_action(
             action=actions.rename,
-            cmd=lambda: self.rename.emit(self.url_to_item[path])
+            cmd=lambda: self.rename_file_cmd(self.url_to_item[path])
         )
         menu.add_action(
             action=common_actions.reveal,
@@ -379,7 +394,7 @@ class TableView(QTableView):
         menu.addSeparator()
         menu.add_action(
             action=actions.remove_files,
-            cmd=lambda: self.remove_files.emit(item.urls)
+            cmd=lambda: self.remove_files_cmd(item.urls)
         )
 
     def base_grid_actions(self, menu: UMenu, item: ContextItem):
@@ -476,7 +491,7 @@ class TableView(QTableView):
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = self.get_selected_urls()
                 if urls:
-                    self.remove_files.emit(urls)
+                    self.remove_files_cmd(urls)
 
             elif a0.key() == Qt.Key.Key_X:
                 urls = self.get_selected_urls()
