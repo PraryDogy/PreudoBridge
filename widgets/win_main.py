@@ -612,7 +612,7 @@ class WinMain(WinBase):
             self.remove_task.sigs.finished_.connect(finished)
             UThreadPool.start(self.remove_task)
 
-        self.rem_win = WinRemoveFiles(self.main_win_item)
+        self.rem_win = WinRemoveFiles(item.urls[0], self.main_win_item)
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(cmd)
         self.rem_win.center(self.window())
@@ -624,7 +624,7 @@ class WinMain(WinBase):
             if item.callback:
                 item.callback()
 
-        self.rem_win = WinRemoveFiles(self.main_win_item)
+        self.rem_win = WinRemoveFiles(item.urls[0], self.main_win_item)
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())

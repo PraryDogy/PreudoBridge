@@ -12,8 +12,8 @@ class WinRemoveFiles(ConfirmWindow):
     remove_perm = "Удалить безвозвратно"
     move_to_trash = "Переместить в корзину"
 
-    def __init__(self, main_win_item: MainWinItem):
-        if main_win_item.abs_current_dir.startswith(os.path.expanduser("~")):
+    def __init__(self, path: str, main_win_item: MainWinItem):
+        if path.startswith(os.path.expanduser("~")):
             t = f"{WinRemoveFiles.move_to_trash}?"
         else:
             t = f"{WinRemoveFiles.remove_perm}?"
