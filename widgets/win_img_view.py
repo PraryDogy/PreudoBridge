@@ -9,13 +9,12 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QLabel, QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.items import ImgViewItem
+from system.items import DataItem, ImgViewItem
 from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
-from .grid import Thumb
 
 
 class ImgWid(QGraphicsView):
@@ -230,12 +229,10 @@ class WinImgView(WinBase):
 
         self.read_img_task = None
         self.is_selection = item.is_selection
-        self.url_to_wid: dict[str, Thumb] = item.url_to_wid
-        self.urls: list = [i for i in self.url_to_wid]
-        self.current_path: str = item.start_url
-
-        self.thumb: Thumb = self.url_to_wid.get(item.start_url)
-        self.thumb.text_changed.connect(self.set_title)
+        self.url_to_data_item: dict[str, DataItem] = item.url_to_data_item
+        self.urls: list = list(self.url_to_data_item.keys())
+        self.current_url: str = item.start_url
+        self.current_data_item: DataItem = self.url_to_data_item[item.start_url]
 
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
@@ -281,25 +278,25 @@ class WinImgView(WinBase):
         actions[flag]()
 
     def set_title(self):
-        text_ = os.path.basename(self.current_path)
+        text_ = os.path.basename(self.current_url)
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
         self.set_title()
         self.text_label.hide()
 
-        if self.current_path in WinImgView.cached_images:
-            pixmap = WinImgView.cached_images[self.current_path]
+        if self.current_url in WinImgView.cached_images:
+            pixmap = WinImgView.cached_images[self.current_url]
             # pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)
 
-        elif self.thumb.data_item.qimages:
-            qimage = self.thumb.data_item.qimages["src"]
+        elif self.current_data_item.qimages:
+            qimage = self.current_data_item.qimages["src"]
             pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)
             self.load_image()
         else:
-            t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
+            t = f"{os.path.basename(self.current_url)}\n{self.loading_text}"
             self.show_text_label(t)
             self.load_image()
 
@@ -336,7 +333,7 @@ class WinImgView(WinBase):
                 src, img_array = q.get()
                 if img_array is None:
                     self.show_text_label(self.error_text)
-                elif src == self.current_path:
+                elif src == self.current_url:
                     self.qimage_task = ImgArrayQImage(img_array)
                     self.qimage_task.sigs.finished_.connect(
                             lambda qimage: fin(src, qimage)
@@ -353,7 +350,7 @@ class WinImgView(WinBase):
 
         self.read_img_task = ProcessWorker(
             target=ReadImg.start,
-            args=(self.current_path, True, )
+            args=(self.current_url, True, )
         )
         self.read_img_task.start()
         QTimer.singleShot(100, poll_task)
@@ -375,19 +372,17 @@ class WinImgView(WinBase):
             i.hide()
 
     def switch_img(self, offset: int):
-        if self.current_path in self.urls:
-            current_index = self.urls.index(self.current_path)
+        if self.current_url in self.urls:
+            current_index = self.urls.index(self.current_url)
         else:
             current_index = 0
         total_images = len(self.urls)
         new_index = (current_index + offset) % total_images
-        self.current_path = self.urls[new_index]
+        self.current_url = self.urls[new_index]
         try:
-            self.thumb.text_changed.disconnect()
-            self.thumb = self.url_to_wid[self.current_path]
-            self.thumb.text_changed.connect(self.set_title)
+            self.current_data_item = self.url_to_data_item[self.current_url]
             if not self.is_selection:
-                self.move_to_wid.emit(self.thumb)
+                self.move_to_wid.emit(self.current_data_item)
             self.load_thumbnail()
         except Exception as e:
             print("widgets ImgViewWin error", e)
@@ -400,7 +395,7 @@ class WinImgView(WinBase):
         self.mouse_move_timer.start(2000)
 
     def win_info_cmd(self, src: str):
-        self.info_win.emit([self.thumb.data_item, ])
+        self.info_win.emit([self.current_data_item, ])
 
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
@@ -408,7 +403,7 @@ class WinImgView(WinBase):
     def keyPressEvent(self, ev: QKeyEvent | None) -> None:
         if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if ev.key() == Qt.Key.Key_I:
-                self.win_info_cmd(self.current_path)
+                self.win_info_cmd(self.current_url)
 
             elif ev.key() == Qt.Key.Key_0:
                 self.img_wid.zoom_fit()
@@ -493,7 +488,7 @@ class WinImgView(WinBase):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         return
-        urls = [self.current_path]
+        urls = [self.current_url]
         names = [os.path.basename(i) for i in urls]
 
         menu = UMenu(parent=self)
@@ -504,7 +499,7 @@ class WinImgView(WinBase):
         menu.addSeparator()
 
         info = ItemActions.WinInfo(menu)
-        info.triggered.connect(lambda: self.win_info_cmd(self.current_path))
+        info.triggered.connect(lambda: self.win_info_cmd(self.current_url))
         menu.addAction(info)
 
         show_in_finder_action = ItemActions.RevealInFinder(menu, urls)

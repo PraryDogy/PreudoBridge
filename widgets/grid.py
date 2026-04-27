@@ -426,9 +426,13 @@ class Grid(UScrollArea):
                     not wid.data_item.must_hidden
                 }
                 if url_to_wid:
+                    url_to_data_item = {
+                        k: v.data_item
+                        for k, v in self.url_to_wid.items()
+                    }
                     item = ImgViewItem(
                         start_url=wid.data_item.abs_path,
-                        url_to_wid=url_to_wid,
+                        url_to_data_item=url_to_data_item,
                         is_selection=False
                     )
                     self.img_view_win.emit(item)
@@ -440,16 +444,14 @@ class Grid(UScrollArea):
                 and
                 not wid.data_item.must_hidden
             ]
-            url_to_wid = {
-                wid.data_item.abs_path: wid
+            url_to_data_item = {
+                wid.data_item.abs_path: wid.data_item
                 for wid in img_widgets
             }
             if img_widgets:
-
-                wid = img_widgets[-1]
                 item = ImgViewItem(
-                    start_url=wid.data_item.abs_path,
-                    url_to_wid=url_to_wid,
+                    start_url=img_widgets[-1].data_item.abs_path,
+                    url_to_data_item=url_to_data_item,
                     is_selection=True
                 )
                 self.img_view_win.emit(item)

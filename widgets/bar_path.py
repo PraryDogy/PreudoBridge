@@ -235,7 +235,7 @@ class BarPath(QWidget):
         url_to_wid = {path: data_item, }
         item = ImgViewItem(
             start_url=path,
-            url_to_wid=url_to_wid,
+            url_to_data_item=url_to_wid,
             is_selection=True
         )
         self.img_view_win.emit(item)

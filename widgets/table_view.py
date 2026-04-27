@@ -231,7 +231,7 @@ class TableView(QTableView):
                 if url_to_wid:
                     item = ImgViewItem(
                         start_url=urls[0],
-                        url_to_wid=url_to_wid,
+                        url_to_data_item=url_to_wid,
                         is_selection=False
                     )
                     self.img_view_win.emit(item)
@@ -245,7 +245,7 @@ class TableView(QTableView):
                     url_to_wid[url] = thumb
             item = ImgViewItem(
                 start_url=list(url_to_wid)[0],
-                url_to_wid=url_to_wid,
+                url_to_data_item=url_to_wid,
                 is_selection=True
             )
             self.img_view_win.emit(item)
