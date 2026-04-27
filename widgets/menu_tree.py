@@ -15,6 +15,7 @@ class MenuTree(QTreeView):
     new_main_win = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     add_fav = pyqtSignal(str)
+    # предполагает что системный диск всегда будет первым
     macintosh = [i for i in os.scandir("/Volumes")][0].path
 
     def __init__(self, main_win_item: MainWinItem):
