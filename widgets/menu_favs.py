@@ -210,7 +210,7 @@ class MenuFavs(QListWidget):
 
     def dragMoveEvent(self, e):
         index = self.indexAt(e.pos()).row()
-        if index < 5:
+        if 0 < index < 5:
             e.ignore()
         else:
             super().dragMoveEvent(e)
@@ -236,6 +236,7 @@ class MenuFavs(QListWidget):
             url_ = urls[-1].toLocalFile()
             url_ = url_.rstrip(os.sep)
             if os.path.isdir(url_) and url_ not in JsonData.favs:
+                print(123)
                 item = RenameItem(
                     text=os.path.basename(url_),
                     callback=lambda text: self.add_fav_cmd(url_, text)
