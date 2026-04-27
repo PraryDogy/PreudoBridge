@@ -257,14 +257,14 @@ class GridSearch(Grid):
         self.resize_thumbs()
         return super().resizeEvent(a0)
     
-    def closeEvent(self, a0):
-        if self.search_task and self.search_task.is_alive():
-            self.search_task.terminate_join()
+    def closeEvent(self, a0):   
+        self.search_task.terminate_join()
+        self.watchdog_task.terminate_join()
         return super().closeEvent(a0)
 
     def deleteLater(self):
-        if self.search_task and self.search_task.is_alive():
-            self.search_task.terminate_join()
+        self.search_task.terminate_join()
+        self.watchdog_task.terminate_join()
         return super().deleteLater()
     
     def dragEnterEvent(self, a0: QDragEnterEvent):
