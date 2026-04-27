@@ -1,12 +1,12 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import QAbstractItemView, QTreeView
+from PyQt5.QtCore import QDir, Qt, pyqtSignal
+from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 
 from cfg import JsonData
 from system.items import ContextItem, MainWinItem, NamePathItem
 
-from ._base_widgets import UFileSystemModel, UMenu
+from ._base_widgets import UMenu
 from .actions import CommonActions, ThumbActions
 
 
@@ -29,7 +29,11 @@ class MenuTree(QTreeView):
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        self.c_model = UFileSystemModel()
+        self.c_model = QFileSystemModel()
+        self.c_model.setFilter(
+            QDir.Filter.AllDirs | 
+            QDir.Filter.NoDotAndDotDot
+        )
         self.c_model.setRootPath(self.volumes)
         self.setModel(self.c_model)
         self.setRootIndex(self.c_model.index(self.volumes))
@@ -112,34 +116,12 @@ class MenuTree(QTreeView):
                     action=actions.fav_add,
                     cmd=lambda: self.add_fav_cmd(src)
                 )
+        menu.add_action(
+            action=common_actions.reveal,
+            cmd=lambda: self.reveal.emit([src, ])
+        )
         # reveal
         # copy path
         # copy name
-
-        menu.show_under_cursor()
-        return
-
-        open_finder_action = ItemActions.RevealInFinder(menu, [src])
-        menu.addAction(open_finder_action)
-
-        copy_path_action = ItemActions.CopyPath(menu, [src])
-        menu.addAction(copy_path_action)
-
-        copy_name = ItemActions.CopyName(menu, [os.path.basename(src)])
-        menu.addAction(copy_name)
-
-        menu.addSeparator()
-
-        favs: dict = JsonData.favs
-        if src in favs:
-            cmd_ = lambda: self.del_fav.emit(src)
-            fav_action = ItemActions.FavRemove(menu)
-            fav_action.triggered.connect(cmd_)
-            menu.addAction(fav_action)
-        else:
-            cmd_ = lambda: self.add_fav.emit(src)
-            fav_action = ItemActions.FavAdd(menu)
-            fav_action.triggered.connect(cmd_)
-            menu.addAction(fav_action)
 
         menu.show_under_cursor()

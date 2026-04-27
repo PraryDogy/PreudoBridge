@@ -244,6 +244,7 @@ class WinMain(WinBase):
         self.menu_tree.new_main_win.connect(self.new_main_win_open)
         self.menu_tree.add_fav.connect(self.add_fav)
         self.menu_tree.remove_fav.connect(self.remove_fav)
+        self.menu_tree.reveal.connect(self.reveal_urls)
 
         self.menu_favs.load_st_grid.connect(self.load_st_grid)
         self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
