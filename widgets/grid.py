@@ -526,6 +526,7 @@ class Grid(UScrollArea):
         self.remove_files.emit(item)
 
     def rename_file_cmd(self, filepath: str):
+        # callback = lambda z, x=1, y=2: print(z, x, y)
         item = RenameItem(
             filepath=filepath,
             callback=None
