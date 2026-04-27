@@ -418,24 +418,25 @@ class Grid(UScrollArea):
                 self.new_history_item.emit(wid.data_item.abs_path)
                 self.load_st_grid.emit(wid.data_item.abs_path)
             else:
-                url_to_wid = {
+                img_widgets = {
                     url: wid
                     for url, wid in self.url_to_wid.items()
                     if url.endswith(ImgUtils.ext_all)
                     and
                     not wid.data_item.must_hidden
                 }
-                if url_to_wid:
-                    url_to_data_item = {
-                        k: v.data_item
-                        for k, v in self.url_to_wid.items()
-                    }
-                    item = ImgViewItem(
-                        start_url=wid.data_item.abs_path,
-                        url_to_data_item=url_to_data_item,
-                        is_selection=False
-                    )
-                    self.img_view_win.emit(item)
+                if not img_widgets:
+                    return
+                url_to_data_item = {
+                    k: v.data_item
+                    for k, v in img_widgets.items()
+                }
+                item = ImgViewItem(
+                    start_url=wid.data_item.abs_path,
+                    url_to_data_item=url_to_data_item,
+                    is_selection=False
+                )
+                self.img_view_win.emit(item)
         else:
             img_widgets = [
                 wid
