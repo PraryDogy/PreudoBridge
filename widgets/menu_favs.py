@@ -209,7 +209,10 @@ class MenuFavs(QListWidget):
         if isinstance(item, FavItemSpacer):
             return
         if item:
-            self.open_fav_cmd(item.src)
+            if e.modifiers() == Qt.KeyboardModifier.ControlModifier:
+                self.new_main_win.emit(item.src)
+            else:
+                self.open_fav_cmd(item.src)
         else:
             self.clearSelection()
         return super().mouseReleaseEvent(e)
