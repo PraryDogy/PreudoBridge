@@ -479,13 +479,10 @@ class WinMain(WinBase):
     def rename_fav(self, item: RenameItem):
         
         def finished(text: str):
-            root = os.path.dirname(item.text)
-            new_url = os.path.join(root, text)
             if item.callback:
-                item.callback(new_url)
+                item.callback(text)
 
-        filename = os.path.basename(item.text)
-        self.rename_win = WinRename(filename)
+        self.rename_win = WinRename(item.text)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()

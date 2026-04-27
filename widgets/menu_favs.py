@@ -207,15 +207,13 @@ class MenuFavs(QListWidget):
 
     def rename_fav_cmd(self, fav_item: FavItemBase):
 
-        def finished(new_url: str):
-            new_name = os.path.basename(new_url)
-            JsonData.favs[fav_item.src] = new_name
+        def finished(text: str):
+            JsonData.favs[fav_item.src] = text
             JsonData.write_json_data()
-            fav_item.setText(new_name)
-            fav_item.name = new_name
+            fav_item.setText(text)
+            fav_item.name = text
 
         item = RenameItem(
-            item_type="fav",
             text=fav_item.name,
             callback=lambda new_name: finished(new_name)
         )
