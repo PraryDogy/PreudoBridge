@@ -273,5 +273,6 @@ class RemoveItem:
 
 @dataclass(slots=True)
 class RenameItem:
+    item_type: Literal["filename", "fav"]
     filepath: str
     callback: callable

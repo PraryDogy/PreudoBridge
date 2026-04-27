@@ -248,11 +248,12 @@ class WinMain(WinBase):
         self.menu_tree.new_main_win.connect(self.new_main_win_open)
 
         self.menu_favs.load_st_grid.connect(self.load_st_grid)
-        self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
+        # self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
         self.menu_favs.new_main_win.connect(self.new_main_win_open)
         self.menu_favs.reveal.connect(self.reveal_urls)
         self.menu_favs.copy_urls.connect(self.copy_urls)
         self.menu_favs.copy_names.connect(self.copy_names)
+        self.menu_favs.rename_fav.connect(self.rename_file)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
@@ -479,8 +480,8 @@ class WinMain(WinBase):
         def finished(text: str):
             root = os.path.dirname(item.filepath)
             new_url = os.path.join(root, text)
-            os.rename(item.filepath, new_url)
-
+            if item.item_type == "filename":
+                os.rename(item.filepath, new_url)
             if item.callback:
                 item.callback(new_url)
 

@@ -6,7 +6,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QDropEvent, QIcon, QImage,
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
-from system.items import ContextItem, MainWinItem
+from system.items import ContextItem, MainWinItem, RemoveItem, RenameItem
 from system.utils import Utils
 
 from ._base_widgets import UMenu
@@ -124,17 +124,16 @@ class FavItemSpacer(QListWidgetItem):
 
 
 class MenuFavs(QListWidget):
-    new_history_item = pyqtSignal(str)
+    # new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
     new_main_win = pyqtSignal(str)
     reveal = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
 
-    LIST_ITEM = "list_item"
-    FAV_ITEM = "fav_item"
+    rename_fav = pyqtSignal(RenameItem)
+    remove_fav = pyqtSignal(RemoveItem)
 
-    svg_size = 16
     folder_icon: QIcon
     folder_pin_icon: QIcon
 
@@ -240,6 +239,21 @@ class MenuFavs(QListWidget):
         JsonData.favs.pop(src)
         JsonData.write_json_data()
         self.init_ui()
+
+    def rename_fav_cmd(self, fav_item: FavItemBase):
+
+        def finished(new_url: str):
+            new_name = os.path.basename(new_url)
+            JsonData.favs[fav_item.src] = new_name
+            JsonData.write_json_data()
+            fav_item.setText(new_name)
+
+        item = RenameItem(
+            item_type="fav",
+            filepath=fav_item.src,
+            callback=lambda new_name: finished(new_name)
+        )
+        self.rename_fav.emit(item)
     
     def contextMenuEvent(self, a0):
         fav_item: FavItemBase = self.itemAt(a0.pos())
@@ -283,7 +297,7 @@ class MenuFavs(QListWidget):
         menu.addSeparator()
         menu.add_action(
             action=thumb_actions.rename,
-            cmd=lambda: print("rename fav")
+            cmd=lambda: self.rename_fav_cmd(fav_item)
         )
         menu.add_action(
             action=fav_action.fav_remove,

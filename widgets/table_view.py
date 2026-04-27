@@ -318,6 +318,7 @@ class TableView(QTableView):
 
     def rename_file_cmd(self, filepath: str):
         item = RenameItem(
+            item_type="filename",
             filepath=filepath,
             callback=None
         )
