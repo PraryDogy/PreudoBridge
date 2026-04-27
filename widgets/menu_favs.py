@@ -194,9 +194,6 @@ class MenuFavs(QListWidget):
         if src in self.url_to_item:
             self.setCurrentItem(self.url_to_item[src])
     
-    def remove_fav_cmd(self):
-        pass
-
     def add_fav_cmd(self, path: str, text: str):
 
         JsonData.favs[path] = text
@@ -271,15 +268,16 @@ class MenuFavs(QListWidget):
             common_actions.copy_name,
             cmd=lambda: self.copy_names.emit(urls)
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=thumb_actions.rename,
-            cmd=lambda: self.rename_fav_cmd(fav_item)
-        )
-        menu.add_action(
-            action=fav_action.fav_remove,
-            cmd=lambda: self.remove_fav_cmd(fav_item)
-        )
+        if isinstance(fav_item, FavItemNew):
+            menu.addSeparator()
+            menu.add_action(
+                action=thumb_actions.rename,
+                cmd=lambda: self.rename_fav_cmd(fav_item)
+            )
+            menu.add_action(
+                action=fav_action.fav_remove,
+                cmd=lambda: self.remove_fav_cmd(fav_item)
+            )
         menu.show_under_cursor()
         return super().contextMenuEvent(a0)
     
