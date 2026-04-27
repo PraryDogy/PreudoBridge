@@ -5,7 +5,8 @@ from PyQt5.QtGui import QContextMenuEvent, QImage, QPixmap
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import JsonData, Static
-from system.items import ContextItem, DataItem, MainWinItem, NamePathItem
+from system.items import (ContextItem, DataItem, ImgViewItem, MainWinItem,
+                          NamePathItem)
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
@@ -138,6 +139,7 @@ class BarPath(QWidget):
     reveal = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
+    img_view_win = pyqtSignal(ImgViewItem)
 
     last_item_limit = 40
     bar_height = 25
@@ -228,7 +230,15 @@ class BarPath(QWidget):
         self.load_st_grid.emit(path)
 
     def view_image_cmd(self, path: str):
-        ...
+        data_item = DataItem(path)
+        data_item.set_properties()
+        url_to_wid = {path: data_item, }
+        item = ImgViewItem(
+            start_url=path,
+            url_to_wid=url_to_wid,
+            is_selection=True
+        )
+        self.img_view_win.emit(item)
 
     def info_win_open_cmd(self, path: str):
         item = DataItem(path)

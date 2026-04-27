@@ -282,6 +282,7 @@ class WinMain(WinBase):
         self.bar_path.reveal.connect(self.reveal_urls)
         self.bar_path.copy_names.connect(self.copy_names)
         self.bar_path.copy_urls.connect(self.copy_urls)
+        self.bar_path.img_view_win.connect(self.img_view_win_open)
 
         self.bar_sort.go_to_win_open.connect(
             self.go_to_toggle
