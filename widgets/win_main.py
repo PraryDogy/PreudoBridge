@@ -269,9 +269,7 @@ class WinMain(WinBase):
         self.bar_top.load_st_grid.connect(self.load_st_grid)
         self.bar_top.new_main_win.connect(self.new_main_win_open)
         self.bar_top.settings_win_open.connect(self.settings_win_open)
-        self.bar_top.new_folder.connect(
-            lambda: self.grid.new_folder()
-        )
+        self.bar_top.new_folder.connect(self.new_folder)
 
         self.bar_path.new_history_item.connect(self.bar_top.new_history_item)
         self.bar_path.load_st_grid.connect(self.load_st_grid)

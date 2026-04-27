@@ -346,7 +346,8 @@ class WinBase(QMainWindow):
         При этом окно блокирует взаимодействие с другими окнами приложения
         и всегда остаётся поверх них до своего закрытия.
         """
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        # self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def deleteLater(self):
         self.remove_from_list()
