@@ -17,6 +17,8 @@ class MenuTree(QTreeView):
     remove_fav = pyqtSignal(NamePathItem)
     add_fav = pyqtSignal(NamePathItem)
     reveal = pyqtSignal(list)
+    copy_urls = pyqtSignal(list)
+    copy_names = pyqtSignal(list)
 
     volumes = "/Volumes"
     # предполагает что системный диск всегда будет первым
@@ -101,26 +103,34 @@ class MenuTree(QTreeView):
             action=actions.open_thumb,
             cmd=lambda: self.one_clicked(index)
         )
-        if os.path.isdir(src):
+        menu.add_action(
+            action=actions.new_main_win,
+            cmd=lambda: self.new_main_win.emit(src)
+        )
+        if src in JsonData.favs:
             menu.add_action(
-                action=actions.new_main_win,
-                cmd=lambda: self.new_main_win.emit(src)
+                action=actions.fav_remove,
+                cmd=lambda: self.remove_fav_cmd(src)
             )
-            if src in JsonData.favs:
-                menu.add_action(
-                    action=actions.fav_remove,
-                    cmd=lambda: self.remove_fav_cmd(src)
-                )
-            else:
-                menu.add_action(
-                    action=actions.fav_add,
-                    cmd=lambda: self.add_fav_cmd(src)
-                )
+        else:
+            menu.add_action(
+                action=actions.fav_add,
+                cmd=lambda: self.add_fav_cmd(src)
+            )
+        menu.addSeparator()
         menu.add_action(
             action=common_actions.reveal,
             cmd=lambda: self.reveal.emit([src, ])
         )
-        # reveal
+        menu.addSeparator()
+        menu.add_action(
+            action=common_actions.copy_name,
+            cmd=lambda: self.copy_names.emit([src, ])
+        )
+        menu.add_action(
+            action=common_actions.copy_path,
+            cmd=lambda: self.copy_urls.emit([src, ])
+        )
         # copy path
         # copy name
 

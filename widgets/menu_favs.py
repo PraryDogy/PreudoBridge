@@ -172,6 +172,7 @@ class MenuFavs(QListWidget):
             common_actions.reveal,
             cmd=lambda: self.reveal.emit(urls)
         )
+        menu.addSeparator()
         menu.add_action(
             common_actions.copy_path,
             cmd=lambda: self.copy_urls.emit(urls)
