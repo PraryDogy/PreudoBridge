@@ -32,7 +32,7 @@ class FavItemNew(FavItemBase):
 class FavItemPin(FavItemBase):
     def __init__(self, name, src, main_win_item, parent):
         super().__init__(name, src, main_win_item, parent)
-
+        self.setFlags(self.flags() & ~Qt.ItemFlag.ItemIsDragEnabled)
 
 class FavItemSpacer(QListWidgetItem):
     hh = 10
