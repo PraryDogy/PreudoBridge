@@ -550,82 +550,88 @@ class Grid(UScrollArea):
             )
 
     def base_thumb_actions(self, menu: UMenu):
-        actions = ThumbActions(menu)
+        thumb_actions = ThumbActions(menu)
         common_actions = CommonActions(menu)
-        wid = self.wid_under_mouse
-
+        data_items = []
+        urls = []
+        for i in self.selected_thumbs:
+            if i.data_item.type_ != Static.folder_type:
+                data_items.append(i.data_item)
+                urls.append(i.data_item.abs_path)
         menu.add_action(
-            action=actions.open_thumb,
+            action=thumb_actions.open_thumb,
             cmd=lambda: self.open_thumb()
         )
-        if wid.data_item.type_ == Static.folder_type:
+        if self.wid_under_mouse.data_item.type_ == Static.folder_type:
             self.folder_actions(menu)
         else:
             menu.add_menu(
-                menu=actions.open_in_app_menu,
-                cmd=lambda app_path: self.open_in_app.emit((item.urls, app_path))
+                menu=thumb_actions.open_in_app_menu,
+                cmd=lambda app_path: self.open_in_app.emit((urls, app_path))
             )
             menu.add_action(
-                action=actions.convert_to_jpg,
-                cmd=lambda: self.open_img_convert_win(item.urls)
+                action=thumb_actions.convert_to_jpg,
+                cmd=lambda: self.open_img_convert_win(urls)
             )
         menu.addSeparator()
         menu.add_action(
             action=common_actions.win_info,
-            cmd=lambda: self.open_win_info.emit(item.data_items)
+            cmd=lambda: self.open_win_info.emit(data_items)
         )
         menu.add_action(
-            action=actions.rename,
-            cmd=lambda: self.rename_file_cmd(wid.data_item.abs_path)
+            action=thumb_actions.rename,
+            cmd=lambda: self.rename_file_cmd(self.wid_under_mouse.data_item.abs_path)
         )
         menu.add_action(
             action=common_actions.reveal,
-            cmd=lambda: self.reveal_urls.emit(item.urls)
+            cmd=lambda: self.reveal_urls.emit(urls)
         )
         menu.addSeparator()
         menu.add_action(
             action=common_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit(item.urls)
+            cmd=lambda: self.copy_urls.emit(urls)
         )
         menu.add_action(
             action=common_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(item.urls)
+            cmd=lambda: self.copy_names.emit(urls)
         )
         menu.addSeparator()
         menu.add_action(
-            action=actions.cut_files,
+            action=thumb_actions.cut_files,
             cmd=lambda: self.setup_clipboard(is_cut=True)
         )
         menu.add_action(
-            action=actions.copy_files,
+            action=thumb_actions.copy_files,
             cmd=lambda: self.setup_clipboard(is_cut=False)
         )
         menu.addSeparator()
         menu.add_action(
-            action=actions.remove_files,
-            cmd=lambda: self.remove_files_cmd(item.urls)
+            action=thumb_actions.remove_files,
+            cmd=lambda: self.remove_files_cmd(urls)
         )
 
     def base_grid_actions(self, menu: UMenu):
         actions = GridActions(menu, self.main_win_item)
         common_actions = CommonActions(menu)
+        data_item = DataItem(self.main_win_item.abs_current_dir)
+        data_item.set_properties()
         menu.add_action(
             action=common_actions.win_info,
-            cmd=lambda: self.open_win_info.emit(item.data_items)
+            cmd=lambda: self.open_win_info.emit([data_item, ])
         )
         menu.add_action(
             action=common_actions.reveal,
-            cmd=lambda: self.reveal_urls.emit(item.urls)
+            cmd=lambda: self.reveal_urls.emit([data_item.abs_path, ])
         )
         menu.addSeparator()
         menu.add_action(
             action=common_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit(item.urls)
+            cmd=lambda: self.copy_urls.emit([data_item.abs_path, ])
             
         )
         menu.add_action(
             action=common_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(item.urls)
+            cmd=lambda: self.copy_names.emit([data_item.abs_path, ])
         )
         menu.addSeparator()
         menu.add_menu(

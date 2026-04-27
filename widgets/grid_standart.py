@@ -264,7 +264,7 @@ class GridStandart(Grid):
             cmd=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
         )
         menu.addSeparator()
-        super().base_grid_actions(menu, item)
+        super().base_grid_actions(menu)
         if ClipboardItemGlob.src_dir:
             menu.addSeparator()
             menu.add_action(

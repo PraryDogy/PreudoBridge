@@ -244,12 +244,13 @@ class GridSearch(Grid):
         self.pause_by_btn = value
 
     def thumb_actions(self, menu: UMenu):
+        url = self.wid_under_mouse.data_item.abs_path
         actions = ThumbActions(menu)
         super().base_thumb_actions(menu)
         menu.addSeparator()
         menu.add_action(
             action=actions.show_in_folder,
-            cmd=lambda: self.go_to_widget.emit(item.urls[-1])
+            cmd=lambda: self.go_to_widget.emit(url)
         )
 
     def resizeEvent(self, a0):
@@ -287,7 +288,7 @@ class GridSearch(Grid):
             urls.append(item.abs_path)
         menu = UMenu(parent=self)
         if self.wid_under_mouse:
-            self.thumb_actions(menu, item)
+            self.thumb_actions(menu)
         else:
-            self.base_grid_actions(menu, item)
+            self.base_grid_actions(menu)
         menu.show_under_cursor()
