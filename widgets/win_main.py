@@ -276,8 +276,9 @@ class WinMain(WinBase):
         self.bar_path.new_history_item.connect(self.bar_top.new_history_item)
         self.bar_path.load_st_grid.connect(self.load_st_grid)
         self.bar_path.info_win_open.connect(self.info_win_open)
-        # self.bar_path.add_fav.connect(self.menu_favs.add_fav_cmd)
-        # self.bar_path.del_fav.connect(self.menu_favs.remove_fav_cmd)
+        self.bar_path.add_fav.connect(self.add_fav)
+        self.bar_path.del_fav.connect(self.remove_fav)
+        self.bar_path.new_main_win.connect(self.new_main_win_open)
 
         self.bar_sort.go_to_win_open.connect(
             self.go_to_toggle

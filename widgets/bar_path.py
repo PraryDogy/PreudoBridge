@@ -27,8 +27,8 @@ class PathItem(QWidget):
     arrow_right = " \U0000203A" # ›
     item_height = 15
     info_win = pyqtSignal(list)
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
+    add_fav = pyqtSignal(NamePathItem)
+    del_fav = pyqtSignal(NamePathItem)
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
@@ -115,9 +115,6 @@ class PathItem(QWidget):
         data_item.set_properties()
         self.info_win.emit([data_item, ])
 
-    def fav_cmd(self, offset: int, src: str):
-        (self.add_fav if offset == 1 else self.del_fav).emit(src)
-
     def enterEvent(self, a0):
         """
         Раскрывает виджет на всю его длину при наведении мыши
@@ -130,61 +127,15 @@ class PathItem(QWidget):
         """
         QTimer.singleShot(500, self.collapse)
 
-    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        urls = [self.main_win_item.abs_current_dir, ]
-        menu = UMenu(parent=self)
-        context_item = ContextItem(
-            self.main_win_item,
-            urls=urls,
-            data_items=[]
-        )
-        common_actions = CommonActions(menu, context_item)
-        actions = ThumbActions(menu, context_item)
-
-        if self.item_dir in JsonData.favs:
-            menu.add_action(
-                action=actions.fav_remove,
-                cmd=lambda: self.fav_cmd(offset=-1, src=self.item_dir)
-            )
-        else:
-            menu.add_action(
-                action=actions.fav_add,
-                cmd=lambda: self.fav_cmd(offset=-1, src=self.item_dir)
-            )
-
-        menu.show_under_cursor()
-        return
-
-        info = ItemActions.WinInfo(menu_)
-        info.triggered.connect(self.open_info_win)
-        menu_.addAction(info)
-
-        menu_.addSeparator()
-
-        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
-        menu_.addAction(show_in_finder_action)
-
-        copy_path = ItemActions.CopyPath(menu_, urls)
-        menu_.addAction(copy_path)
-
-        self.solid_style()
-        menu_.show_under_cursor()
-        self.default_style()
-
-    def mouseReleaseEvent(self, a0):
-        if a0.button() == Qt.MouseButton.LeftButton:
-            if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.abs_current_dir:
-                self.new_history_item.emit(self.item_dir)
-                self.load_st_grid.emit(self.item_dir)
-        return super().mouseReleaseEvent(a0)
-    
 
 class BarPath(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
     info_win_open = pyqtSignal(list)
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
+    add_fav = pyqtSignal(NamePathItem)
+    del_fav = pyqtSignal(NamePathItem)
+    new_main_win = pyqtSignal(str)
+
     last_item_limit = 40
     bar_height = 25
 
@@ -219,6 +170,17 @@ class BarPath(QWidget):
             qimage = Utils.scaled(qimage, 15)
             setattr(Icons, attr, QPixmap.fromImage(qimage))
 
+    def fav_cmd(self, offset: int, src: str):
+        item = NamePathItem(
+            filename=os.path.basename(src),
+            filepath=src,
+            urls=[]
+        )
+        if offset == -1:
+            self.del_fav.emit(item)
+        else:
+            self.add_fav.emit(item)
+
     def update(self, dir: str):
         """
         Отобразить новый путь сетки / папки / файла     
@@ -235,15 +197,9 @@ class BarPath(QWidget):
         for x, name in enumerate(root, start=1):
             dir = os.path.join(os.sep, *root[:x])
             path_item = PathItem(dir, name, self.main_win_item)
-            path_item.new_history_item.connect(lambda x=dir: self.new_history_item.emit(x))
-            path_item.load_st_grid.connect(self.load_st_grid.emit)
-            path_item.info_win.connect(lambda lst: self.info_win_open.emit(lst))
-            path_item.add_fav.connect(self.add_fav.emit)
-            path_item.del_fav.connect(self.del_fav.emit)
             path_item.add_arrow()
             path_items[x] = path_item
             self.main_lay.addWidget(path_item)
-
             path_item.set_icon(Icons.folder)
 
         path_items.get(1).set_icon(Icons.computer)
@@ -263,3 +219,81 @@ class BarPath(QWidget):
         last_item.expand()
         last_item.enterEvent = lambda *args, **kwargs: None
         last_item.leaveEvent = lambda *args, **kwargs: None
+
+    def view_folder_cmd(self, path: str):
+        self.new_history_item.emit(path)
+        self.load_st_grid.emit(path)
+
+    def view_image_cmd(self, path: str):
+        ...
+
+    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        wid: PathItem = self.childAt(ev.pos())
+
+        if not isinstance(wid, (PathItem, QLabel)):
+            return
+        if isinstance(wid, QLabel):
+            wid: PathItem = wid.parent()
+            wid.solid_style()
+
+        urls = [self.main_win_item.abs_current_dir, ]
+        menu = UMenu(parent=self)
+        context_item = ContextItem(
+            self.main_win_item,
+            urls=urls,
+            data_items=[]
+        )
+        common_actions = CommonActions(menu, context_item)
+        actions = ThumbActions(menu, context_item)
+        if os.path.isdir(wid.item_dir):
+            menu.add_action(
+                action=actions.open_thumb,
+                cmd=lambda: self.view_folder_cmd(wid.item_dir)
+            )
+            menu.add_action(
+                action=actions.new_main_win,
+                cmd=lambda: self.new_main_win.emit(wid.item_dir)
+            )
+            if wid.item_dir in JsonData.favs:
+                menu.add_action(
+                    action=actions.fav_remove,
+                    cmd=lambda: self.fav_cmd(offset=-1, src=wid.item_dir)
+                )
+            else:
+                menu.add_action(
+                    action=actions.fav_add,
+                    cmd=lambda: self.fav_cmd(offset=1, src=wid.item_dir)
+                )
+        else:
+            menu.add_action(
+                action=actions.open_thumb,
+                cmd=lambda: self.view_image_cmd(wid.item_dir)
+            )
+
+        menu.show_under_cursor()
+        wid.default_style()
+        return
+
+        info = ItemActions.WinInfo(menu_)
+        info.triggered.connect(self.open_info_win)
+        menu_.addAction(info)
+
+        menu_.addSeparator()
+
+        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
+        menu_.addAction(show_in_finder_action)
+
+        copy_path = ItemActions.CopyPath(menu_, urls)
+        menu_.addAction(copy_path)
+
+        self.solid_style()
+        menu_.show_under_cursor()
+        self.default_style()
+
+    def mouseReleaseEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.abs_current_dir:
+                self.new_history_item.emit(self.item_dir)
+                self.load_st_grid.emit(self.item_dir)
+        return super().mouseReleaseEvent(a0)
+    
