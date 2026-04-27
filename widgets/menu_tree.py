@@ -131,7 +131,4 @@ class MenuTree(QTreeView):
             action=common_actions.copy_path,
             cmd=lambda: self.copy_urls.emit([src, ])
         )
-        # copy path
-        # copy name
-
         menu.show_under_cursor()

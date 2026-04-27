@@ -5,11 +5,12 @@ from PyQt5.QtGui import QContextMenuEvent, QImage, QPixmap
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import JsonData, Static
-from system.items import DataItem, MainWinItem
+from system.items import ContextItem, DataItem, MainWinItem, NamePathItem
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu
+from .actions import CommonActions, ThumbActions
 
 
 class Icons:
@@ -130,20 +131,29 @@ class PathItem(QWidget):
         QTimer.singleShot(500, self.collapse)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        return
-        urls = [self.main_win_item.abs_current_dir]
-        menu_ = UMenu(parent=self)
+        urls = [self.main_win_item.abs_current_dir, ]
+        menu = UMenu(parent=self)
+        context_item = ContextItem(
+            self.main_win_item,
+            urls=urls,
+            data_items=[]
+        )
+        common_actions = CommonActions(menu, context_item)
+        actions = ThumbActions(menu, context_item)
 
         if self.item_dir in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(offset=-1, src=self.item_dir)
-            fav_action = ItemActions.FavRemove(menu_)
-            fav_action.triggered.connect(cmd_)
-            menu_.addAction(fav_action)
+            menu.add_action(
+                action=actions.fav_remove,
+                cmd=lambda: self.fav_cmd(offset=-1, src=self.item_dir)
+            )
         else:
-            cmd_ = lambda: self.fav_cmd(offset=1, src=self.item_dir)
-            fav_action = ItemActions.FavAdd(menu_)
-            fav_action.triggered.connect(cmd_)
-            menu_.addAction(fav_action)
+            menu.add_action(
+                action=actions.fav_add,
+                cmd=lambda: self.fav_cmd(offset=-1, src=self.item_dir)
+            )
+
+        menu.show_under_cursor()
+        return
 
         info = ItemActions.WinInfo(menu_)
         info.triggered.connect(self.open_info_win)
@@ -253,4 +263,3 @@ class BarPath(QWidget):
         last_item.expand()
         last_item.enterEvent = lambda *args, **kwargs: None
         last_item.leaveEvent = lambda *args, **kwargs: None
-
