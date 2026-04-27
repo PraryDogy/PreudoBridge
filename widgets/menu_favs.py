@@ -140,7 +140,7 @@ class MenuFavs(QListWidget):
     
     def contextMenuEvent(self, a0):
         list_item: ListItemBase = self.itemAt(a0.pos())
-        if not list_item:
+        if not list_item or isinstance(list_item, ListItemSpacer):
             return
 
         urls = [list_item.src, ]
@@ -151,7 +151,8 @@ class MenuFavs(QListWidget):
         )
         fav_item = NamePathItem(
             filename=list_item.name,
-            filepath=list_item.src
+            filepath=list_item.src,
+            urls=[]
         )
         menu = UMenu(parent=self)
         thumb_actions = ThumbActions(menu, context_item)
