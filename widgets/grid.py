@@ -412,7 +412,6 @@ class Grid(UScrollArea):
         self.url_to_wid[wid.data_item.abs_path] = wid
 
     def open_thumb(self):
-        
         if len(self.selected_thumbs) == 1:
             first_item = self.selected_thumbs[0].data_item
             if first_item.type_ == Static.folder_type:
@@ -426,30 +425,22 @@ class Grid(UScrollArea):
                 and not wid.data_item.must_hidden
             }
             item = ImgViewItem(
-                start_url=first_item.abs_path,
                 url_to_data_item=url_to_data_item,
                 is_selection=False
             )
             self.img_view_win.emit(item)
         else:
-            img_widgets = [
-                wid
-                for wid in self.selected_thumbs
-                if wid.data_item.type_.endswith(ImgUtils.ext_all)
-                and
-                not wid.data_item.must_hidden
-            ]
             url_to_data_item = {
                 wid.data_item.abs_path: wid.data_item
-                for wid in img_widgets
+                for wid in self.selected_thumbs
+                if wid.data_item.type_.endswith(ImgUtils.ext_all)
+                and not wid.data_item.must_hidden
             }
-            if img_widgets:
-                item = ImgViewItem(
-                    start_url=img_widgets[-1].data_item.abs_path,
-                    url_to_data_item=url_to_data_item,
-                    is_selection=True
-                )
-                self.img_view_win.emit(item)
+            item = ImgViewItem(
+                url_to_data_item=url_to_data_item,
+                is_selection=True
+            )
+            self.img_view_win.emit(item)
 
     def fav_cmd(self, offset: int, src: str):
         fav_item = NamePathItem(
