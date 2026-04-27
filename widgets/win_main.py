@@ -16,7 +16,7 @@ from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils
-from system.tasks import RevealFiles, UThreadPool
+from system.tasks import FileRemover, RevealFiles, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -576,12 +576,24 @@ class WinMain(WinBase):
 
     def remove_files_win_open(self, item: RemoveItem):
 
-        def finished(urls: list[str]):
+        def finished():
             if item.callback:
                 item.callback()
 
-        self.rem_win = WinRemoveFiles(self.main_win_item, item.urls)
-        self.rem_win.finished_.connect(finished)
+        def cmd():
+            self.remove_task = FileRemover(
+                main_dir=self.main_win_item.abs_current_dir,
+                urls=item.urls
+            )
+            self.remove_task.sigs.finished_.connect(finished)
+            UThreadPool.start(self.remove_task)
+
+        self.rem_win = WinRemoveFiles(self.main_win_item)
+        self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
+        if item.item_type == "filename":
+            self.rem_win.ok_clicked.connect(cmd)
+        else:
+            self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())
         self.rem_win.show()
 
