@@ -135,6 +135,9 @@ class BarPath(QWidget):
     add_fav = pyqtSignal(NamePathItem)
     del_fav = pyqtSignal(NamePathItem)
     new_main_win = pyqtSignal(str)
+    reveal = pyqtSignal(list)
+    copy_urls = pyqtSignal(list)
+    copy_names = pyqtSignal(list)
 
     last_item_limit = 40
     bar_height = 25
@@ -227,6 +230,11 @@ class BarPath(QWidget):
     def view_image_cmd(self, path: str):
         ...
 
+    def info_win_open_cmd(self, path: str):
+        item = DataItem(path)
+        item.set_properties()
+        self.info_win_open.emit([item, ])
+
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         wid: PathItem = self.childAt(ev.pos())
 
@@ -272,19 +280,19 @@ class BarPath(QWidget):
         menu.addSeparator()
         menu.add_action(
             action=common_actions.win_info,
-            cmd=lambda: self.info_win_open.emit(urls)
+            cmd=lambda: self.info_win_open_cmd(wid.item_dir)
         )
         menu.add_action(
             action=common_actions.reveal,
-            cmd=lambda: None
+            cmd=lambda: self.reveal.emit(urls)
         )
         menu.add_action(
             common_actions.copy_path,
-            cmd=lambda: None
+            cmd=lambda: self.copy_urls.emit(urls)
         )
         menu.add_action(
             common_actions.copy_name,
-            cmd=lambda: None
+            cmd=lambda: self.copy_names.emit(urls)
         )
         menu.show_under_cursor()
         wid.default_style()

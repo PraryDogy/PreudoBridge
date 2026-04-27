@@ -279,6 +279,9 @@ class WinMain(WinBase):
         self.bar_path.add_fav.connect(self.add_fav)
         self.bar_path.del_fav.connect(self.remove_fav)
         self.bar_path.new_main_win.connect(self.new_main_win_open)
+        self.bar_path.reveal.connect(self.reveal_urls)
+        self.bar_path.copy_names.connect(self.copy_names)
+        self.bar_path.copy_urls.connect(self.copy_urls)
 
         self.bar_sort.go_to_win_open.connect(
             self.go_to_toggle
