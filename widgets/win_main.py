@@ -254,6 +254,7 @@ class WinMain(WinBase):
         self.menu_favs.copy_urls.connect(self.copy_urls)
         self.menu_favs.copy_names.connect(self.copy_names)
         self.menu_favs.rename_fav.connect(self.rename_file)
+        self.menu_favs.remove_fav.connect(self.remove_files)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
@@ -413,7 +414,7 @@ class WinMain(WinBase):
         self.grid.img_convert_win.connect(self.img_convert_win_open)
 
         self.grid.open_in_app.connect(self.open_in_app)
-        self.grid.remove_files.connect(self.remove_files_win_open)
+        self.grid.remove_files.connect(self.remove_files)
         self.grid.rename_file.connect(self.rename_file)
         self.grid.new_folder.connect(self.new_folder)
 
@@ -574,7 +575,7 @@ class WinMain(WinBase):
         for i in urls:
             Utils.open_in_app(path=i, app_path=app_path)
 
-    def remove_files_win_open(self, item: RemoveItem):
+    def remove_files(self, item: RemoveItem):
 
         def finished():
             if item.callback:
@@ -592,7 +593,7 @@ class WinMain(WinBase):
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         if item.item_type == "filename":
             self.rem_win.ok_clicked.connect(cmd)
-        else:
+        elif item.item_type == "fav":
             self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())
         self.rem_win.show()

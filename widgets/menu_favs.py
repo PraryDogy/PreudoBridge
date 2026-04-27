@@ -258,9 +258,12 @@ class MenuFavs(QListWidget):
     def remove_fav_cmd(self, fav_item: FavItemBase):
 
         def finished():
-            JsonData.favs.pop(fav_item.src)
-            JsonData.write_json_data()
-            self.takeItem(self.row(fav_item))
+            if fav_item.src in JsonData.favs:
+                JsonData.favs.pop(fav_item.src)
+                JsonData.write_json_data()
+                self.takeItem(self.row(fav_item))
+            else:
+                print("wef")
 
         item = RemoveItem(
             item_type="fav",
@@ -313,7 +316,7 @@ class MenuFavs(QListWidget):
         )
         menu.add_action(
             action=fav_action.fav_remove,
-            cmd=lambda: print("remove fav")
+            cmd=lambda: self.remove_fav_cmd(fav_item)
         )
         menu.show_under_cursor()
         return super().contextMenuEvent(a0)
