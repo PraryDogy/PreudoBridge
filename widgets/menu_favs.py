@@ -1,95 +1,14 @@
 import os
 
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QDropEvent, QIcon, QImage,
-                         QMouseEvent, QPixmap)
-from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
+from PyQt5.QtGui import QDropEvent, QIcon
+from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
 from system.items import ContextItem, MainWinItem, RemoveItem, RenameItem
-from system.utils import Utils
 
 from ._base_widgets import UMenu
 from .actions import CommonActions, FavActions, ThumbActions
-# в main_win
-from .win_rename import WinRename
-
-
-class FavItem(QLabel):
-    remove_fav_item = pyqtSignal()
-    renamed = pyqtSignal(str)
-    new_history_item = pyqtSignal(str)
-    load_st_grid = pyqtSignal(str)
-    open_in_new_win = pyqtSignal(str)
-    reveal = pyqtSignal(list)
-    copy_urls = pyqtSignal(list)
-    copy_names = pyqtSignal(list)
-    item_height = 25
-
-    def __init__(self, name: str, src: str, main_win_item: MainWinItem, fixed: bool):
-        super().__init__(text=name)
-        self.main_win_item = main_win_item
-        self.name = name
-        self.src = src
-        self.fixed = fixed
-        self.setFixedHeight(FavItem.item_height)
-        self.setContentsMargins(10, 0, 10, 0)
-
-    def view_fav(self):
-        self.new_history_item.emit(self.src)
-        self.load_st_grid.emit(self.src)
-
-    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
-        if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            self.open_in_new_win.emit(self.src)
-        elif self.src != self.main_win_item.abs_current_dir:
-            self.view_fav()
-        return super().mouseReleaseEvent(ev)
-
-    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        urls = [self.src, ]
-        item = ContextItem(
-            main_win_item=self.main_win_item,
-            urls=urls,
-            data_items=list()
-        )
-        menu = UMenu(parent=self)
-        thumb_actions = ThumbActions(menu, item)
-        fav_action = FavActions(menu, item)
-        common_actions = CommonActions(menu, item)
-
-        menu.add_action(
-            action=thumb_actions.open_thumb,
-            cmd=lambda: self.view_fav()
-        )
-        menu.add_action(
-            action=thumb_actions.new_main_win,
-            cmd=lambda: self.open_in_new_win.emit(self.src)
-        )
-        menu.addSeparator()
-        menu.add_action(
-            common_actions.reveal,
-            cmd=lambda: self.reveal.emit(urls)
-        )
-        menu.add_action(
-            common_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit(urls)
-        )
-        menu.add_action(
-            common_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(urls)
-        )
-        menu.addSeparator()
-        menu.add_action(
-            action=thumb_actions.rename,
-            cmd=lambda: print("rename fav")
-        )
-        menu.add_action(
-            action=fav_action.fav_remove,
-            cmd=lambda: self.remove_fav_item.emit()
-        )
-
-        menu.show_under_cursor()
 
 
 class FavItemBase(QListWidgetItem):
@@ -289,26 +208,26 @@ class MenuFavs(QListWidget):
             self.clearSelection()
         return super().mouseReleaseEvent(e)
 
-    # def dragEnterEvent(self, e):
-    #     item = self.currentItem()
-    #     widget: FavItem = self.itemWidget(item)
-    #     if widget.src not in self.fixed_items:
-    #         e.acceptProposedAction()
+    def dragEnterEvent(self, e):
+        return
+        item: FavItemBase = self.currentItem()
+        if widget.src not in self.fixed_items:
+            e.acceptProposedAction()
     
-    # def dropEvent(self, a0: QDropEvent | None) -> None:
-    #     urls = a0.mimeData().urls()
-    #     if not urls:
-    #         super().dropEvent(a0)
-    #         new_order = {}
-    #         for i in range(self.count()):
-    #             item = self.item(i)
-    #             fav_widget: FavItem = self.itemWidget(item)
-    #             if isinstance(fav_widget, FavItem):
-    #                 new_order[fav_widget.src] = fav_widget.name
-    #         if new_order:
-    #             JsonData.favs = new_order
-    #     else:
-    #         url_ = urls[-1].toLocalFile()
-    #         url_ = url_.rstrip(os.sep)
-    #         if os.path.isdir(url_):
-    #             self.add_fav(src=url_)
+    def dropEvent(self, a0: QDropEvent | None) -> None:
+        urls = a0.mimeData().urls()
+        if not urls:
+            super().dropEvent(a0)
+            new_order = {}
+            for i in range(self.count()):
+                item = self.item(i)
+                fav_widget: FavItem = self.itemWidget(item)
+                if isinstance(fav_widget, FavItem):
+                    new_order[fav_widget.src] = fav_widget.name
+            if new_order:
+                JsonData.favs = new_order
+        else:
+            url_ = urls[-1].toLocalFile()
+            url_ = url_.rstrip(os.sep)
+            if os.path.isdir(url_):
+                self.add_fav(src=url_)
