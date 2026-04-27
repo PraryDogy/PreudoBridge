@@ -208,12 +208,17 @@ class MenuFavs(QListWidget):
             self.clearSelection()
         return super().mouseReleaseEvent(e)
 
-    def dragEnterEvent(self, e):
+    def dragEnterEvent(self, e):    
         item: FavItemBase = self.currentItem()
         if isinstance(item, FavItemNew):
             e.acceptProposedAction()
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
+        index = self.indexAt(a0.pos()).row()
+        if index < 4:
+            a0.ignore()
+            return
+        
         urls = a0.mimeData().urls()
         if not urls:
             super().dropEvent(a0)
