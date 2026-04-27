@@ -43,7 +43,7 @@ class FavItemSpacer(QListWidgetItem):
 
 
 class MenuFavs(QListWidget):
-    # new_history_item = pyqtSignal(str)
+    new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
     new_main_win = pyqtSignal(str)
     reveal = pyqtSignal(list)
@@ -149,6 +149,10 @@ class MenuFavs(QListWidget):
             callback=lambda: finished()
         )
         self.remove_fav.emit(item)
+
+    def open_fav_cmd(self, path: str):
+        self.new_history_item.emit(path)
+        self.load_st_grid.emit(path)
     
     def contextMenuEvent(self, a0):
         fav_item: FavItemBase = self.itemAt(a0.pos())
@@ -168,7 +172,7 @@ class MenuFavs(QListWidget):
 
         menu.add_action(
             action=thumb_actions.open_thumb,
-            cmd=lambda: self.load_st_grid.emit(urls[0])
+            cmd=lambda: self.open_fav_cmd(urls[0])
         )
         menu.add_action(
             action=thumb_actions.new_main_win,
@@ -203,7 +207,7 @@ class MenuFavs(QListWidget):
     def mouseReleaseEvent(self, e):
         item: FavItemBase = self.itemAt(e.pos())
         if item:
-            self.load_st_grid.emit(item.src)
+            self.open_fav_cmd(item.src)
         else:
             self.clearSelection()
         return super().mouseReleaseEvent(e)
