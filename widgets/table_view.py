@@ -239,6 +239,9 @@ class TableView(QTableView):
             )
             self.img_view_win.emit(item)
 
+    def select_single_thumb(self, data_item: DataItem):
+        self.select_path(data_item.abs_path)
+
     def save_sort_settings(self, index):
         TableView.col = index
         TableView.order = self.horizontalHeader().sortIndicatorOrder()
