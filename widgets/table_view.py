@@ -213,40 +213,29 @@ class TableView(QTableView):
         self.open_thumb(self.get_selected_urls())
 
     def open_thumb(self, urls: list[str]):
+        url_to_data_item = {}
         if len(urls) == 1:
-            data_item = DataItem(urls[0])
-            data_item.set_properties()
-            thumb = Thumb(data_item)
-            if data_item.type_ == Static.folder_type:
-                self.new_history_item.emit(data_item.abs_path)
-                self.load_st_grid.emit(data_item.abs_path)
-            else:
-                url_to_wid = {}
-                for url, _ in self.url_to_index.items():
-                    if url.endswith(ImgUtils.ext_all):
-                        data = DataItem(url)
-                        data.set_properties()
-                        url_to_wid[url] = Thumb(data)
-
-                if url_to_wid:
-                    item = ImgViewItem(
-                        start_url=urls[0],
-                        url_to_data_item=url_to_wid,
-                        is_selection=False
-                    )
-                    self.img_view_win.emit(item)
+            if os.path.isdir(urls[0]):
+                self.new_history_item.emit(urls[0])
+                self.load_st_grid.emit(urls[0])
+                return
+            is_selection = False
+            for url, _ in self.url_to_index.items():
+                if url.endswith(ImgUtils.ext_all):
+                    data_item = DataItem(url)
+                    data_item.set_properties()
+                    url_to_data_item[url] = data_item
         else:
-            url_to_wid = {}
+            is_selection = False
             for url in self.get_selected_urls():
                 if url.endswith(ImgUtils.ext_all):
-                    data = DataItem(url)
-                    data.set_properties()
-                    thumb = Thumb(data)
-                    url_to_wid[url] = thumb
+                    data_item = DataItem(url)
+                    data_item.set_properties()
+                    url_to_data_item[url] = data_item
+        if url_to_data_item:
             item = ImgViewItem(
-                start_url=list(url_to_wid)[0],
-                url_to_data_item=url_to_wid,
-                is_selection=True
+                url_to_data_item=url_to_data_item,
+                is_selection=is_selection
             )
             self.img_view_win.emit(item)
 
@@ -269,7 +258,7 @@ class TableView(QTableView):
             data_items.append(data_item)
         self.open_win_info.emit(data_items)
 
-    def get_selected_urls(self):
+    def get_selected_urls(self) -> list[str]:
         urls = []
         selection_model = self.selectionModel()
         selected_rows = selection_model.selectedRows()
@@ -281,9 +270,6 @@ class TableView(QTableView):
     def open_img_convert_win(self, urls: list[str]):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
         self.img_convert_win.emit(urls)
-
-    # def flags(self, index: QModelIndex):
-        # return Qt.ItemIsEnabled 
 
     def setup_clipboard(self, urls: list[str], is_cut: bool):
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
