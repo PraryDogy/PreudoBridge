@@ -412,6 +412,7 @@ class Grid(UScrollArea):
         self.url_to_wid[wid.data_item.abs_path] = wid
 
     def open_thumb(self):
+        
         if len(self.selected_thumbs) == 1:
             wid = self.selected_thumbs[0]
             if wid.data_item.type_ == Static.folder_type:
