@@ -424,11 +424,7 @@ class Grid(UScrollArea):
                 if url.endswith(ImgUtils.ext_all)
                 and not wid.data_item.must_hidden
             }
-            item = ImgViewItem(
-                url_to_data_item=url_to_data_item,
-                is_selection=False
-            )
-            self.img_view_win.emit(item)
+            is_selection = False
         else:
             url_to_data_item = {
                 wid.data_item.abs_path: wid.data_item
@@ -436,9 +432,11 @@ class Grid(UScrollArea):
                 if wid.data_item.type_.endswith(ImgUtils.ext_all)
                 and not wid.data_item.must_hidden
             }
+            is_selection = True
+        if url_to_data_item:
             item = ImgViewItem(
                 url_to_data_item=url_to_data_item,
-                is_selection=True
+                is_selection=is_selection
             )
             self.img_view_win.emit(item)
 
