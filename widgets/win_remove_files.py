@@ -20,14 +20,3 @@ class WinRemoveFiles(ConfirmWindow):
 
         super().__init__(text=t)
         self.setFixedSize(270, 100)
-
-        self.ok_btn.clicked.connect(self.ok_clicked.emit)
-        self.cancel_btn.clicked.connect(self.deleteLater)
-
-    def keyPressEvent(self, a0):
-        if a0.key() == Qt.Key.Key_Escape:
-            self.deleteLater()
-        elif a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
-            self.ok_clicked.emit()
-        return super().keyPressEvent(a0)
-    
