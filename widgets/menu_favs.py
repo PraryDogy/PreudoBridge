@@ -197,7 +197,8 @@ class MenuFavs(QListWidget):
     def remove_fav_cmd(self):
         pass
 
-    def add_fav_cmd(self, fav_item: FavItemBase):
+    def add_fav_cmd(self, *args):
+        print(args)
         return
         list_item = FavItemNew(name, src, self.main_win_item, self)
         list_item.setIcon(self.folder_icon)

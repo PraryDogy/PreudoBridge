@@ -253,7 +253,7 @@ class WinMain(WinBase):
         self.menu_favs.reveal.connect(self.reveal_urls)
         self.menu_favs.copy_urls.connect(self.copy_urls)
         self.menu_favs.copy_names.connect(self.copy_names)
-        self.menu_favs.rename_fav.connect(self.rename_file)
+        self.menu_favs.rename_fav.connect(self.rename_cmd)
         self.menu_favs.remove_fav.connect(self.remove_files)
 
         self.menu_filters.filter_thumbs.connect(
@@ -415,7 +415,7 @@ class WinMain(WinBase):
 
         self.grid.open_in_app.connect(self.open_in_app)
         self.grid.remove_files.connect(self.remove_files)
-        self.grid.rename_file.connect(self.rename_file)
+        self.grid.rename_file.connect(self.rename_cmd)
         self.grid.new_folder.connect(self.new_folder)
 
     def load_search_grid(self):
@@ -476,13 +476,15 @@ class WinMain(WinBase):
                 names.append(os.path.splitext(basename)[0])
         Utils.write_to_clipboard("\n".join(names))
 
-    def rename_file(self, item: RenameItem):
+    def rename_cmd(self, item: RenameItem):
         
         def finished(text: str):
             root = os.path.dirname(item.filepath)
             new_url = os.path.join(root, text)
             if item.item_type == "filename":
                 os.rename(item.filepath, new_url)
+            elif item.item_type == "fav":
+                pass
             if item.callback:
                 item.callback(new_url)
 
