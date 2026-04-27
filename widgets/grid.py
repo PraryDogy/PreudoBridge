@@ -520,6 +520,7 @@ class Grid(UScrollArea):
 
     def remove_files_cmd(self, urls: list[str]):
         item = RemoveItem(
+            item_type="filename",
             urls=urls,
             callback=None
         )

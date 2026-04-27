@@ -254,12 +254,24 @@ class MenuFavs(QListWidget):
             callback=lambda new_name: finished(new_name)
         )
         self.rename_fav.emit(item)
+
+    def remove_fav_cmd(self, fav_item: FavItemBase):
+
+        def finished():
+            JsonData.favs.pop(fav_item.src)
+            JsonData.write_json_data()
+            self.takeItem(self.row(fav_item))
+
+        item = RemoveItem(
+            item_type="fav",
+            urls=[fav_item.src, ],
+            callback=lambda: finished()
+        )
+        self.remove_fav.emit(item)
     
     def contextMenuEvent(self, a0):
         fav_item: FavItemBase = self.itemAt(a0.pos())
-        if fav_item:
-            ...
-        else:
+        if not fav_item:
             return
 
         urls = [fav_item.src, ]

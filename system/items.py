@@ -267,6 +267,7 @@ class ContextItem:
 
 @dataclass(slots=True)
 class RemoveItem:
+    item_type: Literal["filename", "fav"]
     urls: list[str]
     callback: callable
 
