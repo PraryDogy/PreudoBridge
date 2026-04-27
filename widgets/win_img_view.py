@@ -12,7 +12,6 @@ from cfg import Static
 from system.items import DataItem, ImgViewItem
 from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
-from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 
