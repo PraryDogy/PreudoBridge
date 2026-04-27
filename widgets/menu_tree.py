@@ -1,7 +1,7 @@
 import os
 
-from PyQt5.QtCore import QDir, QFileInfo, Qt, QTimer, pyqtSignal
-from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtWidgets import QAbstractItemView, QTreeView
 
 from cfg import JsonData
 from system.items import ContextItem, MainWinItem, NamePathItem
@@ -63,11 +63,20 @@ class MenuTree(QTreeView):
         )
 
     def remove_fav_cmd(self, path: str):
-        item = RemoveItem(
-            urls=[path, ],
-            callback=None
+        item = NamePathItem(
+            filename=os.path.basename(path),
+            filepath=path,
+            urls=[]
         )
         self.remove_fav.emit(item)
+
+    def add_fav_cmd(self, path: str):
+        item = NamePathItem(
+            filename=os.path.basename(path),
+            filepath=path,
+            urls=[]
+        )
+        self.add_fav.emit(item)
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())
@@ -101,7 +110,7 @@ class MenuTree(QTreeView):
             else:
                 menu.add_action(
                     action=actions.fav_add,
-                    cmd=lambda: self.add_fav.emit(src)
+                    cmd=lambda: self.add_fav_cmd(src)
                 )
         # reveal
         # copy path
