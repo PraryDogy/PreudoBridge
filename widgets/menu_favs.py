@@ -223,11 +223,12 @@ class MenuFavs(QListWidget):
 
         def finished():
             if fav_item.src in JsonData.favs:
+                print("remove fav")
                 JsonData.favs.pop(fav_item.src)
                 JsonData.write_json_data()
                 self.takeItem(self.row(fav_item))
             else:
-                print("wef")
+                print("cant remove fav")
 
         item = RemoveItem(
             urls=[fav_item.src, ],

@@ -254,7 +254,7 @@ class WinMain(WinBase):
         self.menu_favs.copy_urls.connect(self.copy_urls)
         self.menu_favs.copy_names.connect(self.copy_names)
         self.menu_favs.rename_fav.connect(self.rename_fav)
-        self.menu_favs.remove_fav.connect(self.remove_files)
+        self.menu_favs.remove_fav.connect(self.remove_fav)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
@@ -601,12 +601,22 @@ class WinMain(WinBase):
 
         self.rem_win = WinRemoveFiles(self.main_win_item)
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
-        # if item.item_type == "filename":
-        #     self.rem_win.ok_clicked.connect(cmd)
-        # elif item.item_type == "fav":
-            # self.rem_win.ok_clicked.connect(finished)
+        self.rem_win.ok_clicked.connect(cmd)
         self.rem_win.center(self.window())
         self.rem_win.show()
+
+    def remove_fav(self, item: RemoveItem):
+
+        def finished():
+            if item.callback:
+                item.callback()
+
+        self.rem_win = WinRemoveFiles(self.main_win_item)
+        self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
+        self.rem_win.ok_clicked.connect(finished)
+        self.rem_win.center(self.window())
+        self.rem_win.show()
+
 
     def servers_win_open(self):
         self.servers_win = WinServers()
