@@ -5,7 +5,7 @@ from PyQt5.QtGui import QDropEvent, QIcon
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
-from system.items import ContextItem, FavItem, MainWinItem, RenameItem
+from system.items import ContextItem, MainWinItem, NamePathItem
 
 from ._base_widgets import UMenu
 from .actions import CommonActions, FavActions, ThumbActions
@@ -50,9 +50,9 @@ class MenuFavs(QListWidget):
     reveal = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
-    rename_fav = pyqtSignal(FavItem)
-    remove_fav = pyqtSignal(FavItem)
-    add_fav = pyqtSignal(FavItem)
+    rename_fav = pyqtSignal(NamePathItem)
+    remove_fav = pyqtSignal(NamePathItem)
+    add_fav = pyqtSignal(NamePathItem)
     folder_icon: QIcon
     folder_pin_icon: QIcon
 
@@ -113,24 +113,24 @@ class MenuFavs(QListWidget):
         if src in self.url_to_item:
             self.setCurrentItem(self.url_to_item[src])
     
-    def add_fav_cmd(self, fav_item: FavItem):
-        JsonData.favs[fav_item.path] = fav_item.text
+    def add_fav_cmd(self, fav_item: NamePathItem):
+        JsonData.favs[fav_item.filepath] = fav_item.filename
         JsonData.write_json_data()
-        list_item = ListItem(fav_item.text, fav_item.path, self.main_win_item, self)
+        list_item = ListItem(fav_item.filename, fav_item.filepath, self.main_win_item, self)
         list_item.setIcon(self.folder_icon)
         self.addItem(list_item)
-        self.url_to_item[fav_item.path] = list_item
+        self.url_to_item[fav_item.filepath] = list_item
 
-    def rename_fav_finalize(self, fav_item: FavItem):
-        item = self.url_to_item[fav_item.path]
-        JsonData.favs[fav_item.path] = fav_item.text
+    def rename_fav_finalize(self, fav_item: NamePathItem):
+        item = self.url_to_item[fav_item.filepath]
+        JsonData.favs[fav_item.filepath] = fav_item.filename
         JsonData.write_json_data()
-        item.setText(fav_item.text)
-        item.name = fav_item.text
+        item.setText(fav_item.filename)
+        item.name = fav_item.filename
 
-    def remove_fav_finalize(self, fav_item: FavItem):
-        list_item = self.url_to_item[fav_item.path]
-        JsonData.favs.pop(fav_item.path)
+    def remove_fav_finalize(self, fav_item: NamePathItem):
+        list_item = self.url_to_item[fav_item.filepath]
+        JsonData.favs.pop(fav_item.filepath)
         JsonData.write_json_data()
         self.takeItem(self.row(list_item))
 
@@ -149,9 +149,9 @@ class MenuFavs(QListWidget):
             urls=urls,
             data_items=list()
         )
-        fav_item = FavItem(
-            text=list_item.name,
-            path=list_item.src
+        fav_item = NamePathItem(
+            filename=list_item.name,
+            filepath=list_item.src
         )
         menu = UMenu(parent=self)
         thumb_actions = ThumbActions(menu, context_item)
@@ -233,8 +233,8 @@ class MenuFavs(QListWidget):
             url_ = urls[-1].toLocalFile()
             url_ = url_.rstrip(os.sep)
             if os.path.isdir(url_):
-                fav_item = FavItem(
-                    text=os.path.basename(url_),
-                    path=url_
+                fav_item = NamePathItem(
+                    filename=os.path.basename(url_),
+                    filepath=url_
                 )
                 self.add_fav.emit(fav_item)

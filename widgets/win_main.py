@@ -9,9 +9,8 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.items import (ClipboardItemGlob, DataItem, FavItem, ImgViewItem,
-                          MainWinItem, RemoveItem, RenameItem, SearchItem,
-                          SortItem)
+from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
+                          MainWinItem, NamePathItem, SearchItem, SortItem)
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils
@@ -474,25 +473,25 @@ class WinMain(WinBase):
                 names.append(os.path.splitext(basename)[0])
         Utils.write_to_clipboard("\n".join(names))
 
-    def rename_fav(self, fav_item: FavItem):
+    def rename_fav(self, fav_item: NamePathItem):
         
         def finished(text: str):
-            fav_item.text = text
+            fav_item.filename = text
             self.menu_favs.rename_fav_finalize(fav_item)
 
-        self.rename_win = WinRename(fav_item.text)
+        self.rename_win = WinRename(fav_item.filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
 
-    def add_fav(self, fav_item: FavItem):
+    def add_fav(self, fav_item: NamePathItem):
         
         def finished(text: str):
-            fav_item.text = text
+            fav_item.filename = text
             self.menu_favs.add_fav_cmd(fav_item)
 
-        if fav_item.path not in JsonData.favs:
-            self.rename_win = WinRename(fav_item.text)
+        if fav_item.filepath not in JsonData.favs:
+            self.rename_win = WinRename(fav_item.filename)
             self.rename_win.finished_.connect(lambda text: finished(text))
             self.rename_win.center(self.window())
             self.rename_win.show()
@@ -501,17 +500,16 @@ class WinMain(WinBase):
             self.warn_win.center(self.window())
             self.warn_win.show()
 
-    def rename_file(self, item: RenameItem):
+    def rename_file(self, item: NamePathItem):
         
         def finished(text: str):
-            root = os.path.dirname(item.text)
-            new_url = os.path.join(root, text)
+            new_url = os.path.join(
+                os.path.dirname(item.filepath),
+                text
+            )
             os.rename(item.text, new_url)
-            if item.callback:
-                item.callback(new_url)
 
-        filename = os.path.basename(item.text)
-        self.rename_win = WinRename(filename)
+        self.rename_win = WinRename(item.filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
@@ -599,32 +597,27 @@ class WinMain(WinBase):
         for i in urls:
             Utils.open_in_app(path=i, app_path=app_path)
 
-    def remove_files(self, item: RemoveItem):
+    def remove_files(self, item: NamePathItem):
 
         def finished():
-            if item.callback:
-                item.callback()
-
-        def cmd():
             self.remove_task = FileRemover(
                 main_dir=self.main_win_item.abs_current_dir,
                 urls=item.urls
             )
-            self.remove_task.sigs.finished_.connect(finished)
             UThreadPool.start(self.remove_task)
 
-        self.rem_win = WinRemoveFiles(item.urls[0], self.main_win_item)
+        self.rem_win = WinRemoveFiles(item.urls)
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
-        self.rem_win.ok_clicked.connect(cmd)
+        self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())
         self.rem_win.show()
 
-    def remove_fav(self, fav_item: FavItem):
+    def remove_fav(self, fav_item: NamePathItem):
 
         def finished():
             self.menu_favs.remove_fav_finalize(fav_item)
 
-        self.rem_win = WinRemoveFiles(fav_item.path, self.main_win_item)
+        self.rem_win = WinRemoveFiles([fav_item.filepath, ])
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())

@@ -266,18 +266,7 @@ class ContextItem:
 
 
 @dataclass(slots=True)
-class RemoveItem:
+class NamePathItem:
+    filename: str
+    filepath: str
     urls: list[str]
-    callback: callable
-
-
-@dataclass(slots=True)
-class RenameItem:
-    text: str
-    callback: callable
-
-
-@dataclass(slots=True)
-class FavItem:
-    text: str
-    path: str

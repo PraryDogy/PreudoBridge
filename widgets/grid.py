@@ -9,9 +9,9 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import (ClipboardItemGlob, ContextItem, DataItem, FavItem,
-                          ImgViewItem, MainWinItem, RemoveItem, RenameItem,
-                          SortItem, TotalCountItem)
+from system.items import (ClipboardItemGlob, ContextItem, DataItem,
+                          ImgViewItem, MainWinItem, NamePathItem, SortItem,
+                          TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
@@ -267,8 +267,8 @@ class NoItemsLabel(QLabel):
 class Grid(UScrollArea):
     new_history_item = pyqtSignal(str)
     bar_path_update = pyqtSignal(str)
-    add_fav = pyqtSignal(FavItem)
-    del_fav = pyqtSignal(FavItem)
+    add_fav = pyqtSignal(NamePathItem)
+    del_fav = pyqtSignal(NamePathItem)
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
@@ -288,8 +288,8 @@ class Grid(UScrollArea):
     img_convert_win = pyqtSignal(list)
 
     open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(RemoveItem)
-    rename_file = pyqtSignal(RenameItem)
+    remove_files = pyqtSignal(NamePathItem)
+    rename_file = pyqtSignal(NamePathItem)
     new_folder = pyqtSignal()
 
     files_icon = Utils.scaled(
@@ -455,9 +455,9 @@ class Grid(UScrollArea):
                 self.img_view_win.emit(item)
 
     def fav_cmd(self, offset: int, src: str):
-        fav_item = FavItem(
-            text=os.path.basename(src),
-            path=src
+        fav_item = NamePathItem(
+            filename=os.path.basename(src),
+            filepath=src
         )
         if offset == 1:
             self.add_fav.emit(fav_item)
@@ -525,16 +525,18 @@ class Grid(UScrollArea):
         self.setup_urls_to_copy()
 
     def remove_files_cmd(self, urls: list[str]):
-        item = RemoveItem(
-            urls=urls,
-            callback=None
+        item = NamePathItem(
+            filename=str(),
+            filepath=str(),
+            urls=urls
         )
         self.remove_files.emit(item)
 
     def rename_file_cmd(self, filepath: str):
-        item = RenameItem(
-            text=filepath,
-            callback=None
+        item = NamePathItem(
+            filename=os.path.basename(filepath),
+            filepath=filepath,
+            urls=[]
         )
         self.rename_file.emit(item)
 

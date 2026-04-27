@@ -4,7 +4,7 @@ from PyQt5.QtCore import QDir, QFileInfo, Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 
 from cfg import JsonData
-from system.items import ContextItem, MainWinItem, RemoveItem
+from system.items import ContextItem, MainWinItem, NamePathItem
 
 from ._base_widgets import UFileSystemModel, UMenu
 from .actions import CommonActions, ThumbActions
@@ -14,8 +14,8 @@ class MenuTree(QTreeView):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(str)
     new_main_win = pyqtSignal(str)
-    remove_fav = pyqtSignal(RemoveItem)
-    add_fav = pyqtSignal(str)
+    remove_fav = pyqtSignal(NamePathItem)
+    add_fav = pyqtSignal(NamePathItem)
     reveal = pyqtSignal(list)
 
     volumes = "/Volumes"

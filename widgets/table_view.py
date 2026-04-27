@@ -10,12 +10,12 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, ContextItem, DataItem,
-                          ImgViewItem, MainWinItem, RemoveItem, RenameItem,
+                          ImgViewItem, MainWinItem, NamePathItem,
                           TotalCountItem)
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
-from ._base_widgets import UMenu, UFileSystemModel
+from ._base_widgets import UFileSystemModel, UMenu
 from .actions import CommonActions, GridActions, ThumbActions
 # main win
 from .grid import Thumb
@@ -98,8 +98,8 @@ class TableView(QTableView):
     img_convert_win = pyqtSignal(list)
 
     open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(RemoveItem)
-    rename_file = pyqtSignal(RenameItem)
+    remove_files = pyqtSignal(NamePathItem)
+    rename_file = pyqtSignal(NamePathItem)
     new_folder = pyqtSignal()
 
     files_icon = Utils.scaled(
@@ -298,17 +298,18 @@ class TableView(QTableView):
         self.selectionModel().select(index, tags)
 
     def remove_files_cmd(self, urls: list[str]):
-        item = RemoveItem(
-            urls=urls,
-            callback=None
+        item = NamePathItem(
+            filename=str(),
+            filepath=str(),
+            urls=urls
         )
         self.remove_files.emit(item)
 
     def rename_file_cmd(self, filepath: str):
-        item = RenameItem(
-            item_type="filename",
-            text=filepath,
-            callback=None
+        item = NamePathItem(
+            filename=os.path.basename(filepath),
+            filepath=filepath,
+            urls=[]
         )
         self.rename_file.emit(item)
 
