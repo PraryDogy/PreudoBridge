@@ -224,13 +224,9 @@ class MenuFavs(QListWidget):
     def remove_fav_cmd(self, fav_item: FavItemBase):
 
         def finished():
-            if fav_item.src in JsonData.favs:
-                print("remove fav")
-                JsonData.favs.pop(fav_item.src)
-                JsonData.write_json_data()
-                self.takeItem(self.row(fav_item))
-            else:
-                print("cant remove fav")
+            JsonData.favs.pop(fav_item.src)
+            JsonData.write_json_data()
+            self.takeItem(self.row(fav_item))
 
         item = RemoveItem(
             urls=[fav_item.src, ],
