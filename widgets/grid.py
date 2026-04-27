@@ -498,6 +498,12 @@ class Grid(UScrollArea):
             self.clear_selected_widgets()
             self.selected_thumbs.append(wid)
             wid.set_frame()
+        elif isinstance(wid, DataItem):
+            thumb = self.url_to_wid[wid.abs_path]
+            self.bar_path_update_cmd(thumb.data_item.abs_path)
+            self.clear_selected_widgets()
+            self.selected_thumbs.append(thumb)
+            thumb.set_frame()
 
     def select_multiple_thumb(self, wid: Thumb):
         if isinstance(wid, Thumb):

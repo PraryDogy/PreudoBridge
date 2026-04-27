@@ -209,7 +209,7 @@ class NextImgBtn(SwitchImgBtn):
 
 class WinImgView(WinBase):
     cached_images: dict[str, QImage] = {}
-    move_to_wid = pyqtSignal(object)
+    move_to_wid = pyqtSignal(DataItem)
     closed = pyqtSignal()
     info_win = pyqtSignal(list)
     object_name = "win_img_view"
