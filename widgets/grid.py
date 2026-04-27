@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, ContextItem, DataItem,
-                          ImgViewItem, MainWinItem, SortItem, TotalCountItem)
+                          ImgViewItem, MainWinItem, RemoveItem, RenameItem,
+                          SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
@@ -287,8 +288,8 @@ class Grid(UScrollArea):
     img_convert_win = pyqtSignal(list)
 
     open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(list)
-    rename = pyqtSignal(DataItem)
+    remove_files = pyqtSignal(RemoveItem)
+    rename_file = pyqtSignal(RenameItem)
     new_folder = pyqtSignal()
 
     files_icon = Utils.scaled(
@@ -517,6 +518,21 @@ class Grid(UScrollArea):
         ClipboardItemGlob.set_is_cut(True)
         self.setup_urls_to_copy()
 
+    def remove_files_cmd(self, urls: list[str]):
+        item = RemoveItem(
+            urls=urls,
+            callback=None
+        )
+        self.remove_files.emit(item)
+
+    def rename_file_cmd(self, filepath: str):
+        item = RenameItem(
+            filepath=filepath,
+            callback=lambda x: print(x)
+        )
+        self.rename_file.emit(item)
+
+
     def folder_actions(self, menu_: UMenu, item: ContextItem):
         actions = ThumbActions(menu_, item)
         wid = self.wid_under_mouse
@@ -564,7 +580,7 @@ class Grid(UScrollArea):
         )
         menu.add_action(
             action=actions.rename,
-            cmd=lambda: self.rename.emit(wid.data_item)
+            cmd=lambda: self.rename_file_cmd(wid.data_item.abs_path)
         )
         menu.add_action(
             action=common_actions.reveal,
@@ -591,7 +607,7 @@ class Grid(UScrollArea):
         menu.addSeparator()
         menu.add_action(
             action=actions.remove_files,
-            cmd=lambda: self.remove_files.emit(item.urls)
+            cmd=lambda: self.remove_files_cmd(item.urls)
         )
 
     def base_grid_actions(self, menu: UMenu, item: ContextItem):
@@ -805,7 +821,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = [i.data_item.abs_path for i in self.selected_thumbs]
-                self.remove_files.emit(urls)
+                self.remove_files_cmd(urls)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             if self.selected_thumbs:

@@ -263,3 +263,15 @@ class ContextItem:
     main_win_item: MainWinItem
     urls: list[str]
     data_items: list[DataItem]
+
+
+@dataclass(slots=True)
+class RemoveItem:
+    urls: list[str]
+    callback: callable
+
+
+@dataclass(slots=True)
+class RenameItem:
+    filepath: str
+    callback: callable

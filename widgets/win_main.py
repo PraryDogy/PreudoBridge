@@ -11,7 +11,8 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
 
 from cfg import JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, SearchItem, SortItem, TotalCountItem)
+                          MainWinItem, RemoveItem, RenameItem, SearchItem,
+                          SortItem)
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils
@@ -412,7 +413,7 @@ class WinMain(WinBase):
 
         self.grid.open_in_app.connect(self.open_in_app)
         self.grid.remove_files.connect(self.remove_files_win_open)
-        self.grid.rename.connect(self.rename_file)
+        self.grid.rename_file.connect(self.rename_file)
         self.grid.new_folder.connect(self.new_folder)
 
     def load_search_grid(self):
@@ -473,14 +474,18 @@ class WinMain(WinBase):
                 names.append(os.path.splitext(basename)[0])
         Utils.write_to_clipboard("\n".join(names))
 
-    def rename_file(self, data_item: DataItem):
+    def rename_file(self, item: RenameItem):
         
         def finished(text: str):
-            root = os.path.dirname(data_item.abs_path)
+            root = os.path.dirname(item.filepath)
             new_url = os.path.join(root, text)
-            os.rename(data_item.abs_path, new_url)
+            os.rename(item.filepath, new_url)
 
-        self.rename_win = WinRename(data_item.filename)
+            if item.callback:
+                item.callback(new_url)
+
+        filename = os.path.basename(item.filepath)
+        self.rename_win = WinRename(filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
@@ -568,8 +573,14 @@ class WinMain(WinBase):
         for i in urls:
             Utils.open_in_app(path=i, app_path=app_path)
 
-    def remove_files_win_open(self, urls: list[str]):
-        self.rem_win = WinRemoveFiles(self.main_win_item, urls)
+    def remove_files_win_open(self, item: RemoveItem):
+
+        def finished(urls: list[str]):
+            if item.callback:
+                item.callback()
+
+        self.rem_win = WinRemoveFiles(self.main_win_item, item.urls)
+        self.rem_win.finished_.connect(finished)
         self.rem_win.center(self.window())
         self.rem_win.show()
 
