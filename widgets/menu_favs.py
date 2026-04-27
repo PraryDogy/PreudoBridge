@@ -208,18 +208,22 @@ class MenuFavs(QListWidget):
             self.clearSelection()
         return super().mouseReleaseEvent(e)
 
-    def dragEnterEvent(self, e):    
+    def dragMoveEvent(self, e):
+        index = self.indexAt(e.pos()).row()
+        if index < 5:
+            e.ignore()
+        else:
+            e.acceptProposedAction()
+            super().dragMoveEvent(e)
+
+    def dragEnterEvent(self, e):
+        e.acceptProposedAction()
+        return
         item: FavItemBase = self.currentItem()
         if isinstance(item, FavItemNew):
             e.acceptProposedAction()
     
-    def dropEvent(self, a0: QDropEvent | None) -> None:
-        index = self.indexAt(a0.pos()).row()
-        # 4 закрепа и спейсер
-        if index < 5:
-            a0.ignore()
-            return
-        
+    def dropEvent(self, a0: QDropEvent | None) -> None:        
         urls = a0.mimeData().urls()
         if not urls:
             super().dropEvent(a0)
@@ -237,4 +241,8 @@ class MenuFavs(QListWidget):
             url_ = urls[-1].toLocalFile()
             url_ = url_.rstrip(os.sep)
             if os.path.isdir(url_) and url_ not in JsonData.favs:
-                self.add_fav_cmd(url_, os.path.basename(url_))
+                item = RenameItem(
+                    text=os.path.basename(url_),
+                    callback=lambda text: self.add_fav_cmd(url_, text)
+                )
+                self.rename_fav.emit(item)
