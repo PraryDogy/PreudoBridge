@@ -393,7 +393,7 @@ class WinMain(WinBase):
         self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
         self.grid.bar_path_update.connect(self.bar_path.update)
         self.grid.add_fav.connect(self.add_fav)
-        self.grid.del_fav.connect(self.menu_favs.remove_fav_cmd)
+        self.grid.del_fav.connect(self.menu_favs.remove_fav_finalize)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
         self.grid.new_main_win_open.connect(self.new_main_win_open)
@@ -618,13 +618,12 @@ class WinMain(WinBase):
         self.rem_win.center(self.window())
         self.rem_win.show()
 
-    def remove_fav(self, item: RemoveItem):
+    def remove_fav(self, fav_item: FavItem):
 
         def finished():
-            if item.callback:
-                item.callback()
+            self.menu_favs.remove_fav_finalize(fav_item)
 
-        self.rem_win = WinRemoveFiles(item.urls[0], self.main_win_item)
+        self.rem_win = WinRemoveFiles(fav_item.path, self.main_win_item)
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())
