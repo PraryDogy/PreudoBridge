@@ -9,11 +9,12 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QLabel, QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.items import DataItem, ImgViewItem
+from system.items import ContextItem, DataItem, ImgViewItem
 from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
+from .actions import CommonActions, ThumbActions
 
 
 class ImgWid(QGraphicsView):
@@ -486,6 +487,21 @@ class WinImgView(WinBase):
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        menu = UMenu()
+        common_actions = CommonActions(menu)
+        thumb_actions = ThumbActions(menu)
+        menu.add_menu(
+            menu=thumb_actions.open_in_app_menu,
+            cmd=lambda: print(1)
+        )
+        menu.show_under_cursor()
+        # открыть в приложении
+        # сеп
+        # инфо
+        # показать в финдер
+        # сеп
+        # скопировать путь
+        # скопировать имя
         return
         urls = [self.current_url]
         names = [os.path.basename(i) for i in urls]

@@ -144,20 +144,15 @@ class MenuFavs(QListWidget):
             return
 
         urls = [list_item.src, ]
-        context_item = ContextItem(
-            main_win_item=self.main_win_item,
-            urls=urls,
-            data_items=list()
-        )
         fav_item = NamePathItem(
             filename=list_item.name,
             filepath=list_item.src,
             urls=[]
         )
         menu = UMenu(parent=self)
-        thumb_actions = ThumbActions(menu, context_item)
-        fav_action = FavActions(menu, context_item)
-        common_actions = CommonActions(menu, context_item)
+        thumb_actions = ThumbActions(menu)
+        fav_action = FavActions(menu)
+        common_actions = CommonActions(menu)
 
         menu.add_action(
             action=thumb_actions.open_thumb,

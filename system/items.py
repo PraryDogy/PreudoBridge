@@ -259,7 +259,6 @@ class TotalCountItem:
 
 @dataclass(slots=True)
 class ContextItem:
-    main_win_item: MainWinItem
     urls: list[str]
     data_items: list[DataItem]
 

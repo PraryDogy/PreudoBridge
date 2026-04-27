@@ -256,12 +256,11 @@ class BarPath(QWidget):
         urls = [self.main_win_item.abs_current_dir, ]
         menu = UMenu(parent=self)
         context_item = ContextItem(
-            self.main_win_item,
             urls=urls,
             data_items=[]
         )
-        common_actions = CommonActions(menu, context_item)
-        actions = ThumbActions(menu, context_item)
+        common_actions = CommonActions(menu)
+        actions = ThumbActions(menu)
         if os.path.isdir(wid.item_dir):
             menu.add_action(
                 action=actions.open_thumb,

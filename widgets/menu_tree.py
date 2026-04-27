@@ -92,13 +92,8 @@ class MenuTree(QTreeView):
         menu = UMenu(parent=self)
         src = self.c_model.filePath(index)
         index = self.c_model.index(src)
-        item = ContextItem(
-            self.main_win_item,
-            urls=[src, ],
-            data_items=[]
-        )
-        actions = ThumbActions(menu, item)
-        common_actions = CommonActions(menu, item)
+        actions = ThumbActions(menu)
+        common_actions = CommonActions(menu)
         menu.add_action(
             action=actions.open_thumb,
             cmd=lambda: self.one_clicked(index)

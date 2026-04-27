@@ -329,7 +329,7 @@ class GridActions:
 
 
 class CommonActions:
-    def __init__(self, menu: UMenu, item: ContextItem):
+    def __init__(self, menu: UMenu):
         self.win_info = WinInfo(menu)
         self.reveal = Reveal(menu)
         self.copy_path = CopyPath(menu)
@@ -337,7 +337,7 @@ class CommonActions:
 
 
 class ThumbActions:
-    def __init__(self, menu: UMenu, item: ContextItem):
+    def __init__(self, menu: UMenu):
         self.open_thumb = OpenThumb(menu)
         self.open_in_app_menu = OpenInApp(menu)
         self.convert_to_jpg = ImgConvert(menu)
@@ -362,6 +362,6 @@ class TextActions:
 
 
 class FavActions:
-    def __init__(self, parent: UMenu, item: ContextItem):
+    def __init__(self, parent: UMenu):
         self.fav_add = FavAdd(parent)
         self.fav_remove = FavRemove(parent)

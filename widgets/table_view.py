@@ -321,8 +321,8 @@ class TableView(QTableView):
             )
 
     def base_thumb_actions(self, menu: UMenu, item: ContextItem, path: str):
-        actions = ThumbActions(menu, item)
-        common_actions = CommonActions(menu, item)
+        actions = ThumbActions(menu)
+        common_actions = CommonActions(menu)
 
         menu.add_action(
             action=actions.open_thumb,

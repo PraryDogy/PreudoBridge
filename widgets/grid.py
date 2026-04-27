@@ -551,8 +551,8 @@ class Grid(UScrollArea):
             )
 
     def base_thumb_actions(self, menu: UMenu, item: ContextItem):
-        actions = ThumbActions(menu, item)
-        common_actions = CommonActions(menu, item)
+        actions = ThumbActions(menu)
+        common_actions = CommonActions(menu)
         wid = self.wid_under_mouse
 
         menu.add_action(
@@ -609,7 +609,7 @@ class Grid(UScrollArea):
 
     def base_grid_actions(self, menu: UMenu, item: ContextItem):
         actions = GridActions(menu, item)
-        common_actions = CommonActions(menu, item)
+        common_actions = CommonActions(menu)
         menu.add_action(
             action=common_actions.win_info,
             cmd=lambda: self.open_win_info.emit(item.data_items)
