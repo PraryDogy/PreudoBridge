@@ -212,10 +212,11 @@ class MenuFavs(QListWidget):
             JsonData.favs[fav_item.src] = new_name
             JsonData.write_json_data()
             fav_item.setText(new_name)
+            fav_item.name = new_name
 
         item = RenameItem(
             item_type="fav",
-            filepath=fav_item.src,
+            text=fav_item.name,
             callback=lambda new_name: finished(new_name)
         )
         self.rename_fav.emit(item)
@@ -231,7 +232,6 @@ class MenuFavs(QListWidget):
                 print("wef")
 
         item = RemoveItem(
-            item_type="fav",
             urls=[fav_item.src, ],
             callback=lambda: finished()
         )

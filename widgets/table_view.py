@@ -311,7 +311,6 @@ class TableView(QTableView):
 
     def remove_files_cmd(self, urls: list[str]):
         item = RemoveItem(
-            item_type="filename",
             urls=urls,
             callback=None
         )
@@ -320,7 +319,7 @@ class TableView(QTableView):
     def rename_file_cmd(self, filepath: str):
         item = RenameItem(
             item_type="filename",
-            filepath=filepath,
+            text=filepath,
             callback=None
         )
         self.rename_file.emit(item)

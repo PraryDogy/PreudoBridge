@@ -253,7 +253,7 @@ class WinMain(WinBase):
         self.menu_favs.reveal.connect(self.reveal_urls)
         self.menu_favs.copy_urls.connect(self.copy_urls)
         self.menu_favs.copy_names.connect(self.copy_names)
-        self.menu_favs.rename_fav.connect(self.rename_cmd)
+        self.menu_favs.rename_fav.connect(self.rename_fav)
         self.menu_favs.remove_fav.connect(self.remove_files)
 
         self.menu_filters.filter_thumbs.connect(
@@ -415,7 +415,7 @@ class WinMain(WinBase):
 
         self.grid.open_in_app.connect(self.open_in_app)
         self.grid.remove_files.connect(self.remove_files)
-        self.grid.rename_file.connect(self.rename_cmd)
+        self.grid.rename_file.connect(self.rename_file)
         self.grid.new_folder.connect(self.new_folder)
 
     def load_search_grid(self):
@@ -476,19 +476,30 @@ class WinMain(WinBase):
                 names.append(os.path.splitext(basename)[0])
         Utils.write_to_clipboard("\n".join(names))
 
-    def rename_cmd(self, item: RenameItem):
+    def rename_fav(self, item: RenameItem):
         
         def finished(text: str):
-            root = os.path.dirname(item.filepath)
+            root = os.path.dirname(item.text)
             new_url = os.path.join(root, text)
-            if item.item_type == "filename":
-                os.rename(item.filepath, new_url)
-            elif item.item_type == "fav":
-                pass
             if item.callback:
                 item.callback(new_url)
 
-        filename = os.path.basename(item.filepath)
+        filename = os.path.basename(item.text)
+        self.rename_win = WinRename(filename)
+        self.rename_win.finished_.connect(lambda text: finished(text))
+        self.rename_win.center(self.window())
+        self.rename_win.show()
+
+    def rename_file(self, item: RenameItem):
+        
+        def finished(text: str):
+            root = os.path.dirname(item.text)
+            new_url = os.path.join(root, text)
+            os.rename(item.text, new_url)
+            if item.callback:
+                item.callback(new_url)
+
+        filename = os.path.basename(item.text)
         self.rename_win = WinRename(filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
@@ -593,10 +604,10 @@ class WinMain(WinBase):
 
         self.rem_win = WinRemoveFiles(self.main_win_item)
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
-        if item.item_type == "filename":
-            self.rem_win.ok_clicked.connect(cmd)
-        elif item.item_type == "fav":
-            self.rem_win.ok_clicked.connect(finished)
+        # if item.item_type == "filename":
+        #     self.rem_win.ok_clicked.connect(cmd)
+        # elif item.item_type == "fav":
+            # self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())
         self.rem_win.show()
 
