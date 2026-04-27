@@ -209,9 +209,8 @@ class MenuFavs(QListWidget):
         return super().mouseReleaseEvent(e)
 
     def dragEnterEvent(self, e):
-        return
         item: FavItemBase = self.currentItem()
-        if widget.src not in self.fixed_items:
+        if isinstance(item, FavItemNew):
             e.acceptProposedAction()
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
@@ -220,14 +219,16 @@ class MenuFavs(QListWidget):
             super().dropEvent(a0)
             new_order = {}
             for i in range(self.count()):
-                item = self.item(i)
-                fav_widget: FavItem = self.itemWidget(item)
-                if isinstance(fav_widget, FavItem):
-                    new_order[fav_widget.src] = fav_widget.name
+                fav_item = self.item(i)
+                if isinstance(fav_item, FavItemNew):
+                    new_order[fav_item.src] = fav_item.name
+                else:
+                    continue
             if new_order:
                 JsonData.favs = new_order
+                JsonData.write_json_data()
         else:
             url_ = urls[-1].toLocalFile()
             url_ = url_.rstrip(os.sep)
-            if os.path.isdir(url_):
-                self.add_fav(src=url_)
+            if os.path.isdir(url_) and url_ not in JsonData.favs:
+                self.add_fav_cmd(url_, os.path.basename(url_))
