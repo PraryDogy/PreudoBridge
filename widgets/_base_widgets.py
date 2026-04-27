@@ -1,16 +1,17 @@
 import os
 import re
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QDir, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
                          QPalette, QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QApplication, QFrame,
+from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGraphicsDropShadowEffect, QHBoxLayout, QLabel,
                              QLineEdit, QMainWindow, QMenu, QPushButton,
                              QScrollArea, QSlider, QTextEdit, QWidget)
 
 from cfg import Static
+from system.shared_utils import ImgUtils
 
 
 class UScrollArea(QScrollArea):
@@ -442,3 +443,20 @@ class HSep(QFrame):
         super().__init__()
         self.setStyleSheet("background: rgba(128, 128, 128, 0.2)")
         self.setFixedHeight(1)
+
+
+class UFileSystemModel(QFileSystemModel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        exts = [
+            f"*{ext}"
+            for ext in ImgUtils.ext_all
+        ]
+        self.setNameFilters(exts)
+        self.setNameFilterDisables(False) 
+        self.setFilter(
+            QDir.Filter.Files | 
+            QDir.Filter.AllDirs | 
+            QDir.Filter.NoDotAndDotDot
+        )

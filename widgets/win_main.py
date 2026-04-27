@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
+from system.items import (ClipboardItemGlob, DataItem, FavItem, ImgViewItem,
                           MainWinItem, RemoveItem, RenameItem, SearchItem,
                           SortItem)
 from system.multiprocess import BaseProcessWorker
@@ -241,11 +241,11 @@ class WinMain(WinBase):
             lambda: self.resize_timer.start(WinMain.resize_ms)
         )
 
-        self.menu_tree.load_st_grid_sig.connect(self.load_st_grid)
-        self.menu_tree.add_fav.connect(self.menu_favs.add_fav_cmd)
-        self.menu_tree.del_fav.connect(self.menu_favs.remove_fav_cmd)
         self.menu_tree.new_history_item.connect(self.bar_top.new_history_item)
+        self.menu_tree.load_st_grid_sig.connect(self.load_st_grid)
         self.menu_tree.new_main_win.connect(self.new_main_win_open)
+        self.menu_tree.add_fav.connect(self.add_fav)
+        self.menu_tree.remove_fav.connect(self.remove_fav)
 
         self.menu_favs.load_st_grid.connect(self.load_st_grid)
         self.menu_favs.new_history_item.connect(self.bar_top.new_history_item)
@@ -274,8 +274,8 @@ class WinMain(WinBase):
         self.bar_path.new_history_item.connect(self.bar_top.new_history_item)
         self.bar_path.load_st_grid.connect(self.load_st_grid)
         self.bar_path.info_win_open.connect(self.info_win_open)
-        self.bar_path.add_fav.connect(self.menu_favs.add_fav_cmd)
-        self.bar_path.del_fav.connect(self.menu_favs.remove_fav_cmd)
+        # self.bar_path.add_fav.connect(self.menu_favs.add_fav_cmd)
+        # self.bar_path.del_fav.connect(self.menu_favs.remove_fav_cmd)
 
         self.bar_sort.go_to_win_open.connect(
             self.go_to_toggle
@@ -392,7 +392,7 @@ class WinMain(WinBase):
         self.grid.menu_sort_update.connect(self.bar_sort.sort_menu_update)
         self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
         self.grid.bar_path_update.connect(self.bar_path.update)
-        self.grid.add_fav.connect(self.add_fav_cmd)
+        self.grid.add_fav.connect(self.add_fav)
         self.grid.del_fav.connect(self.menu_favs.remove_fav_cmd)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
@@ -474,18 +474,18 @@ class WinMain(WinBase):
                 names.append(os.path.splitext(basename)[0])
         Utils.write_to_clipboard("\n".join(names))
 
-    def rename_fav(self, item: RenameItem):
+    def rename_fav(self, fav_item: FavItem):
         
         def finished(text: str):
-            if item.callback:
-                item.callback(text)
+            fav_item.text = text
+            self.menu_favs.rename_fav_finalize(fav_item)
 
-        self.rename_win = WinRename(item.text)
+        self.rename_win = WinRename(fav_item.text)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
 
-    def add_fav_cmd(self, path: str):
+    def add_fav(self, path: str):
         
         def finished(text: str):
             self.menu_favs.add_fav_cmd(path, text)

@@ -15,27 +15,15 @@ from system.items import (ClipboardItemGlob, ContextItem, DataItem,
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
-from ._base_widgets import UMenu
+from ._base_widgets import UMenu, UFileSystemModel
 from .actions import CommonActions, GridActions, ThumbActions
 # main win
 from .grid import Thumb
 
 
-class MyFileSystemModel(QFileSystemModel):
+class MyFileSystemModel(UFileSystemModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        exts = [
-            f"*{ext}"
-            for ext in ImgUtils.ext_all
-        ]
-        self.setNameFilters(exts)
-        self.setNameFilterDisables(False) 
-        self.setFilter(
-            QDir.Filter.Files | 
-            QDir.Filter.AllDirs | 
-            QDir.Filter.NoDotAndDotDot
-        )
         self.cut_rows = set()
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):

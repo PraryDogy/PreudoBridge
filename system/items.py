@@ -275,3 +275,9 @@ class RemoveItem:
 class RenameItem:
     text: str
     callback: callable
+
+
+@dataclass(slots=True)
+class FavItem:
+    text: str
+    path: str

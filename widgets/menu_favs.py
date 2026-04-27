@@ -5,13 +5,14 @@ from PyQt5.QtGui import QDropEvent, QIcon
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
-from system.items import ContextItem, MainWinItem, RemoveItem, RenameItem
+from system.items import (ContextItem, FavItem, MainWinItem, RemoveItem,
+                          RenameItem)
 
 from ._base_widgets import UMenu
 from .actions import CommonActions, FavActions, ThumbActions
 
 
-class FavItemBase(QListWidgetItem):
+class ListItemBase(QListWidgetItem):
     hh = 30
 
     def __init__(self, name: str, src: str, main_win_item: MainWinItem, parent: QListWidget):
@@ -24,17 +25,18 @@ class FavItemBase(QListWidgetItem):
         self.src = src
 
 
-class FavItemNew(FavItemBase):
+class ListItem(ListItemBase):
     def __init__(self, name, src, main_win_item, parent):
         super().__init__(name, src, main_win_item, parent)
 
 
-class FavItemPin(FavItemBase):
+class ListItemPin(ListItemBase):
     def __init__(self, name, src, main_win_item, parent):
         super().__init__(name, src, main_win_item, parent)
         self.setFlags(self.flags() & ~Qt.ItemFlag.ItemIsDragEnabled)
 
-class FavItemSpacer(QListWidgetItem):
+
+class ListItemSpacer(QListWidgetItem):
     hh = 10
     def __init__(self, parent: QListWidget):
         super().__init__()
@@ -49,17 +51,15 @@ class MenuFavs(QListWidget):
     reveal = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
-
-    rename_fav = pyqtSignal(RenameItem)
-    remove_fav = pyqtSignal(RemoveItem)
-
+    rename_fav = pyqtSignal(FavItem)
+    remove_fav = pyqtSignal(FavItem)
     folder_icon: QIcon
     folder_pin_icon: QIcon
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
         self.main_win_item = main_win_item
-        self.url_to_item: dict[str, QListWidgetItem] = {}
+        self.url_to_item: dict[str, ListItemBase] = {}
 
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -88,7 +88,7 @@ class MenuFavs(QListWidget):
         }
 
         for src, name in fav_pin.items():
-            list_item = FavItemPin(name, src, self.main_win_item, self)
+            list_item = ListItemPin(name, src, self.main_win_item, self)
             list_item.setIcon(self.folder_pin_icon)
             self.addItem(list_item)
             self.url_to_item[src] = list_item
@@ -96,11 +96,11 @@ class MenuFavs(QListWidget):
             if self.main_win_item.abs_current_dir == src:
                 self.setCurrentItem(list_item)
 
-        item = FavItemSpacer(self)
+        item = ListItemSpacer(self)
         self.addItem(item)
 
         for src, name in JsonData.favs.items():
-            list_item = FavItemNew(name, src, self.main_win_item, self)
+            list_item = ListItem(name, src, self.main_win_item, self)
             list_item.setIcon(self.folder_icon)
             self.addItem(list_item)
             self.url_to_item[src] = list_item
@@ -114,30 +114,21 @@ class MenuFavs(QListWidget):
             self.setCurrentItem(self.url_to_item[src])
     
     def add_fav_cmd(self, path: str, text: str):
-
         JsonData.favs[path] = text
         JsonData.write_json_data()
-        
-        list_item = FavItemNew(text, path, self.main_win_item, self)
+        list_item = ListItem(text, path, self.main_win_item, self)
         list_item.setIcon(self.folder_icon)
         self.addItem(list_item)
         self.url_to_item[path] = list_item
 
-    def rename_fav_cmd(self, fav_item: FavItemBase):
+    def rename_fav_finalize(self, fav_item: FavItem):
+        item = self.url_to_item[fav_item.path]
+        JsonData.favs[fav_item.path] = fav_item.text
+        JsonData.write_json_data()
+        item.setText(fav_item.text)
+        item.name = fav_item.text
 
-        def finished(text: str):
-            JsonData.favs[fav_item.src] = text
-            JsonData.write_json_data()
-            fav_item.setText(text)
-            fav_item.name = text
-
-        item = RenameItem(
-            text=fav_item.name,
-            callback=lambda new_name: finished(new_name)
-        )
-        self.rename_fav.emit(item)
-
-    def remove_fav_cmd(self, fav_item: FavItemBase):
+    def remove_fav_cmd(self, fav_item: ListItemBase):
 
         def finished():
             JsonData.favs.pop(fav_item.src)
@@ -155,20 +146,24 @@ class MenuFavs(QListWidget):
         self.load_st_grid.emit(path)
     
     def contextMenuEvent(self, a0):
-        fav_item: FavItemBase = self.itemAt(a0.pos())
-        if not fav_item:
+        list_item: ListItemBase = self.itemAt(a0.pos())
+        if not list_item:
             return
 
-        urls = [fav_item.src, ]
-        item = ContextItem(
+        urls = [list_item.src, ]
+        context_item = ContextItem(
             main_win_item=self.main_win_item,
             urls=urls,
             data_items=list()
         )
+        fav_item = FavItem(
+            text=list_item.name,
+            path=list_item.src
+        )
         menu = UMenu(parent=self)
-        thumb_actions = ThumbActions(menu, item)
-        fav_action = FavActions(menu, item)
-        common_actions = CommonActions(menu, item)
+        thumb_actions = ThumbActions(menu, context_item)
+        fav_action = FavActions(menu, context_item)
+        common_actions = CommonActions(menu, context_item)
 
         menu.add_action(
             action=thumb_actions.open_thumb,
@@ -191,11 +186,11 @@ class MenuFavs(QListWidget):
             common_actions.copy_name,
             cmd=lambda: self.copy_names.emit(urls)
         )
-        if isinstance(fav_item, FavItemNew):
+        if isinstance(list_item, ListItem):
             menu.addSeparator()
             menu.add_action(
                 action=thumb_actions.rename,
-                cmd=lambda: self.rename_fav_cmd(fav_item)
+                cmd=lambda: self.rename_fav.emit(fav_item)
             )
             menu.add_action(
                 action=fav_action.fav_remove,
@@ -205,8 +200,8 @@ class MenuFavs(QListWidget):
         return super().contextMenuEvent(a0)
     
     def mouseReleaseEvent(self, e):
-        item: FavItemBase = self.itemAt(e.pos())
-        if isinstance(item, FavItemSpacer):
+        item: ListItemBase = self.itemAt(e.pos())
+        if isinstance(item, ListItemSpacer):
             return
         if item:
             if e.modifiers() == Qt.KeyboardModifier.ControlModifier:
@@ -234,7 +229,7 @@ class MenuFavs(QListWidget):
             new_order = {}
             for i in range(self.count()):
                 fav_item = self.item(i)
-                if isinstance(fav_item, FavItemNew):
+                if isinstance(fav_item, ListItem):
                     new_order[fav_item.src] = fav_item.name
                 else:
                     continue

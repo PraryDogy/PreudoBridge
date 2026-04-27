@@ -4,19 +4,23 @@ from PyQt5.QtCore import QDir, QFileInfo, Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 
 from cfg import JsonData
-from system.items import MainWinItem
+from system.items import ContextItem, MainWinItem, RemoveItem
 
-from ._base_widgets import UMenu
+from ._base_widgets import UFileSystemModel, UMenu
+from .actions import CommonActions, ThumbActions
 
 
 class MenuTree(QTreeView):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(str)
     new_main_win = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
+    remove_fav = pyqtSignal(RemoveItem)
     add_fav = pyqtSignal(str)
+    reveal = pyqtSignal(list)
+
+    volumes = "/Volumes"
     # предполагает что системный диск всегда будет первым
-    macintosh = [i for i in os.scandir("/Volumes")][0].path
+    macintosh = [i for i in os.scandir(volumes)][0].path
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -25,11 +29,10 @@ class MenuTree(QTreeView):
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        self.c_model = QFileSystemModel()
-        self.c_model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
-        self.c_model.setRootPath(os.sep + "Volumes")
+        self.c_model = UFileSystemModel()
+        self.c_model.setRootPath(self.volumes)
         self.setModel(self.c_model)
-        self.setRootIndex(self.c_model.index(os.sep + "Volumes"))
+        self.setRootIndex(self.c_model.index(self.volumes))
 
         self.setHeaderHidden(True)
         for i in range(1, self.c_model.columnCount()):
@@ -46,10 +49,6 @@ class MenuTree(QTreeView):
             self.setCurrentIndex(index)
             self.new_history_item.emit(path)
             self.load_st_grid_sig.emit(path)
-        # self.expand(index)
-
-    def mouseReleaseEvent(self, event):
-        return super().mouseReleaseEvent(event)
 
     def expand_path(self, root: str):
         if root.startswith(os.path.expanduser("~")):
@@ -63,8 +62,14 @@ class MenuTree(QTreeView):
             QAbstractItemView.ScrollHint.EnsureVisible
         )
 
+    def remove_fav_cmd(self, path: str):
+        item = RemoveItem(
+            urls=[path, ],
+            callback=None
+        )
+        self.remove_fav.emit(item)
+
     def contextMenuEvent(self, event):
-        return
         index = self.indexAt(event.pos())
         if not index.isValid():
             return
@@ -72,18 +77,38 @@ class MenuTree(QTreeView):
         menu = UMenu(parent=self)
         src = self.c_model.filePath(index)
         index = self.c_model.index(src)
-
-        cmd_ = lambda: self.one_clicked(index)
-        open_finder_action = ItemActions.OpenSingle(menu)
-        open_finder_action.triggered.connect(cmd_)
-        menu.addAction(open_finder_action)
-
+        item = ContextItem(
+            self.main_win_item,
+            urls=[src, ],
+            data_items=[]
+        )
+        actions = ThumbActions(menu, item)
+        common_actions = CommonActions(menu, item)
+        menu.add_action(
+            action=actions.open_thumb,
+            cmd=lambda: self.one_clicked(index)
+        )
         if os.path.isdir(src):
-            new_win = ItemActions.NewMainWin(menu)
-            new_win.triggered.connect(lambda: self.new_main_win.emit(src))
-            menu.addAction(new_win)
+            menu.add_action(
+                action=actions.new_main_win,
+                cmd=lambda: self.new_main_win.emit(src)
+            )
+            if src in JsonData.favs:
+                menu.add_action(
+                    action=actions.fav_remove,
+                    cmd=lambda: self.remove_fav_cmd(src)
+                )
+            else:
+                menu.add_action(
+                    action=actions.fav_add,
+                    cmd=lambda: self.add_fav.emit(src)
+                )
+        # reveal
+        # copy path
+        # copy name
 
-        menu.addSeparator()
+        menu.show_under_cursor()
+        return
 
         open_finder_action = ItemActions.RevealInFinder(menu, [src])
         menu.addAction(open_finder_action)
