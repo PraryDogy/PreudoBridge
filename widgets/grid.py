@@ -414,30 +414,23 @@ class Grid(UScrollArea):
     def open_thumb(self):
         
         if len(self.selected_thumbs) == 1:
-            wid = self.selected_thumbs[0]
-            if wid.data_item.type_ == Static.folder_type:
-                self.new_history_item.emit(wid.data_item.abs_path)
-                self.load_st_grid.emit(wid.data_item.abs_path)
-            else:
-                img_widgets = {
-                    url: wid
-                    for url, wid in self.url_to_wid.items()
-                    if url.endswith(ImgUtils.ext_all)
-                    and
-                    not wid.data_item.must_hidden
-                }
-                if not img_widgets:
-                    return
-                url_to_data_item = {
-                    k: v.data_item
-                    for k, v in img_widgets.items()
-                }
-                item = ImgViewItem(
-                    start_url=wid.data_item.abs_path,
-                    url_to_data_item=url_to_data_item,
-                    is_selection=False
-                )
-                self.img_view_win.emit(item)
+            first_item = self.selected_thumbs[0].data_item
+            if first_item.type_ == Static.folder_type:
+                self.new_history_item.emit(first_item.abs_path)
+                self.load_st_grid.emit(first_item.abs_path)
+                return
+            url_to_data_item = {
+                url: wid.data_item
+                for url, wid in self.url_to_wid.items()
+                if url.endswith(ImgUtils.ext_all)
+                and not wid.data_item.must_hidden
+            }
+            item = ImgViewItem(
+                start_url=first_item.abs_path,
+                url_to_data_item=url_to_data_item,
+                is_selection=False
+            )
+            self.img_view_win.emit(item)
         else:
             img_widgets = [
                 wid
