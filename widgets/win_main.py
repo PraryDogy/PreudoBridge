@@ -394,7 +394,7 @@ class WinMain(WinBase):
         self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
         self.grid.bar_path_update.connect(self.bar_path.update)
         self.grid.add_fav.connect(self.add_fav)
-        self.grid.del_fav.connect(self.menu_favs.remove_fav_finalize)
+        self.grid.del_fav.connect(self.remove_fav)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
         self.grid.new_main_win_open.connect(self.new_main_win_open)

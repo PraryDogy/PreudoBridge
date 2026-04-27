@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import (ClipboardItemGlob, ContextItem, DataItem,
+from system.items import (ClipboardItemGlob, ContextItem, DataItem, FavItem,
                           ImgViewItem, MainWinItem, RemoveItem, RenameItem,
                           SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
@@ -267,8 +267,8 @@ class NoItemsLabel(QLabel):
 class Grid(UScrollArea):
     new_history_item = pyqtSignal(str)
     bar_path_update = pyqtSignal(str)
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
+    add_fav = pyqtSignal(FavItem)
+    del_fav = pyqtSignal(FavItem)
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
@@ -454,9 +454,15 @@ class Grid(UScrollArea):
                 )
                 self.img_view_win.emit(item)
 
-
     def fav_cmd(self, offset: int, src: str):
-        (self.add_fav if offset == 1 else self.del_fav).emit(src)
+        fav_item = FavItem(
+            text=os.path.basename(src),
+            path=src
+        )
+        if offset == 1:
+            self.add_fav.emit(fav_item)
+        else:
+            self.del_fav.emit(fav_item)
 
     def setup_urls_to_copy(self):
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
