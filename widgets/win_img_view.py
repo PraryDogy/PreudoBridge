@@ -231,8 +231,8 @@ class WinImgView(WinBase):
         self.is_selection = item.is_selection
         self.url_to_data_item: dict[str, DataItem] = item.url_to_data_item
         self.urls: list = list(self.url_to_data_item.keys())
-        self.current_url: str = item.start_url
-        self.current_data_item: DataItem = self.url_to_data_item[item.start_url]
+        self.current_url = next(iter(self.url_to_data_item))
+        self.current_data_item = self.url_to_data_item[self.current_url]
 
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
