@@ -269,26 +269,25 @@ class BarPath(QWidget):
                 action=actions.open_thumb,
                 cmd=lambda: self.view_image_cmd(wid.item_dir)
             )
-
+        menu.addSeparator()
+        menu.add_action(
+            action=common_actions.win_info,
+            cmd=lambda: self.info_win_open.emit(urls)
+        )
+        menu.add_action(
+            action=common_actions.reveal,
+            cmd=lambda: None
+        )
+        menu.add_action(
+            common_actions.copy_path,
+            cmd=lambda: None
+        )
+        menu.add_action(
+            common_actions.copy_name,
+            cmd=lambda: None
+        )
         menu.show_under_cursor()
         wid.default_style()
-        return
-
-        info = ItemActions.WinInfo(menu_)
-        info.triggered.connect(self.open_info_win)
-        menu_.addAction(info)
-
-        menu_.addSeparator()
-
-        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
-        menu_.addAction(show_in_finder_action)
-
-        copy_path = ItemActions.CopyPath(menu_, urls)
-        menu_.addAction(copy_path)
-
-        self.solid_style()
-        menu_.show_under_cursor()
-        self.default_style()
 
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
