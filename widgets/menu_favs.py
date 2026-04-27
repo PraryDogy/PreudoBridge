@@ -206,6 +206,8 @@ class MenuFavs(QListWidget):
     
     def mouseReleaseEvent(self, e):
         item: FavItemBase = self.itemAt(e.pos())
+        if isinstance(item, FavItemSpacer):
+            return
         if item:
             self.open_fav_cmd(item.src)
         else:
