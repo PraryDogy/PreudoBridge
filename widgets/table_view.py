@@ -367,7 +367,7 @@ class TableView(QTableView):
         )
         menu.add_action(
             action=actions.rename,
-            cmd=lambda: self.rename_file_cmd(self.url_to_item[path])
+            cmd=lambda: self.rename_file_cmd(path)
         )
         menu.add_action(
             action=common_actions.reveal,
