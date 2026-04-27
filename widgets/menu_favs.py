@@ -215,7 +215,8 @@ class MenuFavs(QListWidget):
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
         index = self.indexAt(a0.pos()).row()
-        if index < 4:
+        # 4 закрепа и спейсер
+        if index < 5:
             a0.ignore()
             return
         
