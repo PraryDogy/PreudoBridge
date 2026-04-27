@@ -552,12 +552,16 @@ class Grid(UScrollArea):
     def base_thumb_actions(self, menu: UMenu):
         thumb_actions = ThumbActions(menu)
         common_actions = CommonActions(menu)
-        data_items = []
-        urls = []
+        img_data_items = []
+        img_urls = []
+        all_urls = []
+        all_data_items = []
         for i in self.selected_thumbs:
             if i.data_item.type_ != Static.folder_type:
-                data_items.append(i.data_item)
-                urls.append(i.data_item.abs_path)
+                img_data_items.append(i.data_item)
+                img_urls.append(i.data_item.abs_path)
+            all_data_items.append(i.data_item)
+            all_urls.append(i.data_item.abs_path)
         menu.add_action(
             action=thumb_actions.open_thumb,
             cmd=lambda: self.open_thumb()
@@ -567,16 +571,16 @@ class Grid(UScrollArea):
         else:
             menu.add_menu(
                 menu=thumb_actions.open_in_app_menu,
-                cmd=lambda app_path: self.open_in_app.emit((urls, app_path))
+                cmd=lambda app_path: self.open_in_app.emit((img_urls, app_path))
             )
             menu.add_action(
                 action=thumb_actions.convert_to_jpg,
-                cmd=lambda: self.open_img_convert_win(urls)
+                cmd=lambda: self.open_img_convert_win(img_urls)
             )
         menu.addSeparator()
         menu.add_action(
             action=common_actions.win_info,
-            cmd=lambda: self.open_win_info.emit(data_items)
+            cmd=lambda: self.open_win_info.emit(all_data_items)
         )
         menu.add_action(
             action=thumb_actions.rename,
@@ -584,16 +588,16 @@ class Grid(UScrollArea):
         )
         menu.add_action(
             action=common_actions.reveal,
-            cmd=lambda: self.reveal_urls.emit(urls)
+            cmd=lambda: self.reveal_urls.emit(all_urls)
         )
         menu.addSeparator()
         menu.add_action(
             action=common_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit(urls)
+            cmd=lambda: self.copy_urls.emit(all_urls)
         )
         menu.add_action(
             action=common_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(urls)
+            cmd=lambda: self.copy_names.emit(all_urls)
         )
         menu.addSeparator()
         menu.add_action(
@@ -607,7 +611,7 @@ class Grid(UScrollArea):
         menu.addSeparator()
         menu.add_action(
             action=thumb_actions.remove_files,
-            cmd=lambda: self.remove_files_cmd(urls)
+            cmd=lambda: self.remove_files_cmd(all_urls)
         )
 
     def base_grid_actions(self, menu: UMenu):
