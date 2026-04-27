@@ -1,7 +1,6 @@
 import gc
 import os
 import re
-from pathlib import Path
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
