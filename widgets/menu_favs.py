@@ -197,13 +197,15 @@ class MenuFavs(QListWidget):
     def remove_fav_cmd(self):
         pass
 
-    def add_fav_cmd(self, *args):
-        print(args)
-        return
-        list_item = FavItemNew(name, src, self.main_win_item, self)
+    def add_fav_cmd(self, path: str, text: str):
+
+        JsonData.favs[path] = text
+        JsonData.write_json_data()
+        
+        list_item = FavItemNew(text, path, self.main_win_item, self)
         list_item.setIcon(self.folder_icon)
         self.addItem(list_item)
-        self.url_to_item[src] = list_item
+        self.url_to_item[path] = list_item
 
     def rename_fav_cmd(self, fav_item: FavItemBase):
 

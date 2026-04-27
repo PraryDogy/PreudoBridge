@@ -394,7 +394,7 @@ class WinMain(WinBase):
         self.grid.menu_sort_update.connect(self.bar_sort.sort_menu_update)
         self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
         self.grid.bar_path_update.connect(self.bar_path.update)
-        self.grid.add_fav.connect(self.menu_favs.add_fav_cmd)
+        self.grid.add_fav.connect(self.add_fav_cmd)
         self.grid.del_fav.connect(self.menu_favs.remove_fav_cmd)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
@@ -486,6 +486,21 @@ class WinMain(WinBase):
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
+
+    def add_fav_cmd(self, path: str):
+        
+        def finished(text: str):
+            self.menu_favs.add_fav_cmd(path, text)
+
+        if path not in JsonData.favs:
+            self.rename_win = WinRename(os.path.basename(path))
+            self.rename_win.finished_.connect(lambda text: finished(text))
+            self.rename_win.center(self.window())
+            self.rename_win.show()
+        else:
+            self.warn_win = WinWarn("Уже есть в избранном")
+            self.warn_win.center(self.window())
+            self.warn_win.show()
 
     def rename_file(self, item: RenameItem):
         
