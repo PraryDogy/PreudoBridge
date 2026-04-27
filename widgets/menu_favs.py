@@ -240,27 +240,81 @@ class MenuFavs(QListWidget):
         JsonData.favs.pop(src)
         JsonData.write_json_data()
         self.init_ui()
-
-    def dragEnterEvent(self, e):
-        item = self.currentItem()
-        widget: FavItem = self.itemWidget(item)
-        if widget.src not in self.fixed_items:
-            e.acceptProposedAction()
     
-    def dropEvent(self, a0: QDropEvent | None) -> None:
-        urls = a0.mimeData().urls()
-        if not urls:
-            super().dropEvent(a0)
-            new_order = {}
-            for i in range(self.count()):
-                item = self.item(i)
-                fav_widget: FavItem = self.itemWidget(item)
-                if isinstance(fav_widget, FavItem):
-                    new_order[fav_widget.src] = fav_widget.name
-            if new_order:
-                JsonData.favs = new_order
+    def contextMenuEvent(self, a0):
+        fav_item: FavItemBase = self.itemAt(a0.pos())
+        if fav_item:
+            ...
         else:
-            url_ = urls[-1].toLocalFile()
-            url_ = url_.rstrip(os.sep)
-            if os.path.isdir(url_):
-                self.add_fav(src=url_)
+            return
+
+        urls = [fav_item.src, ]
+        item = ContextItem(
+            main_win_item=self.main_win_item,
+            urls=urls,
+            data_items=list()
+        )
+        menu = UMenu(parent=self)
+        thumb_actions = ThumbActions(menu, item)
+        fav_action = FavActions(menu, item)
+        common_actions = CommonActions(menu, item)
+
+        menu.add_action(
+            action=thumb_actions.open_thumb,
+            cmd=lambda: self.load_st_grid.emit(urls[0])
+        )
+        menu.add_action(
+            action=thumb_actions.new_main_win,
+            cmd=lambda: self.new_main_win.emit(urls[0])
+        )
+        menu.addSeparator()
+        menu.add_action(
+            common_actions.reveal,
+            cmd=lambda: self.reveal.emit(urls)
+        )
+        menu.add_action(
+            common_actions.copy_path,
+            cmd=lambda: self.copy_urls.emit(urls)
+        )
+        menu.add_action(
+            common_actions.copy_name,
+            cmd=lambda: self.copy_names.emit(urls)
+        )
+        menu.addSeparator()
+        menu.add_action(
+            action=thumb_actions.rename,
+            cmd=lambda: print("rename fav")
+        )
+        menu.add_action(
+            action=fav_action.fav_remove,
+            cmd=lambda: print("remove fav")
+        )
+
+        menu.show_under_cursor()
+
+
+        return super().contextMenuEvent(a0)
+
+    # def dragEnterEvent(self, e):
+    #     item = self.currentItem()
+    #     widget: FavItem = self.itemWidget(item)
+    #     if widget.src not in self.fixed_items:
+    #         e.acceptProposedAction()
+    
+    # def dropEvent(self, a0: QDropEvent | None) -> None:
+    #     urls = a0.mimeData().urls()
+    #     if not urls:
+    #         super().dropEvent(a0)
+    #         new_order = {}
+    #         for i in range(self.count()):
+    #             item = self.item(i)
+    #             fav_widget: FavItem = self.itemWidget(item)
+    #             if isinstance(fav_widget, FavItem):
+    #                 new_order[fav_widget.src] = fav_widget.name
+    #         if new_order:
+    #             JsonData.favs = new_order
+    #     else:
+    #         url_ = urls[-1].toLocalFile()
+    #         url_ = url_.rstrip(os.sep)
+    #         if os.path.isdir(url_):
+    #             self.add_fav(src=url_)
