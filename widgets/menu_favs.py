@@ -303,11 +303,16 @@ class MenuFavs(QListWidget):
             action=fav_action.fav_remove,
             cmd=lambda: print("remove fav")
         )
-
         menu.show_under_cursor()
-
-
         return super().contextMenuEvent(a0)
+    
+    def mouseReleaseEvent(self, e):
+        item: FavItemBase = self.itemAt(e.pos())
+        if item:
+            self.load_st_grid.emit(item.src)
+        else:
+            self.clearSelection()
+        return super().mouseReleaseEvent(e)
 
     # def dragEnterEvent(self, e):
     #     item = self.currentItem()
