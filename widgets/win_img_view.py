@@ -524,38 +524,3 @@ class WinImgView(WinBase):
             callback=lambda value: self.rotate_image(value)
         )
         self.context_menu.show_under_mouse()
-        # скопировать путь
-        # скопировать имя
-        # сеп
-        # повернуть меню
-        return
-        urls = [self.current_url]
-        names = [os.path.basename(i) for i in urls]
-
-        menu = UMenu(parent=self)
-
-        open_menu = ItemActions.OpenInApp(menu, urls)
-        menu.addMenu(open_menu)
-
-        menu.addSeparator()
-
-        info = ItemActions.WinInfo(menu)
-        info.triggered.connect(lambda: self.win_info_cmd(self.current_url))
-        menu.addAction(info)
-
-        show_in_finder_action = ItemActions.RevealInFinder(menu, urls)
-        menu.addAction(show_in_finder_action)
-
-        copy_path = ItemActions.CopyPath(menu, urls)
-        menu.addAction(copy_path)
-
-        copy_name = ItemActions.CopyName(menu, names)
-        menu.addAction(copy_name)
-
-        menu.addSeparator()
-
-        rotate = ItemActions.RotateMenu(menu)
-        rotate.rotate_sig.connect(self.rotate_image)
-        menu.addMenu(rotate)
-
-        menu.show_under_cursor()
