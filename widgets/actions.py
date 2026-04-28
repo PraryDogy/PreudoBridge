@@ -80,6 +80,12 @@ class SelectAllText(QAction):
         super().__init__(self.text_, parent)
 
 
+class CopyText(QAction):
+    text_ = "Скопировать"
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
+
+
 class SortMenu(UMenu):
     triggered = pyqtSignal()
     text_menu = "Сортировать"
@@ -259,9 +265,7 @@ class Rename(QAction):
 
 class Actions:
     def __init__(self, menu: UMenu):
-        self.cut_text = CutText(menu)
         self.copy_text = CopyText(menu)
-        self.paste_text = PasteText(menu)
         self.select_all_text = SelectAllText(menu)
 
         self.fav_add = FavAdd(menu)
