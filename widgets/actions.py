@@ -1,63 +1,59 @@
 import os
 
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
+from PyQt5.QtWidgets import QAction, QMenu
 
-from cfg import Dynamic, Static
 from system.items import MainWinItem
-from system.utils import Utils
-
-from ._base_widgets import UMenu
 
 
 class Reveal(QAction):
     text_ = "Показать в Finder"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class WinInfo(QAction):
     text_ = "Инфо"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class CopyPath(QAction):
     text_ = "Скопировать путь"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class CopyName(QAction):
     text_ = "Скопировать имя"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class OpenThumb(QAction):
     text_ = "Открыть"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class FavRemove(QAction):
     text_ = "Удалить из избранного"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class FavAdd(QAction):
     text_ = "Добавить в избранное"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
-class OpenInApp(UMenu):
+class OpenInApp(QMenu):
     text_menu = "Открыть в приложении"
     def_text = "Открыть по умолчанию"
     triggered = pyqtSignal(str)
 
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(parent=parent, title=self.text_menu)
 
         default = QAction(self.def_text, self)
@@ -75,7 +71,7 @@ class OpenInApp(UMenu):
 
 class CutText(QAction):
     text_ = "Вырезать"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
     # def cmd_(self):
@@ -93,7 +89,7 @@ class CutText(QAction):
 
 class CopyText(QAction):
     text_ = "Копировать"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
     # def cmd_(self):
@@ -113,7 +109,7 @@ class CopyText(QAction):
 
 class PasteText(QAction):
     text_ = "Вставить"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
     # def cmd_(self):
@@ -129,17 +125,17 @@ class PasteText(QAction):
 
 class SelectAllText(QAction):
     text_ = "Выделить все"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
-class SortMenu(UMenu):
+class SortMenu(QMenu):
     triggered = pyqtSignal()
     text_menu = "Сортировать"
     text_ascending = "По возрастанию"
     text_discenging = "По убыванию"
 
-    def __init__(self, parent: UMenu, main_win_item: MainWinItem):
+    def __init__(self, parent: QMenu, main_win_item: MainWinItem):
         super().__init__(self.text_menu, parent)
         self.sort_item = main_win_item.sort_item
         ascending = QAction(self.text_ascending, self)
@@ -194,13 +190,13 @@ class SortMenu(UMenu):
         self.triggered.emit()
 
 
-class ChangeViewMenu(UMenu):
+class ChangeViewMenu(QMenu):
     triggered = pyqtSignal(int)
     text_menu = "Вид"
     text_grid = "Сетка"
     text_list = "Список"
 
-    def __init__(self, parent: UMenu, main_win_item: MainWinItem):
+    def __init__(self, parent: QMenu, main_win_item: MainWinItem):
         super().__init__(self.text_menu, parent)
 
         # отобразить сеткой
@@ -224,13 +220,13 @@ class ChangeViewMenu(UMenu):
             list_.setChecked(True)
 
 
-class RotateMenu(UMenu):
+class RotateMenu(QMenu):
     triggered = pyqtSignal(int)
     text_menu = "Повернуть"
     clockwise = "Повернуть по ч.с. (⌘ + →)"
     counter_clockwise = "Повернуть против ч.с. (⌘ + ←)"
 
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_menu, parent)
 
         # отобразить сеткой
@@ -246,72 +242,72 @@ class RotateMenu(UMenu):
 
 class NewMainWin(QAction):
     text_ = "Открыть в новом окне"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class CutFiles(QAction):
     text_ = "Вырезать"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class CopyFiles(QAction):
     text_ = "Скопировать"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class RemoveFiles(QAction):
     text_ = "Удалить"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class PasteFiles(QAction):
     text_ = "Вставить"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class ShowInGrid(QAction):
     text_ = "Показать в папке"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class UpdateGrid(QAction):
     text_ = "Обновить"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class NewFolder(QAction):
     text_ = "Новая папка"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class OpenSingle(QAction):
     text_ = "Открыть"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class ImgConvert(QAction):
     text_ = "Создать копию jpg"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class Rename(QAction):
     text_ = "Переименовать"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: QMenu):
         super().__init__(self.text_, parent)
 
 
 class Actions:
-    def __init__(self, menu: UMenu):
+    def __init__(self, menu: QMenu):
         self.cut = CutText(menu)
         self.copy = CopyText(menu)
         self.paste = PasteText(menu)
@@ -339,7 +335,7 @@ class Actions:
 
 
 class Menus:
-    def __init__(self, menu: UMenu, main_win_item: MainWinItem = None):
+    def __init__(self, menu: QMenu, main_win_item: MainWinItem = None):
         if main_win_item:
             self.change_view = ChangeViewMenu(menu, main_win_item)
             self.sort_menu = SortMenu(menu, main_win_item)

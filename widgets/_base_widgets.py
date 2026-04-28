@@ -1,5 +1,4 @@
 import os
-import re
 
 from PyQt5.QtCore import QDir, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
