@@ -293,10 +293,11 @@ class WinImgView(WinBase):
 
         if self.current_url in WinImgView.cached_images:
             pixmap = WinImgView.cached_images[self.current_url]
-            # pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)
-
-        elif self.current_data_item.qimages:
+        else:
+            self.load_image()
+        return
+        if self.current_data_item.qimages:
             qimage = self.current_data_item.qimages["src"]
             pixmap = QPixmap.fromImage(qimage)
             self.restart_img_wid(pixmap)
