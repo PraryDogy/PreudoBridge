@@ -207,9 +207,14 @@ class UTextEdit(QTextEdit):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         # Предотвращаем круговой импорт, т.к. в actions.py есть импорт UMenu
-        from .actions import CopyText, CutText, PasteText, SelectAllText
+        from .actions import Actions
+        self.context_menu = UMenu()
+        self.context_actions = Actions(self.context_menu)
 
-        menu = UMenu()
+        self.context_menu.add_action(
+            action=self.context_actions.cut_text,
+            
+        )
 
         cut_a = CutText(menu, self)
         menu.addAction(cut_a)
