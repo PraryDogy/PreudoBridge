@@ -364,7 +364,6 @@ class Actions:
         self.fav_add = FavAdd(menu)
         self.fav_remove = FavRemove(menu)
         self.open_thumb = OpenThumb(menu)
-        self.open_in_app_menu = OpenInApp(menu)
         self.convert_to_jpg = ImgConvert(menu)
         self.rename = Rename(menu)
         self.cut_files = CutFiles(menu)
@@ -387,3 +386,4 @@ class Menus:
     def __init__(self, menu: UMenu, main_win_item: MainWinItem):
         self.change_view = ChangeViewMenu(menu, main_win_item)
         self.sort_menu = SortMenu(menu, main_win_item)
+        self.open_in_app_menu = OpenInApp(menu)

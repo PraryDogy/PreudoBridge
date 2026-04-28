@@ -73,7 +73,7 @@ class WinInfo(WinMinCloseOnly):
     files_text = "Количество файлов:"
     folders_text = "Количество папок:"
 
-    def __init__(self, data_items: list[DataItem]):
+    def __init__(self, urls: list[str]):
         super().__init__()
         self.setWindowTitle(WinInfo.title_text)
         self.set_modality()
@@ -81,7 +81,11 @@ class WinInfo(WinMinCloseOnly):
         self.left = Qt.AlignmentFlag.AlignLeft
         self.right = Qt.AlignmentFlag.AlignRight
         self.top = Qt.AlignmentFlag.AlignTop
-        self.data_items = data_items
+        self.data_items = []
+        for i in urls:
+            data_item = DataItem(i)
+            data_item.set_properties()
+            self.data_items.append(data_item)
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)

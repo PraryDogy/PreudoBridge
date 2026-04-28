@@ -7,7 +7,7 @@ from cfg import JsonData
 from system.items import MainWinItem, NamePathItem
 
 from ._base_widgets import UMenu
-from .actions import CommonActions, ThumbActions
+from .actions import Actions
 
 
 class MenuTree(QTreeView):
@@ -89,41 +89,40 @@ class MenuTree(QTreeView):
         if not index.isValid():
             return
 
-        menu = UMenu(parent=self)
+        context_menu = UMenu(parent=self)
+        context_actions = Actions(context_menu)
         src = self.c_model.filePath(index)
         index = self.c_model.index(src)
-        actions = ThumbActions(menu)
-        common_actions = CommonActions(menu)
-        menu.add_action(
-            action=actions.open_thumb,
+        context_menu.add_action(
+            action=context_actions.open_thumb,
             cmd=lambda: self.one_clicked(index)
         )
-        menu.add_action(
-            action=actions.new_main_win,
+        context_menu.add_action(
+            action=context_actions.new_main_win,
             cmd=lambda: self.new_main_win.emit(src)
         )
         if src in JsonData.favs:
-            menu.add_action(
-                action=actions.fav_remove,
+            context_menu.add_action(
+                action=context_actions.fav_remove,
                 cmd=lambda: self.remove_fav_cmd(src)
             )
         else:
-            menu.add_action(
-                action=actions.fav_add,
+            context_menu.add_action(
+                action=context_actions.fav_add,
                 cmd=lambda: self.add_fav_cmd(src)
             )
-        menu.addSeparator()
-        menu.add_action(
-            action=common_actions.reveal,
+        context_menu.addSeparator()
+        context_menu.add_action(
+            action=context_actions.reveal,
             cmd=lambda: self.reveal.emit([src, ])
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=common_actions.copy_name,
+        context_menu.addSeparator()
+        context_menu.add_action(
+            action=context_actions.copy_name,
             cmd=lambda: self.copy_names.emit([src, ])
         )
-        menu.add_action(
-            action=common_actions.copy_path,
+        context_menu.add_action(
+            action=context_actions.copy_path,
             cmd=lambda: self.copy_urls.emit([src, ])
         )
-        menu.show_under_cursor()
+        context_menu.show_under_cursor()

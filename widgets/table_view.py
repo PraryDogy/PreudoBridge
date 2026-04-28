@@ -15,9 +15,7 @@ from system.shared_utils import ImgUtils
 from system.utils import Utils
 
 from ._base_widgets import UFileSystemModel, UMenu
-from .actions import CommonActions, GridActions, ThumbActions
-# main win
-from .grid import Thumb
+from .actions import Actions, Menus
 
 
 class MyFileSystemModel(UFileSystemModel):
@@ -76,8 +74,8 @@ class TableView(QTableView):
 
     new_history_item = pyqtSignal(str)
     bar_path_update = pyqtSignal(str)
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
+    add_fav = pyqtSignal(NamePathItem)
+    del_fav = pyqtSignal(NamePathItem)
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
@@ -301,147 +299,141 @@ class TableView(QTableView):
         )
         self.rename_file.emit(item)
 
-    def folder_actions(self, menu_: UMenu, path: str):
-        actions = ThumbActions(menu_)
-
-        menu_.add_action(
-            action=actions.new_main_win,
-            cmd=lambda: self.new_main_win_open.emit(path)
+    def folder_actions(self):
+        name_path_item = NamePathItem(
+            filename=os.path.basename(self.url_under_mouse),
+            filepath=self.url_under_mouse,
+            urls=[self.url_under_mouse, ]
         )
-        if path in JsonData.favs:
-            menu_.add_action(
-                action=actions.fav_remove,
-                cmd=lambda: self.fav_cmd(-1, path)
+        self.context_menu.add_action(
+            action=self.context_actions.new_main_win,
+            cmd=lambda: self.new_main_win_open.emit(self.url_under_mouse)
+        )
+        if self.url_under_mouse in JsonData.favs:
+            self.context_menu.add_action(
+                action=self.context_actions.fav_remove,
+                cmd=lambda: self.del_fav.emit(name_path_item)
             )
         else:
-            menu_.add_action(
-                action=actions.fav_add,
-                cmd=lambda: self.fav_cmd(1, path)
+            self.context_menu.add_action(
+                action=self.context_actions.fav_add,
+                cmd=lambda: self.add_fav.emit(name_path_item)
             )
 
-    def base_thumb_actions(self, menu: UMenu, path: str):
-        actions = ThumbActions(menu)
-        common_actions = CommonActions(menu)
-
-        menu.add_action(
-            action=actions.open_thumb,
-            cmd=lambda: self.open_thumb(item.urls)
+    def base_thumb_actions(self):
+        self.context_menu.add_action(
+            action=self.context_actions.open_thumb,
+            cmd=lambda: self.open_thumb(self.selected_urls)
         )
-        if not path.endswith(ImgUtils.ext_all):
-            self.folder_actions(menu, item, path)
+        if not self.url_under_mouse.endswith(ImgUtils.ext_all):
+            self.folder_actions()
         else:
-            menu.add_menu(
-                menu=actions.open_in_app_menu,
-                cmd=lambda app_path: self.open_in_app.emit((item.urls, app_path))
+            self.context_menu.add_menu(
+                menu=self.context_menus.open_in_app_menu,
+                cmd=lambda app_path: self.open_in_app.emit((self.selected_urls, app_path))
             )
-            menu.add_action(
-                action=actions.convert_to_jpg,
-                cmd=lambda: self.open_img_convert_win(item.urls)
+            self.context_menu.add_action(
+                action=self.context_actions.convert_to_jpg,
+                cmd=lambda: self.open_img_convert_win(self.selected_urls)
             )
-        menu.addSeparator()
-        menu.add_action(
-            action=common_actions.win_info,
-            cmd=lambda: self.open_win_info.emit(item.data_items)
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.win_info,
+            cmd=lambda: self.open_win_info.emit(self.selected_urls)
         )
-        menu.add_action(
-            action=actions.rename,
-            cmd=lambda: self.rename_file_cmd(path)
+        self.context_menu.add_action(
+            action=self.context_actions.rename,
+            cmd=lambda: self.rename_file_cmd(self.url_under_mouse)
         )
-        menu.add_action(
-            action=common_actions.reveal,
-            cmd=lambda: self.reveal_urls.emit(item.urls)
+        self.context_menu.add_action(
+            action=self.context_actions.reveal,
+            cmd=lambda: self.reveal_urls.emit(self.selected_urls)
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=common_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit(item.urls)
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.copy_path,
+            cmd=lambda: self.copy_urls.emit(self.selected_urls)
         )
-        menu.add_action(
-            action=common_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(item.urls)
+        self.context_menu.add_action(
+            action=self.context_actions.copy_name,
+            cmd=lambda: self.copy_names.emit(self.selected_urls)
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=actions.cut_files,
-            cmd=lambda: self.setup_clipboard(item.urls, True)
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.cut_files,
+            cmd=lambda: self.setup_clipboard(self.selected_urls, True)
         )
-        menu.add_action(
-            action=actions.copy_files,
-            cmd=lambda: self.setup_clipboard(item.urls, False)
+        self.context_menu.add_action(
+            action=self.context_actions.copy_files,
+            cmd=lambda: self.setup_clipboard(self.selected_urls, False)
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=actions.remove_files,
-            cmd=lambda: self.remove_files_cmd(item.urls)
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.remove_files,
+            cmd=lambda: self.remove_files_cmd(self.selected_urls)
         )
 
-    def base_grid_actions(self, menu: UMenu):
-        actions = GridActions(menu, self.main_win_item)
-        common_actions = CommonActions(menu)
-        menu.add_action(
-            action=actions.new_folder,
+    def base_grid_actions(self):
+        self.context_menu.add_action(
+            action=self.context_actions.new_folder,
             cmd=lambda: self.new_folder.emit()
         )
-        menu.add_action(
-            action=actions.update_grid,
+        self.context_menu.add_action(
+            action=self.context_actions.update_grid,
             cmd=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
         )
-        menu.add_action(
-            action=common_actions.win_info,
-            cmd=lambda: self.open_win_info.emit(item.data_items)
+        self.context_menu.add_action(
+            action=self.context_actions.win_info,
+            cmd=lambda: self.open_win_info.emit(self.selected_urls)
         )
-        menu.add_action(
-            action=common_actions.reveal,
-            cmd=lambda: self.reveal_urls.emit(item.urls)
+        self.context_menu.add_action(
+            action=self.context_actions.reveal,
+            cmd=lambda: self.reveal_urls.emit(self.selected_urls)
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=common_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit(item.urls)
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.copy_path,
+            cmd=lambda: self.copy_urls.emit(self.selected_urls)
             
         )
-        menu.add_action(
-            action=common_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(item.urls)
+        self.context_menu.add_action(
+            action=self.context_actions.copy_name,
+            cmd=lambda: self.copy_names.emit(self.selected_urls)
         )
-        menu.addSeparator()
-        menu.add_menu(
-            menu=actions.change_view,
+        self.context_menu.addSeparator()
+        self.context_menu.add_menu(
+            menu=self.context_menus.change_view,
             cmd=lambda: self.change_view.emit()
         )
         if ClipboardItemGlob.src_dir:
-            menu.addSeparator()
-            menu.add_action(
-                action=actions.paste_files,
+            self.context_menu.addSeparator()
+            self.context_menu.add_action(
+                action=self.context_actions.paste_files,
                 cmd=lambda: self.paste_files.emit()
             )
 
     def contextMenuEvent(self, event: QContextMenuEvent):
         # определяем выделена ли строка
         index = self.indexAt(event.pos())
-        selected_path = self._model.filePath(index)
-        menu_ = UMenu(parent=self)
+        self.url_under_mouse = self._model.filePath(index)
+        self.context_menu = UMenu()
+        self.context_actions = Actions(self.context_menu)
+        self.context_menus = Menus(self.context_menu, self.main_win_item)
 
         if index.isValid():
-            item.urls = self.get_selected_urls()
+            self.selected_urls = self.get_selected_urls()
             # если выделены другие строка но кликнутая не выделена
             # то выделяем только ее
-            if selected_path not in item.urls:
-                item.urls.clear()
+            if self.url_under_mouse not in self.selected_urls:
+                self.selected_urls.clear()
                 self.select_row(index)
-                item.urls = self.get_selected_urls()
-            item.data_items = [self.url_to_item[i] for i in item.urls]
-            self.base_thumb_actions(menu_, item, selected_path)
+                self.selected_urls = self.get_selected_urls()
+            self.base_thumb_actions()
 
         else:
+            self.base_grid_actions()
 
-            data_item = DataItem(self.main_win_item.abs_current_dir)
-            data_item.set_properties()
-            item.urls = [self.main_win_item.abs_current_dir, ]
-            item.data_items = [data_item, ]
-            self.base_grid_actions(menu_, item)
-
-        menu_.show_under_cursor()
+        self.context_menu.show_under_cursor()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
