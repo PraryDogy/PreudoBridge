@@ -254,6 +254,13 @@ class GridStandart(Grid):
         self.load_visible_thumbs_images()
 
     def grid_actions(self):
+        if ClipboardItemGlob.src_dir:
+            self.context_menu.addSeparator()
+            self.context_menu.add_action(
+                action=self.context_actions.paste_files,
+                cmd=lambda: self.paste_files.emit()
+            )
+        self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.new_folder,
             cmd=lambda: self.new_folder.emit()
@@ -264,12 +271,6 @@ class GridStandart(Grid):
         )
         self.context_menu.addSeparator()
         super().base_grid_actions()
-        if ClipboardItemGlob.src_dir:
-            self.context_menu.addSeparator()
-            self.context_menu.add_action(
-                action=self.context_actions.paste_files,
-                cmd=lambda: self.paste_files.emit()
-            )
 
     def deleteLater(self):
         self.watchdog_task.terminate_join()
