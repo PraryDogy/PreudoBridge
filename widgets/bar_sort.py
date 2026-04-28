@@ -8,7 +8,7 @@ from cfg import Dynamic, Static
 from system.items import MainWinItem, SortItem, TotalCountItem
 
 from ._base_widgets import UFrame, USlider, USvgSqareWidget
-from .actions import SortMenu
+from .actions import Menus
 
 
 class GoToBtn(UFrame):
@@ -104,11 +104,11 @@ class SortFrame(UFrame):
         - Сортировка сетки
         - Перетасовка сетки
         """
-        menu_ = SortMenu(self, self.main_win_item)
-        menu_.triggered.connect(self.sort_menu_triggered)
+        menus = Menus(None, self.main_win_item)
+        menus.sort_menu.triggered.connect(self.sort_menu_triggered)
 
         widget_rect = self.rect()
-        menu_size = menu_.sizeHint()
+        menu_size = menus.sort_menu.sizeHint()
 
         centered = QPoint(
             menu_size.width() // 2,
@@ -117,8 +117,8 @@ class SortFrame(UFrame):
 
         # меню всплывает точно над данным виджетом
         menu_center_top = self.mapToGlobal(widget_rect.center()) - centered
-        menu_.move(menu_center_top)
-        menu_.exec_()
+        menus.sort_menu.move(menu_center_top)
+        menus.sort_menu.exec_()
         super().leaveEvent(a0)
         
 
