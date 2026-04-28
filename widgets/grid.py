@@ -608,24 +608,24 @@ class Grid(UScrollArea):
         )
 
     def base_grid_actions(self):
-        url = self.main_win_item.abs_current_dir
+        urls = [self.main_win_item.abs_current_dir, ]
         self.context_menu.add_action(
             action=self.context_actions.win_info,
-            callback=lambda: self.open_win_info.emit([url, ])
+            callback=lambda: self.open_win_info.emit(urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.reveal,
-            callback=lambda: self.reveal_urls.emit([url, ])
+            callback=lambda: self.reveal_urls.emit(urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.copy_path,
-            callback=lambda: self.copy_urls.emit([url, ])
+            callback=lambda: self.copy_urls.emit(urls)
             
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_name,
-            callback=lambda: self.copy_names.emit([url, ])
+            callback=lambda: self.copy_names.emit(urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_menu(

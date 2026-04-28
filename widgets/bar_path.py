@@ -107,14 +107,6 @@ class PathItem(QWidget):
         if not self.text_wid.underMouse():
             self.text_wid.setMinimumWidth(self.min_wid)
 
-    def open_info_win(self):
-        """
-        Открыть окно информации о файле / папке
-        """
-        data_item = DataItem(self.item_dir)
-        data_item.set_properties()
-        self.info_win.emit([data_item, ])
-
     def enterEvent(self, a0):
         """
         Раскрывает виджет на всю его длину при наведении мыши
@@ -239,11 +231,6 @@ class BarPath(QWidget):
         )
         self.img_view_win.emit(item)
 
-    def info_win_open_cmd(self, path: str):
-        item = DataItem(path)
-        item.set_properties()
-        self.info_win_open.emit([item, ])
-
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         wid: PathItem = self.childAt(ev.pos())
         if not isinstance(wid, (PathItem, QLabel)):
@@ -287,7 +274,7 @@ class BarPath(QWidget):
         context_menu.addSeparator()
         context_menu.add_action(
             action=context_actions.win_info,
-            callback=lambda: self.info_win_open_cmd(wid.item_dir)
+            callback=lambda: self.info_win_open.emit(urls)
         )
         context_menu.add_action(
             action=context_actions.reveal,
