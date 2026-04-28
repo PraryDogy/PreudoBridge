@@ -15,7 +15,7 @@ from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
-from .actions import CommonActions, GridActions, ThumbActions
+from .actions import Actions, Menus
 
 FONT_SIZE = 11
 BORDER_RADIUS = 4
@@ -529,121 +529,111 @@ class Grid(UScrollArea):
         )
         self.rename_file.emit(item)
 
-    def folder_actions(self, menu_: UMenu):
-        actions = ThumbActions(menu_)
+    def folder_actions(self):
         wid = self.wid_under_mouse
         root = wid.data_item.abs_path
 
-        menu_.add_action(
-            action=actions.new_main_win,
+        self.context_menu.add_action(
+            action=self.context_actions.new_main_win,
             cmd=lambda: self.new_main_win_open.emit(root)
         )
         if wid.data_item.abs_path in JsonData.favs:
-            menu_.add_action(
-                action=actions.fav_remove,
+            self.context_menu.add_action(
+                action=self.context_actions.fav_remove,
                 cmd=lambda: self.fav_cmd(-1, root)
             )
         else:
-            menu_.add_action(
-                action=actions.fav_add,
+            self.context_menu.add_action(
+                action=self.context_actions.fav_add,
                 cmd=lambda: self.fav_cmd(1, root)
             )
 
-    def base_thumb_actions(self, menu: UMenu):
-        thumb_actions = ThumbActions(menu)
-        common_actions = CommonActions(menu)
-        img_data_items = []
+    def base_thumb_actions(self):
         img_urls = []
         all_urls = []
-        all_data_items = []
         for i in self.selected_thumbs:
             if i.data_item.type_ != Static.folder_type:
-                img_data_items.append(i.data_item)
                 img_urls.append(i.data_item.abs_path)
-            all_data_items.append(i.data_item)
             all_urls.append(i.data_item.abs_path)
-        menu.add_action(
-            action=thumb_actions.open_thumb,
+        self.context_menu.add_action(
+            action=self.context_actions.open_thumb,
             cmd=lambda: self.open_thumb()
         )
         if self.wid_under_mouse.data_item.type_ == Static.folder_type:
-            self.folder_actions(menu)
+            self.folder_actions()
         else:
-            menu.add_menu(
-                menu=thumb_actions.open_in_app_menu,
+            self.context_menu.add_menu(
+                menu=self.context_actions.open_in_app_menu,
                 cmd=lambda app_path: self.open_in_app.emit((img_urls, app_path))
             )
-            menu.add_action(
-                action=thumb_actions.convert_to_jpg,
+            self.context_menu.add_action(
+                action=self.context_actions.convert_to_jpg,
                 cmd=lambda: self.open_img_convert_win(img_urls)
             )
-        menu.addSeparator()
-        menu.add_action(
-            action=common_actions.win_info,
-            cmd=lambda: self.open_win_info.emit(all_data_items)
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.win_info,
+            cmd=lambda: self.open_win_info.emit(all_urls)
         )
-        menu.add_action(
-            action=thumb_actions.rename,
+        self.context_menu.add_action(
+            action=self.context_actions.rename,
             cmd=lambda: self.rename_file_cmd(self.wid_under_mouse.data_item.abs_path)
         )
-        menu.add_action(
-            action=common_actions.reveal,
+        self.context_menu.add_action(
+            action=self.context_actions.reveal,
             cmd=lambda: self.reveal_urls.emit(all_urls)
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=common_actions.copy_path,
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.copy_path,
             cmd=lambda: self.copy_urls.emit(all_urls)
         )
-        menu.add_action(
-            action=common_actions.copy_name,
+        self.context_menu.add_action(
+            action=self.context_actions.copy_name,
             cmd=lambda: self.copy_names.emit(all_urls)
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=thumb_actions.cut_files,
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.cut_files,
             cmd=lambda: self.setup_clipboard(is_cut=True)
         )
-        menu.add_action(
-            action=thumb_actions.copy_files,
+        self.context_menu.add_action(
+            action=self.context_actions.copy_files,
             cmd=lambda: self.setup_clipboard(is_cut=False)
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=thumb_actions.remove_files,
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.remove_files,
             cmd=lambda: self.remove_files_cmd(all_urls)
         )
 
-    def base_grid_actions(self, menu: UMenu):
-        actions = GridActions(menu, self.main_win_item)
-        common_actions = CommonActions(menu)
-        data_item = DataItem(self.main_win_item.abs_current_dir)
-        data_item.set_properties()
-        menu.add_action(
-            action=common_actions.win_info,
-            cmd=lambda: self.open_win_info.emit([data_item, ])
+    def base_grid_actions(self):
+        url = self.main_win_item.abs_current_dir
+        self.context_menu.add_action(
+            action=self.context_actions.win_info,
+            cmd=lambda: self.open_win_info.emit([url, ])
         )
-        menu.add_action(
-            action=common_actions.reveal,
-            cmd=lambda: self.reveal_urls.emit([data_item.abs_path, ])
+        self.context_menu.add_action(
+            action=self.context_actions.reveal,
+            cmd=lambda: self.reveal_urls.emit([url, ])
         )
-        menu.addSeparator()
-        menu.add_action(
-            action=common_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit([data_item.abs_path, ])
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.copy_path,
+            cmd=lambda: self.copy_urls.emit([url, ])
             
         )
-        menu.add_action(
-            action=common_actions.copy_name,
-            cmd=lambda: self.copy_names.emit([data_item.abs_path, ])
+        self.context_menu.add_action(
+            action=self.context_actions.copy_name,
+            cmd=lambda: self.copy_names.emit([url, ])
         )
-        menu.addSeparator()
-        menu.add_menu(
-            menu=actions.change_view,
+        self.context_menu.addSeparator()
+        self.context_menu.add_menu(
+            menu=self.context_menus.change_view,
             cmd=lambda: self.change_view.emit()
         )
-        menu.add_menu(
-            menu=actions.sort_menu,
+        self.context_menu.add_menu(
+            menu=self.context_menus.sort_menu,
             cmd=lambda: (self.sort_thumbs(), self.rearrange_thumbs())
         )
 
@@ -903,6 +893,9 @@ class Grid(UScrollArea):
             total=len(self.cell_to_wid)
         )
         self.total_count_update.emit(item)
+        self.context_menu = UMenu()
+        self.context_actions = Actions(self.context_menu)
+        self.context_menus = Menus(self.context_menu, self.main_win_item)
     
     def deleteLater(self):
         urls = [i.data_item.abs_path for i in self.selected_thumbs]

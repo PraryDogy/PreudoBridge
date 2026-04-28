@@ -253,22 +253,21 @@ class GridStandart(Grid):
         super().rearrange_thumbs()
         self.load_visible_thumbs_images()
 
-    def grid_actions(self, menu: UMenu):
-        actions = GridActions(menu, self.main_win_item)
-        menu.add_action(
-            action=actions.new_folder,
+    def grid_actions(self):
+        self.context_menu.add_action(
+            action=self.context_actions.new_folder,
             cmd=lambda: self.new_folder.emit()
         )
-        menu.add_action(
-            action=actions.update_grid,
+        self.context_menu.add_action(
+            action=self.context_actions.update_grid,
             cmd=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
         )
-        menu.addSeparator()
-        super().base_grid_actions(menu)
+        self.context_menu.addSeparator()
+        super().base_grid_actions()
         if ClipboardItemGlob.src_dir:
-            menu.addSeparator()
-            menu.add_action(
-                action=actions.paste_files,
+            self.context_menu.addSeparator()
+            self.context_menu.add_action(
+                action=self.context_actions.paste_files,
                 cmd=lambda: self.paste_files.emit()
             )
 
@@ -310,22 +309,11 @@ class GridStandart(Grid):
     
     def contextMenuEvent(self, a0):
         super().contextMenuEvent(a0)
-        urls: list[str] = []
-        data_items: list[DataItem] = []
-        for i in self.selected_thumbs:
-            urls.append(i.data_item.abs_path)
-            data_items.append(i.data_item)
-        if not data_items:
-            item = DataItem(self.main_win_item.abs_current_dir)
-            item.set_properties()
-            data_items.append(item)
-            urls.append(item.abs_path)
-        menu = UMenu(parent=self)
         if self.wid_under_mouse:
-            self.base_thumb_actions(menu)
+            self.base_thumb_actions()
         else:
-            self.grid_actions(menu)
-        menu.show_under_cursor()
+            self.grid_actions()
+        self.context_menu.show_under_cursor()
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_V:
