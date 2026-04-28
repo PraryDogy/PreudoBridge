@@ -1,11 +1,10 @@
 import os
 
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QAction, QLineEdit, QTextEdit
+from PyQt5.QtWidgets import QAction
 
 from cfg import Dynamic
 from system.items import MainWinItem
-from system.utils import Utils
 
 from ._base_widgets import UMenu
 
