@@ -498,7 +498,7 @@ class WinImgView(WinBase):
         self.context_menus = Menus(self.context_menu)
         self.context_menu.add_menu(
             menu=self.context_menus.open_in_app_menu,
-            callback=lambda app_path: self.open_in_app.emit((self.current_url, app_path))
+            callback=lambda app_path: self.open_in_app.emit((urls, app_path))
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
