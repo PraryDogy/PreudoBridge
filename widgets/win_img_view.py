@@ -1,3 +1,4 @@
+import gc
 import os
 
 from PyQt5.QtCore import QEvent, QPointF, QSize, Qt, QTimer, pyqtSignal
@@ -464,28 +465,21 @@ class WinImgView(WinBase):
     def leaveEvent(self, a0: QEvent | None) -> None:
         self.hide_btns()
 
-    def deleteLater(self):
-
+    def on_closed(self):
         WinImgView.ww = self.size().width()
         WinImgView.hh = self.size().height()
         WinImgView.xx = self.x()
         WinImgView.yy = self.y()
-
         WinImgView.cached_images.clear()
-    
+        gc.collect()
         self.closed.emit()
+
+    def deleteLater(self):
+        self.on_closed()
         return super().deleteLater()
 
     def closeEvent(self, a0):
-
-        WinImgView.ww = self.size().width()
-        WinImgView.hh = self.size().height()
-        WinImgView.xx = self.x()
-        WinImgView.yy = self.y()
-
-        WinImgView.cached_images.clear()
-
-        self.closed.emit()
+        self.on_closed()
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
