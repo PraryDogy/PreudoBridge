@@ -3,6 +3,7 @@ import os
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QMenu
 
+from cfg import Dynamic
 from system.items import MainWinItem
 
 
