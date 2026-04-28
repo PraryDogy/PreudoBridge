@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtCore import QDir, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
-                         QPalette, QWheelEvent)
+                         QPalette, QTextCursor, QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGraphicsDropShadowEffect, QHBoxLayout, QLabel,
@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
 
 from cfg import Static
 from system.shared_utils import ImgUtils
+from system.utils import Utils
 
 
 class UScrollArea(QScrollArea):
@@ -125,6 +126,71 @@ class USvgSqareWidget(QSvgWidget):
             self.load(src)
 
 
+class TextWidgetMenu(UMenu):
+    def __init__(self, parent: QLineEdit | QTextEdit):
+        super().__init__()
+        self.parent_ = parent
+        self.add_action(
+            action=QAction("Вырезать", self),
+            callback=lambda: self.cut_text()
+        )
+        self.add_action(
+            action=QAction("Копировать", self),
+            callback=lambda: self.copy_text()
+        )
+        if Utils.read_from_clipboard():
+            self.add_action(
+                action=QAction("Вставить", self),
+                callback=lambda: self.paste_text()
+            )
+        self.addSeparator()
+        self.add_action(
+            action=QAction("Выделить все", self),
+            callback=lambda: self.select_all()
+        )
+
+    def cut_text(self):
+        if isinstance(self.parent_, QLineEdit):
+            selection = self.parent_.selectedText()
+            text = self.parent_.text().replace(selection, "")
+            self.parent_.setText(text)
+
+        elif isinstance(self.wid, QTextEdit):
+            selection = self.wid.textCursor().selectedText()
+            self.wid.textCursor().removeSelectedText()
+
+        selection = selection.replace(Static.paragraph_symbol, "")
+        selection = selection.replace(Static.line_feed_symbol, "")
+        Utils.write_to_clipboard(selection)
+
+    def copy_text(self):
+        if isinstance(self.parent_, QLineEdit):
+            selection = self.parent_.selectedText()
+        if isinstance(self.wid, QTextEdit):
+            selection = self.parent_.textCursor().selectedText()
+
+        selection = selection.replace(Static.paragraph_symbol, "")
+        selection = selection.replace(Static.line_feed_symbol, "")
+        Utils.write_to_clipboard(selection)
+
+    def paste_text(self):
+        text = Utils.read_from_clipboard()
+        if isinstance(self.parent_, QLineEdit):
+            new_text = self.parent_.text() + text
+            self.parent_.setText(new_text)
+        elif isinstance(self.parent_, QTextEdit):
+            cursor = self.parent_.textCursor()
+            cursor.insertText(text)
+    
+    def select_all(self):
+        if isinstance(self.parent_, QLineEdit):
+            self.parent_.selectAll()
+        elif isinstance(self.parent_, QTextEdit):
+            cursor = self.parent_.textCursor()
+            cursor.select(QTextCursor.SelectionType.Document)
+            self.parent_.setTextCursor(cursor)
+
+
 class ULineEdit(QLineEdit):
     def __init__(self):
         """
@@ -172,26 +238,8 @@ class ULineEdit(QLineEdit):
         self.clear_btn.move(x, y)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        # Предотвращаем круговой импорт, т.к. в actions.py есть импорт UMenu
-        from .actions import CopyText, CutText, PasteText, SelectAllText
-
-        menu = UMenu()
-
-        cut_a = CutText(menu, self)
-        menu.addAction(cut_a)
-
-        copy_a = CopyText(menu, self)
-        menu.addAction(copy_a)
-
-        paste_a = PasteText(menu, self)
-        menu.addAction(paste_a)
-
-        menu.addSeparator()
-
-        select_all_a = SelectAllText(menu, self)
-        menu.addAction(select_all_a)
-
-        menu.show_under_mouse()
+        self.context_menu = TextWidgetMenu(parent=self)
+        self.context_menu.show_under_mouse()
 
 
 class UTextEdit(QTextEdit):
@@ -206,31 +254,8 @@ class UTextEdit(QTextEdit):
         self.setAcceptRichText(False)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        # Предотвращаем круговой импорт, т.к. в actions.py есть импорт UMenu
-        from .actions import Actions
-        self.context_menu = UMenu()
-        self.context_actions = Actions(self.context_menu)
-
-        self.context_menu.add_action(
-            action=self.context_actions.cut_text,
-            
-        )
-
-        cut_a = CutText(menu, self)
-        menu.addAction(cut_a)
-
-        copy_a = CopyText(menu, self)
-        menu.addAction(copy_a)
-
-        paste_a = PasteText(menu, self)
-        menu.addAction(paste_a)
-
-        menu.addSeparator()
-
-        select_all_a = SelectAllText(menu, self)
-        menu.addAction(select_all_a)
-
-        menu.show_under_mouse()
+        self.context_menu = TextWidgetMenu(parent=self)
+        self.context_menu.show_under_mouse()
 
 
 class USep(QFrame):

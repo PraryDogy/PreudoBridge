@@ -73,60 +73,6 @@ class OpenInApp(UMenu):
             self.addAction(wid)
 
 
-class CutText(QAction):
-    text_ = "Вырезать"
-    def __init__(self, parent: UMenu):
-        super().__init__(self.text_, parent)
-
-    def cmd_(self, wid: QLineEdit | QTextEdit):
-        if isinstance(wid, QLineEdit):
-            selection = self.wid.selectedText()
-            text = self.wid.text().replace(selection, "")
-            self.wid.setText(text)
-
-        elif isinstance(self.wid, QTextEdit):
-            selection = self.wid.textCursor().selectedText()
-            self.wid.textCursor().removeSelectedText()
-
-        Utils.write_to_clipboard(selection)
-
-
-class CopyText(QAction):
-    text_ = "Копировать"
-    def __init__(self, parent: UMenu):
-        super().__init__(self.text_, parent)
-
-    # def cmd_(self):
-    #     if isinstance(self.wid, QTextEdit):
-    #         selection = self.wid.textCursor().selectedText()
-    #     else:
-    #         selection = self.wid.selectedText()
-
-    #     # это два символа, которые в PyQt5 почему то обозначаются
-    #     # символами параграфа и новой строки
-    #     # при копировании мы удаляем их, делая копируемый текст
-    #     # однострочным
-    #     selection = selection.replace(Static.paragraph_symbol, "")
-    #     selection = selection.replace(Static.line_feed_symbol, "")
-    #     Utils.write_to_clipboard(selection)
-
-
-class PasteText(QAction):
-    text_ = "Вставить"
-    def __init__(self, parent: UMenu):
-        super().__init__(self.text_, parent)
-
-    # def cmd_(self):
-    #     text = Utils.read_from_clipboard()
-
-    #     if isinstance(self.wid, QTextEdit):
-    #         cursor = self.wid.textCursor()
-    #         cursor.insertText(text)
-    #     else:
-    #         new_text = self.wid.text() + text
-    #         self.wid.setText(new_text)
-
-
 
 class SelectAllText(QAction):
     text_ = "Выделить все"
