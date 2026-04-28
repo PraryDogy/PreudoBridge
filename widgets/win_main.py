@@ -322,6 +322,10 @@ class WinMain(WinBase):
         self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
         self.img_view_win.closed.connect(_on_closed)
         self.img_view_win.info_win.connect(self.info_win_open)
+        self.img_view_win.open_in_app.connect(self.open_in_app)
+        self.img_view_win.reveal.connect(self.reveal_urls)
+        self.img_view_win.copy_paths.connect(self.copy_urls)
+        self.img_view_win.copy_names.connect(self.copy_names)
         if WinImgView.ww == 0:
             self.img_view_win.resize(Static.base_ww, Static.base_hh)
             self.img_view_win.center(self.window())

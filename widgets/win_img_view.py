@@ -219,7 +219,6 @@ class WinImgView(WinBase):
     move_to_wid = pyqtSignal(DataItem)
     closed = pyqtSignal()
     info_win = pyqtSignal(list)
-
     open_in_app = pyqtSignal(tuple)
     reveal = pyqtSignal(list)
     copy_paths = pyqtSignal(list)
