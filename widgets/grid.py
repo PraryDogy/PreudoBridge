@@ -793,12 +793,12 @@ class Grid(UScrollArea):
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
                     self.open_win_info.emit(
-                        [i.data_item for i in self.selected_thumbs]
+                        [i.data_item.abs_path for i in self.selected_thumbs]
                     )
                 else:
                     data = DataItem(self.main_win_item.abs_current_dir)
                     data.set_properties()
-                    self.open_win_info.emit([data, ])
+                    self.open_win_info.emit([data.abs_path, ])
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1

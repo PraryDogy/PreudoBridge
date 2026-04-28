@@ -309,10 +309,10 @@ class Rename(QAction):
 
 class Actions:
     def __init__(self, menu: QMenu):
-        self.cut = CutText(menu)
-        self.copy = CopyText(menu)
-        self.paste = PasteText(menu)
-        self.select_all = SelectAllText(menu)
+        self.cut_text = CutText(menu)
+        self.copy_text = CopyText(menu)
+        self.paste_text = PasteText(menu)
+        self.select_all_text = SelectAllText(menu)
 
         self.fav_add = FavAdd(menu)
         self.fav_remove = FavRemove(menu)

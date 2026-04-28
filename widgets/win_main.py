@@ -123,7 +123,6 @@ class WinMain(WinBase):
             item_type=SortItem.mod,
             reversed=True
         )
-        self.img_view_win = None
 
         self.main_win_item = MainWinItem(
             urls_to_select=list(),
@@ -315,7 +314,7 @@ class WinMain(WinBase):
     def img_view_win_open(self, item: ImgViewItem):
 
         def _on_closed():
-            self.img_view_win = None
+            return
             gc.collect()
 
         self.img_view_win = WinImgView(item)
@@ -452,10 +451,17 @@ class WinMain(WinBase):
         self.menu_filters.set_disabled(True)
         QTimer.singleShot(100, self.grid.setFocus)
 
-    def info_win_open(self, data_items: list[DataItem]):
-        self.info_win = WinInfo(data_items)
-        self.info_win.center(self.img_view_win if self.img_view_win else self)
-        self.info_win.show()
+    def info_win_open(self, urls: list[str]):
+        self.win_info = WinInfo(urls)
+        self.win_info.copy_text.connect(
+            lambda text: Utils.write_to_clipboard(text)
+        )
+        self.win_info.reveal.connect(
+            lambda urls: self.reveal_urls(urls)
+        )
+        # индекс -1 всегда будет win info, так как это последнее открытое окно
+        self.win_info.center(self.wins[-2])
+        self.win_info.show()
         
     def paste_files(self):
         ClipboardItemGlob.dst_dir = self.main_win_item.abs_current_dir

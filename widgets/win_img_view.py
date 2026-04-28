@@ -399,16 +399,13 @@ class WinImgView(WinBase):
             i.show()
         self.mouse_move_timer.start(2000)
 
-    def win_info_cmd(self, src: str):
-        self.info_win.emit([self.current_data_item, ])
-
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 
     def keyPressEvent(self, ev: QKeyEvent | None) -> None:
         if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if ev.key() == Qt.Key.Key_I:
-                self.win_info_cmd(self.current_url)
+                self.info_win.emit([self.current_url, ])
 
             elif ev.key() == Qt.Key.Key_0:
                 self.img_wid.zoom_fit()

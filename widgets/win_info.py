@@ -5,13 +5,13 @@ from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
                              QLabel, QSpacerItem)
 
-from cfg import JsonData, Static
+from cfg import Static
 from system.items import DataItem, MultipleInfoItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
 from ._base_widgets import UMenu, WinMinCloseOnly
-from .actions import CopyText, Reveal
+from .actions import Actions
 
 
 class ULabel(QLabel):
@@ -21,7 +21,6 @@ class ULabel(QLabel):
 
 
 class SelectableLabel(ULabel):
-    select_all_text = "Выделить все"
 
     def __init__(self, text: str = None):
         super().__init__(text)
@@ -36,30 +35,15 @@ class SelectableLabel(ULabel):
         effect.setOpacity(value)
         self.setGraphicsEffect(effect)
 
-    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-
-        src = self.text().replace(Static.paragraph_symbol, "")
-        src = src.replace(Static.line_feed_symbol, "")
-
-        menu = UMenu(parent=self)
-
-        copy_action = CopyText(menu, self)
-        menu.addAction(copy_action)
-
-        select_all_act = QAction(SelectableLabel.select_all_text, menu)
-        select_all_act.triggered.connect(self.select_all_cmd)
-        menu.addAction(select_all_act)
-
-        menu.addSeparator()
-
-        reveal_action = Reveal(menu, [src, ])
-        menu.addAction(reveal_action)
-
-        menu.show_under_mouse()
+    def contextMenuEvent(self, ev):
+        ev.ignore()
 
 
 class WinInfo(WinMinCloseOnly):
     finished_ = pyqtSignal()
+    reveal = pyqtSignal(list)
+    copy_text = pyqtSignal(str)
+
     title_text = "Инфо"
     calc_text = "Вычисляю..."
     ru_folder = "Папка"
@@ -72,6 +56,7 @@ class WinInfo(WinMinCloseOnly):
     resol_text = "Разрешение:"
     files_text = "Количество файлов:"
     folders_text = "Количество папок:"
+
 
     def __init__(self, urls: list[str]):
         super().__init__()
@@ -297,4 +282,29 @@ class WinInfo(WinMinCloseOnly):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
             self.deleteLater()
-    
+
+    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        widget: SelectableLabel = self.childAt(ev.pos())
+        if not isinstance(widget, SelectableLabel):
+            return
+
+        text = widget.text().replace(Static.paragraph_symbol, "")
+        text = text.replace(Static.line_feed_symbol, "")
+        self.context_menu = UMenu()
+        self.context_actions = Actions(self.context_menu)
+
+        self.context_menu.add_action(
+            action=self.context_actions.copy_text,
+            callback=lambda: self.copy_text.emit(widget.selectedText())
+        )
+        self.context_menu.add_action(
+            action=self.context_actions.select_all_text,
+            callback=lambda: widget.setSelection(0, len(widget.text()))
+        )
+        if os.path.exists(text):
+            self.context_menu.addSeparator()
+            self.context_menu.add_action(
+                action=self.context_actions.reveal,
+                callback=lambda: self.reveal.emit([text, ])
+            )
+        self.context_menu.show_under_mouse()
