@@ -8,7 +8,7 @@ from cfg import JsonData, Static
 from system.items import MainWinItem, NamePathItem
 
 from ._base_widgets import UMenu
-from .actions import CommonActions, FavActions, ThumbActions
+from .actions import Actions
 
 
 class ListItemBase(QListWidgetItem):
@@ -144,49 +144,47 @@ class MenuFavs(QListWidget):
             return
 
         urls = [list_item.src, ]
-        fav_item = NamePathItem(
+        name_path_item = NamePathItem(
             filename=list_item.name,
             filepath=list_item.src,
             urls=[]
         )
-        menu = UMenu(parent=self)
-        thumb_actions = ThumbActions(menu)
-        fav_action = FavActions(menu)
-        common_actions = CommonActions(menu)
+        context_menu = UMenu(parent=self)
+        context_actions = Actions(context_menu)
 
-        menu.add_action(
-            action=thumb_actions.open_thumb,
+        context_menu.add_action(
+            action=context_actions.open_thumb,
             cmd=lambda: self.open_fav_cmd(urls[0])
         )
-        menu.add_action(
-            action=thumb_actions.new_main_win,
+        context_menu.add_action(
+            action=context_actions.new_main_win,
             cmd=lambda: self.new_main_win.emit(urls[0])
         )
-        menu.addSeparator()
-        menu.add_action(
-            common_actions.reveal,
+        context_menu.addSeparator()
+        context_menu.add_action(
+            context_actions.reveal,
             cmd=lambda: self.reveal.emit(urls)
         )
-        menu.addSeparator()
-        menu.add_action(
-            common_actions.copy_path,
+        context_menu.addSeparator()
+        context_menu.add_action(
+            context_actions.copy_path,
             cmd=lambda: self.copy_urls.emit(urls)
         )
-        menu.add_action(
-            common_actions.copy_name,
+        context_menu.add_action(
+            context_actions.copy_name,
             cmd=lambda: self.copy_names.emit(urls)
         )
         if isinstance(list_item, ListItem):
-            menu.addSeparator()
-            menu.add_action(
-                action=thumb_actions.rename,
-                cmd=lambda: self.rename_fav.emit(fav_item)
+            context_menu.addSeparator()
+            context_menu.add_action(
+                action=context_actions.rename,
+                cmd=lambda: self.rename_fav.emit(name_path_item)
             )
-            menu.add_action(
-                action=fav_action.fav_remove,
-                cmd=lambda: self.remove_fav.emit(fav_item)
+            context_menu.add_action(
+                action=context_actions.fav_remove,
+                cmd=lambda: self.remove_fav.emit(name_path_item)
             )
-        menu.show_under_cursor()
+        context_menu.show_under_cursor()
         return super().contextMenuEvent(a0)
     
     def mouseReleaseEvent(self, e):
