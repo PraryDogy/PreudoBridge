@@ -563,7 +563,7 @@ class Grid(UScrollArea):
             self.folder_actions()
         else:
             self.context_menu.add_menu(
-                menu=self.context_actions.open_in_app_menu,
+                menu=self.context_menus.open_in_app_menu,
                 cmd=lambda app_path: self.open_in_app.emit((img_urls, app_path))
             )
             self.context_menu.add_action(
