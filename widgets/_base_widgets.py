@@ -50,7 +50,7 @@ class UMenu(QMenu):
         self.exec_(QCursor.pos())
 
     def add_action(self, action: QAction, cmd: callable):
-        action.triggered.connect(cmd)
+        action.triggered.connect(lambda: QTimer.singleShot(100, cmd))
         self.addAction(action)
 
     def add_menu(self, menu: QMenu, cmd: callable):

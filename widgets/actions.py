@@ -75,71 +75,62 @@ class OpenInApp(UMenu):
 
 class CutText(QAction):
     text_ = "Вырезать"
-    def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
+    def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
-        self.wid = widget
-        self.triggered.connect(self.cmd_)
 
-    def cmd_(self):
-        if isinstance(self.wid, QLineEdit):
-            selection = self.wid.selectedText()
-            text = self.wid.text().replace(selection, "")
-            self.wid.setText(text)
+    # def cmd_(self):
+    #     if isinstance(self.wid, QLineEdit):
+    #         selection = self.wid.selectedText()
+    #         text = self.wid.text().replace(selection, "")
+    #         self.wid.setText(text)
 
-        elif isinstance(self.wid, QTextEdit):
-            selection = self.wid.textCursor().selectedText()
-            self.wid.textCursor().removeSelectedText()
+    #     elif isinstance(self.wid, QTextEdit):
+    #         selection = self.wid.textCursor().selectedText()
+    #         self.wid.textCursor().removeSelectedText()
 
-        Utils.write_to_clipboard(selection)
+    #     Utils.write_to_clipboard(selection)
 
 
 class CopyText(QAction):
     text_ = "Копировать"
-    def __init__(self, parent: UMenu, widget: QLineEdit | QLabel | QTextEdit):
+    def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
-        self.wid = widget
-        self.triggered.connect(self.cmd_)
 
-    def cmd_(self):
-        if isinstance(self.wid, QTextEdit):
-            selection = self.wid.textCursor().selectedText()
-        else:
-            selection = self.wid.selectedText()
+    # def cmd_(self):
+    #     if isinstance(self.wid, QTextEdit):
+    #         selection = self.wid.textCursor().selectedText()
+    #     else:
+    #         selection = self.wid.selectedText()
 
-        # это два символа, которые в PyQt5 почему то обозначаются
-        # символами параграфа и новой строки
-        # при копировании мы удаляем их, делая копируемый текст
-        # однострочным
-        selection = selection.replace(Static.paragraph_symbol, "")
-        selection = selection.replace(Static.line_feed_symbol, "")
-        Utils.write_to_clipboard(selection)
+    #     # это два символа, которые в PyQt5 почему то обозначаются
+    #     # символами параграфа и новой строки
+    #     # при копировании мы удаляем их, делая копируемый текст
+    #     # однострочным
+    #     selection = selection.replace(Static.paragraph_symbol, "")
+    #     selection = selection.replace(Static.line_feed_symbol, "")
+    #     Utils.write_to_clipboard(selection)
 
 
-# Вставить текст, допускается только QLineEdit и QTextEdit
 class PasteText(QAction):
     text_ = "Вставить"
-    def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
+    def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
-        self.wid = widget
-        self.triggered.connect(self.cmd_)
 
-    def cmd_(self):
-        text = Utils.read_from_clipboard()
+    # def cmd_(self):
+    #     text = Utils.read_from_clipboard()
 
-        if isinstance(self.wid, QTextEdit):
-            cursor = self.wid.textCursor()
-            cursor.insertText(text)
-        else:
-            new_text = self.wid.text() + text
-            self.wid.setText(new_text)
+    #     if isinstance(self.wid, QTextEdit):
+    #         cursor = self.wid.textCursor()
+    #         cursor.insertText(text)
+    #     else:
+    #         new_text = self.wid.text() + text
+    #         self.wid.setText(new_text)
 
 
 class SelectAllText(QAction):
     text_ = "Выделить все"
-    def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
+    def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
-        self.wid = widget
-        self.triggered.connect(lambda: self.wid.selectAll())
 
 
 class SortMenu(UMenu):
@@ -321,12 +312,10 @@ class Rename(QAction):
 
 class GridActions:
     def __init__(self, menu: UMenu, main_win_item: MainWinItem):
-        self.new_folder = NewFolder(menu)
-        self.update_grid = UpdateGrid(menu)
+
+
         self.change_view = ChangeViewMenu(menu, main_win_item)
         self.sort_menu = SortMenu(menu, main_win_item)
-        self.paste_files = PasteFiles(menu)
-
 
 class CommonActions:
     def __init__(self, menu: UMenu):
@@ -345,11 +334,9 @@ class ThumbActions:
         self.cut_files = CutFiles(menu)
         self.copy_files = CopyFiles(menu)
         self.remove_files = RemoveFiles(menu)
-
         self.new_main_win = NewMainWin(menu)
         self.fav_add = FavAdd(menu)
         self.fav_remove = FavRemove(menu)
-
         self.show_in_folder = ShowInGrid(menu)
 
 
@@ -365,3 +352,38 @@ class FavActions:
     def __init__(self, parent: UMenu):
         self.fav_add = FavAdd(parent)
         self.fav_remove = FavRemove(parent)
+
+
+class Actions:
+    def __init__(self, menu: UMenu):
+        self.cut = CutText(menu)
+        self.copy = CopyText(menu)
+        self.paste = PasteText(menu)
+        self.select_all = SelectAllText(menu)
+
+        self.fav_add = FavAdd(menu)
+        self.fav_remove = FavRemove(menu)
+        self.open_thumb = OpenThumb(menu)
+        self.open_in_app_menu = OpenInApp(menu)
+        self.convert_to_jpg = ImgConvert(menu)
+        self.rename = Rename(menu)
+        self.cut_files = CutFiles(menu)
+        self.copy_files = CopyFiles(menu)
+        self.remove_files = RemoveFiles(menu)
+        self.new_main_win = NewMainWin(menu)
+        self.fav_add = FavAdd(menu)
+        self.fav_remove = FavRemove(menu)
+        self.show_in_folder = ShowInGrid(menu)
+        self.win_info = WinInfo(menu)
+        self.reveal = Reveal(menu)
+        self.copy_path = CopyPath(menu)
+        self.copy_name = CopyName(menu)
+        self.new_folder = NewFolder(menu)
+        self.update_grid = UpdateGrid(menu)
+        self.paste_files = PasteFiles(menu)
+
+
+class Menus:
+    def __init__(self, menu: UMenu, main_win_item: MainWinItem):
+        self.change_view = ChangeViewMenu(menu, main_win_item)
+        self.sort_menu = SortMenu(menu, main_win_item)

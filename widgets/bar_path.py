@@ -10,7 +10,7 @@ from system.shared_utils import ImgUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu
-from .actions import CommonActions, ThumbActions
+from .actions import Actions
 
 
 class Icons:
@@ -149,10 +149,11 @@ class BarPath(QWidget):
         - Группа виджетов PathItem (читай описание PathItem)  
         """
         super().__init__()
-        self.computer: QPixmap = self.create_icons()
-        self.main_win_item = main_win_item
         self.setFixedHeight(BarPath.bar_height)
         self.setAcceptDrops(True)
+        self.create_icons()
+
+        self.main_win_item = main_win_item
         self.current_path: str = None
 
         self.main_lay = QHBoxLayout()
@@ -245,59 +246,62 @@ class BarPath(QWidget):
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         wid: PathItem = self.childAt(ev.pos())
-
         if not isinstance(wid, (PathItem, QLabel)):
             return
+
         if isinstance(wid, QLabel):
             wid: PathItem = wid.parent()
             wid.solid_style()
 
-        urls = [self.main_win_item.abs_current_dir, ]
-        menu = UMenu(parent=self)
-        common_actions = CommonActions(menu)
-        actions = ThumbActions(menu)
+        context_menu = UMenu()
+        context_actions = Actions(context_menu)
+        if self.current_path.endswith(ImgUtils.ext_all):
+            urls = [self.current_path, ]
+        else:
+            urls = [self.main_win_item.abs_current_dir, ]
+
         if os.path.isdir(wid.item_dir):
-            menu.add_action(
-                action=actions.open_thumb,
+            context_menu.add_action(
+                action=context_actions.open_thumb,
                 cmd=lambda: self.view_folder_cmd(wid.item_dir)
             )
-            menu.add_action(
-                action=actions.new_main_win,
+            context_menu.add_action(
+                action=context_actions.new_main_win,
                 cmd=lambda: self.new_main_win.emit(wid.item_dir)
             )
             if wid.item_dir in JsonData.favs:
-                menu.add_action(
-                    action=actions.fav_remove,
+                context_menu.add_action(
+                    action=context_actions.fav_remove,
                     cmd=lambda: self.fav_cmd(offset=-1, src=wid.item_dir)
                 )
             else:
-                menu.add_action(
-                    action=actions.fav_add,
+                context_menu.add_action(
+                    action=context_actions.fav_add,
                     cmd=lambda: self.fav_cmd(offset=1, src=wid.item_dir)
                 )
         else:
-            menu.add_action(
-                action=actions.open_thumb,
+            context_menu.add_action(
+                action=context_actions.open_thumb,
                 cmd=lambda: self.view_image_cmd(wid.item_dir)
             )
-        menu.addSeparator()
-        menu.add_action(
-            action=common_actions.win_info,
+        context_menu.addSeparator()
+        context_menu.add_action(
+            action=context_actions.win_info,
             cmd=lambda: self.info_win_open_cmd(wid.item_dir)
         )
-        menu.add_action(
-            action=common_actions.reveal,
+        context_menu.add_action(
+            action=context_actions.reveal,
             cmd=lambda: self.reveal.emit(urls)
         )
-        menu.add_action(
-            common_actions.copy_path,
+        context_menu.add_action(
+            context_actions.copy_path,
             cmd=lambda: self.copy_urls.emit(urls)
         )
-        menu.add_action(
-            common_actions.copy_name,
+        context_menu.add_action(
+            context_actions.copy_name,
             cmd=lambda: self.copy_names.emit(urls)
         )
-        menu.show_under_cursor()
+        context_menu.show_under_cursor()
         wid.default_style()
 
     def mouseReleaseEvent(self, a0):
