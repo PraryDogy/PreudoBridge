@@ -12,8 +12,6 @@ from system.multiprocess import (ImgLoader, ImgLoaderHelper, ProcessWorker,
 from system.tasks import DirScaner, UThreadPool
 from system.utils import Utils
 
-from ._base_widgets import UMenu
-from .actions import GridActions
 from .grid import Grid, NoItemsLabel, Thumb
 
 

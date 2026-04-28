@@ -12,7 +12,7 @@ from system.utils import Utils
 
 from ._base_widgets import (NotifyWid, SmallBtn, UMenu, USvgSqareWidget,
                             UTextEdit, WinMinCloseOnly)
-from .actions import ThumbActions
+from .actions import Actions
 from .grid import Grid, NoItemsLabel, Thumb
 
 
@@ -243,13 +243,12 @@ class GridSearch(Grid):
         self.search_task.pause = value
         self.pause_by_btn = value
 
-    def thumb_actions(self, menu: UMenu):
+    def thumb_actions(self):
         url = self.wid_under_mouse.data_item.abs_path
-        actions = ThumbActions(menu)
-        super().base_thumb_actions(menu)
-        menu.addSeparator()
-        menu.add_action(
-            action=actions.show_in_folder,
+        super().base_thumb_actions()
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.show_in_folder,
             cmd=lambda: self.go_to_widget.emit(url)
         )
 
@@ -276,19 +275,8 @@ class GridSearch(Grid):
 
     def contextMenuEvent(self, a0):
         super().contextMenuEvent(a0)
-        urls: list[str] = []
-        data_items: list[DataItem] = []
-        for i in self.selected_thumbs:
-            urls.append(i.data_item.abs_path)
-            data_items.append(i.data_item)
-        if not data_items:
-            item = DataItem(self.main_win_item.abs_current_dir)
-            item.set_properties()
-            data_items.append(item)
-            urls.append(item.abs_path)
-        menu = UMenu(parent=self)
         if self.wid_under_mouse:
-            self.thumb_actions(menu)
+            self.thumb_actions()
         else:
-            self.base_grid_actions(menu)
-        menu.show_under_cursor()
+            self.base_grid_actions()
+        self.context_menu.show_under_cursor()
