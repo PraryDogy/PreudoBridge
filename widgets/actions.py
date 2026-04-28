@@ -225,7 +225,7 @@ class ChangeViewMenu(UMenu):
 
 
 class RotateMenu(UMenu):
-    rotate_sig = pyqtSignal(int)
+    triggered = pyqtSignal(int)
     text_menu = "Повернуть"
     clockwise = "Повернуть по ч.с. (⌘ + →)"
     counter_clockwise = "Повернуть против ч.с. (⌘ + ←)"
@@ -235,12 +235,12 @@ class RotateMenu(UMenu):
 
         # отобразить сеткой
         grid_ = QAction(self.clockwise, self)
-        grid_.triggered.connect(lambda: self.rotate_sig.emit(90))
+        grid_.triggered.connect(lambda: self.triggered.emit(90))
         self.addAction(grid_)
 
         # отобразить списком
         list_ = QAction(self.counter_clockwise, self)
-        list_.triggered.connect(lambda: self.rotate_sig.emit(-90))
+        list_.triggered.connect(lambda: self.triggered.emit(-90))
         self.addAction(list_)
 
 
@@ -383,7 +383,9 @@ class Actions:
 
 
 class Menus:
-    def __init__(self, menu: UMenu, main_win_item: MainWinItem):
-        self.change_view = ChangeViewMenu(menu, main_win_item)
-        self.sort_menu = SortMenu(menu, main_win_item)
+    def __init__(self, menu: UMenu, main_win_item: MainWinItem = None):
+        if main_win_item:
+            self.change_view = ChangeViewMenu(menu, main_win_item)
+            self.sort_menu = SortMenu(menu, main_win_item)
         self.open_in_app_menu = OpenInApp(menu)
+        self.rotate_menu = RotateMenu(menu)

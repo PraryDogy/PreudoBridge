@@ -154,37 +154,37 @@ class MenuFavs(QListWidget):
 
         context_menu.add_action(
             action=context_actions.open_thumb,
-            cmd=lambda: self.open_fav_cmd(urls[0])
+            callback=lambda: self.open_fav_cmd(urls[0])
         )
         context_menu.add_action(
             action=context_actions.new_main_win,
-            cmd=lambda: self.new_main_win.emit(urls[0])
+            callback=lambda: self.new_main_win.emit(urls[0])
         )
         context_menu.addSeparator()
         context_menu.add_action(
             context_actions.reveal,
-            cmd=lambda: self.reveal.emit(urls)
+            callback=lambda: self.reveal.emit(urls)
         )
         context_menu.addSeparator()
         context_menu.add_action(
             context_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit(urls)
+            callback=lambda: self.copy_urls.emit(urls)
         )
         context_menu.add_action(
             context_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(urls)
+            callback=lambda: self.copy_names.emit(urls)
         )
         if isinstance(list_item, ListItem):
             context_menu.addSeparator()
             context_menu.add_action(
                 action=context_actions.rename,
-                cmd=lambda: self.rename_fav.emit(name_path_item)
+                callback=lambda: self.rename_fav.emit(name_path_item)
             )
             context_menu.add_action(
                 action=context_actions.fav_remove,
-                cmd=lambda: self.remove_fav.emit(name_path_item)
+                callback=lambda: self.remove_fav.emit(name_path_item)
             )
-        context_menu.show_under_cursor()
+        context_menu.show_under_mouse()
         return super().contextMenuEvent(a0)
     
     def mouseReleaseEvent(self, e):

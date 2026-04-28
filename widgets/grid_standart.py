@@ -256,16 +256,16 @@ class GridStandart(Grid):
             self.context_menu.addSeparator()
             self.context_menu.add_action(
                 action=self.context_actions.paste_files,
-                cmd=lambda: self.paste_files.emit()
+                callback=lambda: self.paste_files.emit()
             )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.new_folder,
-            cmd=lambda: self.new_folder.emit()
+            callback=lambda: self.new_folder.emit()
         )
         self.context_menu.add_action(
             action=self.context_actions.update_grid,
-            cmd=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
+            callback=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
         )
         self.context_menu.addSeparator()
         super().base_grid_actions()
@@ -312,7 +312,7 @@ class GridStandart(Grid):
             self.base_thumb_actions()
         else:
             self.grid_actions()
-        self.context_menu.show_under_cursor()
+        self.context_menu.show_under_mouse()
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_V:

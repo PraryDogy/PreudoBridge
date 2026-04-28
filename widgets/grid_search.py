@@ -249,7 +249,7 @@ class GridSearch(Grid):
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.show_in_folder,
-            cmd=lambda: self.go_to_widget.emit(url)
+            callback=lambda: self.go_to_widget.emit(url)
         )
 
     def resizeEvent(self, a0):
@@ -279,4 +279,4 @@ class GridSearch(Grid):
             self.thumb_actions()
         else:
             self.base_grid_actions()
-        self.context_menu.show_under_cursor()
+        self.context_menu.show_under_mouse()

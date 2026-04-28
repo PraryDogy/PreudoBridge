@@ -55,7 +55,7 @@ class SelectableLabel(ULabel):
         reveal_action = Reveal(menu, [src, ])
         menu.addAction(reveal_action)
 
-        menu.show_under_cursor()
+        menu.show_under_mouse()
 
 
 class WinInfo(WinMinCloseOnly):

@@ -95,34 +95,34 @@ class MenuTree(QTreeView):
         index = self.c_model.index(src)
         context_menu.add_action(
             action=context_actions.open_thumb,
-            cmd=lambda: self.one_clicked(index)
+            callback=lambda: self.one_clicked(index)
         )
         context_menu.add_action(
             action=context_actions.new_main_win,
-            cmd=lambda: self.new_main_win.emit(src)
+            callback=lambda: self.new_main_win.emit(src)
         )
         if src in JsonData.favs:
             context_menu.add_action(
                 action=context_actions.fav_remove,
-                cmd=lambda: self.remove_fav_cmd(src)
+                callback=lambda: self.remove_fav_cmd(src)
             )
         else:
             context_menu.add_action(
                 action=context_actions.fav_add,
-                cmd=lambda: self.add_fav_cmd(src)
+                callback=lambda: self.add_fav_cmd(src)
             )
         context_menu.addSeparator()
         context_menu.add_action(
             action=context_actions.reveal,
-            cmd=lambda: self.reveal.emit([src, ])
+            callback=lambda: self.reveal.emit([src, ])
         )
         context_menu.addSeparator()
         context_menu.add_action(
             action=context_actions.copy_name,
-            cmd=lambda: self.copy_names.emit([src, ])
+            callback=lambda: self.copy_names.emit([src, ])
         )
         context_menu.add_action(
             action=context_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit([src, ])
+            callback=lambda: self.copy_urls.emit([src, ])
         )
-        context_menu.show_under_cursor()
+        context_menu.show_under_mouse()

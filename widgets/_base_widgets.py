@@ -46,15 +46,15 @@ class UMenu(QMenu):
             }}
         """)
 
-    def show_under_cursor(self):
+    def show_under_mouse(self):
         self.exec_(QCursor.pos())
 
-    def add_action(self, action: QAction, cmd: callable):
-        action.triggered.connect(lambda: QTimer.singleShot(100, cmd))
+    def add_action(self, action: QAction, callback: callable):
+        action.triggered.connect(lambda: QTimer.singleShot(100, callback))
         self.addAction(action)
 
-    def add_menu(self, menu: QMenu, cmd: callable):
-        menu.triggered.connect(cmd)
+    def add_menu(self, menu: QMenu, callback: callable):
+        menu.triggered.connect(callback)
         self.addMenu(menu)
 
     def mouseReleaseEvent(self, a0):
@@ -192,7 +192,7 @@ class ULineEdit(QLineEdit):
         select_all_a = SelectAllText(menu, self)
         menu.addAction(select_all_a)
 
-        menu.show_under_cursor()
+        menu.show_under_mouse()
 
 
 class UTextEdit(QTextEdit):
@@ -226,7 +226,7 @@ class UTextEdit(QTextEdit):
         select_all_a = SelectAllText(menu, self)
         menu.addAction(select_all_a)
 
-        menu.show_under_cursor()
+        menu.show_under_mouse()
 
 
 class USep(QFrame):

@@ -303,109 +303,109 @@ class TableView(QTableView):
         )
         self.context_menu.add_action(
             action=self.context_actions.new_main_win,
-            cmd=lambda: self.new_main_win_open.emit(self.url_under_mouse)
+            callback=lambda: self.new_main_win_open.emit(self.url_under_mouse)
         )
         if self.url_under_mouse in JsonData.favs:
             self.context_menu.add_action(
                 action=self.context_actions.fav_remove,
-                cmd=lambda: self.del_fav.emit(name_path_item)
+                callback=lambda: self.del_fav.emit(name_path_item)
             )
         else:
             self.context_menu.add_action(
                 action=self.context_actions.fav_add,
-                cmd=lambda: self.add_fav.emit(name_path_item)
+                callback=lambda: self.add_fav.emit(name_path_item)
             )
 
     def base_thumb_actions(self):
         self.context_menu.add_action(
             action=self.context_actions.open_thumb,
-            cmd=lambda: self.open_thumb(self.selected_urls)
+            callback=lambda: self.open_thumb(self.selected_urls)
         )
         if not self.url_under_mouse.endswith(ImgUtils.ext_all):
             self.folder_actions()
         else:
             self.context_menu.add_menu(
                 menu=self.context_menus.open_in_app_menu,
-                cmd=lambda app_path: self.open_in_app.emit((self.selected_urls, app_path))
+                callback=lambda app_path: self.open_in_app.emit((self.selected_urls, app_path))
             )
             self.context_menu.add_action(
                 action=self.context_actions.convert_to_jpg,
-                cmd=lambda: self.open_img_convert_win(self.selected_urls)
+                callback=lambda: self.open_img_convert_win(self.selected_urls)
             )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.win_info,
-            cmd=lambda: self.open_win_info.emit(self.selected_urls)
+            callback=lambda: self.open_win_info.emit(self.selected_urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.rename,
-            cmd=lambda: self.rename_file_cmd(self.url_under_mouse)
+            callback=lambda: self.rename_file_cmd(self.url_under_mouse)
         )
         self.context_menu.add_action(
             action=self.context_actions.reveal,
-            cmd=lambda: self.reveal_urls.emit(self.selected_urls)
+            callback=lambda: self.reveal_urls.emit(self.selected_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit(self.selected_urls)
+            callback=lambda: self.copy_urls.emit(self.selected_urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(self.selected_urls)
+            callback=lambda: self.copy_names.emit(self.selected_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.cut_files,
-            cmd=lambda: self.setup_clipboard(self.selected_urls, True)
+            callback=lambda: self.setup_clipboard(self.selected_urls, True)
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_files,
-            cmd=lambda: self.setup_clipboard(self.selected_urls, False)
+            callback=lambda: self.setup_clipboard(self.selected_urls, False)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.remove_files,
-            cmd=lambda: self.remove_files_cmd(self.selected_urls)
+            callback=lambda: self.remove_files_cmd(self.selected_urls)
         )
 
     def base_grid_actions(self):
         self.context_menu.add_action(
             action=self.context_actions.new_folder,
-            cmd=lambda: self.new_folder.emit()
+            callback=lambda: self.new_folder.emit()
         )
         self.context_menu.add_action(
             action=self.context_actions.update_grid,
-            cmd=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
+            callback=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
         )
         self.context_menu.add_action(
             action=self.context_actions.win_info,
-            cmd=lambda: self.open_win_info.emit(self.selected_urls)
+            callback=lambda: self.open_win_info.emit(self.selected_urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.reveal,
-            cmd=lambda: self.reveal_urls.emit(self.selected_urls)
+            callback=lambda: self.reveal_urls.emit(self.selected_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.copy_path,
-            cmd=lambda: self.copy_urls.emit(self.selected_urls)
+            callback=lambda: self.copy_urls.emit(self.selected_urls)
             
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_name,
-            cmd=lambda: self.copy_names.emit(self.selected_urls)
+            callback=lambda: self.copy_names.emit(self.selected_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_menu(
             menu=self.context_menus.change_view,
-            cmd=lambda: self.change_view.emit()
+            callback=lambda: self.change_view.emit()
         )
         if ClipboardItemGlob.src_dir:
             self.context_menu.addSeparator()
             self.context_menu.add_action(
                 action=self.context_actions.paste_files,
-                cmd=lambda: self.paste_files.emit()
+                callback=lambda: self.paste_files.emit()
             )
 
     def contextMenuEvent(self, event: QContextMenuEvent):
@@ -429,7 +429,7 @@ class TableView(QTableView):
         else:
             self.base_grid_actions()
 
-        self.context_menu.show_under_cursor()
+        self.context_menu.show_under_mouse()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:

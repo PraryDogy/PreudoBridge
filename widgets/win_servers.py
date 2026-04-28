@@ -125,7 +125,7 @@ class ServerList(QListWidget):
         )
         self.menu_.addAction(rem)
 
-        self.menu_.show_under_cursor()
+        self.menu_.show_under_mouse()
 
 
 class ServerLabel(QLabel):

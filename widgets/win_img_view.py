@@ -14,7 +14,7 @@ from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
-from .actions import CommonActions, ThumbActions
+from .actions import Actions, Menus
 
 
 class ImgWid(QGraphicsView):
@@ -209,15 +209,21 @@ class NextImgBtn(SwitchImgBtn):
 
 class WinImgView(WinBase):
     cached_images: dict[str, QImage] = {}
-    move_to_wid = pyqtSignal(DataItem)
-    closed = pyqtSignal()
-    info_win = pyqtSignal(list)
     object_name = "win_img_view"
     loading_text = "Загрузка"
     error_text = "Ошибка чтения изображения."
     min_w, min_h = 400, 300
     ww, hh = 0, 0
     xx, yy = 0, 0
+
+    move_to_wid = pyqtSignal(DataItem)
+    closed = pyqtSignal()
+    info_win = pyqtSignal(list)
+
+    open_in_app = pyqtSignal(tuple)
+    reveal = pyqtSignal(list)
+    copy_paths = pyqtSignal(list)
+    copy_names = pyqtSignal(list)
 
     def __init__(self, item: ImgViewItem):
         super().__init__()
@@ -487,21 +493,42 @@ class WinImgView(WinBase):
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        menu = UMenu()
-        common_actions = CommonActions(menu)
-        thumb_actions = ThumbActions(menu)
-        menu.add_menu(
-            menu=thumb_actions.open_in_app_menu,
-            cmd=lambda: print(1)
+        urls = [self.current_url, ]
+        self.context_menu = UMenu()
+        self.context_actions = Actions(self.context_menu)
+        self.context_menus = Menus(self.context_menu)
+        self.context_menu.add_menu(
+            menu=self.context_menus.open_in_app_menu,
+            callback=lambda app_path: self.open_in_app.emit((self.current_url, app_path))
         )
-        menu.show_under_cursor()
-        # открыть в приложении
-        # сеп
-        # инфо
-        # показать в финдер
-        # сеп
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.win_info,
+            callback=lambda: self.info_win.emit(urls)
+        )
+        self.context_menu.add_action(
+            action=self.context_actions.reveal,
+            callback=lambda: self.reveal.emit(urls)
+        )
+        self.context_menu.addSeparator()
+        self.context_menu.add_action(
+            action=self.context_actions.copy_path,
+            callback=lambda: self.copy_paths.emit(urls)
+        )
+        self.context_menu.add_action(
+            action=self.context_actions.copy_name,
+            callback=lambda: self.copy_names.emit(urls)
+        )
+        self.context_menu.addSeparator()
+        self.context_menu.add_menu(
+            menu=self.context_menus.rotate_menu,
+            callback=lambda value: self.rotate_image(value)
+        )
+        self.context_menu.show_under_mouse()
         # скопировать путь
         # скопировать имя
+        # сеп
+        # повернуть меню
         return
         urls = [self.current_url]
         names = [os.path.basename(i) for i in urls]

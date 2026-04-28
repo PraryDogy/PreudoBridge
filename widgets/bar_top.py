@@ -489,6 +489,6 @@ class BarTop(QWidget):
         else:
             first.setChecked(True)
         
-        menu_.show_under_cursor()
+        menu_.show_under_mouse()
 
         return super().contextMenuEvent(a0)
