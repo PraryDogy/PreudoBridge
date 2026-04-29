@@ -119,6 +119,7 @@ class GridStandart(Grid):
                 thumbs.append(thumb)
 
         if thumbs:
+            print(len(thumbs))
             self.loaded_thumbs.extend(thumbs)
             self.img_loader_start(thumbs)
 
@@ -207,7 +208,7 @@ class GridStandart(Grid):
             self._thumb_index += 1
             QTimer.singleShot(0, add_one_thumb)
 
-        self.col_count = self.get_clmn_count()
+        self.col_count = self.get_max_columns()
         self._thumb_index = 0
         self.data_items = data_items
         self.row = 0

@@ -291,6 +291,7 @@ class Grid(UScrollArea):
     rename_file = pyqtSignal(NamePathItem)
     new_folder = pyqtSignal()
 
+    grid_spacing = 5
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
         size=64
@@ -319,7 +320,7 @@ class Grid(UScrollArea):
 
         self.grid_layout = QGridLayout()
         self.grid_wid.setLayout(self.grid_layout)
-        self.grid_layout.setSpacing(5)
+        self.grid_layout.setSpacing(self.grid_spacing)
         self.grid_layout.setAlignment(
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         )
@@ -328,7 +329,7 @@ class Grid(UScrollArea):
         self.rubberBand.deleteLater()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
     
-    def get_clmn_count(self):
+    def get_max_columns(self):
         try:
             return self.viewport().width() // Thumb.thumb_w
         except ZeroDivisionError:
@@ -388,7 +389,7 @@ class Grid(UScrollArea):
     def rearrange_thumbs(self):
         self.cell_to_wid.clear()
         self.row, self.col = 0, 0
-        self.col_count = self.get_clmn_count()
+        self.col_count = self.get_max_columns()
         for wid in self.url_to_wid.values():
             if wid.data_item.must_hidden:
                 continue
