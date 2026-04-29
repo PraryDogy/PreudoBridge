@@ -21,9 +21,10 @@ class GridStandart(Grid):
         super().__init__(main_win_item)
         self.setAcceptDrops(True)
         self.watchdog_modified_files = set()
+        self.loaded_thumbs: list[Thumb] = []
         self.helpers: list[ImgLoaderHelper] = []
         self.scroll_timer = QTimer(self)
-        self.scroll_timer.timeout.connect(self.load_visible_thumbs_images)
+        self.scroll_timer.timeout.connect(self.load_visible_thumbs)
         self.scroll_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
         self.watchdog_start()
@@ -91,7 +92,7 @@ class GridStandart(Grid):
         else:
             self.no_items_label_remove()
 
-    def load_visible_thumbs_images(self):
+    def load_visible_thumbs(self):
         if not self.grid_wid.isVisible():
             return
 
@@ -99,15 +100,7 @@ class GridStandart(Grid):
         self.grid_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
-            stmt = (
-                # если у виджета уже есть изображения
-                thumb.data_item.qimages,
-                # если виджет это папка
-                thumb.data_item.type_ == Static.folder_type,
-                # если виджет в загруженных
-                thumb in self.loaded_thumbs
-            )
-            if any(stmt):
+            if thumb.data_item.type_ == Static.folder_type:
                 continue
             widget_rect = self.viewport().mapFromGlobal(
                 thumb.mapToGlobal(thumb.rect().topLeft())
@@ -130,6 +123,7 @@ class GridStandart(Grid):
             thumb = self.url_to_wid[item.abs_path] # QLabel
             thumb.data_item.qimages.update(qimages)
             thumb.set_image()
+            thumb.data_item.qimages_loaded = True
 
         def poll_task(helper: ImgLoaderHelper):
             helper.timer.stop()
@@ -249,7 +243,7 @@ class GridStandart(Grid):
 
     def rearrange_thumbs(self):
         super().rearrange_thumbs()
-        self.load_visible_thumbs_images()
+        self.load_visible_thumbs()
 
     def grid_actions(self):
         if ClipboardItemGlob.src_dir:

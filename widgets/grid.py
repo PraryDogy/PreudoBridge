@@ -310,7 +310,6 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
-        self.loaded_thumbs: list[Thumb] = []
         self.ignore_mouse = False
 
         self.grid_wid = QWidget()

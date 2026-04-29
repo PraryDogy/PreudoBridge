@@ -50,7 +50,7 @@ class DataItem:
         # в процессе работы и gui
         self.is_selected = False
         self.must_hidden = False
-        self.image_loaded = False
+        self.qimages_loaded = False
         self.row, self.col = 0, 0
         # {"src": QImage(), 100: Qimage(), 200: QImage, ...}
         # словарь заполняется на основе Static.image_sizes
