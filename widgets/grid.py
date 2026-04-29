@@ -411,28 +411,32 @@ class Grid(UScrollArea):
 
     def open_thumb(self):
         if len(self.selected_thumbs) == 1:
-            first_item = self.selected_thumbs[0].data_item
-            if first_item.type_ == Static.folder_type:
-                self.new_history_item.emit(first_item.abs_path)
-                self.load_st_grid.emit(first_item.abs_path)
+            if self.wid_under_mouse.data_item.type_ == Static.folder_type:
+                self.new_history_item.emit(
+                    self.wid_under_mouse.data_item.abs_path
+                )
+                self.load_st_grid.emit(
+                    self.wid_under_mouse.data_item.abs_path
+                )
                 return
             url_to_data_item = {
                 url: wid.data_item
                 for url, wid in self.url_to_wid.items()
-                if url.endswith(ImgUtils.ext_all)
-                and not wid.data_item.must_hidden
+                if wid.data_item.type_ != Static.folder_type
+                and wid.data_item.must_hidden != True
             }
             is_selection = False
         else:
             url_to_data_item = {
                 wid.data_item.abs_path: wid.data_item
                 for wid in self.selected_thumbs
-                if wid.data_item.type_.endswith(ImgUtils.ext_all)
-                and not wid.data_item.must_hidden
+                if wid.data_item.type_ != Static.folder_type
+                and wid.data_item.must_hidden != True
             }
             is_selection = True
         if url_to_data_item:
             item = ImgViewItem(
+                current_url=self.wid_under_mouse.data_item.abs_path,
                 url_to_data_item=url_to_data_item,
                 is_selection=is_selection
             )

@@ -247,6 +247,7 @@ class ImgLoaderItem:
 
 @dataclass(slots=True)
 class ImgViewItem:
+    current_url: str
     url_to_data_item: dict[str, DataItem]
     is_selection: bool
 

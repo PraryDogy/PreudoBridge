@@ -226,6 +226,7 @@ class BarPath(QWidget):
         data_item.set_properties()
         url_to_data_item = {path: data_item, }
         item = ImgViewItem(
+            current_url=path,
             url_to_data_item=url_to_data_item,
             is_selection=True
         )
