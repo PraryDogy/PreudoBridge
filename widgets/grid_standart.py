@@ -145,6 +145,7 @@ class GridStandart(Grid):
             else:
                 helper.timer.start(0)
 
+        # self.stop_img_loader_tasks()
         img_task = ProcessWorker(
             target=ImgLoader.start,
             args=([i.data_item for i in thumbs], self.main_win_item, )
@@ -272,18 +273,19 @@ class GridStandart(Grid):
         self.context_menu.addSeparator()
         super().base_grid_actions()
 
-    def deleteLater(self):
-        self.watchdog_task.terminate_join()
+    def stop_img_loader_tasks(self):
         for i in self.helpers:
             i.timer.stop()
             i.task.terminate_join()
+
+    def deleteLater(self):
+        self.watchdog_task.terminate_join()
+        self.stop_img_loader_tasks()
         return super().deleteLater()
     
     def closeEvent(self, a0):
         self.watchdog_task.terminate_join()
-        for i in self.helpers:
-            i.timer.stop()
-            i.task.terminate_join()
+        self.stop_img_loader_tasks()
         return super().closeEvent(a0)
 
     def dragEnterEvent(self, a0):
