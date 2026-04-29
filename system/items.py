@@ -262,3 +262,4 @@ class NamePathItem:
     filename: str
     filepath: str
     urls: list[str]
+    

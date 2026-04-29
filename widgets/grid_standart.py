@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 from time import perf_counter
 
 from PyQt5.QtCore import QRect, QSize, Qt, QTimer
@@ -7,12 +8,17 @@ from watchdog.events import FileSystemEvent
 from cfg import Dynamic, Static
 from system.items import (ClipboardItemGlob, DataItem, DirItem, MainWinItem,
                           TotalCountItem)
-from system.multiprocess import (ImgLoader, ImgLoaderHelper, ProcessWorker,
-                                 WatchdogTask)
+from system.multiprocess import ImgLoader, ProcessWorker, WatchdogTask
 from system.tasks import DirScaner, UThreadPool
 from system.utils import Utils
 
 from .grid import Grid, NoItemsLabel, Thumb
+
+
+@dataclass(slots=True)
+class ImgLoaderHelper:
+    task: ProcessWorker
+    timer: QTimer
 
 
 class GridStandart(Grid):
