@@ -35,7 +35,7 @@ class GridStandart(Grid):
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
         self.watchdog_start()
 
-    def on_scroll(self, ms: int = 100):
+    def on_scroll(self, ms: int = 500):
         self.scroll_timer.stop()
         self.scroll_timer.start(ms)
 
@@ -103,7 +103,7 @@ class GridStandart(Grid):
             return
 
         thumbs: list[Thumb] = []
-        self.grid_wid.layout().activate() 
+        # self.grid_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
             if thumb.data_item.type_ == Static.folder_type:
