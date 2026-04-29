@@ -102,6 +102,8 @@ class GridStandart(Grid):
         for thumb in self.url_to_wid.values():
             if thumb.data_item.type_ == Static.folder_type:
                 continue
+            elif thumb.data_item.qimages:
+                continue
             widget_rect = self.viewport().mapFromGlobal(
                 thumb.mapToGlobal(thumb.rect().topLeft())
             )
