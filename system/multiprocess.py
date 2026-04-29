@@ -69,20 +69,14 @@ class ProcessWorker(BaseProcessWorker):
         super().__init__(target, (*args, self.queue))
 
 
-class ImgLoaderWorker(BaseProcessWorker):
-    def __init__(self, target: callable, args: tuple):
-        self.input_queue = Queue()
-        self.output_qieue = Queue()
-        super().__init__(target, (*args, self.input_queue))
-
-
 class ImgLoader:
 
     @staticmethod
-    def start(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
-        ...
-
-    def load_images(data_items: list[DataItem], main_win_item: MainWinItem, queue: Queue):
+    def start(
+        data_items: list[DataItem],
+        main_win_item: MainWinItem,
+        queue: Queue
+    ):
 
         if not os.path.exists(main_win_item.abs_current_dir):
             return
