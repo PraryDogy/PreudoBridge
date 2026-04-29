@@ -35,7 +35,7 @@ class GridStandart(Grid):
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
         self.watchdog_start()
 
-    def on_scroll(self, ms: int = 500):
+    def on_scroll(self, ms: int = 100):
         self.scroll_timer.stop()
         self.scroll_timer.start(ms)
 
