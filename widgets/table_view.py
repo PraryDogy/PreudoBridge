@@ -230,6 +230,7 @@ class TableView(QTableView):
                     url_to_data_item[url] = data_item
         if url_to_data_item:
             item = ImgViewItem(
+                current_url=self.get_selected_urls()[0],
                 url_to_data_item=url_to_data_item,
                 is_selection=is_selection
             )
