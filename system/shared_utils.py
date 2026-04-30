@@ -242,6 +242,11 @@ class ImgUtils:
     def _read_jpg(cls, path: str):
         try:
             img = Image.open(path)
+            icc_profile = img.info.get("icc_profile")
+            if icc_profile:
+                src_profile = ImageCms.ImageCmsProfile(io.BytesIO(icc_profile))
+                dst_profile = ImageCms.createProfile("sRGB")
+                img = ImageCms.profileToProfile(img, src_profile, dst_profile)
             img = ImageOps.exif_transpose(img) 
             img = img.convert("RGB")
             array_img = np.array(img)

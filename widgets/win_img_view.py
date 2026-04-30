@@ -363,6 +363,8 @@ class WinImgView(WinBase):
         if self.read_img_task:
             self.read_img_task.terminate_join()
 
+        
+
         self.read_img_task = ProcessWorker(
             target=ReadImg.start,
             args=(self.current_url, True, )
