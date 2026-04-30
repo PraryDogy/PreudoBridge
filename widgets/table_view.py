@@ -428,6 +428,7 @@ class TableView(QTableView):
             self.base_thumb_actions()
 
         else:
+            self.selected_urls = [self.main_win_item.abs_current_dir, ]
             self.base_grid_actions()
 
         self.context_menu.show_under_mouse()
@@ -523,7 +524,7 @@ class TableView(QTableView):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        img_ = QPixmap.fromImage(self.copy_files_icon)
+        img_ = QPixmap.fromImage(self.files_icon)
         self.drag.setPixmap(img_)
         
         urls = [
