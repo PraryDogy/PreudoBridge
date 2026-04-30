@@ -328,7 +328,7 @@ class WinImgView(WinBase):
         for i in btns:
             i.raise_()
 
-    def load_image(self):
+    def load_image(self, ms: int = 500):
         def fin(src: str, qimage: QImage):
             pixmap = QPixmap.fromImage(qimage)
             self.cached_images[src] = pixmap
@@ -350,7 +350,7 @@ class WinImgView(WinBase):
             if not self.read_img_task.is_alive():
                 self.read_img_task.terminate_join()
             else:
-                QTimer.singleShot(100, poll_task)
+                QTimer.singleShot(ms, poll_task)
         
         if self.read_img_task:
             self.read_img_task.terminate_join()
@@ -360,7 +360,7 @@ class WinImgView(WinBase):
             args=(self.current_url, True, )
         )
         self.read_img_task.start()
-        QTimer.singleShot(100, poll_task)
+        QTimer.singleShot(ms, poll_task)
 
     def rotate_image(self, value: int):
         pixmap = self.img_wid.pixmap_item.pixmap()
