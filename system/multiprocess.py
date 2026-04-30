@@ -1,7 +1,7 @@
 import os
 import shutil
 from dataclasses import dataclass
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, shared_memory
 from pathlib import Path
 from time import sleep
 
@@ -191,7 +191,19 @@ class ReadImg:
     @staticmethod
     def start(src: str, desaturate: bool, queue: Queue):
         img_array = ImgUtils.read_img(src)
-        queue.put((src, img_array))
+
+        shm = shared_memory.SharedMemory(create=True, size=img_array.nbytes)
+        buffer = np.ndarray(img_array.shape, dtype=img_array.dtype, buffer=shm.buf)
+        buffer[:] = img_array
+
+        queue.put((
+            src,
+            shm.name,
+            img_array.shape,
+            str(img_array.dtype)
+        ))
+
+        shm.close()  # важно!
 
 
 class _DirChangedHandler(FileSystemEventHandler):

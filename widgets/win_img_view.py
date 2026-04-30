@@ -1,6 +1,8 @@
 import gc
 import os
+from multiprocessing import shared_memory
 
+import numpy as np
 from PyQt5.QtCore import QEvent, QPointF, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QCursor, QImage, QKeyEvent,
                          QMouseEvent, QPixmap, QResizeEvent, QTransform)
@@ -329,21 +331,27 @@ class WinImgView(WinBase):
             i.raise_()
 
     def load_image(self, ms: int = 500):
-        def fin(src: str, qimage: QImage):
+        def fin(src: str, qimage: QImage, shm: shared_memory.SharedMemory):
             pixmap = QPixmap.fromImage(qimage)
             self.cached_images[src] = pixmap
             self.restart_img_wid(pixmap)
 
+            shm.close()
+            shm.unlink()  # освобождаем память
+
         def poll_task():
             q = self.read_img_task.queue
             if not q.empty():
-                src, img_array = q.get()
+                # src, img_array = q.get()
+                src, shm_name, shape, dtype = q.get()
+                shm = shared_memory.SharedMemory(name=shm_name)
+                img_array = np.ndarray(shape, dtype=np.dtype(dtype), buffer=shm.buf)
                 if img_array is None:
                     self.show_text_label(self.error_text)
                 elif src == self.current_url:
                     self.qimage_task = ImgArrayQImage(img_array)
                     self.qimage_task.sigs.finished_.connect(
-                            lambda qimage: fin(src, qimage)
+                            lambda qimage: fin(src, qimage, shm)
                     )
                     UThreadPool.start(self.qimage_task)
 
