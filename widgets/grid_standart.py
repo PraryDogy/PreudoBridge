@@ -29,6 +29,7 @@ class GridStandart(Grid):
         self.watchdog_modified_files = set()
         self.loaded_thumbs: list[Thumb] = []
         self.helpers: list[ImgLoaderHelper] = []
+        self.ignore_mouse = True
         self.scroll_timer = QTimer(self)
         self.scroll_timer.timeout.connect(self.load_visible_thumbs)
         self.scroll_timer.setSingleShot(True)
@@ -165,7 +166,6 @@ class GridStandart(Grid):
         img_timer.start(0)
 
     def dir_scaner_start(self):
-        self.ignore_mouse = True
         dir_item = DirItem(
             data_items=[],
             main_win_item=self.main_win_item
@@ -209,7 +209,7 @@ class GridStandart(Grid):
                 self.row += 1
             self._thumb_index += 1
             QTimer.singleShot(0, add_one_thumb)
-
+            
         self.col_count = self.get_max_columns()
         self._thumb_index = 0
         self.data_items = data_items
@@ -293,11 +293,15 @@ class GridStandart(Grid):
         return super().closeEvent(a0)
 
     def dragEnterEvent(self, a0):
+        if self.ignore_mouse:
+            return
         if a0.mimeData().hasUrls():
             a0.acceptProposedAction()
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
+        if self.ignore_mouse:
+            return
         if not a0.mimeData().urls():
             return
         urls = [
@@ -315,6 +319,8 @@ class GridStandart(Grid):
         return super().dropEvent(a0)
     
     def contextMenuEvent(self, a0):
+        if self.ignore_mouse:
+            return
         super().contextMenuEvent(a0)
         if self.wid_under_mouse:
             self.base_thumb_actions()
@@ -323,6 +329,8 @@ class GridStandart(Grid):
         self.context_menu.show_under_mouse()
 
     def keyPressEvent(self, a0):
+        if self.ignore_mouse:
+            return
         if a0.key() == Qt.Key.Key_V:
             if ClipboardItemGlob.src_urls:
                 self.paste_files.emit()

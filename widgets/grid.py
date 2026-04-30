@@ -644,7 +644,8 @@ class Grid(UScrollArea):
     def mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
-        
+        if self.ignore_mouse:
+            return
         elif self.rubberBand.isVisible():
             release_pos = self.grid_wid.mapFrom(self, a0.pos())
             rect = QRect(self.origin_pos, release_pos).normalized()
@@ -721,11 +722,15 @@ class Grid(UScrollArea):
         self.total_count_update.emit(item)
 
     def mouseDoubleClickEvent(self, a0):
+        if self.ignore_mouse:
+            return
         if self.wid_under_mouse:
             self.select_single_thumb(self.wid_under_mouse)
             self.open_thumb()
 
     def mousePressEvent(self, a0):
+        if self.ignore_mouse:
+            return
         if a0.button() == Qt.MouseButton.LeftButton:
             self.origin_pos = self.grid_wid.mapFrom(self, a0.pos())
             self.wid_under_mouse = self.get_wid_under_mouse(a0)
@@ -771,8 +776,10 @@ class Grid(UScrollArea):
         return super().mouseMoveEvent(a0)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if self.ignore_mouse:
+            return
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            
+
             if a0.key() == Qt.Key.Key_X:
                 self.set_transparent_thumbs()
                 ClipboardItemGlob.set_is_cut(True)
