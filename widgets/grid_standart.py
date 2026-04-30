@@ -27,7 +27,6 @@ class GridStandart(Grid):
         super().__init__(main_win_item)
         self.setAcceptDrops(True)
         self.watchdog_modified_files = set()
-        self.loaded_thumbs: list[Thumb] = []
         self.helpers: list[ImgLoaderHelper] = []
         self.ignore_mouse = True
         self.scroll_timer = QTimer(self)
@@ -123,7 +122,6 @@ class GridStandart(Grid):
                 continue
             result.append(thumb)
         if result:
-            self.loaded_thumbs.extend(result)
             self.img_loader_start(result)
 
     def img_loader_start(self, thumbs: list[Thumb], sec = 0.004):
