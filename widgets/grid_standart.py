@@ -119,7 +119,6 @@ class GridStandart(Grid):
                 thumbs.append(thumb)
 
         if thumbs:
-            print(len(thumbs))
             self.loaded_thumbs.extend(thumbs)
             self.img_loader_start(thumbs)
 

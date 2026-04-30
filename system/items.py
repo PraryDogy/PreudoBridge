@@ -136,9 +136,9 @@ class MainWinItem:
         if not os.path.exists(path):
             path = self.fix_path(path)
             if not os.path.exists(path):
-                self.abs_current_dir = None
-                self.fs_id = None
-                self.rel_parent = None
+                # self.abs_current_dir = None
+                # self.fs_id = None
+                # self.rel_parent = None
                 return None
         self.abs_current_dir = path
         self.fs_id = Utils.get_fs_id(path)
