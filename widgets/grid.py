@@ -311,7 +311,6 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
-        self.ignore_mouse = False
 
         self.grid_wid = QWidget()
         self.setWidget(self.grid_wid)
@@ -461,7 +460,6 @@ class Grid(UScrollArea):
             ClipboardItemGlob.src_urls.append(i.data_item.abs_path)
 
     def no_items_label_remove(self):
-        self.ignore_mouse = False
         wid = self.grid_wid.findChild(NoItemsLabel)
         if wid:
             wid.deleteLater()
@@ -469,7 +467,6 @@ class Grid(UScrollArea):
             self.grid_layout.setAlignment(flags)
 
     def no_items_label_create(self, text: str):
-        self.ignore_mouse = True
         no_images = NoItemsLabel(text)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.addWidget(no_images, 0, 0)
@@ -644,8 +641,6 @@ class Grid(UScrollArea):
     def mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
-        if self.ignore_mouse:
-            return
         elif self.rubberBand.isVisible():
             release_pos = self.grid_wid.mapFrom(self, a0.pos())
             rect = QRect(self.origin_pos, release_pos).normalized()
@@ -722,23 +717,17 @@ class Grid(UScrollArea):
         self.total_count_update.emit(item)
 
     def mouseDoubleClickEvent(self, a0):
-        if self.ignore_mouse:
-            return
         if self.wid_under_mouse:
             self.select_single_thumb(self.wid_under_mouse)
             self.open_thumb()
 
     def mousePressEvent(self, a0):
-        if self.ignore_mouse:
-            return
         if a0.button() == Qt.MouseButton.LeftButton:
             self.origin_pos = self.grid_wid.mapFrom(self, a0.pos())
             self.wid_under_mouse = self.get_wid_under_mouse(a0)
         return super().mousePressEvent(a0)
 
     def mouseMoveEvent(self, a0):
-        if self.ignore_mouse:
-            return
         try:
             current_pos = self.grid_wid.mapFrom(self, a0.pos())
             distance = (current_pos - self.origin_pos).manhattanLength()
@@ -776,8 +765,6 @@ class Grid(UScrollArea):
         return super().mouseMoveEvent(a0)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if self.ignore_mouse:
-            return
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
             if a0.key() == Qt.Key.Key_X:
@@ -883,8 +870,6 @@ class Grid(UScrollArea):
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        if self.ignore_mouse:
-            return
         self.wid_under_mouse = self.get_wid_under_mouse(a0)
         # клик по пустой сетке
         if not self.wid_under_mouse:

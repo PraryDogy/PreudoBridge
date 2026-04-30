@@ -26,9 +26,9 @@ class GridStandart(Grid):
     def __init__(self, main_win_item: MainWinItem):
         super().__init__(main_win_item)
         self.setAcceptDrops(True)
+        self.disable_hide(True)
         self.watchdog_modified_files = set()
         self.helpers: list[ImgLoaderHelper] = []
-        self.ignore_mouse = True
         self.scroll_timer = QTimer(self)
         self.scroll_timer.timeout.connect(self.load_visible_thumbs)
         self.scroll_timer.setSingleShot(True)
@@ -162,6 +162,13 @@ class GridStandart(Grid):
         self.helpers.append(helper)
         img_task.start()
         img_timer.start(0)
+    
+    def disable_hide(self, value: bool):
+        self.grid_wid.setDisabled(value)
+        if value:
+            self.grid_wid.hide()
+        else:
+            self.grid_wid.show()
 
     def dir_scaner_start(self):
         dir_item = DirItem(
@@ -176,6 +183,7 @@ class GridStandart(Grid):
         if len(dir_item.data_items) == 0:
             self.no_items_label_create(NoItemsLabel.no_files)
             self.load_finished.emit()
+            self.disable_hide(False)
             return
         Thumb.calc_size()
 
@@ -228,10 +236,9 @@ class GridStandart(Grid):
                 wid.set_frame()
         if Dynamic.word_filters:
             self.filter_thumbs()
-        # почему то без таймера срабатывает через раз
         QTimer.singleShot(0, self.rearrange_thumbs)
+        QTimer.singleShot(10, lambda: self.disable_hide(False))
         self.load_finished.emit()
-        self.ignore_mouse = False
 
     def new_thumb(self, url: str):
         data = DataItem(url)
@@ -291,15 +298,11 @@ class GridStandart(Grid):
         return super().closeEvent(a0)
 
     def dragEnterEvent(self, a0):
-        if self.ignore_mouse:
-            return
         if a0.mimeData().hasUrls():
             a0.acceptProposedAction()
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
-        if self.ignore_mouse:
-            return
         if not a0.mimeData().urls():
             return
         urls = [
@@ -317,8 +320,6 @@ class GridStandart(Grid):
         return super().dropEvent(a0)
     
     def contextMenuEvent(self, a0):
-        if self.ignore_mouse:
-            return
         super().contextMenuEvent(a0)
         if self.wid_under_mouse:
             self.base_thumb_actions()
@@ -327,8 +328,6 @@ class GridStandart(Grid):
         self.context_menu.show_under_mouse()
 
     def keyPressEvent(self, a0):
-        if self.ignore_mouse:
-            return
         if a0.key() == Qt.Key.Key_V:
             if ClipboardItemGlob.src_urls:
                 self.paste_files.emit()
