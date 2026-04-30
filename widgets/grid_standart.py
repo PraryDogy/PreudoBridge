@@ -101,26 +101,29 @@ class GridStandart(Grid):
     def load_visible_thumbs(self):
         if not self.grid_wid.isVisible():
             return
-        
-        thumbs: list[Thumb] = []
-        self.grid_wid.layout().activate() 
-        visible_rect = self.viewport().rect()  # область видимой части
-        for thumb in self.url_to_wid.values():
+
+        scroll_y = self.verticalScrollBar().value()
+        viewport_h = self.viewport().height()
+        item_h = Thumb.fixed_height
+        spacing = Grid.grid_spacing
+        row_h = item_h + spacing
+        columns = self.get_max_columns()
+        first_row = scroll_y // row_h
+        visible_rows = viewport_h // row_h + 1  # запас
+        start_index = first_row * columns
+        end_index = (first_row + visible_rows) * columns
+        thumbs_list = list(self.url_to_wid.values())
+        visible_thumbs = thumbs_list[start_index:end_index]
+        result = []
+        for thumb in visible_thumbs:
             if thumb.data_item.type_ == Static.folder_type:
                 continue
-            elif thumb.data_item.qimages:
+            if thumb.data_item.qimages:
                 continue
-            widget_rect = self.viewport().mapFromGlobal(
-                thumb.mapToGlobal(thumb.rect().topLeft())
-            )
-            qsize = QSize(thumb.width(), thumb.height())
-            widget_rect = QRect(widget_rect, qsize)
-            if visible_rect.intersects(widget_rect):
-                thumbs.append(thumb)
-
-        if thumbs:
-            self.loaded_thumbs.extend(thumbs)
-            self.img_loader_start(thumbs)
+            result.append(thumb)
+        if result:
+            self.loaded_thumbs.extend(result)
+            self.img_loader_start(result)
 
     def img_loader_start(self, thumbs: list[Thumb], sec = 0.004):
 

@@ -102,10 +102,10 @@ class Thumb(QFrame):
     img_obj_name: str = "img_frame"
     text_obj_name: str = "text_frame_"
 
-    current_image_size: int = 0
-    current_img_frame_size: int = 0
-    thumb_w: int = 0
-    thumb_h: int = 0
+    pixmap_size: int = 0
+    img_frame_size: int = 0
+    fixed_width: int = 0
+    fixed_height: int = 0
     corner: int = 0
     image_icons: dict[int, QPixmap] = {}
     folder_icons: dict[int, QPixmap] = {}
@@ -144,10 +144,10 @@ class Thumb(QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
-        Thumb.current_image_size = Static.image_sizes[ind]
-        Thumb.current_img_frame_size = Thumb.current_image_size + 15
-        Thumb.thumb_w = Static.thumb_widths[ind]
-        Thumb.thumb_h = Static.thumb_heights[ind]
+        Thumb.pixmap_size = Static.image_sizes[ind]
+        Thumb.img_frame_size = Thumb.pixmap_size + 15
+        Thumb.fixed_width = Static.thumb_widths[ind]
+        Thumb.fixed_height = Static.thumb_heights[ind]
         Thumb.corner = Static.corner_sizes[ind]
 
     @classmethod
@@ -181,10 +181,10 @@ class Thumb(QFrame):
             icons = Thumb.disk_icons
         else:
             icons = Thumb.folder_icons
-        self.img_wid.setPixmap(icons[Thumb.current_image_size])
+        self.img_wid.setPixmap(icons[Thumb.pixmap_size])
 
     def set_image(self):
-        qimage = self.data_item.qimages[Thumb.current_image_size]
+        qimage = self.data_item.qimages[Thumb.pixmap_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
 
@@ -192,20 +192,20 @@ class Thumb(QFrame):
         self.white_text_wid.set_text(self.data_item)
         self.blue_text_wid.set_text(self.data_item, sort_item)
 
-        if self.width() == Thumb.thumb_w:
+        if self.width() == Thumb.fixed_width:
             return
 
         self.setFixedSize(
-            Thumb.thumb_w,
-            Thumb.thumb_h
+            Thumb.fixed_width,
+            Thumb.fixed_height
         )
         self.img_wid.setFixedSize(
-            Thumb.current_image_size,
-            Thumb.current_image_size
+            Thumb.pixmap_size,
+            Thumb.pixmap_size
         )
         self.img_frame.setFixedSize(
-            Thumb.current_img_frame_size,
-            Thumb.current_img_frame_size
+            Thumb.img_frame_size,
+            Thumb.img_frame_size
         )
 
         if self.data_item.qimages:
@@ -331,7 +331,7 @@ class Grid(UScrollArea):
     
     def get_max_columns(self):
         try:
-            return self.viewport().width() // Thumb.thumb_w
+            return self.viewport().width() // Thumb.fixed_width
         except ZeroDivisionError:
             return 1
 
