@@ -9,7 +9,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QCursor, QImage, QKeyEvent,
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QGraphicsScene, QGraphicsView, QHBoxLayout,
-                             QLabel, QVBoxLayout, QWidget)
+                             QLabel, QVBoxLayout, QWidget, QGraphicsOpacityEffect, QGraphicsBlurEffect)
 
 from cfg import Static
 from system.items import DataItem, ImgViewItem
@@ -61,6 +61,15 @@ class ImgWid(QGraphicsView):
             self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
             self.is_zoomed = False
             self.setCursor(Qt.CursorShape.ArrowCursor)
+
+    def set_transparent(self, value: float):
+        # blur = QGraphicsBlurEffect()
+        # blur.setBlurRadius(5)
+        # self.setGraphicsEffect(blur)
+        # return
+        effect = QGraphicsOpacityEffect(self)
+        effect.setOpacity(value)
+        self.pixmap_item.setGraphicsEffect(effect)
 
     # ---------------------- Drag через мышь ----------------------
     def mousePressEvent(self, event: QMouseEvent):
@@ -363,7 +372,7 @@ class WinImgView(WinBase):
         if self.read_img_task:
             self.read_img_task.terminate_join()
 
-        
+        self.img_wid.set_transparent(0.7)
 
         self.read_img_task = ProcessWorker(
             target=ReadImg.start,
@@ -371,7 +380,7 @@ class WinImgView(WinBase):
         )
         self.read_img_task.start()
         QTimer.singleShot(ms, poll_task)
-
+        
     def rotate_image(self, value: int):
         pixmap = self.img_wid.pixmap_item.pixmap()
         transform = QTransform().rotate(value)
