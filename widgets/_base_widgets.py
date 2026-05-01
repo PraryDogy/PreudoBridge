@@ -507,3 +507,4 @@ class BaseSignals(QObject):
     new_folder = pyqtSignal()
     img_view = pyqtSignal(ImgViewItem)
     info = pyqtSignal(list)
+    rearrange_grid = pyqtSignal()

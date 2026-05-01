@@ -56,7 +56,7 @@ class GridStandart(Grid):
             if events:
                 for i in events:
                     self.watchdog_apply(i)
-                self.sort_thumbs()
+                self.sort()
                 self.rearrange_thumbs()
             self.watchdog_timer.start(ms)
 
@@ -219,7 +219,7 @@ class GridStandart(Grid):
         return thumb
 
     def rearrange_thumbs(self):
-        super().rearrange_thumbs()
+        super().rearrange()
         self.load_visible_thumbs()
 
     def grid_actions(self):

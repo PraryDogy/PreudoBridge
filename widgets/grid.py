@@ -342,7 +342,7 @@ class Grid(UScrollArea):
         self.url_to_wid.pop(url)
         wid.deleteLater()
 
-    def sort_thumbs(self):
+    def sort(self):
         data_items = [i.data_item for i in self.url_to_wid.values()]
         sorted_data_items = DataItem.sort_(data_items, self.main_win_item.sort_item)
         new_url_to_wid = {}
@@ -372,12 +372,12 @@ class Grid(UScrollArea):
         else:
             self.no_items_label_remove()
 
-    def resize_thumbs(self):
+    def resize(self):
         Thumb.calc_size()
         for wid in self.url_to_wid.values():
             wid.update_all(self.main_win_item.sort_item)
 
-    def rearrange_thumbs(self):
+    def rearrange(self):
         self.grid_wid.hide()
         self.cell_to_wid.clear()
         cols = self.get_max_columns()
@@ -614,7 +614,7 @@ class Grid(UScrollArea):
         )
         self.context_menu.add_menu(
             menu=self.context_menus.sort_menu,
-            callback=lambda: (self.sort_thumbs(), self.rearrange_thumbs())
+            callback=lambda: (self.sort(), self.rearrange())
         )
 
     def mouseReleaseEvent(self, a0: QMouseEvent):

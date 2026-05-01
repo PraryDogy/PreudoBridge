@@ -270,7 +270,7 @@ class WinMain(WinBase):
             lambda: self.grid.filter_thumbs()
         )
         self.menu_filters.rearrange_thumbs.connect(
-            lambda: self.grid.rearrange_thumbs()
+            lambda: self.grid.rearrange()
         )
 
         self.bar_top.load_search_grid.connect(self.load_search_grid)
@@ -296,13 +296,13 @@ class WinMain(WinBase):
             self.go_to_toggle
         )
         self.bar_sort.resize_thumbs.connect(
-            lambda: self.grid.resize_thumbs()
+            lambda: self.grid.resize()
         )
         self.bar_sort.rearrange_thumbs.connect(
-            lambda: self.grid.rearrange_thumbs()
+            lambda: self.grid.rearrange()
         )
         self.bar_sort.sort_thumbs.connect(
-            lambda: self.grid.sort_thumbs()
+            lambda: self.grid.sort()
         )
 
     def change_theme(self):
@@ -392,8 +392,8 @@ class WinMain(WinBase):
             self.load_st_grid(new_main_dir)
 
     def resize_timer_timeout(self):
-        self.grid.resize_thumbs()
-        self.grid.rearrange_thumbs()
+        self.grid.resize()
+        self.grid.rearrange()
 
     def new_main_win_open(self, path: str):
         new_win = WinMain(path)

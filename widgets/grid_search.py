@@ -183,8 +183,8 @@ class GridSearch(Grid):
             if events:
                 for i in events:
                     QTimer.singleShot(0, lambda ev=i: self.watchdog_apply(ev))
-                QTimer.singleShot(0, self.sort_thumbs)
-                QTimer.singleShot(0, self.rearrange_thumbs)
+                QTimer.singleShot(0, self.sort)
+                QTimer.singleShot(0, self.rearrange)
             self.watchdog_timer.start(fast_ms)
 
         self.watchdog_task = ProcessWorker(
@@ -208,29 +208,29 @@ class GridSearch(Grid):
         else:
             self.no_items_label_remove()
 
-    def sort_thumbs(self):
+    def sort(self):
         self.search_task.pause = True
-        super().sort_thumbs()
-        self.rearrange_thumbs()
+        super().sort()
+        self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
 
     def filter_thumbs(self):
         self.search_task.pause = True
         super().filter_thumbs()
-        self.rearrange_thumbs()
+        self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
 
-    def resize_thumbs(self):
+    def resize(self):
         self.search_task.pause = True
-        super().resize_thumbs()
-        self.rearrange_thumbs()
+        super().resize()
+        self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
 
-    def rearrange_thumbs(self):
-        super().rearrange_thumbs()
+    def rearrange(self):
+        super().rearrange()
 
     def remove_pause(self):
         if self.search_task:
@@ -251,7 +251,7 @@ class GridSearch(Grid):
         )
 
     def resizeEvent(self, a0):
-        self.resize_thumbs()
+        self.resize()
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0):   
