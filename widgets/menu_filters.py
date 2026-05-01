@@ -46,18 +46,21 @@ class MenuFilters(QTabWidget):
                 self.rearrange_thumbs.emit()
             )
         )
-        self.clear_btn.clicked.connect(self.clear_btn_cmd)
+        self.clear_btn.clicked.connect(self.line_edit.clear)
         btn_layout.addStretch()
         btn_layout.addWidget(self.apply_btn)
         btn_layout.addWidget(self.clear_btn)
         btn_layout.addStretch()
         layout_.addLayout(btn_layout)
 
-    def clear_btn_cmd(self):
+    def clear_filters(self):
+        Dynamic.word_filters.clear()
+        self.line_edit.blockSignals(True)
         self.line_edit.clear()
-        self.line_edit.clearFocus()
+        self.line_edit.blockSignals(False)
 
     def on_text_changed(self):
+        print(123)
         text = self.line_edit.toPlainText()
         if text:
             Dynamic.word_filters = [i.strip() for i in text.split(",") if i]

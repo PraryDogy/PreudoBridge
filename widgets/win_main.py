@@ -322,13 +322,8 @@ class WinMain(WinBase):
 
     def img_view_win_open(self, item: ImgViewItem):
 
-        def _on_closed():
-            return
-            gc.collect()
-
         self.img_view_win = WinImgView(item)
         self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
-        self.img_view_win.closed.connect(_on_closed)
         self.img_view_win.info_win.connect(self.info_win_open)
         self.img_view_win.open_in_app.connect(self.open_in_app)
         self.img_view_win.reveal.connect(self.reveal_urls)
@@ -454,7 +449,6 @@ class WinMain(WinBase):
             lambda: self.setWindowTitle(self.search_fin_text)
         )
         self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
-
         self.setWindowTitle(self.search_text)
         self.scroll_up.hide()
         self.menu_filters.set_disabled(True)
@@ -542,12 +536,14 @@ class WinMain(WinBase):
         self.rename_win.show()
 
     def new_folder(self):
+
         def fin(name: str):
             try:
                 root = os.path.join(self.main_win_item.abs_current_dir, name)
                 os.mkdir(root)
             except Exception as e:
                 ...
+
         self.rename_win = WinRename("Новая папка")
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(lambda name: fin(name))
@@ -559,6 +555,7 @@ class WinMain(WinBase):
             self.bar_top.search_wid.clear_search()
             self.search_item.search_list.clear()
             self.scroll_up.hide()
+            self.menu_filters.clear_filters()
             self.grid.deleteLater()
 
             self.setWindowTitle(os.path.basename(path))
