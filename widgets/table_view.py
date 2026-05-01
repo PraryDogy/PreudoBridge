@@ -92,7 +92,6 @@ class TableView(QTableView):
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
     img_convert_win = pyqtSignal(list)
-
     open_in_app = pyqtSignal(tuple)
     remove_files = pyqtSignal(NamePathItem)
     rename_file = pyqtSignal(NamePathItem)
@@ -156,8 +155,6 @@ class TableView(QTableView):
         self._model.directoryLoaded.connect(self.set_url_to_index_)
 
     def set_url_to_index_(self):
-        self.hide()
-
         root_index = self.rootIndex()
         row_count = self._model.rowCount(root_index)
     
