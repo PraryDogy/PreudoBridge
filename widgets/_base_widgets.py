@@ -508,3 +508,4 @@ class BaseSignals(QObject):
     img_view = pyqtSignal(ImgViewItem)
     info = pyqtSignal(list)
     rearrange_grid = pyqtSignal()
+    resize_grid = pyqtSignal()

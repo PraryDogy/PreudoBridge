@@ -295,15 +295,18 @@ class WinMain(WinBase):
         self.bar_sort.go_to_win_open.connect(
             self.go_to_toggle
         )
-        self.bar_sort.resize_thumbs.connect(
-            lambda: self.grid.resize()
-        )
-        self.bar_sort.rearrange_thumbs.connect(
-            lambda: self.grid.rearrange()
-        )
-        self.bar_sort.sort_thumbs.connect(
+        self.bar_sort.sort_grid.connect(
             lambda: self.grid.sort()
         )
+
+
+        self.bar_sort.base_signals.resize_grid.connect(
+            lambda: self.grid.resize()
+        )
+        self.bar_sort.base_signals.rearrange_grid.connect(
+            lambda: self.grid.rearrange()
+        )
+
 
     def change_theme(self):
         app: QApplication = QApplication.instance()

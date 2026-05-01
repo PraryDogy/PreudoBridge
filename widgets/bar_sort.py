@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 from cfg import Dynamic, Static
 from system.items import MainWinItem, SortItem, TotalCountItem
 
-from ._base_widgets import UFrame, USlider, USvgSqareWidget
+from ._base_widgets import UFrame, USlider, USvgSqareWidget, BaseSignals
 from .actions import Menus
 
 
@@ -46,8 +46,8 @@ class GoToBtn(UFrame):
 
 
 class SortFrame(UFrame):
-    sort_thumbs = pyqtSignal()
-    rearrange_thumbs = pyqtSignal()
+    sort_grid = pyqtSignal()
+    rearrange_grid = pyqtSignal()
     sort_text = "Сортировка"
     total_text = "Всего"
     asc_text = "по убыв."
@@ -93,8 +93,8 @@ class SortFrame(UFrame):
         QTimer.singleShot(10, lambda: self.total_text_label.setText(text_))
 
     def sort_menu_triggered(self):
-        self.sort_thumbs.emit(),
-        self.rearrange_thumbs.emit(),
+        self.sort_grid.emit(),
+        self.rearrange_grid.emit(),
         self.set_sort_text()
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
@@ -123,8 +123,8 @@ class SortFrame(UFrame):
         
 
 class CustomSlider(USlider):
-    resize_thumbs = pyqtSignal()
-    rearrange_thumbs = pyqtSignal()
+    resize_grid = pyqtSignal()
+    rearrange_grid = pyqtSignal()
     width_ = 70
     height_ = 15
 
@@ -152,8 +152,8 @@ class CustomSlider(USlider):
         Обновляет размер виджетов и инициирует перетасовку сетки.
         """
         Dynamic.pixmap_size_ind = value
-        self.resize_thumbs.emit()
-        self.rearrange_thumbs.emit()
+        self.resize_grid.emit()
+        self.rearrange_grid.emit()
 
     def move_from_keyboard(self, value: int):
         """
@@ -165,9 +165,7 @@ class CustomSlider(USlider):
 
 
 class BarSort(QWidget):
-    sort_thumbs = pyqtSignal()
-    resize_thumbs = pyqtSignal()
-    rearrange_thumbs = pyqtSignal()
+    sort_grid = pyqtSignal()
     go_to_win_open = pyqtSignal()
     height_ = 25
 
@@ -183,7 +181,7 @@ class BarSort(QWidget):
         super().__init__()
         self.setFixedHeight(BarSort.height_)
         self.main_win_item = main_win_item
-
+        self.base_signals = BaseSignals()
         self.init_ui()
 
     def init_ui(self):
@@ -213,15 +211,15 @@ class BarSort(QWidget):
     def create_sort_button(self):
         """Создает кнопку сортировки"""
         self.sort_frame = SortFrame(self.main_win_item)
-        self.sort_frame.sort_thumbs.connect(self.sort_thumbs.emit)
-        self.sort_frame.rearrange_thumbs.connect(self.rearrange_thumbs.emit)
+        self.sort_frame.sort_grid.connect(self.sort_grid.emit)
+        self.sort_frame.rearrange_grid.connect(self.base_signals.rearrange_grid.emit)
         self.main_lay.addWidget(self.sort_frame)
 
     def create_slider(self):
         """Создает слайдер для изменения размера элементов"""
         self.slider = CustomSlider()
-        self.slider.resize_thumbs.connect(self.resize_thumbs.emit)
-        self.slider.rearrange_thumbs.connect(self.rearrange_thumbs.emit)
+        self.slider.resize_grid.connect(self.base_signals.resize_grid.emit)
+        self.slider.rearrange_grid.connect(self.base_signals.rearrange_grid.emit)
         self.main_lay.addWidget(self.slider)
 
     def move_slider(self, value: int):
