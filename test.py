@@ -1,12 +1,7 @@
-data = [f"widget {i}" for i in range(0, 4)]
-cols = 3
-rows = len(data) // cols
+src = "/Volumes/Macintosh HD/Users/evlosh/Downloads"
 
-# for row in range(rows):
-#     for col in range(cols):
-#         index = row * cols + col
-#         print(row, col, data[index])
+import os
 
-for index, item in enumerate(data):
-    row, col = divmod(index, cols)
-    print(row, col, item)
+short_src = os.sep + os.sep.join(src.split(os.sep)[3:])
+
+print(short_src)

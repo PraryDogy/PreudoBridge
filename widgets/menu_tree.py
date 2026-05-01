@@ -4,7 +4,7 @@ from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 
 from cfg import JsonData
-from system.items import MainWinItem, NameUrlItem
+from system.items import MainWinItem, NameUrlItem, UrlsItem
 
 from ._base_widgets import UMenu
 from .actions import Actions
@@ -14,7 +14,7 @@ class MenuTree(QTreeView):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(str)
     new_main_win = pyqtSignal(str)
-    remove_fav = pyqtSignal(NameUrlItem)
+    remove_fav = pyqtSignal(UrlsItem)
     add_fav = pyqtSignal(NameUrlItem)
     reveal = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
@@ -69,9 +69,8 @@ class MenuTree(QTreeView):
         )
 
     def remove_fav_cmd(self, path: str):
-        item = NameUrlItem(
-            name=os.path.basename(path),
-            url=path
+        item = UrlsItem(
+            urls=[path, ]
         )
         self.remove_fav.emit(item)
 
@@ -99,16 +98,29 @@ class MenuTree(QTreeView):
             action=context_actions.new_main_win,
             callback=lambda: self.new_main_win.emit(src)
         )
-        if src in JsonData.favs:
-            context_menu.add_action(
-                action=context_actions.fav_remove,
-                callback=lambda: self.remove_fav_cmd(src)
-            )
+        if os.path.expanduser("~") in src:
+            short_src = os.sep + os.sep.join(src.split(os.sep)[3:])
+            if short_src in JsonData.favs:
+                context_menu.add_action(
+                    action=context_actions.fav_remove,
+                    callback=lambda: self.remove_fav_cmd(short_src)
+                )
+            else:
+                context_menu.add_action(
+                    action=context_actions.fav_add,
+                    callback=lambda: self.add_fav_cmd(short_src)
+                )
         else:
-            context_menu.add_action(
-                action=context_actions.fav_add,
-                callback=lambda: self.add_fav_cmd(src)
-            )
+            if src in JsonData.favs:
+                context_menu.add_action(
+                    action=context_actions.fav_remove,
+                    callback=lambda: self.remove_fav_cmd(src)
+                )
+            else:
+                context_menu.add_action(
+                    action=context_actions.fav_add,
+                    callback=lambda: self.add_fav_cmd(src)
+                ) 
         context_menu.addSeparator()
         context_menu.add_action(
             action=context_actions.reveal,

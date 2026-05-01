@@ -51,7 +51,7 @@ class MenuFavs(QListWidget):
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
     rename_fav = pyqtSignal(NameUrlItem)
-    remove_fav = pyqtSignal(NameUrlItem)
+    remove_fav = pyqtSignal(UrlsItem)
     add_fav = pyqtSignal(NameUrlItem)
     info = pyqtSignal(NameUrlItem)
     folder_icon: QIcon
@@ -149,6 +149,9 @@ class MenuFavs(QListWidget):
             name=list_item.name,
             url=list_item.src
         )
+        urls_item = UrlsItem(
+            urls=[list_item.src, ]
+        )
         context_menu = UMenu(parent=self)
         context_actions = Actions(context_menu)
 
@@ -186,7 +189,7 @@ class MenuFavs(QListWidget):
             )
             context_menu.add_action(
                 action=context_actions.fav_remove,
-                callback=lambda: self.remove_fav.emit(name_path_item)
+                callback=lambda: self.remove_fav.emit(urls_item)
             )
         context_menu.show_under_mouse()
         return super().contextMenuEvent(a0)
