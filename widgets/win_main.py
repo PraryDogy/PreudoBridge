@@ -247,10 +247,10 @@ class WinMain(WinBase):
             lambda: self.resize_timer.start(WinMain.resize_ms)
         )
 
-        self.menu_tree.new_history_item.connect(self.bar_top.new_history_item)
-        self.menu_tree.load_st_grid_sig.connect(self.load_st_grid)
+        self.menu_tree.history_item.connect(self.bar_top.new_history_item)
+        self.menu_tree.load_st_grid.connect(self.load_st_grid)
         self.menu_tree.new_main_win.connect(self.new_main_win_open)
-        self.menu_tree.add_fav.connect(self.add_fav)
+        self.menu_tree.new_fav.connect(self.add_fav)
         self.menu_tree.remove_fav.connect(self.remove_fav)
         self.menu_tree.reveal.connect(self.reveal_urls)
         self.menu_tree.copy_urls.connect(self.copy_urls)
@@ -638,12 +638,12 @@ class WinMain(WinBase):
         self.rem_win.center(self.window())
         self.rem_win.show()
 
-    def remove_fav(self, item: UrlsItem):
+    def remove_fav(self, url: str):
 
         def finished():
-            self.menu_favs.remove_fav_finalize(item)
+            self.menu_favs.remove_fav_finalize(url)
 
-        self.rem_win = WinRemoveFiles(item.urls)
+        self.rem_win = WinRemoveFiles([url, ])
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())

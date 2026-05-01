@@ -129,9 +129,9 @@ class MenuFavs(QListWidget):
         item.setText(fav_item.name)
         item.name = fav_item.name
 
-    def remove_fav_finalize(self, fav_item: UrlsItem):
-        list_item = self.url_to_item[fav_item.urls[0]]
-        JsonData.favs.pop(fav_item.urls[0])
+    def remove_fav_finalize(self, url: str):
+        list_item = self.url_to_item[url]
+        JsonData.favs.pop(url)
         JsonData.write_json_data()
         self.takeItem(self.row(list_item))
 

@@ -6,19 +6,19 @@ from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 from cfg import JsonData
 from system.items import MainWinItem, NameUrlItem, UrlsItem
 
-from ._base_widgets import UMenu
+from ._base_widgets import UMenu, BaseSignals
 from .actions import Actions
 
 
-class MenuTree(QTreeView):
-    new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal(str)
-    new_main_win = pyqtSignal(str)
-    remove_fav = pyqtSignal(UrlsItem)
-    add_fav = pyqtSignal(NameUrlItem)
-    reveal = pyqtSignal(list)
-    copy_urls = pyqtSignal(list)
-    copy_names = pyqtSignal(list)
+class MenuTree(QTreeView, BaseSignals):
+    # new_history_item = pyqtSignal(str)
+    # load_st_grid_sig = pyqtSignal(str)
+    # new_main_win = pyqtSignal(str)
+    # remove_fav = pyqtSignal(UrlsItem)
+    # add_fav = pyqtSignal(NameUrlItem)
+    # reveal = pyqtSignal(list)
+    # copy_urls = pyqtSignal(list)
+    # copy_names = pyqtSignal(list)
 
     volumes = "/Volumes"
     # предполагает что системный диск всегда будет первым
@@ -53,8 +53,8 @@ class MenuTree(QTreeView):
         path = self.c_model.filePath(index)
         if path != self.main_win_item.abs_current_dir:
             self.setCurrentIndex(index)
-            self.new_history_item.emit(path)
-            self.load_st_grid_sig.emit(path)
+            self.history_item.emit(path)
+            self.load_st_grid.emit(path)
 
     def expand_path(self, root: str):
         if root.startswith(os.path.expanduser("~")):
@@ -69,17 +69,14 @@ class MenuTree(QTreeView):
         )
 
     def remove_fav_cmd(self, path: str):
-        item = UrlsItem(
-            urls=[path, ]
-        )
-        self.remove_fav.emit(item)
+        self.remove_fav.emit(path)
 
     def add_fav_cmd(self, path: str):
         item = NameUrlItem(
             name=os.path.basename(path),
             url=path
         )
-        self.add_fav.emit(item)
+        self.new_fav.emit(item)
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())
@@ -117,7 +114,7 @@ class MenuTree(QTreeView):
         context_menu.addSeparator()
         context_menu.add_action(
             action=context_actions.reveal,
-            callback=lambda: self.reveal.emit([src, ])
+            callback=lambda: self.reveal_urls.emit([src, ])
         )
         context_menu.addSeparator()
         context_menu.add_action(
