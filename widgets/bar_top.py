@@ -10,7 +10,7 @@ from system.items import MainWinItem, SearchItem
 from system.utils import Utils
 
 from ._base_widgets import (SmallBtn, UFrame, ULineEdit, UMenu,
-                            USvgSqareWidget, UTextEdit, WinMinCloseOnly)
+                            USvgSqareWidget, UTextEdit, WinMinCloseOnly, BaseSignals)
 
 
 class BarTopBtn(QWidget):
@@ -275,17 +275,7 @@ class SearchWidget(ULineEdit):
 
 
 class BarTop(QWidget):
-    level_up = pyqtSignal()
-    # 0 отобразить сеткой, 1 отобразить списком
-    change_view = pyqtSignal()
     load_search_grid = pyqtSignal()
-    load_st_grid = pyqtSignal(str)
-    # Кнопка "очистить данные" была нажата в окне настроек
-    remove_db = pyqtSignal()
-    # открывает заданный путь в новом окне
-    new_main_win = pyqtSignal(str)
-    settings_win_open = pyqtSignal()
-    new_folder = pyqtSignal()
 
     non_text_height = 46
     non_text_spacing = 0
@@ -317,6 +307,7 @@ class BarTop(QWidget):
         """
         super().__init__()
         self.setFixedHeight(self.non_text_height)
+        self.base_signals = BaseSignals()
         self.main_win_item = main_win_item
         self.search_item = search_item
         self.history_items: list[str] = []
@@ -338,7 +329,7 @@ class BarTop(QWidget):
         self.main_lay.addWidget(next)
 
         level_up_btn = BarTopBtn()
-        level_up_btn.clicked.connect(self.level_up.emit)
+        level_up_btn.clicked.connect(self.base_signals.level_up.emit)
         level_up_btn.load(os.path.join(Static.internal_images_dir, "level_up.svg"))
         self.main_lay.addWidget(level_up_btn)
 
@@ -347,18 +338,18 @@ class BarTop(QWidget):
 
         self.update_btn = BarTopBtn()
         self.update_btn.load(os.path.join(Static.internal_images_dir, "update.svg"))
-        self.update_btn.clicked.connect(lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir))
+        self.update_btn.clicked.connect(lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir))
         self.main_lay.addWidget(self.update_btn)
 
         self.new_folder_btn = BarTopBtn()
         # cmd = lambda e: self.open_in_new_win.emit(self.main_win_item.main_dir)
-        cmd = lambda e: self.new_folder.emit()
+        cmd = lambda e: self.base_signals.new_folder.emit()
         self.new_folder_btn.mouseReleaseEvent = cmd
         self.new_folder_btn.load(os.path.join(Static.internal_images_dir, "new_folder.svg"))
         self.main_lay.addWidget(self.new_folder_btn)
 
         self.change_view_btn = BarTopBtn()
-        self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()
+        self.change_view_btn.mouseReleaseEvent = lambda e: self.base_signals.change_view.emit()
         if self.main_win_item.view_mode == 0:
             self.change_view_btn.load(os.path.join(Static.internal_images_dir, "list.svg"))
         else:
@@ -366,7 +357,7 @@ class BarTop(QWidget):
         self.main_lay.addWidget(self.change_view_btn)
 
         self.sett_btn = BarTopBtn()
-        self.sett_btn.clicked.connect(self.settings_win_open.emit)
+        self.sett_btn.clicked.connect(self.base_signals.settings.emit)
         self.sett_btn.load(os.path.join(Static.internal_images_dir, "settings.svg"))
         self.main_lay.addWidget(self.sett_btn)
 
@@ -375,7 +366,9 @@ class BarTop(QWidget):
 
         self.search_wid = SearchWidget(self.search_item, self.main_win_item)
         self.search_wid.load_search_grid.connect(self.load_search_grid.emit)
-        self.search_wid.load_st_grid.connect(lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir))
+        self.search_wid.load_st_grid.connect(
+            lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir)
+        )
         self.main_lay.addWidget(self.search_wid)
 
         for btn, txt in zip(self.findChildren(BarTopBtn), self.topbar_btn_texts):
@@ -464,7 +457,7 @@ class BarTop(QWidget):
         if 0 <= new_index < len(self.history_items):
             self.current_index = new_index
             new_main_dir = self.history_items[self.current_index]
-            self.load_st_grid.emit(new_main_dir)
+            self.base_signals.load_st_grid.emit(new_main_dir)
 
     def resizeEvent(self, a0):
         return super().resizeEvent(a0)

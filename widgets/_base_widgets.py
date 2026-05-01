@@ -501,3 +501,7 @@ class BaseSignals(QObject):
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
     remove_urls = pyqtSignal(list)
+    level_up = pyqtSignal()
+    change_view = pyqtSignal()
+    settings = pyqtSignal()
+    new_folder = pyqtSignal()
