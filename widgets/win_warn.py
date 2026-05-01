@@ -13,7 +13,7 @@ class ConfirmWindow(WinMinCloseOnly):
     def __init__(self, text: str):
         super().__init__()
         self.setWindowTitle("Внимание!")
-        self.set_modality()
+        self.set_always_on_top()
         self.setFixedWidth(350)
 
         self.central_layout = QVBoxLayout()

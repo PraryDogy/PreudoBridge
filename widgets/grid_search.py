@@ -23,7 +23,7 @@ class WinMissedFiles(WinMinCloseOnly):
 
     def __init__(self, files: list[str]):
         super().__init__()
-        self.set_modality()
+        self.set_always_on_top()
         self.setWindowTitle(WinMissedFiles.title_text)
 
         v_lay = QVBoxLayout()

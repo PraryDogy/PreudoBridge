@@ -370,7 +370,7 @@ class WinBase(QMainWindow):
         geo.moveCenter(parent.geometry().center())
         self.setGeometry(geo)
 
-    def set_modality(self):
+    def set_always_on_top(self):
         """
         Устанавливает модальность окна на уровень всего приложения.
         При этом окно блокирует взаимодействие с другими окнами приложения
@@ -399,6 +399,51 @@ class WinMinCloseOnly(WinBase):
             Qt.WindowType.CustomizeWindowHint |
             Qt.WindowType.WindowCloseButtonHint
         )
+
+
+class WinWidget(QWidget):
+    wins: list["WinBase"] = []
+
+    def __init__(self):
+        super().__init__()
+        self.add_to_list()
+
+    def add_to_list(self):
+        WinBase.wins.append(self)
+
+    def remove_from_list(self):
+        try:
+            WinBase.wins.remove(self)
+        except ValueError:
+            ...
+
+    def center(self, parent: QWidget):
+        parent.raise_()
+        geo = self.geometry()
+        geo.moveCenter(parent.geometry().center())
+        self.setGeometry(geo)
+
+    def set_always_on_top(self):
+        self.setWindowFlags(
+            self.windowFlags() |
+            Qt.WindowStaysOnTopHint
+        )
+        # self.setWindowModality(Qt.WindowModality.ApplicationModal)
+
+    def set_close_only(self):
+        self.setWindowFlags(
+            # self.windowFlags() | 
+            Qt.WindowType.CustomizeWindowHint |
+            Qt.WindowType.WindowCloseButtonHint
+        )
+
+    def deleteLater(self):
+        self.remove_from_list()
+        return super().deleteLater()
+    
+    def closeEvent(self, a0):
+        self.remove_from_list()
+        return super().closeEvent(a0)
 
 
 class NotifyWid(QFrame):

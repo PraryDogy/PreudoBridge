@@ -28,7 +28,7 @@ class WinReplaceFiles(WinMinCloseOnly):
 
     def __init__(self):
         super().__init__()
-        self.set_modality()
+        self.set_always_on_top()
         self.setWindowTitle(self.title_text)
         self.setFixedSize(400, 100)
 
@@ -102,7 +102,7 @@ class WinError(WinMinCloseOnly):
 
     def __init__(self):
         super().__init__()
-        self.set_modality()
+        self.set_always_on_top()
         self.setWindowTitle(WinError.title_text)
 
         main_lay = QVBoxLayout()

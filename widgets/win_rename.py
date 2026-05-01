@@ -18,7 +18,7 @@ class WinRename(WinMinCloseOnly):
 
     def __init__(self, text: str):
         super().__init__()
-        self.set_modality()
+        self.set_always_on_top()
         self.setWindowTitle(WinRename.title_text)
 
         v_lay = QVBoxLayout()

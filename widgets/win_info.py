@@ -3,14 +3,14 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
-                             QLabel, QSpacerItem)
+                             QLabel, QSpacerItem, QWidget)
 
 from cfg import Static
 from system.items import DataItem, MultipleInfoItem, NameUrlItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
-from ._base_widgets import UMenu, WinMinCloseOnly, BaseSignals
+from ._base_widgets import UMenu, WinMinCloseOnly, BaseSignals, WinWidget
 from .actions import Actions
 
 
@@ -60,7 +60,7 @@ class WinInfo(WinMinCloseOnly):
     def __init__(self, urls: list[str]):
         super().__init__()
         self.setWindowTitle(WinInfo.title_text)
-        self.set_modality()
+        self.set_always_on_top()
         self.base_signals = BaseSignals()
         self.left = Qt.AlignmentFlag.AlignLeft
         self.right = Qt.AlignmentFlag.AlignRight
@@ -314,15 +314,17 @@ class WinInfo(WinMinCloseOnly):
         self.context_menu.show_under_mouse()
 
 
-class WinInfoFav(WinMinCloseOnly):
+class WinInfoFav(WinWidget):
     copy_text = pyqtSignal(str)
-    name_text = "Имя"
+    name_text = "Имя в избранном"
     url_text = "Путь"
 
     def __init__(self, name_url_item: NameUrlItem):
         super().__init__()
         self.setWindowTitle(WinInfo.title_text)
-        self.set_modality()
+        self.set_close_only()
+        self.set_always_on_top()
+
         self.base_signals = BaseSignals()
         self.name_url_item = name_url_item
         self.left = Qt.AlignmentFlag.AlignLeft
@@ -330,25 +332,28 @@ class WinInfoFav(WinMinCloseOnly):
         self.top = Qt.AlignmentFlag.AlignTop
         self.grid_layout = QGridLayout()
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.grid_layout.setContentsMargins(10, 0, 10, 0)
+        self.grid_layout.setContentsMargins(10, 15, 10, 15)
         self.grid_layout.setSpacing(5)
-        self.centralWidget().setLayout(self.grid_layout)
+        self.setLayout(self.grid_layout)
 
         self.single_file()
         self.adjustSize()
+
+    def center(self, *args):
+        return
 
     def single_file(self):
         row = 0
         labels = {
             self.name_text: self.lined_text(self.name_url_item.name),
-            self.url_text: self.lined_text(self.name_url_item.url),
+            self.url_text: self.lined_text(self.name_url_item.url)
         }
         for k, v in labels.items():
             left = SelectableLabel(k)
-            self.grid_layout.addWidget(left, row, 0, alignment=self.right | self.top)
+            self.grid_layout.addWidget(left, row, 0, alignment=self.right)
             self.grid_layout.addItem(QSpacerItem(10, 0), row, 1)
             right = SelectableLabel(v)
-            self.grid_layout.addWidget(right, row, 2, alignment=self.left | self.top)
+            self.grid_layout.addWidget(right, row, 2, alignment=self.left)
             row += 1
 
     def lined_text(self, text: str, limit: int = 50):

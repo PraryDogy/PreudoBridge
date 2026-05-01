@@ -346,7 +346,7 @@ class WinSettings(WinMinCloseOnly):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(WinSettings.title_text)
-        self.set_modality()
+        self.set_always_on_top()
         # self.setFixedSize(470, 510)
         self.setFixedWidth(470)
 

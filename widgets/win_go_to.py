@@ -22,7 +22,7 @@ class WinGoTo(WinMinCloseOnly):
         - кнопка "Finder" - путь откроется в Finder
         """
         super().__init__()
-        self.set_modality()
+        self.set_always_on_top()
         self.setWindowTitle(WinGoTo.title_text)
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 5)
