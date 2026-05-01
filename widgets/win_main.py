@@ -267,7 +267,7 @@ class WinMain(WinBase):
         self.menu_favs.get_info_fav.connect(self.info_fav_win_open)
 
         self.menu_filters.filter_grid.connect(
-            lambda: self.grid.filter_thumbs()
+            lambda: self.grid.filter()
         )
         self.menu_filters.base_signals.rearrange_grid.connect(
             lambda: self.grid.rearrange()

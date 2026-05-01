@@ -352,7 +352,7 @@ class Grid(UScrollArea):
             wid.update_all(self.main_win_item.sort_item)
         self.url_to_wid = new_url_to_wid
                 
-    def filter_thumbs(self):
+    def filter(self):
         visible_thumbs = 0
         for wid in self.url_to_wid.values():
             show_widget = True
