@@ -78,13 +78,14 @@ class WinSearchList(WinMinCloseOnly):
     ok_text = "Ок"
     cancel_text = "Отмена"
     search_place_limit = 50
-    min_w = 300
+    min_w = 400
+    min_h = 500
     finished_ = pyqtSignal(list)
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
         self.set_modality()
-        self.setMinimumWidth(self.min_w)
+        self.setMinimumSize(self.min_w, self.min_h)
         self.setWindowTitle(self.title_text)
         self.main_win_item = main_win_item
         self.search_item = search_item
@@ -136,6 +137,8 @@ class WinSearchList(WinMinCloseOnly):
     def create_buttons(self):
         btns_wid = QWidget()
         btns_lay = QHBoxLayout()
+        btns_lay.setContentsMargins(0, 0, 0, 0)
+        btns_lay.setSpacing(10)
         btns_wid.setLayout(btns_lay)
 
         btns_lay.addStretch()
