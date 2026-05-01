@@ -5,7 +5,7 @@ from PyQt5.QtGui import QDropEvent, QIcon
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
-from system.items import MainWinItem, NameUrlItem
+from system.items import MainWinItem, NameUrlItem, UrlsItem
 
 from ._base_widgets import UMenu
 from .actions import Actions
@@ -129,9 +129,9 @@ class MenuFavs(QListWidget):
         item.setText(fav_item.name)
         item.name = fav_item.name
 
-    def remove_fav_finalize(self, fav_item: NameUrlItem):
-        list_item = self.url_to_item[fav_item.url]
-        JsonData.favs.pop(fav_item.url)
+    def remove_fav_finalize(self, fav_item: UrlsItem):
+        list_item = self.url_to_item[fav_item.urls[0]]
+        JsonData.favs.pop(fav_item.urls[0])
         JsonData.write_json_data()
         self.takeItem(self.row(list_item))
 

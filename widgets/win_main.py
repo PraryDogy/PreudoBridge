@@ -638,12 +638,12 @@ class WinMain(WinBase):
         self.rem_win.center(self.window())
         self.rem_win.show()
 
-    def remove_fav(self, name_path_item: NameUrlItem):
+    def remove_fav(self, item: UrlsItem):
 
         def finished():
-            self.menu_favs.remove_fav_finalize(name_path_item)
+            self.menu_favs.remove_fav_finalize(item)
 
-        self.rem_win = WinRemoveFiles([name_path_item.url, ])
+        self.rem_win = WinRemoveFiles(item.urls)
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())
