@@ -401,21 +401,21 @@ class WinMain(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        self.grid.add_fav.connect(self.new_fav)
-        self.grid.del_fav.connect(self.remove_fav)
-        self.grid.load_st_grid.connect(self.load_st_grid)
-        self.grid.new_main_win_open.connect(self.new_main_win_open)
-        self.grid.level_up.connect(self.level_up)
-        self.grid.new_history_item.connect(self.bar_top.history_item)
-        self.grid.change_view.connect(self.change_view_cmd)
-        self.grid.open_win_info.connect(self.info_win_open)
-        self.grid.img_view_win.connect(self.img_view_win_open)
-        self.grid.reveal_urls.connect(self.reveal_urls)
-        self.grid.copy_urls.connect(self.copy_urls)
-        self.grid.copy_names.connect(self.copy_names)
-        self.grid.open_in_app.connect(self.open_in_app)
-        self.grid.remove_files.connect(self.remove_files)
-        self.grid.new_folder.connect(self.new_folder)
+        self.grid.base_signals.new_fav.connect(self.new_fav)
+        self.grid.base_signals.remove_fav.connect(self.remove_fav)
+        self.grid.base_signals.load_st_grid.connect(self.load_st_grid)
+        self.grid.base_signals.new_main_win.connect(self.new_main_win_open)
+        self.grid.base_signals.level_up.connect(self.level_up)
+        self.grid.base_signals.history_item.connect(self.bar_top.history_item)
+        self.grid.base_signals.change_view.connect(self.change_view_cmd)
+        self.grid.base_signals.info.connect(self.info_win_open)
+        self.grid.base_signals.img_view.connect(self.img_view_win_open)
+        self.grid.base_signals.reveal_urls.connect(self.reveal_urls)
+        self.grid.base_signals.copy_urls.connect(self.copy_urls)
+        self.grid.base_signals.copy_names.connect(self.copy_names)
+        self.grid.base_signals.open_in_app.connect(self.open_in_app)
+        self.grid.base_signals.remove_urls.connect(self.remove_urls)
+        self.grid.base_signals.new_folder.connect(self.new_folder)
 
         self.grid.rename_file.connect(self.rename_file)
         self.grid.menu_sort_update.connect(self.bar_sort.sort_menu_update)
@@ -620,7 +620,7 @@ class WinMain(WinBase):
         for i in urls:
             Utils.open_in_app(path=i, app_path=app_path)
 
-    def remove_files(self, urls: list[str]):
+    def remove_urls(self, urls: list[str]):
 
         def finished():
             self.remove_task = FileRemover(
