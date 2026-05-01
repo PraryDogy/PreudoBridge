@@ -457,7 +457,7 @@ class WinMain(WinBase):
         self.win_info.copy_text.connect(
             lambda text: Utils.write_to_clipboard(text)
         )
-        self.win_info.reveal.connect(
+        self.win_info.base_signals.reveal_urls.connect(
             lambda urls: self.reveal_urls(urls)
         )
         self.win_info.center(self)
@@ -468,7 +468,7 @@ class WinMain(WinBase):
         self.win_info.copy_text.connect(
             lambda text: Utils.write_to_clipboard(text)
         )
-        self.win_info.reveal.connect(
+        self.win_info.base_signals.reveal_urls.connect(
             lambda urls: self.reveal_urls(urls)
         )
         # индекс -1 всегда будет win info, так как это последнее открытое окно

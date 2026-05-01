@@ -10,7 +10,7 @@ from system.items import DataItem, MultipleInfoItem, NameUrlItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
-from ._base_widgets import UMenu, WinMinCloseOnly
+from ._base_widgets import UMenu, WinMinCloseOnly, BaseSignals
 from .actions import Actions
 
 
@@ -41,7 +41,6 @@ class SelectableLabel(ULabel):
 
 class WinInfo(WinMinCloseOnly):
     finished_ = pyqtSignal()
-    reveal = pyqtSignal(list)
     copy_text = pyqtSignal(str)
 
     title_text = "Инфо"
@@ -62,7 +61,7 @@ class WinInfo(WinMinCloseOnly):
         super().__init__()
         self.setWindowTitle(WinInfo.title_text)
         self.set_modality()
-
+        self.base_signals = BaseSignals()
         self.left = Qt.AlignmentFlag.AlignLeft
         self.right = Qt.AlignmentFlag.AlignRight
         self.top = Qt.AlignmentFlag.AlignTop
@@ -310,14 +309,13 @@ class WinInfo(WinMinCloseOnly):
             self.context_menu.addSeparator()
             self.context_menu.add_action(
                 action=self.context_actions.reveal,
-                callback=lambda: self.reveal.emit([text, ])
+                callback=lambda: self.base_signals.reveal_urls.emit([text, ])
             )
         self.context_menu.show_under_mouse()
 
 
 class WinInfoFav(WinMinCloseOnly):
     copy_text = pyqtSignal(str)
-    reveal = pyqtSignal(list)
     name_text = "Имя"
     url_text = "Путь"
 
@@ -325,6 +323,7 @@ class WinInfoFav(WinMinCloseOnly):
         super().__init__()
         self.setWindowTitle(WinInfo.title_text)
         self.set_modality()
+        self.base_signals = BaseSignals()
         self.name_url_item = name_url_item
         self.left = Qt.AlignmentFlag.AlignLeft
         self.right = Qt.AlignmentFlag.AlignRight
@@ -388,6 +387,6 @@ class WinInfoFav(WinMinCloseOnly):
             self.context_menu.addSeparator()
             self.context_menu.add_action(
                 action=self.context_actions.reveal,
-                callback=lambda: self.reveal.emit([text, ])
+                callback=lambda: self.base_signals.reveal_urls.emit([text, ])
             )
         self.context_menu.show_under_mouse()
