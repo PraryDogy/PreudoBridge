@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
 from cfg import Static
 from system.shared_utils import ImgUtils
 from system.utils import Utils
-
+from system.items import NameUrlItem, UrlsItem
 
 class UScrollArea(QScrollArea):
     def __init__(self):
@@ -489,3 +489,14 @@ class UFileSystemModel(QFileSystemModel):
             QDir.Filter.AllDirs | 
             QDir.Filter.NoDotAndDotDot
         )
+
+
+class BaseSignals(QWidget):
+    history_item = pyqtSignal(str)
+    load_st_grid = pyqtSignal(str)
+    new_main_win = pyqtSignal(str)
+    new_fav = pyqtSignal(NameUrlItem)
+    remove_fav = pyqtSignal(UrlsItem)
+    reveal_urls = pyqtSignal(list)
+    copy_urls = pyqtSignal(list)
+    copy_names = pyqtSignal(list)
