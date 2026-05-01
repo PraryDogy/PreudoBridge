@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 from cfg import JsonData, Static
 from system.items import MainWinItem, NameUrlItem
 
-from ._base_widgets import UMenu
+from ._base_widgets import UMenu, BaseSignals
 from .actions import Actions
 
 
@@ -44,21 +44,14 @@ class ListItemSpacer(QListWidgetItem):
 
 
 class MenuFavs(QListWidget):
-    history_item = pyqtSignal(str)
-    load_st_grid = pyqtSignal(str)
-    new_main_win = pyqtSignal(str)
-    reveal_urls = pyqtSignal(list)
-    copy_urls = pyqtSignal(list)
-    copy_names = pyqtSignal(list)
     rename_fav = pyqtSignal(NameUrlItem)
-    remove_fav = pyqtSignal(str)
-    new_fav = pyqtSignal(NameUrlItem)
-    info = pyqtSignal(NameUrlItem)
+    get_info_fav = pyqtSignal(NameUrlItem)
     folder_icon: QIcon
     folder_pin_icon: QIcon
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
+        self.base_signals = BaseSignals()
         self.main_win_item = main_win_item
         self.url_to_item: dict[str, ListItemBase] = {}
 
@@ -136,8 +129,8 @@ class MenuFavs(QListWidget):
         self.takeItem(self.row(list_item))
 
     def open_fav_cmd(self, path: str):
-        self.history_item.emit(path)
-        self.load_st_grid.emit(path)
+        self.base_signals.history_item.emit(path)
+        self.base_signals.load_st_grid.emit(path)
     
     def contextMenuEvent(self, a0):
         list_item: ListItemBase = self.itemAt(a0.pos())
@@ -158,25 +151,25 @@ class MenuFavs(QListWidget):
         )
         context_menu.add_action(
             action=context_actions.new_main_win,
-            callback=lambda: self.new_main_win.emit(list_item.src)
+            callback=lambda: self.base_signals.new_main_win.emit(list_item.src)
         )
         context_menu.addSeparator()
         context_menu.add_action(
             context_actions.win_info,
-            callback=lambda: self.info.emit(name_path_item)
+            callback=lambda: self.get_info_fav.emit(name_path_item)
         )
         context_menu.add_action(
             context_actions.reveal,
-            callback=lambda: self.reveal_urls.emit(urls)
+            callback=lambda: self.base_signals.reveal_urls.emit(urls)
         )
         context_menu.addSeparator()
         context_menu.add_action(
             context_actions.copy_path,
-            callback=lambda: self.copy_urls.emit(urls)
+            callback=lambda: self.base_signals.copy_urls.emit(urls)
         )
         context_menu.add_action(
             context_actions.copy_name,
-            callback=lambda: self.copy_names.emit(urls)
+            callback=lambda: self.base_signals.copy_names.emit(urls)
         )
         if isinstance(list_item, ListItem):
             context_menu.addSeparator()
@@ -186,7 +179,7 @@ class MenuFavs(QListWidget):
             )
             context_menu.add_action(
                 action=context_actions.fav_remove,
-                callback=lambda: self.remove_fav.emit(list_item.src)
+                callback=lambda: self.base_signals.remove_fav.emit(list_item.src)
             )
         context_menu.show_under_mouse()
         return super().contextMenuEvent(a0)
@@ -197,7 +190,7 @@ class MenuFavs(QListWidget):
             return
         if item:
             if e.modifiers() == Qt.KeyboardModifier.ControlModifier:
-                self.new_main_win.emit(item.src)
+                self.base_signals.new_main_win.emit(item.src)
             else:
                 self.open_fav_cmd(item.src)
         else:
@@ -236,4 +229,4 @@ class MenuFavs(QListWidget):
                     name=os.path.basename(url_),
                     url=url_
                 )
-                self.new_fav.emit(fav_item)
+                self.base_signals.new_fav.emit(fav_item)

@@ -199,7 +199,7 @@ class WinMain(WinBase):
         self.right_side_layout.setSpacing(0)
 
         self.bar_top = BarTop(self.main_win_item, self.search_item)
-        self.bar_top.new_history_item(dir)
+        self.bar_top.history_item(dir)
         self.right_side_layout.insertWidget(0, self.bar_top)
         self.right_side_layout.insertWidget(1, USep())
 
@@ -246,25 +246,25 @@ class WinMain(WinBase):
             lambda: self.resize_timer.start(WinMain.resize_ms)
         )
 
-        self.menu_tree.base_signals.history_item.connect(self.bar_top.new_history_item)
+        self.menu_tree.base_signals.history_item.connect(self.bar_top.history_item)
         self.menu_tree.base_signals.load_st_grid.connect(self.load_st_grid)
         self.menu_tree.base_signals.new_main_win.connect(self.new_main_win_open)
-        self.menu_tree.base_signals.new_fav.connect(self.add_fav)
+        self.menu_tree.base_signals.new_fav.connect(self.new_fav)
         self.menu_tree.base_signals.remove_fav.connect(self.remove_fav)
         self.menu_tree.base_signals.reveal_urls.connect(self.reveal_urls)
         self.menu_tree.base_signals.copy_urls.connect(self.copy_urls)
         self.menu_tree.base_signals.copy_names.connect(self.copy_names)
 
-        self.menu_favs.history_item.connect(self.bar_top.new_history_item)
-        self.menu_favs.load_st_grid.connect(self.load_st_grid)
-        self.menu_favs.new_main_win.connect(self.new_main_win_open)
-        self.menu_favs.new_fav.connect(self.add_fav)
-        self.menu_favs.remove_fav.connect(self.remove_fav)
-        self.menu_favs.reveal_urls.connect(self.reveal_urls)
-        self.menu_favs.copy_urls.connect(self.copy_urls)
-        self.menu_favs.copy_names.connect(self.copy_names)
+        self.menu_favs.base_signals.history_item.connect(self.bar_top.history_item)
+        self.menu_favs.base_signals.load_st_grid.connect(self.load_st_grid)
+        self.menu_favs.base_signals.new_main_win.connect(self.new_main_win_open)
+        self.menu_favs.base_signals.new_fav.connect(self.new_fav)
+        self.menu_favs.base_signals.remove_fav.connect(self.remove_fav)
+        self.menu_favs.base_signals.reveal_urls.connect(self.reveal_urls)
+        self.menu_favs.base_signals.copy_urls.connect(self.copy_urls)
+        self.menu_favs.base_signals.copy_names.connect(self.copy_names)
         self.menu_favs.rename_fav.connect(self.rename_fav)
-        self.menu_favs.info.connect(self.info_fav_win_open)
+        self.menu_favs.get_info_fav.connect(self.info_fav_win_open)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
@@ -281,10 +281,10 @@ class WinMain(WinBase):
         self.bar_top.settings_win_open.connect(self.settings_win_open)
         self.bar_top.new_folder.connect(self.new_folder)
 
-        self.bar_path.new_history_item.connect(self.bar_top.new_history_item)
+        self.bar_path.new_history_item.connect(self.bar_top.history_item)
         self.bar_path.load_st_grid.connect(self.load_st_grid)
         self.bar_path.info_win_open.connect(self.info_win_open)
-        self.bar_path.add_fav.connect(self.add_fav)
+        self.bar_path.add_fav.connect(self.new_fav)
         self.bar_path.del_fav.connect(self.remove_fav)
         self.bar_path.new_main_win.connect(self.new_main_win_open)
         self.bar_path.reveal.connect(self.reveal_urls)
@@ -388,7 +388,7 @@ class WinMain(WinBase):
     def level_up(self):
         new_main_dir = os.path.dirname(self.main_win_item.abs_current_dir)
         if new_main_dir != os.sep:
-            self.bar_top.new_history_item(new_main_dir)
+            self.bar_top.history_item(new_main_dir)
             self.load_st_grid(new_main_dir)
 
     def resize_timer_timeout(self):
@@ -406,14 +406,14 @@ class WinMain(WinBase):
         self.grid.menu_sort_update.connect(self.bar_sort.sort_menu_update)
         self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
         self.grid.bar_path_update.connect(self.bar_path.update)
-        self.grid.add_fav.connect(self.add_fav)
+        self.grid.add_fav.connect(self.new_fav)
         self.grid.del_fav.connect(self.remove_fav)
         self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
         self.grid.new_main_win_open.connect(self.new_main_win_open)
         self.grid.go_to_widget.connect(self.go_to_cmd)
         self.grid.level_up.connect(self.level_up)
-        self.grid.new_history_item.connect(self.bar_top.new_history_item)
+        self.grid.new_history_item.connect(self.bar_top.history_item)
         self.grid.change_view.connect(self.change_view_cmd)
         self.grid.open_win_info.connect(self.info_win_open)
         self.grid.img_view_win.connect(self.img_view_win_open)
@@ -516,7 +516,7 @@ class WinMain(WinBase):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
-    def add_fav(self, fav_item: NameUrlItem):
+    def new_fav(self, fav_item: NameUrlItem):
         
         def finished(text: str):
             fav_item.name = text

@@ -398,7 +398,7 @@ class BarTop(QWidget):
     def set_show_text(self, value: bool):
         JsonData.show_text = value
 
-    def new_history_item(self, dir: str):
+    def history_item(self, dir: str):
         """
         Добавляет новый путь в историю навигации:
 
