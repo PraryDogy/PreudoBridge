@@ -60,7 +60,6 @@ class MenuFilters(QTabWidget):
         self.line_edit.blockSignals(False)
 
     def on_text_changed(self):
-        print(123)
         text = self.line_edit.toPlainText()
         if text:
             Dynamic.word_filters = [i.strip() for i in text.split(",") if i]
