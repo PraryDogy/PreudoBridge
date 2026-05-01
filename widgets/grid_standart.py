@@ -229,6 +229,8 @@ class GridStandart(Grid):
                 action=self.context_actions.paste_files,
                 callback=lambda: self.paste_files.emit()
             )
+            self.context_menu.addSeparator()
+        self.folder_actions()
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.new_folder,
@@ -238,6 +240,8 @@ class GridStandart(Grid):
             action=self.context_actions.update_grid,
             callback=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
         )
+
+
         self.context_menu.addSeparator()
         super().base_grid_actions()
 

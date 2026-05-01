@@ -520,14 +520,16 @@ class Grid(UScrollArea):
         self.rename_file.emit(item)
 
     def folder_actions(self):
-        wid = self.wid_under_mouse
-        root = wid.data_item.abs_path
+        if self.wid_under_mouse:
+            root = self.wid_under_mouse.data_item.abs_path
+        else:
+            root = self.main_win_item.abs_current_dir
 
         self.context_menu.add_action(
             action=self.context_actions.new_main_win,
             callback=lambda: self.new_main_win_open.emit(root)
         )
-        if wid.data_item.abs_path in JsonData.favs:
+        if root in JsonData.favs:
             self.context_menu.add_action(
                 action=self.context_actions.fav_remove,
                 callback=lambda: self.fav_cmd(-1, root)
