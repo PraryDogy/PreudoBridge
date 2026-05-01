@@ -361,10 +361,9 @@ class Grid(UScrollArea):
         visible_thumbs = 0
         for wid in self.url_to_wid.values():
             show_widget = True
-            if Dynamic.word_filters:
-                for i in Dynamic.word_filters:
-                    if i.lower() not in wid.data_item.filename.lower():
-                        show_widget = False
+            for i in Dynamic.word_filters:
+                if i.lower() not in wid.data_item.filename.lower():
+                    show_widget = False
             if show_widget:
                 wid.data_item.must_hidden = False
                 wid.show()
@@ -387,12 +386,14 @@ class Grid(UScrollArea):
         self.grid_wid.hide()
         self.cell_to_wid.clear()
         cols = self.get_max_columns()
-        for x, thumb in enumerate(self.url_to_wid.values()):
+        visible_count = 0 
+        for thumb in self.url_to_wid.values():
             if thumb.data_item.must_hidden:
                 continue
-            row, col = divmod(x, cols)
+            row, col = divmod(visible_count, cols)
             self.add_widget_data(thumb, row, col)
             self.grid_layout.addWidget(thumb, row, col)
+            visible_count += 1
         self.grid_wid.show()
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
