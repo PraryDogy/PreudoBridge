@@ -3,12 +3,11 @@ from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QTabWidget
 
 from cfg import Dynamic
 
-from ._base_widgets import SmallBtn, UTextEdit
+from ._base_widgets import SmallBtn, UTextEdit, BaseSignals
 
 
 class MenuFilters(QTabWidget):
-    filter_thumbs = pyqtSignal()
-    rearrange_thumbs = pyqtSignal()
+    filter_grid = pyqtSignal()
     enable_text = "Включить"
     height_ = 155
     item_width = 25
@@ -16,7 +15,7 @@ class MenuFilters(QTabWidget):
 
     def __init__(self):
         super().__init__()
-
+        self.base_signals = BaseSignals()
         wid = QWidget()
         self.addTab(wid, "Фильтры")
         self.tabBar().hide()
@@ -42,8 +41,8 @@ class MenuFilters(QTabWidget):
         self.apply_btn.clicked.connect(
             lambda: (
                 self.line_edit.clearFocus(),
-                self.filter_thumbs.emit(),
-                self.rearrange_thumbs.emit()
+                self.filter_grid.emit(),
+                self.base_signals.rearrange_grid.emit()
             )
         )
         self.clear_btn.clicked.connect(self.line_edit.clear)
@@ -64,12 +63,12 @@ class MenuFilters(QTabWidget):
         if text:
             Dynamic.word_filters = [i.strip() for i in text.split(",") if i]
             if text[-1] == ",":
-                self.filter_thumbs.emit()
-                self.rearrange_thumbs.emit()
+                self.filter_grid.emit()
+                self.base_signals.rearrange_grid.emit()
         elif text == "":
             Dynamic.word_filters.clear()
-            self.filter_thumbs.emit()
-            self.rearrange_thumbs.emit()
+            self.filter_grid.emit()
+            self.base_signals.rearrange_grid.emit()
 
     def set_disabled(self, value: bool):
         if value:

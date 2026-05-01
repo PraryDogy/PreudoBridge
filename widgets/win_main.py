@@ -266,10 +266,10 @@ class WinMain(WinBase):
         self.menu_favs.rename_fav.connect(self.rename_fav)
         self.menu_favs.get_info_fav.connect(self.info_fav_win_open)
 
-        self.menu_filters.filter_thumbs.connect(
+        self.menu_filters.filter_grid.connect(
             lambda: self.grid.filter_thumbs()
         )
-        self.menu_filters.rearrange_thumbs.connect(
+        self.menu_filters.base_signals.rearrange_grid.connect(
             lambda: self.grid.rearrange()
         )
 
@@ -298,8 +298,6 @@ class WinMain(WinBase):
         self.bar_sort.sort_grid.connect(
             lambda: self.grid.sort()
         )
-
-
         self.bar_sort.base_signals.resize_grid.connect(
             lambda: self.grid.resize()
         )
