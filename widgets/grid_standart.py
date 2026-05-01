@@ -180,8 +180,8 @@ class GridStandart(Grid):
         Thumb.calc_size()
         self.create_thumbs(dir_item.data_items)
         self.select_thumbs()
-        if Dynamic.word_filters:
-            self.filter_thumbs()
+        # if Dynamic.word_filters:
+            # self.filter_thumbs()
         QTimer.singleShot(0, self.rearrange_thumbs)
 
     def create_thumbs(self, data_items: list[DataItem]):

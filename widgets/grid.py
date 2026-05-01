@@ -382,8 +382,6 @@ class Grid(UScrollArea):
         Thumb.calc_size()
         for wid in self.url_to_wid.values():
             wid.update_all(self.main_win_item.sort_item)
-        for i in self.selected_thumbs:
-            i.set_frame()
 
     def rearrange_thumbs(self):
         self.grid_wid.hide()
