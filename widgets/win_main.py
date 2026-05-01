@@ -97,17 +97,13 @@ class WinMain(WinBase):
     splitter_handle_width = 12
     folders_text = "Папки"
     favs_text = "Избранное"
-    new_win_offset = 20
-    del_grid_timer = 3000
     scroll_up_width_offset = 70
     scroll_up_height_offset = 110
     first_load = True
     list_text = "Список"
     grid_text = "Плитка"
-    attention = "Внимание"
     search_text = "Идет поиск"
     search_fin_text = "Поиск завершен"
-    cache_download_descr ="Будет кэшировано все содержимое этой папки. Продолжить?"
 
     def __init__(self, dir: str = base_dir):
         super().__init__()
@@ -394,11 +390,11 @@ class WinMain(WinBase):
         self.grid.resize()
         self.grid.rearrange()
 
-    def new_main_win_open(self, path: str):
+    def new_main_win_open(self, path: str, offset: int = 20):
         new_win = WinMain(path)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
-        new_win.move(x + WinMain.new_win_offset, y + WinMain.new_win_offset)
+        new_win.move(x + offset, y + offset)
         new_win.show()
 
     def setup_grid_signals(self):
