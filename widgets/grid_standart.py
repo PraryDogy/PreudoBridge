@@ -26,13 +26,13 @@ class GridStandart(Grid):
     def __init__(self, main_win_item: MainWinItem):
         super().__init__(main_win_item)
         self.setAcceptDrops(True)
-        self.disable_hide(True)
         self.watchdog_modified_files = set()
         self.helpers: list[ImgLoaderHelper] = []
         self.scroll_timer = QTimer(self)
         self.scroll_timer.timeout.connect(self.load_visible_thumbs)
         self.scroll_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
+        self.dir_scaner_start()
         self.watchdog_start()
 
     def on_scroll(self, scroll_value: int, ms: int = 500):
@@ -55,9 +55,9 @@ class GridStandart(Grid):
                 events.append(self.watchdog_task.queue.get())
             if events:
                 for i in events:
-                    QTimer.singleShot(0, lambda ev=i: self.watchdog_apply(ev))
-                QTimer.singleShot(0, self.sort_thumbs)
-                QTimer.singleShot(0, self.rearrange_thumbs)
+                    self.watchdog_apply(i)
+                self.sort_thumbs()
+                self.rearrange_thumbs()
             self.watchdog_timer.start(ms)
 
         self.watchdog_task = ProcessWorker(
@@ -87,11 +87,6 @@ class GridStandart(Grid):
             new_thumb = self.new_thumb(e.dest_path)
             if wid and wid.data_item.is_selected:
                 self.select_multiple_thumb(new_thumb)
-        # modified выпадает только на изменение директории
-        # можем игнорировать
-        # elif e.event_type == "modified":
-            # print(e.src_path)
-
         if not self.url_to_wid:
             self.no_items_label_remove()
             self.no_items_label_create(NoItemsLabel.no_files)
@@ -163,13 +158,6 @@ class GridStandart(Grid):
         img_task.start()
         img_timer.start(0)
     
-    def disable_hide(self, value: bool):
-        self.grid_wid.setDisabled(value)
-        if value:
-            self.grid_wid.hide()
-        else:
-            self.grid_wid.show()
-
     def dir_scaner_start(self):
         dir_item = DirItem(
             data_items=[],
@@ -182,48 +170,29 @@ class GridStandart(Grid):
     def dir_scaner_end(self, dir_item: DirItem):
         if len(dir_item.data_items) == 0:
             self.no_items_label_create(NoItemsLabel.no_files)
-            self.load_finished.emit()
-            self.disable_hide(False)
             return
-        Thumb.calc_size()
-
-        self.bar_path_update.emit(self.main_win_item.abs_current_dir)
         item = TotalCountItem(
             selected=len(self.selected_thumbs),
             total=len(dir_item.data_items)
         )
+        self.bar_path_update.emit(self.main_win_item.abs_current_dir)
         self.total_count_update.emit(item)
-        self.create_thumbs_start(dir_item.data_items)
+        Thumb.calc_size()
+        self.create_thumbs(dir_item.data_items)
+        self.select_thumbs()
+        if Dynamic.word_filters:
+            self.filter_thumbs()
+        QTimer.singleShot(0, self.rearrange_thumbs)
 
-    def create_thumbs_start(self, data_items: list[DataItem]):
-        def add_one_thumb():
-            if self._thumb_index >= len(self.data_items):
-                self.data_items = None
-                self._thumb_index = 0
-                self.create_thumbs_end()
-                return
-            data_item = self.data_items[self._thumb_index]
+    def create_thumbs(self, data_items: list[DataItem]):
+        for data_item in data_items:
             thumb = Thumb(data_item)
             thumb.update_all(self.main_win_item.sort_item)
             thumb.set_no_frame()
             thumb.set_icon()
-            self.add_widget_data(thumb, self.row, self.col)
-            self.grid_layout.addWidget(thumb, self.row, self.col)
-            self.col += 1
-            if self.col >= self.col_count:
-                self.col = 0
-                self.row += 1
-            self._thumb_index += 1
-            QTimer.singleShot(0, add_one_thumb)
-            
-        self.col_count = self.get_max_columns()
-        self._thumb_index = 0
-        self.data_items = data_items
-        self.row = 0
-        self.col = 0
-        add_one_thumb()
+            self.add_widget_data(thumb, 0, 0)
 
-    def create_thumbs_end(self):
+    def select_thumbs(self):
         if self.main_win_item.go_to_widget:
             self.main_win_item.urls_to_select.append(
                 self.main_win_item.go_to_widget
@@ -234,11 +203,6 @@ class GridStandart(Grid):
                 wid = self.url_to_wid.get(i)
                 self.selected_thumbs.append(wid)
                 wid.set_frame()
-        if Dynamic.word_filters:
-            self.filter_thumbs()
-        QTimer.singleShot(0, self.rearrange_thumbs)
-        QTimer.singleShot(10, lambda: self.disable_hide(False))
-        self.load_finished.emit()
 
     def new_thumb(self, url: str):
         data = DataItem(url)

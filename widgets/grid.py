@@ -386,23 +386,16 @@ class Grid(UScrollArea):
             i.set_frame()
 
     def rearrange_thumbs(self):
+        self.grid_wid.hide()
         self.cell_to_wid.clear()
-        self.row, self.col = 0, 0
-        self.col_count = self.get_max_columns()
-        for wid in self.url_to_wid.values():
-            if wid.data_item.must_hidden:
+        cols = self.get_max_columns()
+        for x, thumb in enumerate(self.url_to_wid.values()):
+            if thumb.data_item.must_hidden:
                 continue
-            self.grid_layout.addWidget(wid, self.row, self.col)
-            self.add_widget_data(wid, self.row, self.col)
-            self.col += 1
-            if self.col >= self.col_count:
-                self.col = 0
-                self.row += 1
-        item = TotalCountItem(
-            selected=len(self.selected_thumbs),
-            total=len(self.cell_to_wid)
-        )
-        self.total_count_update.emit(item)
+            row, col = divmod(x, cols)
+            self.add_widget_data(thumb, row, col)
+            self.grid_layout.addWidget(thumb, row, col)
+        self.grid_wid.show()
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.data_item.row, wid.data_item.col = row, col

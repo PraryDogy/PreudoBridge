@@ -546,7 +546,7 @@ class WinMain(WinBase):
 
     def load_st_grid(self, path: str):
 
-        def _load():
+        def prepare_grid():
             self.bar_top.search_wid.clear_search()
             self.search_item.search_list.clear()
             self.scroll_up.hide()
@@ -557,19 +557,14 @@ class WinMain(WinBase):
             self.menu_tree.expand_path(path)
             self.grid.deleteLater()
 
+        def load_grid():
             if self.main_win_item.view_mode == 0:
                 self.grid = GridStandart(self.main_win_item)
-                self.grid.load_finished.connect(self.grid.grid_wid.show)
-                self.grid.load_finished.connect(self.grid.setFocus)
-                self.grid.grid_wid.hide()
                 classes = (TableView, Grid)
                 self.disable_wids(False)
-                self.grid.dir_scaner_start()
 
             elif self.main_win_item.view_mode == 1:
                 self.grid = TableView(self.main_win_item)
-                self.grid.load_finished.connect(self.grid.show)
-                self.grid.load_finished.connect(self.grid.setFocus)
                 classes = (Grid, TableView)
                 self.disable_wids(True)
 
@@ -583,8 +578,8 @@ class WinMain(WinBase):
 
         result = self.main_win_item.set_current_dir(path)
         if result:
-            self.grid.grid_wid.hide()
-            QTimer.singleShot(100, _load)
+            prepare_grid()
+            load_grid()
         else:
             no_conn = (
                 "Такой папки не существует."
