@@ -14,7 +14,7 @@ from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
-from ._base_widgets import UFileSystemModel, UMenu
+from ._base_widgets import UFileSystemModel, UMenu, BaseSignals
 from .actions import Actions, Menus
 
 
@@ -72,30 +72,14 @@ class TableView(QTableView):
     order: int = 0
     sizes: list = [250, 100, 100, 150]
 
-    new_history_item = pyqtSignal(str)
-    bar_path_update = pyqtSignal(str)
-    add_fav = pyqtSignal(NameUrlItem)
-    del_fav = pyqtSignal(str)
-    load_st_grid = pyqtSignal(str)
-    move_slider = pyqtSignal(int)
-    change_view = pyqtSignal()
-    new_main_win_open = pyqtSignal(str)
-    go_to_widget = pyqtSignal(str)
-    level_up = pyqtSignal()
+    rename_file = pyqtSignal(NameUrlItem)
     menu_sort_update = pyqtSignal()
     total_count_update = pyqtSignal(TotalCountItem)
-    open_win_info = pyqtSignal(list)
-    img_view_win = pyqtSignal(ImgViewItem)
+    bar_path_update = pyqtSignal(str)
+    move_slider = pyqtSignal(int)
+    go_to_widget = pyqtSignal(str)
     paste_files = pyqtSignal()
-    load_finished = pyqtSignal()
-    reveal_urls = pyqtSignal(list)
-    copy_urls = pyqtSignal(list)
-    copy_names = pyqtSignal(list)
     img_convert_win = pyqtSignal(list)
-    open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(list)
-    rename_file = pyqtSignal(NameUrlItem)
-    new_folder = pyqtSignal()
 
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
@@ -113,10 +97,7 @@ class TableView(QTableView):
         self.setDragDropMode(QAbstractItemView.DragDrop)
         self.setDropIndicatorShown(True)
 
-        # Заглушка (placeholder) для grid_wid. 
-        # Используется для предотвращения ошибок при вызове .hide() в MainWin.
-        self.grid_wid = QLabel()
-
+        self.base_signals = BaseSignals()
         self.main_win_item = main_win_item
         self.url_to_index: dict[str, QModelIndex] = {}
         self.url_to_item: dict[str, DataItem] = {}
@@ -180,7 +161,6 @@ class TableView(QTableView):
 
         self.setCurrentIndex(QModelIndex())
         self.bar_path_update.emit(self.main_win_item.abs_current_dir)
-        self.load_finished.emit()
 
         if row_count == 0:
             self.no_files = QLabel(self.empty_text, parent=self)
@@ -209,8 +189,8 @@ class TableView(QTableView):
         url_to_data_item = {}
         if len(urls) == 1:
             if os.path.isdir(urls[0]):
-                self.new_history_item.emit(urls[0])
-                self.load_st_grid.emit(urls[0])
+                self.base_signals.history_item.emit(urls[0])
+                self.base_signals.load_st_grid.emit(urls[0])
                 return
             is_selection = False
             for url, _ in self.url_to_index.items():
@@ -231,7 +211,7 @@ class TableView(QTableView):
                 url_to_data_item=url_to_data_item,
                 is_selection=is_selection
             )
-            self.img_view_win.emit(item)
+            self.base_signals.img_view.emit(item)
 
     def save_sort_settings(self, index):
         TableView.col = index
@@ -250,7 +230,7 @@ class TableView(QTableView):
             data_item = DataItem(i)
             data_item.set_properties()
             data_items.append(data_item)
-        self.open_win_info.emit(data_items)
+        self.base_signals.info.emit(data_items)
 
     def get_selected_urls(self) -> list[str]:
         urls = []
@@ -292,17 +272,17 @@ class TableView(QTableView):
         )
         self.context_menu.add_action(
             action=self.context_actions.new_main_win,
-            callback=lambda: self.new_main_win_open.emit(self.url_under_mouse)
+            callback=lambda: self.base_signals.new_main_win.emit(self.url_under_mouse)
         )
         if self.url_under_mouse in JsonData.favs:
             self.context_menu.add_action(
                 action=self.context_actions.fav_remove,
-                callback=lambda: self.del_fav.emit(self.url_under_mouse)
+                callback=lambda: self.base_signals.remove_fav.emit(self.url_under_mouse)
             )
         else:
             self.context_menu.add_action(
                 action=self.context_actions.fav_add,
-                callback=lambda: self.add_fav.emit(name_path_item)
+                callback=lambda: self.base_signals.new_fav.emit(name_path_item)
             )
 
     def base_thumb_actions(self):
@@ -315,7 +295,7 @@ class TableView(QTableView):
         else:
             self.context_menu.add_menu(
                 menu=self.context_menus.open_in_app_menu,
-                callback=lambda app_path: self.open_in_app.emit((self.selected_urls, app_path))
+                callback=lambda app_path: self.base_signals.open_in_app.emit((self.selected_urls, app_path))
             )
             self.context_menu.add_action(
                 action=self.context_actions.convert_to_jpg,
@@ -324,7 +304,7 @@ class TableView(QTableView):
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.win_info,
-            callback=lambda: self.open_win_info.emit(self.selected_urls)
+            callback=lambda: self.base_signals.info.emit(self.selected_urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.rename,
@@ -332,16 +312,16 @@ class TableView(QTableView):
         )
         self.context_menu.add_action(
             action=self.context_actions.reveal,
-            callback=lambda: self.reveal_urls.emit(self.selected_urls)
+            callback=lambda: self.base_signals.reveal_urls.emit(self.selected_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.copy_path,
-            callback=lambda: self.copy_urls.emit(self.selected_urls)
+            callback=lambda: self.base_signals.copy_urls.emit(self.selected_urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_name,
-            callback=lambda: self.copy_names.emit(self.selected_urls)
+            callback=lambda: self.base_signals.copy_names.emit(self.selected_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
@@ -355,40 +335,40 @@ class TableView(QTableView):
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.remove_files,
-            callback=lambda: self.remove_files.emit(self.selected_urls)
+            callback=lambda: self.base_signals.remove_urls.emit(self.selected_urls)
         )
 
     def base_grid_actions(self):
         self.context_menu.add_action(
             action=self.context_actions.new_folder,
-            callback=lambda: self.new_folder.emit()
+            callback=lambda: self.base_signals.new_folder.emit()
         )
         self.context_menu.add_action(
             action=self.context_actions.update_grid,
-            callback=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
+            callback=lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir)
         )
         self.context_menu.add_action(
             action=self.context_actions.win_info,
-            callback=lambda: self.open_win_info.emit(self.selected_urls)
+            callback=lambda: self.base_signals.info.emit(self.selected_urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.reveal,
-            callback=lambda: self.reveal_urls.emit(self.selected_urls)
+            callback=lambda: self.base_signals.reveal_urls.emit(self.selected_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.copy_path,
-            callback=lambda: self.copy_urls.emit(self.selected_urls)
+            callback=lambda: self.base_signals.copy_urls.emit(self.selected_urls)
             
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_name,
-            callback=lambda: self.copy_names.emit(self.selected_urls)
+            callback=lambda: self.base_signals.copy_names.emit(self.selected_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_menu(
             menu=self.context_menus.change_view,
-            callback=lambda: self.change_view.emit()
+            callback=lambda: self.base_signals.change_view.emit()
         )
         if ClipboardItemGlob.src_dir:
             self.context_menu.addSeparator()
@@ -425,7 +405,7 @@ class TableView(QTableView):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
             if a0.key() == Qt.Key.Key_Up:
-                self.level_up.emit()
+                self.base_signals.level_up.emit()
 
             elif a0.key() == Qt.Key.Key_Down:
                 index = self.currentIndex()
@@ -442,7 +422,7 @@ class TableView(QTableView):
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = self.get_selected_urls()
                 if urls:
-                    self.remove_files.emit(urls)
+                    self.base_signals.remove_urls.emit(urls)
 
             elif a0.key() == Qt.Key.Key_X:
                 urls = self.get_selected_urls()
