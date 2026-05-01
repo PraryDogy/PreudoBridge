@@ -1,4 +1,3 @@
-import gc
 import os
 import re
 
@@ -10,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
 
 from cfg import JsonData, Static
 from system.items import (ClipboardItemGlob, ImgViewItem,
-                          MainWinItem, NameUrlItem, SearchItem, SortItem, UrlsItem)
+                          MainWinItem, NameUrlItem, SearchItem, SortItem)
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils
@@ -623,16 +622,16 @@ class WinMain(WinBase):
         for i in urls:
             Utils.open_in_app(path=i, app_path=app_path)
 
-    def remove_files(self, item: UrlsItem):
+    def remove_files(self, urls: list[str]):
 
         def finished():
             self.remove_task = FileRemover(
                 main_dir=self.main_win_item.abs_current_dir,
-                urls=item.urls
+                urls=urls
             )
             UThreadPool.start(self.remove_task)
 
-        self.rem_win = WinRemoveFiles(item.urls)
+        self.rem_win = WinRemoveFiles(urls)
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())

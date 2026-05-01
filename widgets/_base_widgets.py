@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt, QTimer, pyqtSignal, QObject
+from PyQt5.QtCore import QDir, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
                          QPalette, QTextCursor, QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
 from cfg import Static
 from system.shared_utils import ImgUtils
 from system.utils import Utils
-from system.items import NameUrlItem, UrlsItem
 
 class UScrollArea(QScrollArea):
     def __init__(self):

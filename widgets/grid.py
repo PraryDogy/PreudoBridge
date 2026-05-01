@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, NameUrlItem, SortItem, TotalCountItem, UrlsItem)
+                          MainWinItem, NameUrlItem, SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
@@ -267,7 +267,7 @@ class Grid(UScrollArea):
     new_history_item = pyqtSignal(str)
     bar_path_update = pyqtSignal(str)
     add_fav = pyqtSignal(NameUrlItem)
-    del_fav = pyqtSignal(UrlsItem)
+    del_fav = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
@@ -280,14 +280,12 @@ class Grid(UScrollArea):
     img_view_win = pyqtSignal(ImgViewItem)
     paste_files = pyqtSignal()
     load_finished = pyqtSignal()
-
     reveal_urls = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
     img_convert_win = pyqtSignal(list)
-
     open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(UrlsItem)
+    remove_files = pyqtSignal(list)
     rename_file = pyqtSignal(NameUrlItem)
     new_folder = pyqtSignal()
 
@@ -439,10 +437,7 @@ class Grid(UScrollArea):
             )
             self.add_fav.emit(item)
         else:
-            item = UrlsItem(
-                urls=[src, ]
-            )
-            self.del_fav.emit(item)
+            self.del_fav.emit(src)
 
     def setup_urls_to_copy(self):
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
@@ -504,10 +499,6 @@ class Grid(UScrollArea):
             self.set_transparent_thumbs()
         ClipboardItemGlob.set_is_cut(True)
         self.setup_urls_to_copy()
-
-    def remove_files_cmd(self, urls: list[str]):
-        item = UrlsItem(urls=urls)
-        self.remove_files.emit(item)
 
     def rename_file_cmd(self, filepath: str):
         item = NameUrlItem(
@@ -593,7 +584,7 @@ class Grid(UScrollArea):
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.remove_files,
-            callback=lambda: self.remove_files_cmd(all_urls)
+            callback=lambda: self.remove_files.emit(all_urls)
         )
 
     def base_grid_actions(self):
@@ -803,7 +794,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = [i.data_item.abs_path for i in self.selected_thumbs]
-                self.remove_files_cmd(urls)
+                self.remove_files.emit(urls)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             if self.selected_thumbs:

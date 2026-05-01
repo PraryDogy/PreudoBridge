@@ -5,12 +5,12 @@ from PyQt5.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QImage, QKeyEvent,
                          QPixmap)
-from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
+from PyQt5.QtWidgets import (QAbstractItemView, QApplication, 
                              QLabel, QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, NameUrlItem, TotalCountItem, UrlsItem)
+                          MainWinItem, NameUrlItem, TotalCountItem)
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
@@ -75,7 +75,7 @@ class TableView(QTableView):
     new_history_item = pyqtSignal(str)
     bar_path_update = pyqtSignal(str)
     add_fav = pyqtSignal(NameUrlItem)
-    del_fav = pyqtSignal(NameUrlItem)
+    del_fav = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
@@ -93,7 +93,7 @@ class TableView(QTableView):
     copy_names = pyqtSignal(list)
     img_convert_win = pyqtSignal(list)
     open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(NameUrlItem)
+    remove_files = pyqtSignal(list)
     rename_file = pyqtSignal(NameUrlItem)
     new_folder = pyqtSignal()
 
@@ -277,10 +277,6 @@ class TableView(QTableView):
         tags = QItemSelectionModel.Select | QItemSelectionModel.Rows
         self.selectionModel().select(index, tags)
 
-    def remove_files_cmd(self, urls: list[str]):
-        item = UrlsItem(urls=urls)
-        self.remove_files.emit(item)
-
     def rename_file_cmd(self, filepath: str):
         item = NameUrlItem(
             name=os.path.basename(filepath),
@@ -289,7 +285,6 @@ class TableView(QTableView):
         self.rename_file.emit(item)
 
     def folder_actions(self):
-        return
         name_path_item = NameUrlItem(
             name=os.path.basename(self.url_under_mouse),
             url=self.url_under_mouse,
@@ -302,7 +297,7 @@ class TableView(QTableView):
         if self.url_under_mouse in JsonData.favs:
             self.context_menu.add_action(
                 action=self.context_actions.fav_remove,
-                callback=lambda: self.del_fav.emit(name_path_item)
+                callback=lambda: self.del_fav.emit(self.url_under_mouse)
             )
         else:
             self.context_menu.add_action(
@@ -360,7 +355,7 @@ class TableView(QTableView):
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.remove_files,
-            callback=lambda: self.remove_files_cmd(self.selected_urls)
+            callback=lambda: self.remove_files.emit(self.selected_urls)
         )
 
     def base_grid_actions(self):
@@ -447,7 +442,7 @@ class TableView(QTableView):
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = self.get_selected_urls()
                 if urls:
-                    self.remove_files_cmd(urls)
+                    self.remove_files.emit(urls)
 
             elif a0.key() == Qt.Key.Key_X:
                 urls = self.get_selected_urls()
