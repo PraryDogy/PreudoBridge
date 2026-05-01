@@ -257,8 +257,3 @@ class TotalCountItem:
 class NameUrlItem:
     name: str
     url: str
-
-
-@dataclass(slots=True)
-class UrlsItem:
-    urls: list[str]
