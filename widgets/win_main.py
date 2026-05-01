@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
 
 from cfg import JsonData, Static
 from system.items import (ClipboardItemGlob, ImgViewItem,
-                          MainWinItem, NameUrlItem, SearchItem, SortItem)
+                          MainWinItem, NameUrlItem, SearchItem, SortItem, UrlsItem)
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils
@@ -623,7 +623,7 @@ class WinMain(WinBase):
         for i in urls:
             Utils.open_in_app(path=i, app_path=app_path)
 
-    def remove_files(self, item: NameUrlItem):
+    def remove_files(self, item: UrlsItem):
 
         def finished():
             self.remove_task = FileRemover(

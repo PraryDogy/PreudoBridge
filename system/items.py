@@ -85,9 +85,7 @@ class DataItem:
         try:
             meta = OSXMetaData(self.abs_path)
             self.added = int(meta.get("kMDItemDateAdded").timestamp())
-        except FileNotFoundError:
-            self.added = 0
-        except OSError:
+        except Exception:
             self.added = int(os.stat(self.abs_path).st_mtime)
 
     @classmethod
@@ -259,4 +257,8 @@ class TotalCountItem:
 class NameUrlItem:
     name: str
     url: str
+
+
+@dataclass(slots=True)
+class UrlsItem:
     urls: list[str]

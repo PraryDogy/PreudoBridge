@@ -170,8 +170,7 @@ class BarPath(QWidget):
     def fav_cmd(self, offset: int, src: str):
         item = NameUrlItem(
             name=os.path.basename(src),
-            url=src,
-            urls=[]
+            url=src
         )
         if offset == -1:
             self.del_fav.emit(item)

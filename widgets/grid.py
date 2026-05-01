@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, NameUrlItem, SortItem, TotalCountItem)
+                          MainWinItem, NameUrlItem, SortItem, TotalCountItem, UrlsItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
@@ -287,7 +287,7 @@ class Grid(UScrollArea):
     img_convert_win = pyqtSignal(list)
 
     open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(NameUrlItem)
+    remove_files = pyqtSignal(UrlsItem)
     rename_file = pyqtSignal(NameUrlItem)
     new_folder = pyqtSignal()
 
@@ -434,8 +434,7 @@ class Grid(UScrollArea):
     def fav_cmd(self, offset: int, src: str):
         fav_item = NameUrlItem(
             name=os.path.basename(src),
-            url=src,
-            urls=[]
+            url=src
         )
         if offset == 1:
             self.add_fav.emit(fav_item)
@@ -504,18 +503,13 @@ class Grid(UScrollArea):
         self.setup_urls_to_copy()
 
     def remove_files_cmd(self, urls: list[str]):
-        item = NameUrlItem(
-            name=str(),
-            url=str(),
-            urls=urls
-        )
+        item = UrlsItem(urls=urls)
         self.remove_files.emit(item)
 
     def rename_file_cmd(self, filepath: str):
         item = NameUrlItem(
             name=os.path.basename(filepath),
-            url=filepath,
-            urls=[]
+            url=filepath
         )
         self.rename_file.emit(item)
 

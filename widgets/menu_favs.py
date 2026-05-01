@@ -147,8 +147,7 @@ class MenuFavs(QListWidget):
         urls = [list_item.src, ]
         name_path_item = NameUrlItem(
             name=list_item.name,
-            url=list_item.src,
-            urls=[]
+            url=list_item.src
         )
         context_menu = UMenu(parent=self)
         context_actions = Actions(context_menu)

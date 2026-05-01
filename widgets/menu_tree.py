@@ -71,16 +71,14 @@ class MenuTree(QTreeView):
     def remove_fav_cmd(self, path: str):
         item = NameUrlItem(
             name=os.path.basename(path),
-            url=path,
-            urls=[]
+            url=path
         )
         self.remove_fav.emit(item)
 
     def add_fav_cmd(self, path: str):
         item = NameUrlItem(
             name=os.path.basename(path),
-            url=path,
-            urls=[]
+            url=path
         )
         self.add_fav.emit(item)
 

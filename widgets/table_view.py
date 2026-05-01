@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, NameUrlItem, TotalCountItem)
+                          MainWinItem, NameUrlItem, TotalCountItem, UrlsItem)
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
@@ -278,22 +278,18 @@ class TableView(QTableView):
         self.selectionModel().select(index, tags)
 
     def remove_files_cmd(self, urls: list[str]):
-        item = NameUrlItem(
-            name=str(),
-            url=str(),
-            urls=urls
-        )
+        item = UrlsItem(urls=urls)
         self.remove_files.emit(item)
 
     def rename_file_cmd(self, filepath: str):
         item = NameUrlItem(
             name=os.path.basename(filepath),
-            url=filepath,
-            urls=[]
+            url=filepath
         )
         self.rename_file.emit(item)
 
     def folder_actions(self):
+        return
         name_path_item = NameUrlItem(
             name=os.path.basename(self.url_under_mouse),
             url=self.url_under_mouse,
