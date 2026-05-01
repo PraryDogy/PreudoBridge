@@ -98,29 +98,22 @@ class MenuTree(QTreeView):
             action=context_actions.new_main_win,
             callback=lambda: self.new_main_win.emit(src)
         )
-        if os.path.expanduser("~") in src:
-            short_src = os.sep + os.sep.join(src.split(os.sep)[3:])
-            if short_src in JsonData.favs:
-                context_menu.add_action(
-                    action=context_actions.fav_remove,
-                    callback=lambda: self.remove_fav_cmd(short_src)
-                )
-            else:
-                context_menu.add_action(
-                    action=context_actions.fav_add,
-                    callback=lambda: self.add_fav_cmd(short_src)
-                )
+
+        home = os.path.expanduser("~")
+        if home in src:
+            path = os.sep + os.sep.join(src.split(os.sep)[3:])
         else:
-            if src in JsonData.favs:
-                context_menu.add_action(
-                    action=context_actions.fav_remove,
-                    callback=lambda: self.remove_fav_cmd(src)
-                )
-            else:
-                context_menu.add_action(
-                    action=context_actions.fav_add,
-                    callback=lambda: self.add_fav_cmd(src)
-                ) 
+            path = src
+        if path in JsonData.favs:
+            context_menu.add_action(
+                action=context_actions.fav_remove,
+                callback=lambda: self.remove_fav_cmd(path)
+            )
+        else:
+            context_menu.add_action(
+                action=context_actions.fav_add,
+                callback=lambda: self.add_fav_cmd(path)
+            )
         context_menu.addSeparator()
         context_menu.add_action(
             action=context_actions.reveal,
