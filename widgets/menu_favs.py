@@ -5,7 +5,7 @@ from PyQt5.QtGui import QDropEvent, QIcon
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
-from system.items import MainWinItem, NamePathItem
+from system.items import MainWinItem, NameUrlItem
 
 from ._base_widgets import UMenu
 from .actions import Actions
@@ -50,9 +50,10 @@ class MenuFavs(QListWidget):
     reveal = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
-    rename_fav = pyqtSignal(NamePathItem)
-    remove_fav = pyqtSignal(NamePathItem)
-    add_fav = pyqtSignal(NamePathItem)
+    rename_fav = pyqtSignal(NameUrlItem)
+    remove_fav = pyqtSignal(NameUrlItem)
+    add_fav = pyqtSignal(NameUrlItem)
+    info = pyqtSignal(NameUrlItem)
     folder_icon: QIcon
     folder_pin_icon: QIcon
 
@@ -113,24 +114,24 @@ class MenuFavs(QListWidget):
         if src in self.url_to_item:
             self.setCurrentItem(self.url_to_item[src])
     
-    def add_fav_cmd(self, fav_item: NamePathItem):
-        JsonData.favs[fav_item.filepath] = fav_item.filename
+    def add_fav_cmd(self, fav_item: NameUrlItem):
+        JsonData.favs[fav_item.url] = fav_item.name
         JsonData.write_json_data()
-        list_item = ListItem(fav_item.filename, fav_item.filepath, self.main_win_item, self)
+        list_item = ListItem(fav_item.name, fav_item.url, self.main_win_item, self)
         list_item.setIcon(self.folder_icon)
         self.addItem(list_item)
-        self.url_to_item[fav_item.filepath] = list_item
+        self.url_to_item[fav_item.url] = list_item
 
-    def rename_fav_finalize(self, fav_item: NamePathItem):
-        item = self.url_to_item[fav_item.filepath]
-        JsonData.favs[fav_item.filepath] = fav_item.filename
+    def rename_fav_finalize(self, fav_item: NameUrlItem):
+        item = self.url_to_item[fav_item.url]
+        JsonData.favs[fav_item.url] = fav_item.name
         JsonData.write_json_data()
-        item.setText(fav_item.filename)
-        item.name = fav_item.filename
+        item.setText(fav_item.name)
+        item.name = fav_item.name
 
-    def remove_fav_finalize(self, fav_item: NamePathItem):
-        list_item = self.url_to_item[fav_item.filepath]
-        JsonData.favs.pop(fav_item.filepath)
+    def remove_fav_finalize(self, fav_item: NameUrlItem):
+        list_item = self.url_to_item[fav_item.url]
+        JsonData.favs.pop(fav_item.url)
         JsonData.write_json_data()
         self.takeItem(self.row(list_item))
 
@@ -144,9 +145,9 @@ class MenuFavs(QListWidget):
             return
 
         urls = [list_item.src, ]
-        name_path_item = NamePathItem(
-            filename=list_item.name,
-            filepath=list_item.src,
+        name_path_item = NameUrlItem(
+            name=list_item.name,
+            url=list_item.src,
             urls=[]
         )
         context_menu = UMenu(parent=self)
@@ -154,13 +155,17 @@ class MenuFavs(QListWidget):
 
         context_menu.add_action(
             action=context_actions.open_thumb,
-            callback=lambda: self.open_fav_cmd(urls[0])
+            callback=lambda: self.open_fav_cmd(list_item.src)
         )
         context_menu.add_action(
             action=context_actions.new_main_win,
-            callback=lambda: self.new_main_win.emit(urls[0])
+            callback=lambda: self.new_main_win.emit(list_item.src)
         )
         context_menu.addSeparator()
+        context_menu.add_action(
+            context_actions.win_info,
+            callback=lambda: self.info.emit(name_path_item)
+        )
         context_menu.add_action(
             context_actions.reveal,
             callback=lambda: self.reveal.emit(urls)
@@ -228,8 +233,8 @@ class MenuFavs(QListWidget):
             url_ = urls[-1].toLocalFile()
             url_ = url_.rstrip(os.sep)
             if os.path.isdir(url_):
-                fav_item = NamePathItem(
-                    filename=os.path.basename(url_),
-                    filepath=url_
+                fav_item = NameUrlItem(
+                    name=os.path.basename(url_),
+                    url=url_
                 )
                 self.add_fav.emit(fav_item)

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, NamePathItem, SortItem, TotalCountItem)
+                          MainWinItem, NameUrlItem, SortItem, TotalCountItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
@@ -266,8 +266,8 @@ class NoItemsLabel(QLabel):
 class Grid(UScrollArea):
     new_history_item = pyqtSignal(str)
     bar_path_update = pyqtSignal(str)
-    add_fav = pyqtSignal(NamePathItem)
-    del_fav = pyqtSignal(NamePathItem)
+    add_fav = pyqtSignal(NameUrlItem)
+    del_fav = pyqtSignal(NameUrlItem)
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
@@ -287,8 +287,8 @@ class Grid(UScrollArea):
     img_convert_win = pyqtSignal(list)
 
     open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(NamePathItem)
-    rename_file = pyqtSignal(NamePathItem)
+    remove_files = pyqtSignal(NameUrlItem)
+    rename_file = pyqtSignal(NameUrlItem)
     new_folder = pyqtSignal()
 
     grid_spacing = 5
@@ -432,9 +432,9 @@ class Grid(UScrollArea):
             self.img_view_win.emit(item)
 
     def fav_cmd(self, offset: int, src: str):
-        fav_item = NamePathItem(
-            filename=os.path.basename(src),
-            filepath=src,
+        fav_item = NameUrlItem(
+            name=os.path.basename(src),
+            url=src,
             urls=[]
         )
         if offset == 1:
@@ -504,17 +504,17 @@ class Grid(UScrollArea):
         self.setup_urls_to_copy()
 
     def remove_files_cmd(self, urls: list[str]):
-        item = NamePathItem(
-            filename=str(),
-            filepath=str(),
+        item = NameUrlItem(
+            name=str(),
+            url=str(),
             urls=urls
         )
         self.remove_files.emit(item)
 
     def rename_file_cmd(self, filepath: str):
-        item = NamePathItem(
-            filename=os.path.basename(filepath),
-            filepath=filepath,
+        item = NameUrlItem(
+            name=os.path.basename(filepath),
+            url=filepath,
             urls=[]
         )
         self.rename_file.emit(item)

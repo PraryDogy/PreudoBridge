@@ -4,7 +4,7 @@ from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 
 from cfg import JsonData
-from system.items import MainWinItem, NamePathItem
+from system.items import MainWinItem, NameUrlItem
 
 from ._base_widgets import UMenu
 from .actions import Actions
@@ -14,8 +14,8 @@ class MenuTree(QTreeView):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(str)
     new_main_win = pyqtSignal(str)
-    remove_fav = pyqtSignal(NamePathItem)
-    add_fav = pyqtSignal(NamePathItem)
+    remove_fav = pyqtSignal(NameUrlItem)
+    add_fav = pyqtSignal(NameUrlItem)
     reveal = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
@@ -69,17 +69,17 @@ class MenuTree(QTreeView):
         )
 
     def remove_fav_cmd(self, path: str):
-        item = NamePathItem(
-            filename=os.path.basename(path),
-            filepath=path,
+        item = NameUrlItem(
+            name=os.path.basename(path),
+            url=path,
             urls=[]
         )
         self.remove_fav.emit(item)
 
     def add_fav_cmd(self, path: str):
-        item = NamePathItem(
-            filename=os.path.basename(path),
-            filepath=path,
+        item = NameUrlItem(
+            name=os.path.basename(path),
+            url=path,
             urls=[]
         )
         self.add_fav.emit(item)

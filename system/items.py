@@ -84,14 +84,11 @@ class DataItem:
     def get_added(self):
         try:
             meta = OSXMetaData(self.abs_path)
-            added = meta.get("kMDItemDateAdded")
+            self.added = int(meta.get("kMDItemDateAdded").timestamp())
+        except FileNotFoundError:
+            self.added = 0
         except OSError:
-            self.added = int(os.path.getctime(self.abs_path))
-            return
-        if added:
-            self.added = int(added.timestamp())
-        else:
-            self.added = int(os.path.getctime(self.abs_path))
+            self.added = int(os.stat(self.abs_path).st_mtime)
 
     @classmethod
     def sort_(cls, data_items: list["DataItem"], sort_item: SortItem):
@@ -259,8 +256,7 @@ class TotalCountItem:
 
 
 @dataclass(slots=True)
-class NamePathItem:
-    filename: str
-    filepath: str
+class NameUrlItem:
+    name: str
+    url: str
     urls: list[str]
-    

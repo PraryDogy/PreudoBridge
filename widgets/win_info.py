@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
                              QLabel, QSpacerItem)
 
 from cfg import Static
-from system.items import DataItem, MultipleInfoItem
+from system.items import DataItem, MultipleInfoItem, NameUrlItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
@@ -66,7 +66,7 @@ class WinInfo(WinMinCloseOnly):
         self.left = Qt.AlignmentFlag.AlignLeft
         self.right = Qt.AlignmentFlag.AlignRight
         self.top = Qt.AlignmentFlag.AlignTop
-        self.data_items = []
+        self.data_items: list[DataItem] = []
         for i in urls:
             data_item = DataItem(i)
             data_item.set_properties()
@@ -91,6 +91,8 @@ class WinInfo(WinMinCloseOnly):
 
     def init_ui(self):
         if len(self.data_items) == 1:
+            if not os.path.exists(self.data_items[0].abs_path):
+                self
             if self.data_items[0].type_ in ImgUtils.ext_all:
                 self.single_img()
             elif self.data_items[0].type_ == Static.folder_type:
@@ -99,6 +101,9 @@ class WinInfo(WinMinCloseOnly):
                 self.single_file()
         else:
             self.multiple_items()
+
+    def no_exitst_file():
+        ...
 
     def single_img(self):
 
@@ -280,7 +285,85 @@ class WinInfo(WinMinCloseOnly):
         return super().deleteLater()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
+        if a0.key() in (Qt.Key.Key_Escape, ):
+            self.deleteLater()
+
+    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        widget: SelectableLabel = self.childAt(ev.pos())
+        if not isinstance(widget, SelectableLabel):
+            return
+
+        text = widget.text().replace(Static.paragraph_symbol, "")
+        text = text.replace(Static.line_feed_symbol, "")
+        self.context_menu = UMenu()
+        self.context_actions = Actions(self.context_menu)
+
+        self.context_menu.add_action(
+            action=self.context_actions.copy_text,
+            callback=lambda: self.copy_text.emit(widget.selectedText())
+        )
+        self.context_menu.add_action(
+            action=self.context_actions.select_all_text,
+            callback=lambda: widget.setSelection(0, len(widget.text()))
+        )
+        if os.path.exists(text):
+            self.context_menu.addSeparator()
+            self.context_menu.add_action(
+                action=self.context_actions.reveal,
+                callback=lambda: self.reveal.emit([text, ])
+            )
+        self.context_menu.show_under_mouse()
+
+
+class WinInfoFav(WinMinCloseOnly):
+    copy_text = pyqtSignal(str)
+    reveal = pyqtSignal(list)
+    name_text = "Имя"
+    url_text = "Путь"
+
+    def __init__(self, name_url_item: NameUrlItem):
+        super().__init__()
+        self.setWindowTitle(WinInfo.title_text)
+        self.set_modality()
+        self.name_url_item = name_url_item
+        self.left = Qt.AlignmentFlag.AlignLeft
+        self.right = Qt.AlignmentFlag.AlignRight
+        self.top = Qt.AlignmentFlag.AlignTop
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.grid_layout.setContentsMargins(10, 0, 10, 0)
+        self.grid_layout.setSpacing(5)
+        self.centralWidget().setLayout(self.grid_layout)
+
+        self.single_file()
+        self.adjustSize()
+
+    def single_file(self):
+        row = 0
+        labels = {
+            self.name_text: self.lined_text(self.name_url_item.name),
+            self.url_text: self.lined_text(self.name_url_item.url),
+        }
+        for k, v in labels.items():
+            left = SelectableLabel(k)
+            self.grid_layout.addWidget(left, row, 0, alignment=self.right | self.top)
+            self.grid_layout.addItem(QSpacerItem(10, 0), row, 1)
+            right = SelectableLabel(v)
+            self.grid_layout.addWidget(right, row, 2, alignment=self.left | self.top)
+            row += 1
+
+    def lined_text(self, text: str, limit: int = 50):
+        if len(text) > limit:
+            text = [
+                text[i : i + limit]
+                for i in range(0, len(text), limit)
+                ]
+            return "\n".join(text)
+        else:
+            return text
+        
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() in (Qt.Key.Key_Escape, ):
             self.deleteLater()
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:

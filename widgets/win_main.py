@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, NamePathItem, SearchItem, SortItem)
+from system.items import (ClipboardItemGlob, ImgViewItem,
+                          MainWinItem, NameUrlItem, SearchItem, SortItem)
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils
@@ -33,7 +33,7 @@ from .win_copy_files import WinCopyFiles
 from .win_go_to import WinGoTo
 from .win_img_convert import WinImgConvert
 from .win_img_view import WinImgView
-from .win_info import WinInfo
+from .win_info import WinInfo, WinInfoFav
 from .win_remove_files import WinRemoveFiles
 from .win_rename import WinRename
 from .win_servers import WinServers
@@ -265,6 +265,7 @@ class WinMain(WinBase):
         self.menu_favs.rename_fav.connect(self.rename_fav)
         self.menu_favs.remove_fav.connect(self.remove_fav)
         self.menu_favs.add_fav.connect(self.add_fav)
+        self.menu_favs.info.connect(self.info_fav_win_open)
 
         self.menu_filters.filter_thumbs.connect(
             lambda: self.grid.filter_thumbs()
@@ -454,6 +455,17 @@ class WinMain(WinBase):
         self.menu_filters.set_disabled(True)
         QTimer.singleShot(100, self.grid.setFocus)
 
+    def info_fav_win_open(self, name_url_item: NameUrlItem):
+        self.win_info = WinInfoFav(name_url_item)
+        self.win_info.copy_text.connect(
+            lambda text: Utils.write_to_clipboard(text)
+        )
+        self.win_info.reveal.connect(
+            lambda urls: self.reveal_urls(urls)
+        )
+        self.win_info.center(self)
+        self.win_info.show()
+
     def info_win_open(self, urls: list[str]):
         self.win_info = WinInfo(urls)
         self.win_info.copy_text.connect(
@@ -494,25 +506,25 @@ class WinMain(WinBase):
                 names.append(os.path.splitext(basename)[0])
         Utils.write_to_clipboard("\n".join(names))
 
-    def rename_fav(self, fav_item: NamePathItem):
+    def rename_fav(self, fav_item: NameUrlItem):
         
         def finished(text: str):
-            fav_item.filename = text
+            fav_item.name = text
             self.menu_favs.rename_fav_finalize(fav_item)
 
-        self.rename_win = WinRename(fav_item.filename)
+        self.rename_win = WinRename(fav_item.name)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
 
-    def add_fav(self, fav_item: NamePathItem):
+    def add_fav(self, fav_item: NameUrlItem):
         
         def finished(text: str):
-            fav_item.filename = text
+            fav_item.name = text
             self.menu_favs.add_fav_cmd(fav_item)
 
-        if fav_item.filepath not in JsonData.favs:
-            self.rename_win = WinRename(fav_item.filename)
+        if fav_item.url not in JsonData.favs:
+            self.rename_win = WinRename(fav_item.name)
             self.rename_win.finished_.connect(lambda text: finished(text))
             self.rename_win.center(self.window())
             self.rename_win.show()
@@ -521,16 +533,16 @@ class WinMain(WinBase):
             self.warn_win.center(self.window())
             self.warn_win.show()
 
-    def rename_file(self, item: NamePathItem):
+    def rename_file(self, item: NameUrlItem):
         
         def finished(text: str):
             new_url = os.path.join(
-                os.path.dirname(item.filepath),
+                os.path.dirname(item.url),
                 text
             )
-            os.rename(item.filepath, new_url)
+            os.rename(item.url, new_url)
 
-        self.rename_win = WinRename(item.filename)
+        self.rename_win = WinRename(item.name)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
@@ -611,7 +623,7 @@ class WinMain(WinBase):
         for i in urls:
             Utils.open_in_app(path=i, app_path=app_path)
 
-    def remove_files(self, item: NamePathItem):
+    def remove_files(self, item: NameUrlItem):
 
         def finished():
             self.remove_task = FileRemover(
@@ -626,12 +638,12 @@ class WinMain(WinBase):
         self.rem_win.center(self.window())
         self.rem_win.show()
 
-    def remove_fav(self, name_path_item: NamePathItem):
+    def remove_fav(self, name_path_item: NameUrlItem):
 
         def finished():
             self.menu_favs.remove_fav_finalize(name_path_item)
 
-        self.rem_win = WinRemoveFiles([name_path_item.filepath, ])
+        self.rem_win = WinRemoveFiles([name_path_item.url, ])
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())

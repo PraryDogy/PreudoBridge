@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
-                          MainWinItem, NamePathItem, TotalCountItem)
+                          MainWinItem, NameUrlItem, TotalCountItem)
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
@@ -74,8 +74,8 @@ class TableView(QTableView):
 
     new_history_item = pyqtSignal(str)
     bar_path_update = pyqtSignal(str)
-    add_fav = pyqtSignal(NamePathItem)
-    del_fav = pyqtSignal(NamePathItem)
+    add_fav = pyqtSignal(NameUrlItem)
+    del_fav = pyqtSignal(NameUrlItem)
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
@@ -93,8 +93,8 @@ class TableView(QTableView):
     copy_names = pyqtSignal(list)
     img_convert_win = pyqtSignal(list)
     open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(NamePathItem)
-    rename_file = pyqtSignal(NamePathItem)
+    remove_files = pyqtSignal(NameUrlItem)
+    rename_file = pyqtSignal(NameUrlItem)
     new_folder = pyqtSignal()
 
     files_icon = Utils.scaled(
@@ -278,25 +278,25 @@ class TableView(QTableView):
         self.selectionModel().select(index, tags)
 
     def remove_files_cmd(self, urls: list[str]):
-        item = NamePathItem(
-            filename=str(),
-            filepath=str(),
+        item = NameUrlItem(
+            name=str(),
+            url=str(),
             urls=urls
         )
         self.remove_files.emit(item)
 
     def rename_file_cmd(self, filepath: str):
-        item = NamePathItem(
-            filename=os.path.basename(filepath),
-            filepath=filepath,
+        item = NameUrlItem(
+            name=os.path.basename(filepath),
+            url=filepath,
             urls=[]
         )
         self.rename_file.emit(item)
 
     def folder_actions(self):
-        name_path_item = NamePathItem(
-            filename=os.path.basename(self.url_under_mouse),
-            filepath=self.url_under_mouse,
+        name_path_item = NameUrlItem(
+            name=os.path.basename(self.url_under_mouse),
+            url=self.url_under_mouse,
             urls=[self.url_under_mouse, ]
         )
         self.context_menu.add_action(
