@@ -77,6 +77,15 @@ class ScrollUpBtn(QLabel):
         if ev.button() == Qt.MouseButton.LeftButton:
             self.clicked.emit()
         return super().mouseReleaseEvent(ev)
+    
+
+class NoPathWin(WinWarn):
+    def __init__(self):
+        text = (
+            "Такой папки не существует."
+            "\nВозможно не подключен сетевой диск."
+        )
+        super().__init__(text)
 
 
 class WinMain(WinBase):
@@ -576,16 +585,11 @@ class WinMain(WinBase):
             win.center(self.window())
             win.show()
 
-        result = self.main_win_item.set_current_dir(path)
-        if result:
+        if self.main_win_item.set_current_dir(path):
             prepare_grid()
             load_grid()
         else:
-            no_conn = (
-                "Такой папки не существует."
-                "\nВозможно не подключен сетевой диск."
-            )
-            self.no_path_win = WinWarn(no_conn)
+            self.no_path_win = NoPathWin()
             QTimer.singleShot(100, lambda: _show_win(self.no_path_win))
 
     def change_view_cmd(self):
