@@ -578,7 +578,7 @@ class WinMain(WinBase):
             self.setup_grid_signals()
             self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
 
-        def _show_win(win: WinWarn):
+        def show_no_path_win(win: NoPathWin):
             win.center(self.window())
             win.show()
 
@@ -587,7 +587,7 @@ class WinMain(WinBase):
             load_grid()
         else:
             self.no_path_win = NoPathWin()
-            QTimer.singleShot(100, lambda: _show_win(self.no_path_win))
+            QTimer.singleShot(100, lambda: show_no_path_win(self.no_path_win))
 
     def change_view_cmd(self):
         if self.main_win_item.view_mode == 0:
