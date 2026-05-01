@@ -5,7 +5,7 @@ from PyQt5.QtGui import QContextMenuEvent, QImage, QPixmap
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import JsonData, Static
-from system.items import DataItem, ImgViewItem, MainWinItem, NameUrlItem
+from system.items import DataItem, ImgViewItem, MainWinItem, NameUrlItem, UrlsItem
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
@@ -22,13 +22,8 @@ class Icons:
 
 class PathItem(QWidget):
     min_wid = 5
-    new_history_item = pyqtSignal(str)
-    load_st_grid = pyqtSignal(str)
     arrow_right = " \U0000203A" # ›
     item_height = 15
-    info_win = pyqtSignal(list)
-    add_fav = pyqtSignal(NameUrlItem)
-    del_fav = pyqtSignal(NameUrlItem)
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
@@ -125,7 +120,7 @@ class BarPath(QWidget):
     load_st_grid = pyqtSignal(str)
     info_win_open = pyqtSignal(list)
     add_fav = pyqtSignal(NameUrlItem)
-    del_fav = pyqtSignal(NameUrlItem)
+    del_fav = pyqtSignal(UrlsItem)
     new_main_win = pyqtSignal(str)
     reveal = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
@@ -168,13 +163,16 @@ class BarPath(QWidget):
             setattr(Icons, attr, QPixmap.fromImage(qimage))
 
     def fav_cmd(self, offset: int, src: str):
-        item = NameUrlItem(
-            name=os.path.basename(src),
-            url=src
-        )
         if offset == -1:
+            item = UrlsItem(
+                urls=[src, ]
+            )
             self.del_fav.emit(item)
         else:
+            item = NameUrlItem(
+                name=os.path.basename(src),
+                url=src
+            )
             self.add_fav.emit(item)
 
     def update(self, dir: str):

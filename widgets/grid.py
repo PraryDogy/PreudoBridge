@@ -267,7 +267,7 @@ class Grid(UScrollArea):
     new_history_item = pyqtSignal(str)
     bar_path_update = pyqtSignal(str)
     add_fav = pyqtSignal(NameUrlItem)
-    del_fav = pyqtSignal(NameUrlItem)
+    del_fav = pyqtSignal(UrlsItem)
     load_st_grid = pyqtSignal(str)
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
@@ -432,14 +432,17 @@ class Grid(UScrollArea):
             self.img_view_win.emit(item)
 
     def fav_cmd(self, offset: int, src: str):
-        fav_item = NameUrlItem(
-            name=os.path.basename(src),
-            url=src
-        )
         if offset == 1:
-            self.add_fav.emit(fav_item)
+            item = NameUrlItem(
+                name=os.path.basename(src),
+                url=src
+            )
+            self.add_fav.emit(item)
         else:
-            self.del_fav.emit(fav_item)
+            item = UrlsItem(
+                urls=[src, ]
+            )
+            self.del_fav.emit(item)
 
     def setup_urls_to_copy(self):
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
