@@ -124,7 +124,7 @@ class WinSearchList(WinMinCloseOnly):
     def create_input_text_edit(self):
         self.input_ = UTextEdit()
         self.input_.setPlaceholderText(
-            "Введите список (через запятую или с новой строки)"
+            "Введите текст (через запятую или с новой строки)"
         )
         return self.input_
     
