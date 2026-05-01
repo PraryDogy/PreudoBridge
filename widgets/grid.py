@@ -304,9 +304,6 @@ class Grid(UScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.main_win_item: MainWinItem = main_win_item
-        self.col_count: int = 0
-        self.row: int = 0
-        self.col: int = 0
         self.url_to_wid: dict[str, Thumb] = {}
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
@@ -846,7 +843,7 @@ class Grid(UScrollArea):
                 elif a0.key() == Qt.Key.Key_Left:
                     coords = (
                         self.wid_under_mouse.data_item.row - 1,
-                        self.col_count - 1
+                        self.get_max_columns() - 1
                     )
                 next_wid = self.cell_to_wid.get(coords)
             if next_wid:

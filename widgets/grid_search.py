@@ -88,7 +88,7 @@ class GridSearch(Grid):
         super().__init__(main_win_item)
         self.setParent(parent)
         self.search_item = search_item
-        self.total = 0
+        self.total_widgets = 0
         self.pause_by_btn: bool = False
         self.pause_timer = QTimer(self)
         self.pause_timer.timeout.connect(self.remove_pause)
@@ -114,13 +114,11 @@ class GridSearch(Grid):
                     )
                 thumb.set_image()
 
-            self.add_widget_data(thumb, self.row, self.col)
-            self.grid_layout.addWidget(thumb, self.row, self.col)
-            self.total += 1
-            self.col += 1
-            if self.col >= self.col_count:
-                self.col = 0
-                self.row += 1
+            current_count = len(self.url_to_wid) 
+            cols = self.get_max_columns()
+            row, col = divmod(current_count, cols)
+            self.add_widget_data(thumb, row, col)
+            self.grid_layout.addWidget(thumb, row, col)
 
         def fin(missed_files: dict[str, str]):
             self.search_finished.emit()
@@ -150,7 +148,7 @@ class GridSearch(Grid):
             if data_items:
                 for i in data_items:
                     create_thumb(i)
-            selected, total = 0, self.total
+            selected, total = 0, len(self.url_to_wid)
             item = TotalCountItem(
                 selected=selected,
                 total=total
