@@ -3,14 +3,14 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
-                             QSpacerItem, QVBoxLayout, QWidget)
+                             QSpacerItem, QVBoxLayout, QWidget, QPushButton)
 
 from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem, SearchItem
 from system.utils import Utils
 
 from ._base_widgets import (SmallBtn, UFrame, ULineEdit, UMenu,
-                            USvgSqareWidget, UTextEdit, WinMinCloseOnly, BaseSignals)
+                            USvgSqareWidget, UTextEdit, WinMinCloseOnly, BaseSignals, BeatyBtn)
 
 
 class BarTopBtn(QWidget):
@@ -74,16 +74,17 @@ class BarTopBtn(QWidget):
 class WinSearchList(WinMinCloseOnly):
     title_text = "Поиск"
     search_place_text = "Место поиска:"
-    descr_text = "Список файлов (по одному в строке):"
+    descr_text = "Вставьте текст"
     ok_text = "Ок"
     cancel_text = "Отмена"
     search_place_limit = 50
-
+    min_w = 300
     finished_ = pyqtSignal(list)
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
         self.set_modality()
+        self.setMinimumWidth(self.min_w)
         self.setWindowTitle(self.title_text)
         self.main_win_item = main_win_item
         self.search_item = search_item
@@ -99,15 +100,17 @@ class WinSearchList(WinMinCloseOnly):
         v_lay.setSpacing(10)
 
         v_lay.addWidget(self.create_first_row())
-        v_lay.addWidget(self.create_input_label())
         v_lay.addWidget(self.create_input_text_edit())
+        v_lay.addWidget(self.create_convert_btn())
         v_lay.addWidget(self.create_buttons())
 
         return v_lay
-
+    
     def create_first_row(self):
         first_row = QGroupBox()
         first_lay = QVBoxLayout()
+        first_lay.setContentsMargins(2, 5, 2, 5)
+        first_lay.setSpacing(5)
         first_row.setLayout(first_lay)
 
         first_title = QLabel(WinSearchList.search_place_text)
@@ -118,12 +121,17 @@ class WinSearchList(WinMinCloseOnly):
 
         return first_row
 
-    def create_input_label(self):
-        return QLabel(WinSearchList.descr_text)
-
     def create_input_text_edit(self):
         self.input_ = UTextEdit()
+        self.input_.setPlaceholderText(
+            "Введите список (через запятую или с новой строки)"
+        )
         return self.input_
+    
+    def create_convert_btn(self):
+        btn = BeatyBtn("Преобразовать текст в список")
+        btn.clicked.connect(self.convert_to_list)
+        return btn
 
     def create_buttons(self):
         btns_wid = QWidget()
@@ -145,6 +153,21 @@ class WinSearchList(WinMinCloseOnly):
         btns_lay.addStretch()
 
         return btns_wid
+
+    def convert_to_list(self):
+        if ", " in self.input_.toPlainText():
+            lst = self.input_.toPlainText().split(", ")
+        else:
+            lst = self.input_.toPlainText().split("\n")
+        
+        lst = [
+            i.strip("\"\'\n ")
+            for i in lst
+            if i
+        ]
+        self.input_.setPlainText(
+            "\n".join(lst)
+        )
 
     def wrap_text(self, text: str):
         chunks = [

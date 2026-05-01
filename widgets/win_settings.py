@@ -44,7 +44,6 @@ class GroupChild(QWidget):
 
 
 class SvgArrow(QSvgWidget):
-    clicked = pyqtSignal()
     img = "./images/next.svg"
     size_ = 16
     def __init__(self, *args, **kwargs):
@@ -53,7 +52,6 @@ class SvgArrow(QSvgWidget):
         self.setFixedSize(self.size_, self.size_)
 
     def mouseReleaseEvent(self, a0):
-        self.clicked.emit()
         return super().mouseReleaseEvent(a0)
     
 

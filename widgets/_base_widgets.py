@@ -7,7 +7,7 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGraphicsDropShadowEffect, QHBoxLayout, QLabel,
                              QLineEdit, QMainWindow, QMenu, QPushButton,
-                             QScrollArea, QSlider, QTextEdit, QWidget)
+                             QScrollArea, QSlider, QTextEdit, QWidget, QGroupBox)
 
 from cfg import Static
 from system.shared_utils import ImgUtils
@@ -510,3 +510,32 @@ class BaseSignals(QObject):
     rearrange_grid = pyqtSignal()
     resize_grid = pyqtSignal()
     open_in_app = pyqtSignal(tuple)
+
+
+class BeatyBtn(QGroupBox):
+    clicked = pyqtSignal()
+    img = "./images/next.svg"
+    size_ = 16
+    hh = 35
+
+    def __init__(self, text: str):
+        super().__init__()
+        self.setFixedHeight(35)
+
+        h_lay = QHBoxLayout(self)
+        h_lay.setContentsMargins(2, 2, 6, 2)
+        h_lay.setSpacing(2)
+
+        text_widget = QLabel(text)
+        h_lay.addWidget(text_widget)
+
+        h_lay.addStretch()
+
+        arrow = QSvgWidget()
+        arrow.load(self.img)
+        arrow.setFixedSize(self.size_, self.size_)
+        h_lay.addWidget(arrow)
+
+    def mouseReleaseEvent(self, event):
+        self.clicked.emit()
+        return super().mouseReleaseEvent(event)
