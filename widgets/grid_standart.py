@@ -234,11 +234,11 @@ class GridStandart(Grid):
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.new_folder,
-            callback=lambda: self.new_folder.emit()
+            callback=lambda: self.base_signals.new_folder.emit()
         )
         self.context_menu.add_action(
             action=self.context_actions.update_grid,
-            callback=lambda: self.load_st_grid.emit(self.main_win_item.abs_current_dir)
+            callback=lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir)
         )
 
 
