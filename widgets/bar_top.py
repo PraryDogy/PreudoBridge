@@ -158,8 +158,8 @@ class WinSearchList(WinMinCloseOnly):
         return btns_wid
 
     def convert_to_list(self):
-        if ", " in self.input_.toPlainText():
-            lst = self.input_.toPlainText().split(", ")
+        if "," in self.input_.toPlainText():
+            lst = self.input_.toPlainText().split(",")
         else:
             lst = self.input_.toPlainText().split("\n")
         
