@@ -341,7 +341,6 @@ class Themes(QGroupBox):
 
 
 class WinSettings(WinMinCloseOnly):
-    remove_db = pyqtSignal()
     title_text = "Настройки"
     theme_changed = pyqtSignal()
     show_texts_sig = pyqtSignal()
