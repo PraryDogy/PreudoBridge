@@ -44,15 +44,15 @@ class ListItemSpacer(QListWidgetItem):
 
 
 class MenuFavs(QListWidget):
-    new_history_item = pyqtSignal(str)
+    history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal(str)
     new_main_win = pyqtSignal(str)
-    reveal = pyqtSignal(list)
+    reveal_urls = pyqtSignal(list)
     copy_urls = pyqtSignal(list)
     copy_names = pyqtSignal(list)
     rename_fav = pyqtSignal(NameUrlItem)
     remove_fav = pyqtSignal(UrlsItem)
-    add_fav = pyqtSignal(NameUrlItem)
+    new_fav = pyqtSignal(NameUrlItem)
     info = pyqtSignal(NameUrlItem)
     folder_icon: QIcon
     folder_pin_icon: QIcon
@@ -136,7 +136,7 @@ class MenuFavs(QListWidget):
         self.takeItem(self.row(list_item))
 
     def open_fav_cmd(self, path: str):
-        self.new_history_item.emit(path)
+        self.history_item.emit(path)
         self.load_st_grid.emit(path)
     
     def contextMenuEvent(self, a0):
@@ -170,7 +170,7 @@ class MenuFavs(QListWidget):
         )
         context_menu.add_action(
             context_actions.reveal,
-            callback=lambda: self.reveal.emit(urls)
+            callback=lambda: self.reveal_urls.emit(urls)
         )
         context_menu.addSeparator()
         context_menu.add_action(
@@ -239,4 +239,4 @@ class MenuFavs(QListWidget):
                     name=os.path.basename(url_),
                     url=url_
                 )
-                self.add_fav.emit(fav_item)
+                self.new_fav.emit(fav_item)

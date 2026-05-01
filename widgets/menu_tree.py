@@ -4,22 +4,21 @@ from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
 
 from cfg import JsonData
-from system.items import MainWinItem, NameUrlItem, UrlsItem
+from system.items import MainWinItem, NameUrlItem
 
-from ._base_widgets import UMenu, BaseSignals
+from ._base_widgets import UMenu
 from .actions import Actions
 
 
-class MenuTree(QTreeView, BaseSignals):
-    # new_history_item = pyqtSignal(str)
-    # load_st_grid_sig = pyqtSignal(str)
-    # new_main_win = pyqtSignal(str)
-    # remove_fav = pyqtSignal(UrlsItem)
-    # add_fav = pyqtSignal(NameUrlItem)
-    # reveal = pyqtSignal(list)
-    # copy_urls = pyqtSignal(list)
-    # copy_names = pyqtSignal(list)
-
+class MenuTree(QTreeView):
+    history_item = pyqtSignal(str)
+    load_st_grid = pyqtSignal(str)
+    new_main_win = pyqtSignal(str)
+    new_fav = pyqtSignal(NameUrlItem)
+    remove_fav = pyqtSignal(str)
+    reveal_urls = pyqtSignal(list)
+    copy_urls = pyqtSignal(list)
+    copy_names = pyqtSignal(list)
     volumes = "/Volumes"
     # предполагает что системный диск всегда будет первым
     macintosh = [i for i in os.scandir(volumes)][0].path
@@ -98,7 +97,7 @@ class MenuTree(QTreeView, BaseSignals):
 
         home = os.path.expanduser("~")
         if home in src:
-            path = os.sep + os.sep.join(src.split(os.sep)[3:])
+            path = src.replace(self.macintosh, "")
         else:
             path = src
         if path in JsonData.favs:

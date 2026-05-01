@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QDir, Qt, QTimer, pyqtSignal, QObject
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
                          QPalette, QTextCursor, QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
@@ -489,15 +489,3 @@ class UFileSystemModel(QFileSystemModel):
             QDir.Filter.AllDirs | 
             QDir.Filter.NoDotAndDotDot
         )
-
-
-class BaseSignals(QWidget):
-    history_item = pyqtSignal(str)
-    load_st_grid = pyqtSignal(str)
-    new_main_win = pyqtSignal(str)
-    new_fav = pyqtSignal(NameUrlItem)
-    remove_fav = pyqtSignal(str)
-    reveal_urls = pyqtSignal(list)
-    copy_urls = pyqtSignal(list)
-    copy_names = pyqtSignal(list)
-    remove_urls = pyqtSignal(list)
