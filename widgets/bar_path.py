@@ -9,7 +9,7 @@ from system.items import DataItem, ImgViewItem, MainWinItem, NameUrlItem
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
-from ._base_widgets import UMenu
+from ._base_widgets import UMenu, BaseSignals
 from .actions import Actions
 
 
@@ -116,17 +116,6 @@ class PathItem(QWidget):
 
 
 class BarPath(QWidget):
-    new_history_item = pyqtSignal(str)
-    load_st_grid = pyqtSignal(str)
-    info_win_open = pyqtSignal(list)
-    add_fav = pyqtSignal(NameUrlItem)
-    del_fav = pyqtSignal(str)
-    new_main_win = pyqtSignal(str)
-    reveal = pyqtSignal(list)
-    copy_urls = pyqtSignal(list)
-    copy_names = pyqtSignal(list)
-    img_view_win = pyqtSignal(ImgViewItem)
-
     last_item_limit = 40
     bar_height = 25
 
@@ -140,6 +129,7 @@ class BarPath(QWidget):
         self.setAcceptDrops(True)
         self.create_icons()
 
+        self.base_signals = BaseSignals()
         self.main_win_item = main_win_item
         self.current_path: str = None
 
@@ -164,13 +154,13 @@ class BarPath(QWidget):
 
     def fav_cmd(self, offset: int, src: str):
         if offset == -1:
-            self.del_fav.emit(src)
+            self.base_signals.remove_fav.emit(src)
         else:
             item = NameUrlItem(
                 name=os.path.basename(src),
                 url=src
             )
-            self.add_fav.emit(item)
+            self.base_signals.new_fav.emit(item)
 
     def update(self, dir: str):
         """
@@ -212,8 +202,8 @@ class BarPath(QWidget):
         last_item.leaveEvent = lambda *args, **kwargs: None
 
     def view_folder_cmd(self, path: str):
-        self.new_history_item.emit(path)
-        self.load_st_grid.emit(path)
+        self.base_signals.history_item.emit(path)
+        self.base_signals.load_st_grid.emit(path)
 
     def view_image_cmd(self, path: str):
         data_item = DataItem(path)
@@ -224,7 +214,7 @@ class BarPath(QWidget):
             url_to_data_item=url_to_data_item,
             is_selection=True
         )
-        self.img_view_win.emit(item)
+        self.base_signals.img_view.emit(item)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         wid: PathItem = self.childAt(ev.pos())
@@ -249,7 +239,7 @@ class BarPath(QWidget):
             )
             context_menu.add_action(
                 action=context_actions.new_main_win,
-                callback=lambda: self.new_main_win.emit(wid.item_dir)
+                callback=lambda: self.base_signals.new_main_win.emit(wid.item_dir)
             )
             if wid.item_dir in JsonData.favs:
                 context_menu.add_action(
@@ -269,19 +259,19 @@ class BarPath(QWidget):
         context_menu.addSeparator()
         context_menu.add_action(
             action=context_actions.win_info,
-            callback=lambda: self.info_win_open.emit(urls)
+            callback=lambda: self.base_signals.info.emit(urls)
         )
         context_menu.add_action(
             action=context_actions.reveal,
-            callback=lambda: self.reveal.emit(urls)
+            callback=lambda: self.base_signals.reveal_urls.emit(urls)
         )
         context_menu.add_action(
             context_actions.copy_path,
-            callback=lambda: self.copy_urls.emit(urls)
+            callback=lambda: self.base_signals.copy_urls.emit(urls)
         )
         context_menu.add_action(
             context_actions.copy_name,
-            callback=lambda: self.copy_names.emit(urls)
+            callback=lambda: self.base_signals.copy_names.emit(urls)
         )
         context_menu.show_under_mouse()
         wid.default_style()
@@ -289,7 +279,7 @@ class BarPath(QWidget):
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
             if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.abs_current_dir:
-                self.new_history_item.emit(self.item_dir)
-                self.load_st_grid.emit(self.item_dir)
+                self.base_signals.history_item.emit(self.item_dir)
+                self.base_signals.load_st_grid.emit(self.item_dir)
         return super().mouseReleaseEvent(a0)
     

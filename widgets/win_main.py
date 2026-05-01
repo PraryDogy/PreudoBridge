@@ -281,16 +281,16 @@ class WinMain(WinBase):
         self.bar_top.base_signals.settings.connect(self.settings_win_open)
         self.bar_top.base_signals.new_folder.connect(self.new_folder)
 
-        self.bar_path.new_history_item.connect(self.bar_top.history_item)
-        self.bar_path.load_st_grid.connect(self.load_st_grid)
-        self.bar_path.info_win_open.connect(self.info_win_open)
-        self.bar_path.add_fav.connect(self.new_fav)
-        self.bar_path.del_fav.connect(self.remove_fav)
-        self.bar_path.new_main_win.connect(self.new_main_win_open)
-        self.bar_path.reveal.connect(self.reveal_urls)
-        self.bar_path.copy_names.connect(self.copy_names)
-        self.bar_path.copy_urls.connect(self.copy_urls)
-        self.bar_path.img_view_win.connect(self.img_view_win_open)
+        self.bar_path.base_signals.history_item.connect(self.bar_top.history_item)
+        self.bar_path.base_signals.load_st_grid.connect(self.load_st_grid)
+        self.bar_path.base_signals.info.connect(self.info_win_open)
+        self.bar_path.base_signals.new_fav.connect(self.new_fav)
+        self.bar_path.base_signals.remove_fav.connect(self.remove_fav)
+        self.bar_path.base_signals.new_main_win.connect(self.new_main_win_open)
+        self.bar_path.base_signals.reveal_urls.connect(self.reveal_urls)
+        self.bar_path.base_signals.copy_names.connect(self.copy_names)
+        self.bar_path.base_signals.copy_urls.connect(self.copy_urls)
+        self.bar_path.base_signals.img_view.connect(self.img_view_win_open)
 
         self.bar_sort.go_to_win_open.connect(
             self.go_to_toggle
