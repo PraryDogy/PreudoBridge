@@ -509,3 +509,4 @@ class BaseSignals(QObject):
     info = pyqtSignal(list)
     rearrange_grid = pyqtSignal()
     resize_grid = pyqtSignal()
+    open_in_app = pyqtSignal(tuple)

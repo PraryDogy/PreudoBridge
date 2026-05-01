@@ -14,7 +14,7 @@ from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
-from ._base_widgets import UMenu, UScrollArea
+from ._base_widgets import UMenu, UScrollArea, BaseSignals
 from .actions import Actions, Menus
 
 FONT_SIZE = 11
@@ -96,9 +96,6 @@ class BlueTextWid(QLabel):
 
 
 class Thumb(QFrame):
-    # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
-    # При изменении рейтинга или меток
-    text_changed = pyqtSignal()
     img_obj_name: str = "img_frame"
     text_obj_name: str = "text_frame_"
 
@@ -264,30 +261,14 @@ class NoItemsLabel(QLabel):
 
 
 class Grid(UScrollArea):
-    new_history_item = pyqtSignal(str)
-    bar_path_update = pyqtSignal(str)
-    add_fav = pyqtSignal(NameUrlItem)
-    del_fav = pyqtSignal(str)
-    load_st_grid = pyqtSignal(str)
-    move_slider = pyqtSignal(int)
-    change_view = pyqtSignal()
-    new_main_win_open = pyqtSignal(str)
-    go_to_widget = pyqtSignal(str)
-    level_up = pyqtSignal()
+    rename_file = pyqtSignal(NameUrlItem)
     menu_sort_update = pyqtSignal()
     total_count_update = pyqtSignal(TotalCountItem)
-    open_win_info = pyqtSignal(list)
-    img_view_win = pyqtSignal(ImgViewItem)
+    bar_path_update = pyqtSignal(str)
+    move_slider = pyqtSignal(int)
+    go_to_widget = pyqtSignal(str)
     paste_files = pyqtSignal()
-    load_finished = pyqtSignal()
-    reveal_urls = pyqtSignal(list)
-    copy_urls = pyqtSignal(list)
-    copy_names = pyqtSignal(list)
     img_convert_win = pyqtSignal(list)
-    open_in_app = pyqtSignal(tuple)
-    remove_files = pyqtSignal(list)
-    rename_file = pyqtSignal(NameUrlItem)
-    new_folder = pyqtSignal()
 
     grid_spacing = 5
     files_icon = Utils.scaled(
@@ -301,6 +282,7 @@ class Grid(UScrollArea):
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
+        self.base_signals = BaseSignals()
         self.main_win_item: MainWinItem = main_win_item
         self.url_to_wid: dict[str, Thumb] = {}
         self.cell_to_wid: dict[tuple, Thumb] = {}
@@ -399,10 +381,10 @@ class Grid(UScrollArea):
     def open_thumb(self):
         if len(self.selected_thumbs) == 1:
             if self.wid_under_mouse.data_item.type_ == Static.folder_type:
-                self.new_history_item.emit(
+                self.base_signals.history_item.emit(
                     self.wid_under_mouse.data_item.abs_path
                 )
-                self.load_st_grid.emit(
+                self.base_signals.load_st_grid.emit(
                     self.wid_under_mouse.data_item.abs_path
                 )
                 return
@@ -427,7 +409,7 @@ class Grid(UScrollArea):
                 url_to_data_item=url_to_data_item,
                 is_selection=is_selection
             )
-            self.img_view_win.emit(item)
+            self.base_signals.img_view.emit(item)
 
     def fav_cmd(self, offset: int, src: str):
         if offset == 1:
@@ -435,9 +417,9 @@ class Grid(UScrollArea):
                 name=os.path.basename(src),
                 url=src
             )
-            self.add_fav.emit(item)
+            self.base_signals.new_fav.emit(item)
         else:
-            self.del_fav.emit(src)
+            self.base_signals.remove_fav.emit(src)
 
     def setup_urls_to_copy(self):
         ClipboardItemGlob.src_dir = self.main_win_item.abs_current_dir
@@ -515,7 +497,7 @@ class Grid(UScrollArea):
 
         self.context_menu.add_action(
             action=self.context_actions.new_main_win,
-            callback=lambda: self.new_main_win_open.emit(root)
+            callback=lambda: self.base_signals.new_main_win.emit(root)
         )
         if root in JsonData.favs:
             self.context_menu.add_action(
@@ -544,7 +526,7 @@ class Grid(UScrollArea):
         else:
             self.context_menu.add_menu(
                 menu=self.context_menus.open_in_app_menu,
-                callback=lambda app_path: self.open_in_app.emit((img_urls, app_path))
+                callback=lambda app_path: self.base_signals.open_in_app.emit((img_urls, app_path))
             )
             self.context_menu.add_action(
                 action=self.context_actions.convert_to_jpg,
@@ -553,7 +535,7 @@ class Grid(UScrollArea):
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.win_info,
-            callback=lambda: self.open_win_info.emit(all_urls)
+            callback=lambda: self.base_signals.info.emit(all_urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.rename,
@@ -561,16 +543,16 @@ class Grid(UScrollArea):
         )
         self.context_menu.add_action(
             action=self.context_actions.reveal,
-            callback=lambda: self.reveal_urls.emit(all_urls)
+            callback=lambda: self.base_signals.reveal_urls.emit(all_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.copy_path,
-            callback=lambda: self.copy_urls.emit(all_urls)
+            callback=lambda: self.base_signals.copy_urls.emit(all_urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_name,
-            callback=lambda: self.copy_names.emit(all_urls)
+            callback=lambda: self.base_signals.copy_names.emit(all_urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
@@ -584,33 +566,33 @@ class Grid(UScrollArea):
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.remove_files,
-            callback=lambda: self.remove_files.emit(all_urls)
+            callback=lambda: self.base_signals.remove_urls.emit(all_urls)
         )
 
     def base_grid_actions(self):
         urls = [self.main_win_item.abs_current_dir, ]
         self.context_menu.add_action(
             action=self.context_actions.win_info,
-            callback=lambda: self.open_win_info.emit(urls)
+            callback=lambda: self.base_signals.info.emit(urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.reveal,
-            callback=lambda: self.reveal_urls.emit(urls)
+            callback=lambda: self.base_signals.reveal_urls.emit(urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.copy_path,
-            callback=lambda: self.copy_urls.emit(urls)
+            callback=lambda: self.base_signals.copy_urls.emit(urls)
             
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_name,
-            callback=lambda: self.copy_names.emit(urls)
+            callback=lambda: self.base_signals.copy_names.emit(urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_menu(
             menu=self.context_menus.change_view,
-            callback=lambda: self.change_view.emit()
+            callback=lambda: self.base_signals.change_view.emit()
         )
         self.context_menu.add_menu(
             menu=self.context_menus.sort_menu,
@@ -756,7 +738,7 @@ class Grid(UScrollArea):
                 self.setup_urls_to_copy()
 
             elif a0.key() == Qt.Key.Key_Up:
-                self.level_up.emit()
+                self.base_signals.level_up.emit()
 
             elif a0.key() == Qt.Key.Key_Down:
                 # если есть выделенные виджеты, то берется url последнего из списка
@@ -769,13 +751,13 @@ class Grid(UScrollArea):
             elif a0.key() == Qt.Key.Key_I:
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
-                    self.open_win_info.emit(
+                    self.base_signals.info.emit(
                         [i.data_item.abs_path for i in self.selected_thumbs]
                     )
                 else:
                     data = DataItem(self.main_win_item.abs_current_dir)
                     data.set_properties()
-                    self.open_win_info.emit([data.abs_path, ])
+                    self.base_signals.info.emit([data.abs_path, ])
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
@@ -794,7 +776,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = [i.data_item.abs_path for i in self.selected_thumbs]
-                self.remove_files.emit(urls)
+                self.base_signals.remove_urls.emit(urls)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             if self.selected_thumbs:

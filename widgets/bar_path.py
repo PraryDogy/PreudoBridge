@@ -138,6 +138,7 @@ class BarPath(QWidget):
         self.main_lay.setSpacing(5)
         self.main_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_lay)
+        self.update(self.main_win_item.abs_current_dir)
 
     def create_icons(self):
         icons = {

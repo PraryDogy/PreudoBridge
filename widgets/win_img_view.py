@@ -16,7 +16,7 @@ from system.items import DataItem, ImgViewItem
 from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
 
-from ._base_widgets import UMenu, USvgSqareWidget, WinBase
+from ._base_widgets import UMenu, USvgSqareWidget, WinBase, BaseSignals
 from .actions import Actions, Menus
 
 
@@ -230,11 +230,6 @@ class WinImgView(WinBase):
 
     move_to_wid = pyqtSignal(DataItem)
     closed = pyqtSignal()
-    info_win = pyqtSignal(list)
-    open_in_app = pyqtSignal(tuple)
-    reveal = pyqtSignal(list)
-    copy_paths = pyqtSignal(list)
-    copy_names = pyqtSignal(list)
 
     def __init__(self, item: ImgViewItem):
         super().__init__()
@@ -243,7 +238,8 @@ class WinImgView(WinBase):
         self.setStyleSheet(
             f"""#{self.object_name} {{background: black}}"""
         )
-
+        
+        self.base_signals = BaseSignals()
         self.read_img_task = None
         self.is_selection = item.is_selection
         self.url_to_data_item: dict[str, DataItem] = item.url_to_data_item
@@ -426,7 +422,7 @@ class WinImgView(WinBase):
     def keyPressEvent(self, ev: QKeyEvent | None) -> None:
         if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if ev.key() == Qt.Key.Key_I:
-                self.info_win.emit([self.current_url, ])
+                self.base_signals.info.emit([self.current_url, ])
 
             elif ev.key() == Qt.Key.Key_0:
                 self.img_wid.zoom_fit()
@@ -509,25 +505,25 @@ class WinImgView(WinBase):
         self.context_menus = Menus(self.context_menu)
         self.context_menu.add_menu(
             menu=self.context_menus.open_in_app_menu,
-            callback=lambda app_path: self.open_in_app.emit((urls, app_path))
+            callback=lambda app_path: self.base_signals.open_in_app.emit((urls, app_path))
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.win_info,
-            callback=lambda: self.info_win.emit(urls)
+            callback=lambda: self.base_signals.info.emit(urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.reveal,
-            callback=lambda: self.reveal.emit(urls)
+            callback=lambda: self.base_signals.reveal_urls.emit(urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.copy_path,
-            callback=lambda: self.copy_paths.emit(urls)
+            callback=lambda: self.base_signals.copy_urls.emit(urls)
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_name,
-            callback=lambda: self.copy_names.emit(urls)
+            callback=lambda: self.base_signals.copy_names.emit(urls)
         )
         self.context_menu.addSeparator()
         self.context_menu.add_menu(

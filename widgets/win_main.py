@@ -209,12 +209,10 @@ class WinMain(WinBase):
         self.right_side_layout.insertWidget(4, USep())
 
         self.bar_path = BarPath(self.main_win_item)
-        self.bar_path.update(dir)
         self.right_side_layout.insertWidget(5, self.bar_path)
         self.right_side_layout.insertWidget(6, USep())
 
         self.bar_sort = BarSort(self.main_win_item)
-        self.bar_sort.sort_menu_update()
         self.right_side_layout.insertWidget(7, self.bar_sort)
 
         self.main_splitter = QSplitter()
@@ -305,7 +303,6 @@ class WinMain(WinBase):
             lambda: self.grid.rearrange()
         )
 
-
     def change_theme(self):
         app: QApplication = QApplication.instance()
         if JsonData.dark_mode is None:
@@ -325,11 +322,11 @@ class WinMain(WinBase):
 
         self.img_view_win = WinImgView(item)
         self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
-        self.img_view_win.info_win.connect(self.info_win_open)
-        self.img_view_win.open_in_app.connect(self.open_in_app)
-        self.img_view_win.reveal.connect(self.reveal_urls)
-        self.img_view_win.copy_paths.connect(self.copy_urls)
-        self.img_view_win.copy_names.connect(self.copy_names)
+        self.img_view_win.base_signals.info.connect(self.info_win_open)
+        self.img_view_win.base_signals.open_in_app.connect(self.open_in_app)
+        self.img_view_win.base_signals.reveal_urls.connect(self.reveal_urls)
+        self.img_view_win.base_signals.copy_urls.connect(self.copy_urls)
+        self.img_view_win.base_signals.copy_names.connect(self.copy_names)
         if WinImgView.ww == 0:
             self.img_view_win.resize(Static.base_ww, Static.base_hh)
             self.img_view_win.center(self.window())
@@ -404,32 +401,32 @@ class WinMain(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        self.grid.menu_sort_update.connect(self.bar_sort.sort_menu_update)
-        self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
-        self.grid.bar_path_update.connect(self.bar_path.update)
         self.grid.add_fav.connect(self.new_fav)
         self.grid.del_fav.connect(self.remove_fav)
-        self.grid.move_slider.connect(self.bar_sort.move_slider)
         self.grid.load_st_grid.connect(self.load_st_grid)
         self.grid.new_main_win_open.connect(self.new_main_win_open)
-        self.grid.go_to_widget.connect(self.go_to_cmd)
         self.grid.level_up.connect(self.level_up)
         self.grid.new_history_item.connect(self.bar_top.history_item)
         self.grid.change_view.connect(self.change_view_cmd)
         self.grid.open_win_info.connect(self.info_win_open)
         self.grid.img_view_win.connect(self.img_view_win_open)
-        self.grid.paste_files.connect(self.paste_files)
-        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
-
         self.grid.reveal_urls.connect(self.reveal_urls)
         self.grid.copy_urls.connect(self.copy_urls)
         self.grid.copy_names.connect(self.copy_names)
-        self.grid.img_convert_win.connect(self.img_convert_win_open)
-
         self.grid.open_in_app.connect(self.open_in_app)
         self.grid.remove_files.connect(self.remove_files)
-        self.grid.rename_file.connect(self.rename_file)
         self.grid.new_folder.connect(self.new_folder)
+
+        self.grid.rename_file.connect(self.rename_file)
+        self.grid.menu_sort_update.connect(self.bar_sort.sort_menu_update)
+        self.grid.total_count_update.connect(self.bar_sort.sort_frame.set_total_text)
+        self.grid.bar_path_update.connect(self.bar_path.update)
+        self.grid.move_slider.connect(self.bar_sort.move_slider)
+        self.grid.go_to_widget.connect(self.go_to_cmd)
+        self.grid.paste_files.connect(self.paste_files)
+        self.grid.img_convert_win.connect(self.img_convert_win_open)
+
+        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
 
     def load_search_grid(self):
         QTimer.singleShot(

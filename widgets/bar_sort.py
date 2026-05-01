@@ -183,6 +183,7 @@ class BarSort(QWidget):
         self.main_win_item = main_win_item
         self.base_signals = BaseSignals()
         self.init_ui()
+        self.sort_menu_update()
 
     def init_ui(self):
         self.main_lay = self.create_main_layout()
