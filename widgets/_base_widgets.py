@@ -5,9 +5,9 @@ from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
                          QPalette, QTextCursor, QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
-                             QGraphicsDropShadowEffect, QHBoxLayout, QLabel,
+                             QHBoxLayout, QLabel,
                              QLineEdit, QMainWindow, QMenu, QPushButton,
-                             QScrollArea, QSlider, QTextEdit, QWidget, QGroupBox)
+                             QScrollArea, QSlider, QTextEdit, QWidget, QGroupBox, QGraphicsDropShadowEffect)
 
 from cfg import Static
 from system.shared_utils import ImgUtils
