@@ -203,7 +203,7 @@ class ReadImg:
             str(img_array.dtype)
         ))
 
-        shm.close()  # важно!
+        shm.close()
 
 
 class _DirChangedHandler(FileSystemEventHandler):
