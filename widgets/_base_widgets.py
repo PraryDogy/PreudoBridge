@@ -13,7 +13,7 @@ from cfg import Static
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 from system.items import NameUrlItem, ImgViewItem
-
+ 
 class UScrollArea(QScrollArea):
     def __init__(self):
         super().__init__()
