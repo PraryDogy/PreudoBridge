@@ -10,7 +10,7 @@ from system.items import DataItem, MultipleInfoItem, NameUrlItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
-from ._base_widgets import UMenu, WinMinCloseOnly, BaseSignals, WinWidget
+from ._base_widgets import UMenu, WinMinCloseOnly, BaseSignals
 from .actions import Actions
 
 
@@ -314,15 +314,15 @@ class WinInfo(WinMinCloseOnly):
         self.context_menu.show_under_mouse()
 
 
-class WinInfoFav(WinWidget):
+class WinInfoFav(WinMinCloseOnly):
     copy_text = pyqtSignal(str)
     name_text = "Имя в избранном"
-    url_text = "Путь"
+    url_text = "Расположение"
 
     def __init__(self, name_url_item: NameUrlItem):
         super().__init__()
         self.setWindowTitle(WinInfo.title_text)
-        self.set_close_only()
+        # self.set_close_only()
         self.set_always_on_top()
 
         self.base_signals = BaseSignals()
@@ -334,7 +334,7 @@ class WinInfoFav(WinWidget):
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.setContentsMargins(10, 15, 10, 15)
         self.grid_layout.setSpacing(5)
-        self.setLayout(self.grid_layout)
+        self.centralWidget().setLayout(self.grid_layout)
 
         self.single_file()
         self.adjustSize()
