@@ -257,3 +257,11 @@ class TotalCountItem:
 class NameUrlItem:
     name: str
     url: str
+
+
+@dataclass(slots=True)
+class ReadImgItem:
+    src: str
+    shm_name: str
+    shape: tuple[int, ...]
+    dtype: str

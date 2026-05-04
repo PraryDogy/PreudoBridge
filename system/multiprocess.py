@@ -15,7 +15,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 from cfg import Static
 from system.database import CacheTable, Dbase
 from system.items import (CopyItem, DataItem, ImgLoaderItem, JpgConvertItem,
-                          MainWinItem, MultipleInfoItem, SearchItem)
+                          MainWinItem, MultipleInfoItem, SearchItem, ReadImgItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.tasks import Utils
 
@@ -195,14 +195,13 @@ class ReadImg:
         shm = shared_memory.SharedMemory(create=True, size=img_array.nbytes)
         buffer = np.ndarray(img_array.shape, dtype=img_array.dtype, buffer=shm.buf)
         buffer[:] = img_array
-
-        queue.put((
-            src,
-            shm.name,
-            img_array.shape,
-            str(img_array.dtype)
-        ))
-
+        item = ReadImgItem(
+            src=src,
+            shm_name=shm.name,
+            shape=img_array.shape,
+            dtype=img_array.dtype.str
+        )
+        queue.put(item)
         shm.close()
 
 

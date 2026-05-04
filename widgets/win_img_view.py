@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QLabel, QVBoxLayout, QWidget, QGraphicsOpacityEffect, QGraphicsBlurEffect)
 
 from cfg import Static
-from system.items import DataItem, ImgViewItem
+from system.items import DataItem, ImgViewItem, ReadImgItem
 from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
 
@@ -343,16 +343,15 @@ class WinImgView(WinBase):
         def poll_task():
             q = self.read_img_task.queue
             if not q.empty():
-                # src, img_array = q.get()
-                src, shm_name, shape, dtype = q.get()
-                shm = shared_memory.SharedMemory(name=shm_name)
-                img_array = np.ndarray(shape, dtype=np.dtype(dtype), buffer=shm.buf)
+                item: ReadImgItem = q.get()
+                shm = shared_memory.SharedMemory(name=item.shm_name)
+                img_array = np.ndarray(item.shape, dtype=np.dtype(item.dtype), buffer=shm.buf)
                 if img_array is None:
                     self.show_text_label(self.error_text)
-                elif src == self.current_url:
+                elif item.src == self.current_url:
                     self.qimage_task = ImgArrayQImage(img_array)
                     self.qimage_task.sigs.finished_.connect(
-                            lambda qimage: fin(src, qimage, shm)
+                            lambda qimage: fin(item.src, qimage, shm)
                     )
                     UThreadPool.start(self.qimage_task)
 
