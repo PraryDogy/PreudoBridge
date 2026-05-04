@@ -63,10 +63,6 @@ class ImgWid(QGraphicsView):
             self.setCursor(Qt.CursorShape.ArrowCursor)
 
     def set_transparent(self, value: float):
-        # blur = QGraphicsBlurEffect()
-        # blur.setBlurRadius(5)
-        # self.setGraphicsEffect(blur)
-        # return
         effect = QGraphicsOpacityEffect(self)
         effect.setOpacity(value)
         self.pixmap_item.setGraphicsEffect(effect)
