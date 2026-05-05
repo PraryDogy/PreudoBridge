@@ -191,13 +191,6 @@ class CopyPasteMenu(UMenu):
 
 class ULineEdit(QLineEdit):
     def __init__(self):
-        """
-        - Виджет однострочного ввода текста   
-        - Пользовательское контекстное меню: вырезать, копировать, вставить, выделить все     
-        - Кнопка "стереть" справа внутри поля ввода текста    
-        - Необходимо установить фиксированную ширину виджета для корректного
-        позиционирования кнопки "стереть"
-        """
         super().__init__()
         self.setStyleSheet("padding-left: 2px; padding-right: 18px;")
         self.setFixedHeight(30)
@@ -228,9 +221,6 @@ class ULineEdit(QLineEdit):
             self.clear_btn.hide()
 
     def move_clear_btn(self):
-        """
-        Перемещает кнопку "стереть" вертикально по центру и к правой стороне
-        """
         x = self.width() - self.clear_btn.width() - 6
         y = (self.height() - self.clear_btn.height()) // 2
         self.clear_btn.move(x, y)
@@ -242,12 +232,6 @@ class ULineEdit(QLineEdit):
 
 class UTextEdit(QTextEdit):
     def __init__(self):
-        """
-        - Виджет многострочного ввода текста  
-        - Пользовательское контекстное меню: вырезать, копировать, вставить, выделить все     
-        - Допускается только простой текст, форматирование текста при вставке
-        будет удалено
-        """
         super().__init__()
         self.setAcceptRichText(False)
 
@@ -297,45 +281,6 @@ class UFrame(QFrame):
     def leaveEvent(self, a0):
         if not self.pressed:
             self.setStyleSheet(self.normal_style())
-
-
-class ULabel(QLabel):
-    object_name = "u_label"
-    clicked = pyqtSignal()
-
-    def __init__(self, text: str):
-        """
-        Стандартный ULabel с пользовательским стилем:   
-        При наведении курсора мыши на виджет, он принимает выделенный стиль
-        """
-        super().__init__(text)
-        self.setObjectName(self.object_name)
-        self.setStyleSheet(self.normal_style())
-
-    def normal_style(self):
-        return f"""#{self.object_name} {{
-                        background: transparent;
-                        padding-left: 2px;
-                        padding-right: 2px;
-                }}"""
-
-    def solid_style(self):
-        return f"""#{self.object_name} {{
-                        background: {Static.rgba_gray}; 
-                        border-radius: 7px;
-                        padding-left: 2px;
-                        padding-right: 2px;
-                }}"""
-
-    def enterEvent(self, a0):
-        self.setStyleSheet(self.solid_style())
-
-    def leaveEvent(self, a0):
-        self.setStyleSheet(self.normal_style())
-
-    def mouseReleaseEvent(self, ev):
-        self.clicked.emit()
-        return super().mouseReleaseEvent(ev)
 
 
 class WinBase(QMainWindow):

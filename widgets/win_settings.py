@@ -12,7 +12,7 @@ from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
 from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 
-from ._base_widgets import HSep, WinMinCloseOnly, ULabel, USvgSqareWidget
+from ._base_widgets import HSep, WinMinCloseOnly, USvgSqareWidget
 # возможно в main win
 from .win_warn import ConfirmWindow, WinWarn
 
