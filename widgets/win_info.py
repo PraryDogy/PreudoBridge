@@ -10,7 +10,7 @@ from system.items import DataItem, MultipleInfoItem, NameUrlItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
-from ._base_widgets import UMenu, UMainWindow, BaseSignals
+from ._base_widgets import UMenu, UMainWindow, BaseSignals, UMainWidget
 from .actions import Actions
 
 
@@ -315,7 +315,7 @@ class WinInfo(UMainWindow):
         self.context_menu.show_under_mouse()
 
 
-class WinInfoFav(UMainWindow):
+class WinInfoFav(UMainWidget):
     copy_text = pyqtSignal(str)
     name_text = "Имя в избранном"
     url_text = "Расположение"
@@ -331,17 +331,13 @@ class WinInfoFav(UMainWindow):
         self.left = Qt.AlignmentFlag.AlignLeft
         self.right = Qt.AlignmentFlag.AlignRight
         self.top = Qt.AlignmentFlag.AlignTop
-        self.grid_layout = QGridLayout()
+        self.grid_layout = QGridLayout(self)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.setContentsMargins(10, 15, 10, 15)
         self.grid_layout.setSpacing(5)
-        self.centralWidget().setLayout(self.grid_layout)
 
         self.single_file()
         self.adjustSize()
-
-    def center(self, *args):
-        return
 
     def single_file(self):
         row = 0
@@ -357,7 +353,7 @@ class WinInfoFav(UMainWindow):
             self.grid_layout.addWidget(right, row, 2, alignment=self.left)
             row += 1
 
-    def lined_text(self, text: str, limit: int = 50):
+    def lined_text(self, text: str, limit: int = 45):
         if len(text) > limit:
             text = [
                 text[i : i + limit]
