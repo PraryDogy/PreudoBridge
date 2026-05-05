@@ -14,7 +14,7 @@ from system.shared_utils import ImgUtils
 from system.utils import Utils
 from system.items import NameUrlItem, ImgViewItem
 
-Ў
+
 class UScrollArea(QScrollArea):
     def __init__(self):
         super().__init__()
@@ -282,95 +282,43 @@ class UFrame(QFrame):
         if not self.pressed:
             self.setStyleSheet(self.normal_style())
 
-
-class WinBase(QMainWindow):
-    wins: list["WinBase"] = []
+    
+class WinMixin:
+    window_list: list[QWidget] = []
 
     def __init__(self):
-        """
-        Окно QWidget с функцией "center", которая выравнивает окно по центру
-        относительно родительского.
-        """
         super().__init__()
-        self.setCentralWidget(QWidget())
         self.add_to_list()
 
     def add_to_list(self):
-        WinBase.wins.append(self)
+        self.window_list.append(self)
 
     def remove_from_list(self):
-        try:
-            WinBase.wins.remove(self)
-        except ValueError:
-            ...
+        if self in self.window_list:
+            self.window_list.remove(self)
 
-    def center(self, parent: QWidget):
+    def center(self: QWidget, parent: QWidget):
         parent.raise_()
         geo = self.geometry()
         geo.moveCenter(parent.geometry().center())
         self.setGeometry(geo)
 
-    def set_always_on_top(self):
-        # self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+    def set_always_on_top(self: QWidget):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
-    def deleteLater(self):
-        self.remove_from_list()
-        return super().deleteLater()
-    
-    def closeEvent(self, a0):
-        self.remove_from_list()
-        return super().closeEvent(a0)
-
-
-class WinMinCloseOnly(WinBase):
-    def __init__(self):
-        """
-        Окно без кнопок свернуть и развернуть.  
-        Оставлена только кнопка закрытия.
-        """
-        super().__init__()
+    def set_close_only(self: QWidget):
         self.setWindowFlags(
             Qt.WindowType.CustomizeWindowHint |
             Qt.WindowType.WindowCloseButtonHint
         )
 
 
-class WinWidget(QWidget):
+class WinBase(QMainWindow, WinMixin):
     wins: list["WinBase"] = []
 
     def __init__(self):
         super().__init__()
-        self.add_to_list()
-
-    def add_to_list(self):
-        WinBase.wins.append(self)
-
-    def remove_from_list(self):
-        try:
-            WinBase.wins.remove(self)
-        except ValueError:
-            ...
-
-    def center(self, parent: QWidget):
-        parent.raise_()
-        geo = self.geometry()
-        geo.moveCenter(parent.geometry().center())
-        self.setGeometry(geo)
-
-    def set_always_on_top(self):
-        self.setWindowFlags(
-            self.windowFlags() |
-            Qt.WindowStaysOnTopHint
-        )
-        # self.setWindowModality(Qt.WindowModality.ApplicationModal)
-
-    def set_close_only(self):
-        self.setWindowFlags(
-            # self.windowFlags() | 
-            Qt.WindowType.CustomizeWindowHint |
-            Qt.WindowType.WindowCloseButtonHint
-        )
+        self.setCentralWidget(QWidget())
 
     def deleteLater(self):
         self.remove_from_list()
@@ -379,6 +327,12 @@ class WinWidget(QWidget):
     def closeEvent(self, a0):
         self.remove_from_list()
         return super().closeEvent(a0)
+
+
+class WinMinCloseOnly(WinBase, WinMixin):
+    def __init__(self):
+        super().__init__()
+        self.set_close_only()
 
 
 class NotifyWid(QFrame):
