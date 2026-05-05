@@ -152,27 +152,24 @@ class CopyPasteMenu(UMenu):
 
     def cut_text(self):
         if isinstance(self.parent_, QLineEdit):
-            selection = self.parent_.selectedText()
+            selection = self.get_selection()
             text = self.parent_.text().replace(selection, "")
             self.parent_.setText(text)
-
         elif isinstance(self.wid, QTextEdit):
-            selection = self.wid.textCursor().selectedText()
             self.wid.textCursor().removeSelectedText()
-
-        selection = selection.replace(Static.paragraph_symbol, "")
-        selection = selection.replace(Static.line_feed_symbol, "")
         Utils.write_to_clipboard(selection)
 
     def copy_text(self):
+        Utils.write_to_clipboard(self.get_selection())
+
+    def get_selection(self):
         if isinstance(self.parent_, QLineEdit):
             selection = self.parent_.selectedText()
         if isinstance(self.wid, QTextEdit):
             selection = self.parent_.textCursor().selectedText()
-
         selection = selection.replace(Static.paragraph_symbol, "")
         selection = selection.replace(Static.line_feed_symbol, "")
-        Utils.write_to_clipboard(selection)
+        return selection
 
     def paste_text(self):
         text = Utils.read_from_clipboard()
