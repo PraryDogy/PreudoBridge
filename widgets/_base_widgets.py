@@ -305,22 +305,14 @@ class WinBase(QMainWindow):
             ...
 
     def center(self, parent: QWidget):
-        """
-        Центрирует текущее окно относительно родительского окна.
-        """
         parent.raise_()
         geo = self.geometry()
         geo.moveCenter(parent.geometry().center())
         self.setGeometry(geo)
 
     def set_always_on_top(self):
-        """
-        Устанавливает модальность окна на уровень всего приложения.
-        При этом окно блокирует взаимодействие с другими окнами приложения
-        и всегда остаётся поверх них до своего закрытия.
-        """
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
-        # self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        # self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def deleteLater(self):
         self.remove_from_list()
