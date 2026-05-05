@@ -327,11 +327,18 @@ class UMainWindow(QMainWindow, WinMixin):
         return super().closeEvent(a0)
 
 
-class WinMinCloseOnly(UMainWindow, WinMixin):
+class UMainWidget(QWidget, WinMixin):
     def __init__(self):
         super().__init__()
-        self.set_close_only()
 
+    def deleteLater(self):
+        self.remove_from_list()
+        return super().deleteLater()
+    
+    def closeEvent(self, a0):
+        self.remove_from_list()
+        return super().closeEvent(a0)
+    
 
 class NotifyWid(QFrame):
     ms = 1500
