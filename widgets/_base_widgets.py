@@ -14,6 +14,7 @@ from system.shared_utils import ImgUtils
 from system.utils import Utils
 from system.items import NameUrlItem, ImgViewItem
 
+Ў
 class UScrollArea(QScrollArea):
     def __init__(self):
         super().__init__()
@@ -126,7 +127,7 @@ class USvgSqareWidget(QSvgWidget):
             self.load(src)
 
 
-class TextWidgetMenu(UMenu):
+class CopyPasteMenu(UMenu):
     def __init__(self, parent: QLineEdit | QTextEdit):
         super().__init__()
         self.parent_ = parent
@@ -238,7 +239,7 @@ class ULineEdit(QLineEdit):
         self.clear_btn.move(x, y)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.context_menu = TextWidgetMenu(parent=self)
+        self.context_menu = CopyPasteMenu(parent=self)
         self.context_menu.show_under_mouse()
 
 
@@ -254,7 +255,7 @@ class UTextEdit(QTextEdit):
         self.setAcceptRichText(False)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.context_menu = TextWidgetMenu(parent=self)
+        self.context_menu = CopyPasteMenu(parent=self)
         self.context_menu.show_under_mouse()
 
 
