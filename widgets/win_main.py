@@ -16,7 +16,7 @@ from system.shared_utils import ImgUtils
 from system.tasks import FileRemover, RevealFiles, UThreadPool
 from system.utils import Utils
 
-from ._base_widgets import USep, WinBase
+from ._base_widgets import USep, UMainWindow
 from .bar_macos import BarMacos
 from .bar_path import BarPath
 from .bar_sort import BarSort
@@ -87,7 +87,7 @@ class NoPathWin(WinWarn):
         super().__init__(text)
 
 
-class WinMain(WinBase):
+class WinMain(UMainWindow):
     resize_ms = 100
     grid_index = 3
     min_width_ = 800
@@ -469,7 +469,7 @@ class WinMain(WinBase):
             lambda urls: self.reveal_urls(urls)
         )
         # индекс -1 всегда будет win info, так как это последнее открытое окно
-        self.win_info.center(self.wins[-2])
+        self.win_info.center(self.window_list[-2])
         self.win_info.show()
         
     def paste_files(self):
@@ -669,7 +669,7 @@ class WinMain(WinBase):
         self.resize_timer.start(WinMain.resize_ms)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        if len(WinBase.wins) > 1:
+        if len(UMainWindow.window_list) > 1:
             self.deleteLater()
         else:
             self.hide()

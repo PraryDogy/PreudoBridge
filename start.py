@@ -10,7 +10,7 @@ from cfg import JsonData
 from system.database import Dbase
 from system.multiprocess import ProcessWorker
 from system.tasks import OnStartTask, UThreadPool
-from widgets._base_widgets import WinBase
+from widgets._base_widgets import UMainWindow
 from widgets.grid import Thumb
 from widgets.win_main import WinMain
 
@@ -98,7 +98,7 @@ class App(QApplication):
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
-            for i in WinBase.wins:
+            for i in UMainWindow.window_list:
                 i.show()
                 i.raise_()
         return False

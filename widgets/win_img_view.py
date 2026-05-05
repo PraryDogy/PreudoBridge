@@ -16,7 +16,7 @@ from system.items import DataItem, ImgViewItem, ReadImgItem
 from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
 
-from ._base_widgets import UMenu, USvgSqareWidget, WinBase, BaseSignals
+from ._base_widgets import UMenu, USvgSqareWidget, UMainWindow, BaseSignals
 from .actions import Actions, Menus
 
 
@@ -215,7 +215,7 @@ class NextImgBtn(SwitchImgBtn):
         super().__init__(os.path.join(Static.internal_images_dir, "next.svg"), parent)
 
 
-class WinImgView(WinBase):
+class WinImgView(UMainWindow):
     cached_images: dict[str, QImage] = {}
     object_name = "win_img_view"
     loading_text = "Загрузка"

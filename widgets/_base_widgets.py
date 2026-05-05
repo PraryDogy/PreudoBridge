@@ -313,9 +313,7 @@ class WinMixin:
         )
 
 
-class WinBase(QMainWindow, WinMixin):
-    wins: list["WinBase"] = []
-
+class UMainWindow(QMainWindow, WinMixin):
     def __init__(self):
         super().__init__()
         self.setCentralWidget(QWidget())
@@ -329,7 +327,7 @@ class WinBase(QMainWindow, WinMixin):
         return super().closeEvent(a0)
 
 
-class WinMinCloseOnly(WinBase, WinMixin):
+class WinMinCloseOnly(UMainWindow, WinMixin):
     def __init__(self):
         super().__init__()
         self.set_close_only()
