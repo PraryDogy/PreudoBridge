@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QMenuBar,
 from cfg import Static
 from system.utils import Utils
 
-from ._base_widgets import WinMinCloseOnly, UMenu
+from ._base_widgets import UMainWindow, UMenu
 from .win_servers import WinServers
 from .win_settings import WinSettings
 
@@ -66,7 +66,7 @@ class SelectableLabel(QLabel):
         context_menu.show_umenu()
 
 
-class AboutWin(WinMinCloseOnly):
+class AboutWin(UMainWindow):
     """
     Окно "О программе" с информацией о версии, авторе и контактами.
     
@@ -81,6 +81,8 @@ class AboutWin(WinMinCloseOnly):
 
     def __init__(self):
         super().__init__()
+        self.set_always_on_top()
+        self.set_close_only()
 
         # --- Настройка окна ---
         self.setWindowTitle(Static.app_name)

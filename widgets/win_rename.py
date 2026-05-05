@@ -4,10 +4,10 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from ._base_widgets import WinMinCloseOnly, SmallBtn, ULineEdit
+from ._base_widgets import UMainWindow, SmallBtn, ULineEdit
 
 
-class WinRename(WinMinCloseOnly):
+class WinRename(UMainWindow):
     finished_ = pyqtSignal(str)
     placeholder_text = "Введите текст"
     ok_text = "Ок"
@@ -19,6 +19,7 @@ class WinRename(WinMinCloseOnly):
     def __init__(self, text: str):
         super().__init__()
         self.set_always_on_top()
+        self.set_close_only()
         self.setWindowTitle(WinRename.title_text)
 
         v_lay = QVBoxLayout()

@@ -12,7 +12,7 @@ from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
 from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 
-from ._base_widgets import HSep, WinMinCloseOnly, USvgSqareWidget
+from ._base_widgets import HSep, UMainWindow, USvgSqareWidget
 # возможно в main win
 from .win_warn import ConfirmWindow, WinWarn
 
@@ -338,7 +338,7 @@ class Themes(QGroupBox):
             f.selected(f is selected_frame)
 
 
-class WinSettings(WinMinCloseOnly):
+class WinSettings(UMainWindow):
     title_text = "Настройки"
     theme_changed = pyqtSignal()
     show_texts_sig = pyqtSignal()
@@ -347,7 +347,7 @@ class WinSettings(WinMinCloseOnly):
         super().__init__()
         self.setWindowTitle(WinSettings.title_text)
         self.set_always_on_top()
-        # self.setFixedSize(470, 510)
+        self.set_close_only()
         self.setFixedWidth(470)
 
         main_lay = QVBoxLayout()

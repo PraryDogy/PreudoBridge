@@ -10,7 +10,7 @@ from system.items import DataItem, MultipleInfoItem, NameUrlItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
-from ._base_widgets import UMenu, WinMinCloseOnly, BaseSignals
+from ._base_widgets import UMenu, UMainWindow, BaseSignals
 from .actions import Actions
 
 
@@ -39,7 +39,7 @@ class SelectableLabel(ULabel):
         ev.ignore()
 
 
-class WinInfo(WinMinCloseOnly):
+class WinInfo(UMainWindow):
     finished_ = pyqtSignal()
     copy_text = pyqtSignal(str)
 
@@ -59,8 +59,9 @@ class WinInfo(WinMinCloseOnly):
 
     def __init__(self, urls: list[str]):
         super().__init__()
-        self.setWindowTitle(WinInfo.title_text)
         self.set_always_on_top()
+        self.set_close_only()
+        self.setWindowTitle(WinInfo.title_text)
         self.base_signals = BaseSignals()
         self.left = Qt.AlignmentFlag.AlignLeft
         self.right = Qt.AlignmentFlag.AlignRight
@@ -314,16 +315,16 @@ class WinInfo(WinMinCloseOnly):
         self.context_menu.show_under_mouse()
 
 
-class WinInfoFav(WinMinCloseOnly):
+class WinInfoFav(UMainWindow):
     copy_text = pyqtSignal(str)
     name_text = "Имя в избранном"
     url_text = "Расположение"
 
     def __init__(self, name_url_item: NameUrlItem):
         super().__init__()
-        self.setWindowTitle(WinInfo.title_text)
-        # self.set_close_only()
         self.set_always_on_top()
+        self.set_close_only()
+        self.setWindowTitle(WinInfo.title_text)
 
         self.base_signals = BaseSignals()
         self.name_url_item = name_url_item

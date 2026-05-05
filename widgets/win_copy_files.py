@@ -9,11 +9,11 @@ from system.items import ClipboardItemGlob, CopyItem
 from system.multiprocess import CopyTask, CopyWorker
 from system.utils import Utils
 
-from ._base_widgets import SmallBtn, USvgSqareWidget, WinMinCloseOnly
+from ._base_widgets import SmallBtn, USvgSqareWidget, UMainWindow
 from .win_progressbar import WinProgressbar
 
 
-class WinReplaceFiles(WinMinCloseOnly):
+class WinReplaceFiles(UMainWindow):
     descr_text = "Заменить существующие файлы?"
     title_text = "Замена"
     replace_one_text = "Заменить"
@@ -29,6 +29,7 @@ class WinReplaceFiles(WinMinCloseOnly):
     def __init__(self):
         super().__init__()
         self.set_always_on_top()
+        self.set_close_only()
         self.setWindowTitle(self.title_text)
         self.setFixedSize(400, 100)
 
@@ -94,7 +95,7 @@ class WinReplaceFiles(WinMinCloseOnly):
         a0.ignore()
     
 
-class WinError(WinMinCloseOnly):
+class WinError(UMainWindow):
     descr_text = "Произошла ошибка при копировании"
     title_text = "Ошибка"
     ok_text = "Ок"
@@ -103,6 +104,7 @@ class WinError(WinMinCloseOnly):
     def __init__(self):
         super().__init__()
         self.set_always_on_top()
+        self.set_close_only()
         self.setWindowTitle(WinError.title_text)
 
         main_lay = QVBoxLayout()

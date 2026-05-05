@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
 from cfg import Static
 from system.utils import Utils
 
-from ._base_widgets import USvgSqareWidget, WinMinCloseOnly
+from ._base_widgets import USvgSqareWidget, UMainWindow
 
 
 class CancelBtn(USvgSqareWidget):
@@ -24,12 +24,13 @@ class CancelBtn(USvgSqareWidget):
         return super().mouseReleaseEvent(a0)
 
 
-class WinProgressbar(WinMinCloseOnly):
+class WinProgressbar(UMainWindow):
     progressbar_width = 300
 
     def __init__(self, title: str):
         super().__init__()
-        # self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
+        self.set_always_on_top()
+        self.set_close_only()
         self.setWindowTitle(title)
 
         main_lay = QHBoxLayout()

@@ -2,18 +2,19 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 
-from ._base_widgets import WinMinCloseOnly, SmallBtn
+from ._base_widgets import UMainWindow, SmallBtn
 
 
-class ConfirmWindow(WinMinCloseOnly):
+class ConfirmWindow(UMainWindow):
     ok_clicked = pyqtSignal()
     ww = 360
     svg_icon = "./images/warning.svg"
 
     def __init__(self, text: str):
         super().__init__()
-        self.setWindowTitle("Внимание!")
         self.set_always_on_top()
+        self.set_close_only()
+        self.setWindowTitle("Внимание!")
         self.setFixedWidth(350)
 
         self.central_layout = QVBoxLayout()

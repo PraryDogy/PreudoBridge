@@ -10,7 +10,7 @@ from system.items import MainWinItem, SearchItem
 from system.utils import Utils
 
 from ._base_widgets import (SmallBtn, UFrame, ULineEdit, UMenu,
-                            USvgSqareWidget, UTextEdit, WinMinCloseOnly, BaseSignals, BeatyBtn)
+                            USvgSqareWidget, UTextEdit, UMainWindow, BaseSignals, BeatyBtn)
 
 
 class BarTopBtn(QWidget):
@@ -71,7 +71,7 @@ class BarTopBtn(QWidget):
         super().mouseReleaseEvent(e)
 
 
-class WinSearchList(WinMinCloseOnly):
+class WinSearchList(UMainWindow):
     title_text = "Поиск"
     search_place_text = "Место поиска:"
     descr_text = "Вставьте текст"
@@ -85,6 +85,7 @@ class WinSearchList(WinMinCloseOnly):
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
         self.set_always_on_top()
+        self.set_close_only()
         self.setMinimumSize(self.min_w, self.min_h)
         self.setWindowTitle(self.title_text)
         self.main_win_item = main_win_item

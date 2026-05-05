@@ -11,12 +11,12 @@ from system.multiprocess import ProcessWorker, SearchTask, WatchdogTask
 from system.utils import Utils
 
 from ._base_widgets import (NotifyWid, SmallBtn, UMenu, USvgSqareWidget,
-                            UTextEdit, WinMinCloseOnly)
+                            UTextEdit, UMainWindow)
 from .actions import Actions
 from .grid import Grid, NoItemsLabel, Thumb
 
 
-class WinMissedFiles(WinMinCloseOnly):
+class WinMissedFiles(UMainWindow):
     title_text = "Внимание!"
     descr_text = "Не найдены файлы:"
     ok_text = "Ок"
@@ -24,6 +24,7 @@ class WinMissedFiles(WinMinCloseOnly):
     def __init__(self, files: list[str]):
         super().__init__()
         self.set_always_on_top()
+        self.set_close_only()
         self.setWindowTitle(WinMissedFiles.title_text)
 
         v_lay = QVBoxLayout()

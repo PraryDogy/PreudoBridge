@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QListWidget,
 
 from cfg import Static
 
-from ._base_widgets import WinMinCloseOnly, SmallBtn, ULineEdit, UMenu
+from ._base_widgets import UMainWindow, SmallBtn, ULineEdit, UMenu
 from .win_warn import ConfirmWindow
 
 # from cfg import Cfg
@@ -134,13 +134,15 @@ class ServerLabel(QLabel):
         self.setStyleSheet("padding-left: 1px;")
 
 
-class WinLogin(WinMinCloseOnly):
+class WinLogin(UMainWindow):
     ok_pressed = pyqtSignal(ServerItem)
     ww = 300
 
     def __init__(self, server_item: ServerItem = None):
 
         super().__init__()
+        self.set_always_on_top()
+        self.set_close_only()
         self.setFixedWidth(self.ww)
         self.central_layout = QVBoxLayout()
         self.central_layout.setContentsMargins(5, 5, 5, 5)
@@ -251,9 +253,11 @@ class WinLogin(WinMinCloseOnly):
         return super().keyPressEvent(a0)
 
 
-class WinServers(WinMinCloseOnly):
+class WinServers(UMainWindow):
     def __init__(self):
         super().__init__()
+        self.set_always_on_top()
+        self.set_close_only()
         self.setWindowTitle("Подключиться к серверу")
         self.setFixedSize(350, 250)
 
