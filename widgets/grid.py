@@ -30,9 +30,11 @@ KEY_NAVI = {
 
 class ImgFrameWidget(QLabel):
     object_name = "ImgFrameWidget"
+    offset = 5 
     def __init__(self):
         super().__init__()
-        self.setContentsMargins(5, 5, 5, 5)
+        self.setContentsMargins(self.offset, self.offset, self.offset, self.offset)
+        self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
 
 class WhiteTextWid(QLabel):
@@ -116,18 +118,7 @@ class Thumb(QFrame):
         self.v_lay.setSpacing(2)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        # self.img_frame = ImgFrameWidget()
-        # self.img_frame.setObjectName(Thumb.img_obj_name)
-        # self.v_lay.addWidget(self.img_frame, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        # self.img_frame_lay = QVBoxLayout()
-        # self.img_frame_lay.setContentsMargins(0, 0, 0, 0)
-        # self.img_frame_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        # self.img_frame.setLayout(self.img_frame_lay)
-
         self.img_wid = ImgFrameWidget()
-        # self.img_wid.setObjectName(Thumb.img_obj_name)
-        self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.white_text_wid = WhiteTextWid()
@@ -156,11 +147,12 @@ class Thumb(QFrame):
         disk_icon = QImage(
             os.path.join(Static.internal_images_dir, "disk.png")
         )
+        offset = -10
 
         for i in Static.image_sizes:
-            resized_folder = Utils.scaled(folder_icon, i)
-            resized_image = Utils.scaled(image_icon, i)
-            resized_disk = Utils.scaled(disk_icon, i)
+            resized_folder = Utils.scaled(folder_icon, i + offset)
+            resized_image = Utils.scaled(image_icon, i + offset)
+            resized_disk = Utils.scaled(disk_icon, i + offset)
             cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
             cls.image_icons[i] = QPixmap.fromImage(resized_image)
             cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
