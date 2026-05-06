@@ -19,13 +19,6 @@ from .actions import Actions, Menus
 
 FONT_SIZE = 11
 
-KEY_NAVI = {
-    Qt.Key.Key_Left: (0, -1),
-    Qt.Key.Key_Right: (0, 1),
-    Qt.Key.Key_Up: (-1, 0),
-    Qt.Key.Key_Down: (1, 0)
-}
-
 
 class ThumbImgWidget(QLabel):
     # длина списков должна соответствовать длине Static.image_sizes
@@ -275,6 +268,12 @@ class Grid(UScrollArea):
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),
         size=64
     )
+    key_navi = {
+        Qt.Key.Key_Left: (0, -1),
+        Qt.Key.Key_Right: (0, 1),
+        Qt.Key.Key_Up: (-1, 0),
+        Qt.Key.Key_Down: (1, 0)
+    }
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -785,8 +784,8 @@ class Grid(UScrollArea):
                     if not a0.isAutoRepeat():
                         self.open_thumb()
 
-        elif a0.key() in KEY_NAVI:
-            offset = KEY_NAVI.get(a0.key())
+        elif a0.key() in self.key_navi:
+            offset = self.key_navi.get(a0.key())
 
             if not self.cell_to_wid:
                 return
