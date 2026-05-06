@@ -31,7 +31,6 @@ class Static:
     thumb_widths = [145, 145, 180, 230]
     image_sizes = [50, 70, 100, 170]
     row_limits = [20, 20, 25, 32]
-    corner_sizes = [4, 8, 14, 16]
     SPACING = 2
     OFFSET = 15
 

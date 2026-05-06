@@ -29,8 +29,9 @@ KEY_NAVI = {
 
 
 class ThumbImgWidget(QLabel):
-    object_name = "ImgFrameWidget"
     offset = 5
+    corner_value = 10
+    corners: list[int] = []
     image_icons: dict[int, QPixmap] = {}
     folder_icons: dict[int, QPixmap] = {}
     disk_icons: dict[int, QPixmap] = {}
@@ -53,28 +54,30 @@ class ThumbImgWidget(QLabel):
             cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
             cls.image_icons[i] = QPixmap.fromImage(resized_image)
             cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
+            cls.corners.append(int(i // cls.corner_value))
 
     def set_framed_style(self):
+        corner = self.corners[Dynamic.pixmap_size_ind]
         self.setStyleSheet(
             f"""
                 background: {Static.rgba_gray};
                 font-size: {FONT_SIZE}px;
-                border-radius: {Thumb.corner}px;
+                border-radius: {corner}px;
             """
         )
 
     def set_no_frame_style(self):
+        corner = self.corners[Dynamic.pixmap_size_ind]
         self.setStyleSheet(
             f"""
                 background: transparent;
                 font-size: {FONT_SIZE}px;
-                border-radius: {Thumb.corner}px;
+                border-radius: {corner}px;
             """
         )
     
 
 class WhiteTextWid(QLabel):
-    object_name = "WhiteTextWid"
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -157,10 +160,8 @@ class BlueTextWid(QLabel):
 
 class Thumb(QFrame):
     pixmap_size: int = 0
-    img_frame_size: int = 0
     thumb_width: int = 0
     thumb_height: int = 0
-    corner: int = 0
 
     def __init__(self, data_item: DataItem):
         super().__init__()
@@ -184,10 +185,8 @@ class Thumb(QFrame):
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
         Thumb.pixmap_size = Static.image_sizes[ind]
-        Thumb.img_frame_size = Thumb.pixmap_size + 15
         Thumb.thumb_width = Static.thumb_widths[ind]
         Thumb.thumb_height = Static.thumb_heights[ind]
-        Thumb.corner = Static.corner_sizes[ind]
 
     @classmethod
     def create_icons(cls):
