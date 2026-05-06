@@ -41,19 +41,14 @@ class ImgFrameWidget(QLabel):
 
     @classmethod
     def create_icons(cls):
-        folder_icon = QImage(
-            os.path.join(Static.internal_images_dir, "folder.png")
-        )
-        image_icon = QImage(
-            os.path.join(Static.internal_images_dir, "image.png")
-        )
-        disk_icon = QImage(
-            os.path.join(Static.internal_images_dir, "disk.png")
-        )
+        images = Static.internal_images_dir
+        folder_icon = QImage(os.path.join(images, "folder.png"))
+        image_icon = QImage(os.path.join(images, "image.png"))
+        disk_icon = QImage(os.path.join(images, "disk.png"))
         for i in Static.image_sizes:
-            resized_folder = Utils.scaled(folder_icon, i + cls.offset)
-            resized_image = Utils.scaled(image_icon, i + cls.offset)
-            resized_disk = Utils.scaled(disk_icon, i + cls.offset)
+            resized_folder = Utils.scaled(folder_icon, i - cls.offset)
+            resized_image = Utils.scaled(image_icon, i - cls.offset)
+            resized_disk = Utils.scaled(disk_icon, i - cls.offset)
             cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
             cls.image_icons[i] = QPixmap.fromImage(resized_image)
             cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
@@ -64,7 +59,11 @@ class WhiteTextWid(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setStyleSheet(f"""font-size: {FONT_SIZE}px;""")
+        self.setStyleSheet(
+            f"""
+                font-size: {FONT_SIZE}px;
+            """
+        )
 
     def set_text(self, data: DataItem) -> list[str]:
         name: str | list = data.filename
@@ -93,8 +92,8 @@ class BlueTextWid(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(
             f"""
-            font-size: {FONT_SIZE}px;
-            color: {self.blue_color};
+                font-size: {FONT_SIZE}px;
+                color: {self.blue_color};
             """
         )
     
@@ -127,9 +126,6 @@ class Thumb(QFrame):
     fixed_width: int = 0
     fixed_height: int = 0
     corner: int = 0
-    image_icons: dict[int, QPixmap] = {}
-    folder_icons: dict[int, QPixmap] = {}
-    disk_icons: dict[int, QPixmap] = {}
 
     def __init__(self, data_item: DataItem):
         super().__init__()
@@ -164,15 +160,15 @@ class Thumb(QFrame):
 
     def set_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
-            icons = Thumb.image_icons
+            icons = ImgFrameWidget.image_icons
         elif (
             self.data_item.abs_path.count(os.sep) == 2
             and
             self.data_item.abs_path.startswith("/Volumes")
         ):
-            icons = Thumb.disk_icons
+            icons = ImgFrameWidget.disk_icons
         else:
-            icons = Thumb.folder_icons
+            icons = ImgFrameWidget.folder_icons
         self.img_wid.setPixmap(icons[Thumb.pixmap_size])
 
     def set_image(self):
@@ -195,11 +191,6 @@ class Thumb(QFrame):
             Thumb.pixmap_size,
             Thumb.pixmap_size
         )
-        # self.img_frame.setFixedSize(
-        #     Thumb.img_frame_size,
-        #     Thumb.img_frame_size
-        # )
-
         if self.data_item.qimages:
             self.set_image()
         else:
