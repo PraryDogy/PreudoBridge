@@ -32,6 +32,7 @@ class ThumbImgWidget(QLabel):
     # длина списков должна соответствовать длине Static.image_sizes
     corners = [5, 7, 10, 17]
 
+    gray_color = "rgba(128, 128, 128, 0.95)"
     offset = 5
     corner_value = 10
     image_icons: dict[int, QPixmap] = {}
@@ -61,8 +62,7 @@ class ThumbImgWidget(QLabel):
         corner = self.corners[Dynamic.pixmap_size_ind]
         self.setStyleSheet(
             f"""
-                background: {Static.rgba_gray};
-                font-size: {FONT_SIZE}px;
+                background: {self.gray_color};
                 border-radius: {corner}px;
             """
         )
@@ -72,7 +72,6 @@ class ThumbImgWidget(QLabel):
         self.setStyleSheet(
             f"""
                 background: transparent;
-                font-size: {FONT_SIZE}px;
                 border-radius: {corner}px;
             """
         )
@@ -125,9 +124,10 @@ class WhiteTextWid(QLabel):
 
 
 class BlueTextWid(QLabel):
+    blue_color = "#6199E4"
+
     def __init__(self):
         super().__init__()
-        self.blue_color = "#6199E4"
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(
             f"""
