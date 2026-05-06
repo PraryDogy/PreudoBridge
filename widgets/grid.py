@@ -28,12 +28,15 @@ KEY_NAVI = {
 }
 
 
-class ImgFrameWidget(QFrame):
+class ImgFrameWidget(QLabel):
+    object_name = "ImgFrameWidget"
     def __init__(self):
         super().__init__()
+        self.setContentsMargins(5, 5, 5, 5)
 
 
 class WhiteTextWid(QLabel):
+    object_name = "WhiteTextWid"
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -60,7 +63,6 @@ class WhiteTextWid(QLabel):
 
 
 class BlueTextWid(QLabel):
-
     def __init__(self):
         super().__init__()
         self.blue_color = "#6199E4"
@@ -96,9 +98,6 @@ class BlueTextWid(QLabel):
 
 
 class Thumb(QFrame):
-    img_obj_name: str = "img_frame"
-    text_obj_name: str = "text_frame_"
-
     pixmap_size: int = 0
     img_frame_size: int = 0
     fixed_width: int = 0
@@ -112,27 +111,26 @@ class Thumb(QFrame):
         super().__init__()
         self.data_item = data_item
 
-        self.v_lay = QVBoxLayout()
+        self.v_lay = QVBoxLayout(self)
         self.v_lay.setContentsMargins(0, 0, 0, 0)
         self.v_lay.setSpacing(2)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.setLayout(self.v_lay)
 
-        self.img_frame = ImgFrameWidget()
-        self.img_frame.setObjectName(Thumb.img_obj_name)
-        self.v_lay.addWidget(self.img_frame, alignment=Qt.AlignmentFlag.AlignCenter)
+        # self.img_frame = ImgFrameWidget()
+        # self.img_frame.setObjectName(Thumb.img_obj_name)
+        # self.v_lay.addWidget(self.img_frame, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.img_frame_lay = QVBoxLayout()
-        self.img_frame_lay.setContentsMargins(0, 0, 0, 0)
-        self.img_frame_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.img_frame.setLayout(self.img_frame_lay)
+        # self.img_frame_lay = QVBoxLayout()
+        # self.img_frame_lay.setContentsMargins(0, 0, 0, 0)
+        # self.img_frame_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # self.img_frame.setLayout(self.img_frame_lay)
 
-        self.img_wid = QLabel()
+        self.img_wid = ImgFrameWidget()
+        # self.img_wid.setObjectName(Thumb.img_obj_name)
         self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.img_frame_lay.addWidget(self.img_wid)
+        self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.white_text_wid = WhiteTextWid()
-        self.white_text_wid.setObjectName(Thumb.text_obj_name)
         self.v_lay.addWidget(self.white_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.blue_text_wid = BlueTextWid()
@@ -200,10 +198,10 @@ class Thumb(QFrame):
             Thumb.pixmap_size,
             Thumb.pixmap_size
         )
-        self.img_frame.setFixedSize(
-            Thumb.img_frame_size,
-            Thumb.img_frame_size
-        )
+        # self.img_frame.setFixedSize(
+        #     Thumb.img_frame_size,
+        #     Thumb.img_frame_size
+        # )
 
         if self.data_item.qimages:
             self.set_image()
@@ -214,13 +212,13 @@ class Thumb(QFrame):
         self.data_item.is_selected = True
         self.setStyleSheet(
             f"""
-            #{Thumb.text_obj_name} {{
+            #{WhiteTextWid.object_name} {{
                 background: {Static.rgba_blue};
                 font-size: {FONT_SIZE}px;
                 border-radius: {BORDER_RADIUS}px;
                 padding: 2px;
             }}
-            #{Thumb.img_obj_name} {{
+            #{ImgFrameWidget.object_name} {{
                 background: {Static.rgba_gray};
                 font-size: {FONT_SIZE}px;
                 border-radius: {Thumb.corner}px;
@@ -232,13 +230,13 @@ class Thumb(QFrame):
         self.data_item.is_selected = False
         self.setStyleSheet(
             f"""
-            #{Thumb.text_obj_name} {{
+            #{WhiteTextWid.object_name} {{
                 background: transparent;
                 font-size: {FONT_SIZE}px;
                 border-radius: {BORDER_RADIUS}px;
                 padding: 2px;
             }}
-            #{Thumb.img_obj_name} {{
+            #{ImgFrameWidget.object_name} {{
                 background: transparent;
                 font-size: {FONT_SIZE}px;
                 border-radius: {Thumb.corner}px;
