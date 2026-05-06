@@ -14,11 +14,10 @@ from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
-from ._base_widgets import UMenu, UScrollArea, BaseSignals
+from ._base_widgets import BaseSignals, UMenu, UScrollArea
 from .actions import Actions, Menus
 
 FONT_SIZE = 11
-BORDER_RADIUS = 4
 
 KEY_NAVI = {
     Qt.Key.Key_Left: (0, -1),
@@ -78,6 +77,8 @@ class ThumbImgWidget(QLabel):
     
 
 class WhiteTextWid(QLabel):
+    border_radius = 5
+
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -107,7 +108,7 @@ class WhiteTextWid(QLabel):
             f"""
                 background: {Static.rgba_blue};
                 font-size: {FONT_SIZE}px;
-                border-radius: {BORDER_RADIUS}px;
+                border-radius: {self.border_radius}px;
                 padding: 2px;
             """
         )
@@ -117,7 +118,7 @@ class WhiteTextWid(QLabel):
             f"""
                 background: transparent;
                 font-size: {FONT_SIZE}px;
-                border-radius: {BORDER_RADIUS}px;
+                border-radius: {self.border_radius}px;
                 padding: 2px;
             """
         )
