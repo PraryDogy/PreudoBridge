@@ -108,6 +108,7 @@ class ImgLoader:
                 data_item = finder_items_dict[data]
                 data_item._img_array = Utils.read_thumb(thumb_path)
                 if data_item._img_array is None:
+                    # print("data item none, go new item", data_item.filename)
                     new_items.append(data_item)
                 else:
                     queue.put(data_item)
@@ -115,19 +116,21 @@ class ImgLoader:
         for (filename, mod, size), data_item in finder_items_dict.items():
             if (filename, mod, size) not in db_items_dict:
                 new_items.append(data_item)
+                # print("new_data_iten, go new item", data_item.filename)
 
         if new_items:
             ImgLoader.process_new_items(img_item, new_items)
 
     @staticmethod
     def process_new_items(img_item: ImgLoaderItem, data_items: list[DataItem]):
-        step = 10
+        step = 5
         chunks = [
             data_items[i:i+step]
             for i in range(0, len(data_items), step)
         ]
         for chunk in chunks:
             for data_item in chunk:
+                # print("new item", data_item.filename)
                 _img = ImgUtils.read_img(data_item.abs_path)
                 data_item._thumb_path = Utils.create_thumb_path(
                     filename=data_item.filename,
