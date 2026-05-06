@@ -14,23 +14,15 @@ class Static:
     internal_images_dir = "./images"
 
     folder_type = "Папка"
-    rgba_gray = "rgba(128, 128, 128, 0.95)"
     rgba_blue = "rgb(70, 130, 240)"
     star_symbol = "\U00002605" # ★
     long_line_symbol = "\U00002014" # —
     paragraph_symbol = "\u2029" # символ PyQt5, который равен новой строке
     line_feed_symbol  = "\u000a" # символ PyQt5, который равен новой строке
     hidden_symbols = (".", "~$", "$")
-
     base_ww, base_hh = 1120, 760
-
-    app_exts = (".app", ".APP")
-
     max_thumb_size = 210
     pixmap_sizes = [50, 70, 100, 170]
-    row_limits = [20, 20, 25, 32]
-    SPACING = 2
-    OFFSET = 15
 
 
 class JsonData:

@@ -71,6 +71,8 @@ class ThumbImgWidget(QLabel):
 
 class WhiteTextWid(QLabel):
     border_radius = 5
+    # длина списков должна соответствовать длине Static.image_sizes
+    row_limits = [20, 20, 25, 32]
 
     def __init__(self):
         super().__init__()
@@ -79,7 +81,7 @@ class WhiteTextWid(QLabel):
 
     def set_text(self, data: DataItem) -> list[str]:
         name: str | list = data.filename
-        max_row = Static.row_limits[Dynamic.pixmap_size_ind]
+        max_row = self.row_limits[Dynamic.pixmap_size_ind]
         lines: list[str] = []
         if len(name) > max_row:
             first_line = name[:max_row]

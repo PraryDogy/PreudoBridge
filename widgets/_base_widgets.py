@@ -250,6 +250,7 @@ class USep(QFrame):
 
 class UFrame(QFrame):
     object_name = "bar_top_btn"
+    gray_color = "rgba(128, 128, 128, 0.95)"
 
     def __init__(self):
         """
@@ -270,7 +271,7 @@ class UFrame(QFrame):
 
     def solid_style(self):
         return f"""#{UFrame.object_name} {{
-                        background: {Static.rgba_gray}; 
+                        background: {self.gray_color}; 
                         border-radius: 7px;
                         padding-left: 2px;
                         padding-right: 2px;
