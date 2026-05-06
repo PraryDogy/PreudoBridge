@@ -208,8 +208,11 @@ class Thumb(QFrame):
     def update_all(self, sort_item: SortItem):
         self.white_text_wid.set_text(self.data_item)
         self.blue_text_wid.set_text(self.data_item, sort_item)
-
-        if self.width() == Thumb.thumb_width:
+        stmt = (
+            self.width() == Thumb.thumb_width,
+            self.height() == Thumb.thumb_height
+        )
+        if all(stmt):
             return
 
         self.setFixedSize(
