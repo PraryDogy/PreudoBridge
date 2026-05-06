@@ -79,7 +79,7 @@ class App(QApplication):
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
         super().__init__(argv)
-        Thumb.setup_icons()
+        Thumb.create_icons()
         JsonData.init()
         UThreadPool.init()
         Dbase.init()

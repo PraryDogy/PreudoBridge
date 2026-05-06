@@ -30,11 +30,33 @@ KEY_NAVI = {
 
 class ImgFrameWidget(QLabel):
     object_name = "ImgFrameWidget"
-    offset = 5 
+    offset = 5
+    image_icons: dict[int, QPixmap] = {}
+    folder_icons: dict[int, QPixmap] = {}
+    disk_icons: dict[int, QPixmap] = {}
     def __init__(self):
         super().__init__()
         self.setContentsMargins(self.offset, self.offset, self.offset, self.offset)
-        self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+    @classmethod
+    def create_icons(cls):
+        folder_icon = QImage(
+            os.path.join(Static.internal_images_dir, "folder.png")
+        )
+        image_icon = QImage(
+            os.path.join(Static.internal_images_dir, "image.png")
+        )
+        disk_icon = QImage(
+            os.path.join(Static.internal_images_dir, "disk.png")
+        )
+        for i in Static.image_sizes:
+            resized_folder = Utils.scaled(folder_icon, i + cls.offset)
+            resized_image = Utils.scaled(image_icon, i + cls.offset)
+            resized_disk = Utils.scaled(disk_icon, i + cls.offset)
+            cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
+            cls.image_icons[i] = QPixmap.fromImage(resized_image)
+            cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
 
 
 class WhiteTextWid(QLabel):
@@ -137,25 +159,8 @@ class Thumb(QFrame):
         Thumb.corner = Static.corner_sizes[ind]
 
     @classmethod
-    def setup_icons(cls):
-        folder_icon = QImage(
-            os.path.join(Static.internal_images_dir, "folder.png")
-        )
-        image_icon = QImage(
-            os.path.join(Static.internal_images_dir, "image.png")
-        )
-        disk_icon = QImage(
-            os.path.join(Static.internal_images_dir, "disk.png")
-        )
-        offset = -10
-
-        for i in Static.image_sizes:
-            resized_folder = Utils.scaled(folder_icon, i + offset)
-            resized_image = Utils.scaled(image_icon, i + offset)
-            resized_disk = Utils.scaled(disk_icon, i + offset)
-            cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
-            cls.image_icons[i] = QPixmap.fromImage(resized_image)
-            cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
+    def create_icons(cls):
+        ImgFrameWidget.create_icons()
 
     def set_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
