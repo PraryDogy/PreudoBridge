@@ -38,6 +38,7 @@ class ThumbImgWidget(QLabel):
         super().__init__()
         self.setContentsMargins(self.offset, self.offset, self.offset, self.offset)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.set_no_frame_style()
 
     @classmethod
     def create_icons(cls):
@@ -53,17 +54,31 @@ class ThumbImgWidget(QLabel):
             cls.image_icons[i] = QPixmap.fromImage(resized_image)
             cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
 
+    def set_framed_style(self):
+        self.setStyleSheet(
+            f"""
+                background: {Static.rgba_gray};
+                font-size: {FONT_SIZE}px;
+                border-radius: {Thumb.corner}px;
+            """
+        )
+
+    def set_no_frame_style(self):
+        self.setStyleSheet(
+            f"""
+                background: transparent;
+                font-size: {FONT_SIZE}px;
+                border-radius: {Thumb.corner}px;
+            """
+        )
+    
 
 class WhiteTextWid(QLabel):
     object_name = "WhiteTextWid"
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setStyleSheet(
-            f"""
-                font-size: {FONT_SIZE}px;
-            """
-        )
+        self.set_no_frame_style()
 
     def set_text(self, data: DataItem) -> list[str]:
         name: str | list = data.filename
@@ -83,6 +98,26 @@ class WhiteTextWid(QLabel):
 
     def short_text(self, text: str, max_row: int):
         return f"{text[:max_row - 10]}...{text[-7:]}"
+    
+    def set_framed_style(self):
+        self.setStyleSheet(
+            f"""
+                background: {Static.rgba_blue};
+                font-size: {FONT_SIZE}px;
+                border-radius: {BORDER_RADIUS}px;
+                padding: 2px;
+            """
+        )
+
+    def set_no_frame_style(self):
+        self.setStyleSheet(
+            f"""
+                background: transparent;
+                font-size: {FONT_SIZE}px;
+                border-radius: {BORDER_RADIUS}px;
+                padding: 2px;
+            """
+        )
 
 
 class BlueTextWid(QLabel):
@@ -123,8 +158,8 @@ class BlueTextWid(QLabel):
 class Thumb(QFrame):
     pixmap_size: int = 0
     img_frame_size: int = 0
-    fixed_width: int = 0
-    fixed_height: int = 0
+    thumb_width: int = 0
+    thumb_height: int = 0
     corner: int = 0
 
     def __init__(self, data_item: DataItem):
@@ -133,7 +168,7 @@ class Thumb(QFrame):
 
         self.v_lay = QVBoxLayout(self)
         self.v_lay.setContentsMargins(0, 0, 0, 0)
-        self.v_lay.setSpacing(2)
+        self.v_lay.setSpacing(3)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.img_wid = ThumbImgWidget()
@@ -150,8 +185,8 @@ class Thumb(QFrame):
         ind = Dynamic.pixmap_size_ind
         Thumb.pixmap_size = Static.image_sizes[ind]
         Thumb.img_frame_size = Thumb.pixmap_size + 15
-        Thumb.fixed_width = Static.thumb_widths[ind]
-        Thumb.fixed_height = Static.thumb_heights[ind]
+        Thumb.thumb_width = Static.thumb_widths[ind]
+        Thumb.thumb_height = Static.thumb_heights[ind]
         Thumb.corner = Static.corner_sizes[ind]
 
     @classmethod
@@ -180,12 +215,12 @@ class Thumb(QFrame):
         self.white_text_wid.set_text(self.data_item)
         self.blue_text_wid.set_text(self.data_item, sort_item)
 
-        if self.width() == Thumb.fixed_width:
+        if self.width() == Thumb.thumb_width:
             return
 
         self.setFixedSize(
-            Thumb.fixed_width,
-            Thumb.fixed_height
+            Thumb.thumb_width,
+            Thumb.thumb_height
         )
         self.img_wid.setFixedSize(
             Thumb.pixmap_size,
@@ -198,39 +233,13 @@ class Thumb(QFrame):
 
     def set_frame(self):
         self.data_item.is_selected = True
-        self.setStyleSheet(
-            f"""
-            #{WhiteTextWid.object_name} {{
-                background: {Static.rgba_blue};
-                font-size: {FONT_SIZE}px;
-                border-radius: {BORDER_RADIUS}px;
-                padding: 2px;
-            }}
-            #{ThumbImgWidget.object_name} {{
-                background: {Static.rgba_gray};
-                font-size: {FONT_SIZE}px;
-                border-radius: {Thumb.corner}px;
-            }}
-            """
-        )
+        self.white_text_wid.set_framed_style()
+        self.img_wid.set_framed_style()
 
     def set_no_frame(self):
         self.data_item.is_selected = False
-        self.setStyleSheet(
-            f"""
-            #{WhiteTextWid.object_name} {{
-                background: transparent;
-                font-size: {FONT_SIZE}px;
-                border-radius: {BORDER_RADIUS}px;
-                padding: 2px;
-            }}
-            #{ThumbImgWidget.object_name} {{
-                background: transparent;
-                font-size: {FONT_SIZE}px;
-                border-radius: {Thumb.corner}px;
-            }}
-            """
-        )
+        self.white_text_wid.set_no_frame_style()
+        self.img_wid.set_no_frame_style()
 
     def set_transparent_frame(self, value: float):
         effect = QGraphicsOpacityEffect(self)
@@ -293,7 +302,7 @@ class Grid(UScrollArea):
     
     def get_max_columns(self):
         try:
-            return self.viewport().width() // Thumb.fixed_width
+            return self.viewport().width() // Thumb.thumb_width
         except ZeroDivisionError:
             return 1
 

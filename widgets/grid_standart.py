@@ -99,7 +99,7 @@ class GridStandart(Grid):
 
         scroll_y = self.verticalScrollBar().value()
         viewport_h = self.viewport().height()
-        item_h = Thumb.fixed_height
+        item_h = Thumb.thumb_height
         spacing = Grid.grid_spacing
         row_h = item_h + spacing
         columns = self.get_max_columns()
