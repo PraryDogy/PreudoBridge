@@ -28,7 +28,7 @@ KEY_NAVI = {
 }
 
 
-class ImgFrameWidget(QLabel):
+class ThumbImgWidget(QLabel):
     object_name = "ImgFrameWidget"
     offset = 5
     image_icons: dict[int, QPixmap] = {}
@@ -136,7 +136,7 @@ class Thumb(QFrame):
         self.v_lay.setSpacing(2)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        self.img_wid = ImgFrameWidget()
+        self.img_wid = ThumbImgWidget()
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.white_text_wid = WhiteTextWid()
@@ -156,19 +156,19 @@ class Thumb(QFrame):
 
     @classmethod
     def create_icons(cls):
-        ImgFrameWidget.create_icons()
+        ThumbImgWidget.create_icons()
 
     def set_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
-            icons = ImgFrameWidget.image_icons
+            icons = ThumbImgWidget.image_icons
         elif (
             self.data_item.abs_path.count(os.sep) == 2
             and
             self.data_item.abs_path.startswith("/Volumes")
         ):
-            icons = ImgFrameWidget.disk_icons
+            icons = ThumbImgWidget.disk_icons
         else:
-            icons = ImgFrameWidget.folder_icons
+            icons = ThumbImgWidget.folder_icons
         self.img_wid.setPixmap(icons[Thumb.pixmap_size])
 
     def set_image(self):
@@ -206,7 +206,7 @@ class Thumb(QFrame):
                 border-radius: {BORDER_RADIUS}px;
                 padding: 2px;
             }}
-            #{ImgFrameWidget.object_name} {{
+            #{ThumbImgWidget.object_name} {{
                 background: {Static.rgba_gray};
                 font-size: {FONT_SIZE}px;
                 border-radius: {Thumb.corner}px;
@@ -224,7 +224,7 @@ class Thumb(QFrame):
                 border-radius: {BORDER_RADIUS}px;
                 padding: 2px;
             }}
-            #{ImgFrameWidget.object_name} {{
+            #{ThumbImgWidget.object_name} {{
                 background: transparent;
                 font-size: {FONT_SIZE}px;
                 border-radius: {Thumb.corner}px;
@@ -447,7 +447,7 @@ class Grid(UScrollArea):
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
         wid = QApplication.widgetAt(a0.globalPos())
-        if isinstance(wid, (WhiteTextWid, BlueTextWid, ImgFrameWidget)):
+        if isinstance(wid, (WhiteTextWid, BlueTextWid, ThumbImgWidget)):
             return wid.parent()
         elif isinstance(wid, QLabel):
             return wid.parent().parent()
@@ -595,7 +595,7 @@ class Grid(UScrollArea):
             ctrl = a0.modifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier)
             for wid in self.cell_to_wid.values():
                 intersects = False
-                inner_widgets = wid.findChildren((WhiteTextWid, ImgFrameWidget))
+                inner_widgets = wid.findChildren((WhiteTextWid, ThumbImgWidget))
                 for w in inner_widgets:
                     top_left = w.mapTo(self.grid_wid, QPoint(0, 0))
                     w_rect = QRect(top_left, w.size())
