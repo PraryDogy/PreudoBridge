@@ -1,5 +1,5 @@
-from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor, QPalette
+
 
 class UPallete:
 

@@ -1,18 +1,19 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt, QTimer, pyqtSignal, QObject
+from PyQt5.QtCore import QDir, QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
                          QPalette, QTextCursor, QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
-                             QHBoxLayout, QLabel,
-                             QLineEdit, QMainWindow, QMenu, QPushButton,
-                             QScrollArea, QSlider, QTextEdit, QWidget, QGroupBox, QGraphicsDropShadowEffect)
+                             QGraphicsDropShadowEffect, QGroupBox, QHBoxLayout,
+                             QLabel, QLineEdit, QMainWindow, QMenu,
+                             QPushButton, QScrollArea, QSlider, QTextEdit,
+                             QWidget)
 
 from cfg import Static
+from system.items import ImgViewItem, NameUrlItem
 from system.shared_utils import ImgUtils
 from system.utils import Utils
-from system.items import NameUrlItem, ImgViewItem
 
 
 class UScrollArea(QScrollArea):

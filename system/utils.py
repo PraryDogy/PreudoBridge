@@ -7,14 +7,12 @@ from datetime import datetime
 
 import cv2
 import numpy as np
-from PIL import Image
-from PyQt5.QtCore import QRect, QRectF, QSize, Qt
-from PyQt5.QtGui import QColor, QFont, QImage, QPainter
-from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QImage, QPainter
+from PyQt5.QtSvg import QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
-from cfg import Dynamic, Static
-from system.shared_utils import ImgUtils
+from cfg import Static
 
 
 class Utils:

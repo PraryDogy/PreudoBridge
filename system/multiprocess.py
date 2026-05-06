@@ -1,6 +1,5 @@
 import os
 import shutil
-from dataclasses import dataclass
 from multiprocessing import Process, Queue, shared_memory
 from pathlib import Path
 from time import sleep
@@ -8,14 +7,14 @@ from time import sleep
 import numpy as np
 import sqlalchemy
 from PIL import Image
-from PyQt5.QtCore import QTimer
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Static
 from system.database import CacheTable, Dbase
 from system.items import (CopyItem, DataItem, ImgLoaderItem, JpgConvertItem,
-                          MainWinItem, MultipleInfoItem, SearchItem, ReadImgItem)
+                          MainWinItem, MultipleInfoItem, ReadImgItem,
+                          SearchItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.tasks import Utils
 
