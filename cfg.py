@@ -27,9 +27,7 @@ class Static:
     app_exts = (".app", ".APP")
 
     max_thumb_size = 210
-    thumb_heights = [130, 150, 185, 270]
-    thumb_widths = [145, 145, 180, 230]
-    image_sizes = [50, 70, 100, 170]
+    pixmap_sizes = [50, 70, 100, 170]
     row_limits = [20, 20, 25, 32]
     SPACING = 2
     OFFSET = 15

@@ -29,9 +29,11 @@ KEY_NAVI = {
 
 
 class ThumbImgWidget(QLabel):
+    # длина списков должна соответствовать длине Static.image_sizes
+    corners = [5, 7, 10, 17]
+
     offset = 5
     corner_value = 10
-    corners: list[int] = []
     image_icons: dict[int, QPixmap] = {}
     folder_icons: dict[int, QPixmap] = {}
     disk_icons: dict[int, QPixmap] = {}
@@ -47,14 +49,13 @@ class ThumbImgWidget(QLabel):
         folder_icon = QImage(os.path.join(images, "folder.png"))
         image_icon = QImage(os.path.join(images, "image.png"))
         disk_icon = QImage(os.path.join(images, "disk.png"))
-        for i in Static.image_sizes:
+        for i in Static.pixmap_sizes:
             resized_folder = Utils.scaled(folder_icon, i - cls.offset)
             resized_image = Utils.scaled(image_icon, i - cls.offset)
             resized_disk = Utils.scaled(disk_icon, i - cls.offset)
             cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
             cls.image_icons[i] = QPixmap.fromImage(resized_image)
             cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
-            cls.corners.append(int(i // cls.corner_value))
 
     def set_framed_style(self):
         corner = self.corners[Dynamic.pixmap_size_ind]
@@ -163,6 +164,10 @@ class Thumb(QFrame):
     thumb_width: int = 0
     thumb_height: int = 0
 
+    # длина списков должна соответствовать длине Static.image_sizes
+    heights = [130, 150, 185, 270]
+    widths = [145, 145, 180, 230]
+
     def __init__(self, data_item: DataItem):
         super().__init__()
         self.data_item = data_item
@@ -184,9 +189,9 @@ class Thumb(QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
-        Thumb.pixmap_size = Static.image_sizes[ind]
-        Thumb.thumb_width = Static.thumb_widths[ind]
-        Thumb.thumb_height = Static.thumb_heights[ind]
+        Thumb.pixmap_size = Static.pixmap_sizes[ind]
+        Thumb.thumb_width = cls.widths[ind]
+        Thumb.thumb_height = cls.heights[ind]
 
     @classmethod
     def create_icons(cls):
@@ -755,7 +760,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
-                if new_value <= len(Static.image_sizes) - 1:
+                if new_value <= len(Static.pixmap_sizes) - 1:
                     self.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:

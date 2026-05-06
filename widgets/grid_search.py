@@ -108,7 +108,7 @@ class GridSearch(Grid):
                 thumb.data_item.qimages["src"] = Utils.qimage_from_array(
                     image=data_item._img_array
                 )
-                for i in Static.image_sizes:
+                for i in Static.pixmap_sizes:
                     thumb.data_item.qimages[i] = Utils.scaled(
                         qimage=thumb.data_item.qimages["src"],
                         size=i
