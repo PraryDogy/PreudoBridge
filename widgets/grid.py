@@ -187,10 +187,6 @@ class Thumb(QFrame):
         Thumb.thumb_width = cls.widths[ind]
         Thumb.thumb_height = cls.heights[ind]
 
-    @classmethod
-    def create_icons(cls):
-        ThumbImgWidget.create_icons()
-
     def set_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
             icons = ThumbImgWidget.image_icons

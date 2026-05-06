@@ -11,7 +11,7 @@ from system.database import Dbase
 from system.multiprocess import ProcessWorker
 from system.tasks import OnStartTask, UThreadPool
 from widgets._base_widgets import UMainWindow
-from widgets.grid import Thumb
+from widgets.grid import ThumbImgWidget
 from widgets.win_main import WinMain
 
 
@@ -79,7 +79,7 @@ class App(QApplication):
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
         super().__init__(argv)
-        Thumb.create_icons()
+        ThumbImgWidget.create_icons()
         JsonData.init()
         UThreadPool.init()
         Dbase.init()
