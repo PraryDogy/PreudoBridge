@@ -69,6 +69,10 @@ class ProcessWorker(BaseProcessWorker):
 
 
 class ImgLoader:
+    # Баланс между нагрузкой на диск и риском потери данных при сбое.
+    # Большое значение ускоряет работу,но увеличивает объем потенциально
+    # утерянных данных.
+    chunk_size = 5
 
     @staticmethod
     def start(
