@@ -117,10 +117,10 @@ class ImgLoader:
                 new_items.append(data_item)
 
         if new_items:
-            ImgLoader.process_items(img_item, new_items)
+            ImgLoader.process_new_items(img_item, new_items)
 
     @staticmethod
-    def process_items(img_item: ImgLoaderItem, data_items: list[DataItem]):
+    def process_new_items(img_item: ImgLoaderItem, data_items: list[DataItem]):
         step = 10
         chunks = [
             data_items[i:i+step]
