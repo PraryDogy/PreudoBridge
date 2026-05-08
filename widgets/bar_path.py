@@ -284,13 +284,12 @@ class BarPath(QWidget):
         if isinstance(wid, QLabel):
             wid: PathItem = wid.parent()
         if a0.button() == Qt.MouseButton.LeftButton:
-            stmt = (
-                os.path.isdir(wid.item_dir),
-                wid.item_dir != self.main_win_item.abs_current_dir
-            )
-            if all(stmt):
+            if wid.item_dir == self.main_win_item.abs_current_dir:
+                return
+            if os.path.isdir(wid.item_dir):
                 self.base_signals.history_item.emit(wid.item_dir)
                 self.base_signals.load_st_grid.emit(wid.item_dir)
-            
+            else:
+                self.view_image_cmd(wid.item_dir)
         return super().mouseReleaseEvent(a0)
     
