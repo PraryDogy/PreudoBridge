@@ -278,9 +278,19 @@ class BarPath(QWidget):
         wid.default_style()
 
     def mouseReleaseEvent(self, a0):
+        wid: PathItem = self.childAt(a0.pos())
+        if not isinstance(wid, (PathItem, QLabel)):
+            return
+        if isinstance(wid, QLabel):
+            wid: PathItem = wid.parent()
         if a0.button() == Qt.MouseButton.LeftButton:
-            if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.abs_current_dir:
-                self.base_signals.history_item.emit(self.item_dir)
-                self.base_signals.load_st_grid.emit(self.item_dir)
+            stmt = (
+                os.path.isdir(wid.item_dir),
+                wid.item_dir != self.main_win_item.abs_current_dir
+            )
+            if all(stmt):
+                self.base_signals.history_item.emit(wid.item_dir)
+                self.base_signals.load_st_grid.emit(wid.item_dir)
+            
         return super().mouseReleaseEvent(a0)
     
