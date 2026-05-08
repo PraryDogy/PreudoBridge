@@ -314,33 +314,25 @@ class WinMixin:
             Qt.WindowType.WindowCloseButtonHint
         )
 
+    def deleteLater(self):
+        self.remove_from_list()
+        return super().deleteLater()
+    
+    def closeEvent(self, a0):
+        self.remove_from_list()
+        return super().closeEvent(a0)
 
-class UMainWindow(QMainWindow, WinMixin):
+
+class UMainWindow(WinMixin, QMainWindow):
     def __init__(self):
         super().__init__()
         self.setCentralWidget(QWidget())
 
-    def deleteLater(self):
-        self.remove_from_list()
-        return super().deleteLater()
-    
-    def closeEvent(self, a0):
-        self.remove_from_list()
-        return super().closeEvent(a0)
 
-
-class UMainWidget(QWidget, WinMixin):
+class UMainWidget(WinMixin, QWidget):
     def __init__(self):
         super().__init__()
 
-    def deleteLater(self):
-        self.remove_from_list()
-        return super().deleteLater()
-    
-    def closeEvent(self, a0):
-        self.remove_from_list()
-        return super().closeEvent(a0)
-    
 
 class NotifyWid(QFrame):
     ms = 1500
@@ -402,7 +394,7 @@ class NotifyWid(QFrame):
         self.deleteLater()
 
 
-class SmallBtn(QPushButton):
+class BtnSmall(QPushButton):
     def __init__(self, text: str):
         super().__init__(text)
         self.setStyleSheet("""font-size: 11pt;""")
@@ -453,7 +445,7 @@ class BaseSignals(QObject):
     open_in_app = pyqtSignal(tuple)
 
 
-class BeatyBtn(QGroupBox):
+class BtnNext(QGroupBox):
     clicked = pyqtSignal()
     img = "./images/next.svg"
     size_ = 16

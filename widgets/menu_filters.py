@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QTabWidget
 
 from cfg import Dynamic
 
-from ._base_widgets import SmallBtn, UTextEdit, BaseSignals
+from ._base_widgets import BtnSmall, UTextEdit, BaseSignals
 
 
 class MenuFilters(QTabWidget):
@@ -34,9 +34,9 @@ class MenuFilters(QTabWidget):
         btn_layout = QHBoxLayout()
         btn_layout.setContentsMargins(0, 0, 0, 3)
         btn_layout.setSpacing(10)
-        self.apply_btn = SmallBtn("Применить")
+        self.apply_btn = BtnSmall("Применить")
         self.apply_btn.setFixedWidth(95)
-        self.clear_btn = SmallBtn("Очистить")
+        self.clear_btn = BtnSmall("Очистить")
         self.clear_btn.setFixedWidth(95)
         self.apply_btn.clicked.connect(
             lambda: (

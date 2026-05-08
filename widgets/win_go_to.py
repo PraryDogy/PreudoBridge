@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
-from ._base_widgets import UMainWindow, ULineEdit, SmallBtn
+from ._base_widgets import UMainWindow, ULineEdit, BtnSmall
 
 
 class WinGoTo(UMainWindow):
@@ -47,7 +47,7 @@ class WinGoTo(UMainWindow):
 
         h_lay.addStretch()
 
-        go_btn = SmallBtn(WinGoTo.go_to_text)
+        go_btn = BtnSmall(WinGoTo.go_to_text)
         go_btn.setFixedWidth(100)
         go_btn.clicked.connect(self.inner_clicked)
         h_lay.addWidget(go_btn)

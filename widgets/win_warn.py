@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 
-from ._base_widgets import UMainWindow, SmallBtn
+from ._base_widgets import UMainWindow, BtnSmall
 
 
 class ConfirmWindow(UMainWindow):
@@ -43,12 +43,12 @@ class ConfirmWindow(UMainWindow):
         btn_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.central_layout.addLayout(btn_layout)
 
-        self.ok_btn = SmallBtn("Ок")
+        self.ok_btn = BtnSmall("Ок")
         self.ok_btn.setFixedWidth(90)
         self.ok_btn.clicked.connect(self.ok_clicked.emit)
         btn_layout.addWidget(self.ok_btn)
 
-        self.cancel_btn = SmallBtn("Отмена")
+        self.cancel_btn = BtnSmall("Отмена")
         self.cancel_btn.setFixedWidth(90)
         self.cancel_btn.clicked.connect(self.deleteLater)
         btn_layout.addWidget(self.cancel_btn)

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from ._base_widgets import UMainWindow, SmallBtn, ULineEdit
+from ._base_widgets import UMainWindow, BtnSmall, ULineEdit
 
 
 class WinRename(UMainWindow):
@@ -43,12 +43,12 @@ class WinRename(UMainWindow):
 
         h_lay.addStretch()
 
-        self.ok_btn = SmallBtn(WinRename.ok_text)
+        self.ok_btn = BtnSmall(WinRename.ok_text)
         self.ok_btn.clicked.connect(self.finish_rename)
         self.ok_btn.setFixedWidth(90)
         h_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        cancel_btn = SmallBtn(WinRename.cancel_text)
+        cancel_btn = BtnSmall(WinRename.cancel_text)
         cancel_btn.clicked.connect(self.deleteLater)
         cancel_btn.setFixedWidth(90)
         h_lay.addWidget(cancel_btn)

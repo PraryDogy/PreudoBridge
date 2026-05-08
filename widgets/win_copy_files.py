@@ -9,7 +9,7 @@ from system.items import ClipboardItemGlob, CopyItem
 from system.multiprocess import CopyTask, CopyWorker
 from system.utils import Utils
 
-from ._base_widgets import SmallBtn, USvgSqareWidget, UMainWindow
+from ._base_widgets import BtnSmall, USvgSqareWidget, UMainWindow
 from .win_progressbar import WinProgressbar
 
 
@@ -64,17 +64,17 @@ class WinReplaceFiles(UMainWindow):
 
         # btn_lay.addStretch()
 
-        replace_all_btn = SmallBtn(self.replace_all_text)
+        replace_all_btn = BtnSmall(self.replace_all_text)
         replace_all_btn.setFixedWidth(self.btn_w)
         replace_all_btn.clicked.connect(lambda: self.replace_all_cmd())
         btn_lay.addWidget(replace_all_btn)
 
-        replace_one_btn = SmallBtn(self.replace_one_text)
+        replace_one_btn = BtnSmall(self.replace_one_text)
         replace_one_btn.setFixedWidth(self.btn_w)
         replace_one_btn.clicked.connect(lambda: self.replace_one_cmd())
         btn_lay.addWidget(replace_one_btn)
 
-        stop_btn = SmallBtn(self.stop_text)
+        stop_btn = BtnSmall(self.stop_text)
         stop_btn.setFixedWidth(self.btn_w)
         stop_btn.clicked.connect(lambda: self.stop_cmd())
         btn_lay.addWidget(stop_btn)
@@ -127,7 +127,7 @@ class WinError(UMainWindow):
         test_two.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         h_lay.addWidget(test_two)
 
-        ok_btn = SmallBtn(WinError.ok_text)
+        ok_btn = BtnSmall(WinError.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         main_lay.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)

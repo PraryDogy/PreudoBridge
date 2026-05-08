@@ -9,8 +9,8 @@ from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem, SearchItem
 from system.utils import Utils
 
-from ._base_widgets import (SmallBtn, UFrame, ULineEdit, UMenu,
-                            USvgSqareWidget, UTextEdit, UMainWindow, BaseSignals, BeatyBtn)
+from ._base_widgets import (BtnSmall, UFrame, ULineEdit, UMenu,
+                            USvgSqareWidget, UTextEdit, UMainWindow, BaseSignals, BtnNext)
 
 
 class BarTopBtn(QWidget):
@@ -131,7 +131,7 @@ class WinSearchList(UMainWindow):
         return self.input_
     
     def create_convert_btn(self):
-        btn = BeatyBtn("Преобразовать текст в список")
+        btn = BtnNext("Преобразовать текст в список")
         btn.clicked.connect(self.convert_to_list)
         return btn
 
@@ -144,12 +144,12 @@ class WinSearchList(UMainWindow):
 
         btns_lay.addStretch()
 
-        ok_btn = SmallBtn(WinSearchList.ok_text)
+        ok_btn = BtnSmall(WinSearchList.ok_text)
         ok_btn.clicked.connect(self.ok_cmd)
         ok_btn.setFixedWidth(100)
         btns_lay.addWidget(ok_btn)
 
-        can_btn = SmallBtn(WinSearchList.cancel_text)
+        can_btn = BtnSmall(WinSearchList.cancel_text)
         can_btn.clicked.connect(self.deleteLater)
         can_btn.setFixedWidth(100)
         btns_lay.addWidget(can_btn)

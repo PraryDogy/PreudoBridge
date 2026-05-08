@@ -10,7 +10,7 @@ from system.items import DataItem, MainWinItem, SearchItem, TotalCountItem
 from system.multiprocess import ProcessWorker, SearchTask, WatchdogTask
 from system.utils import Utils
 
-from ._base_widgets import (NotifyWid, SmallBtn, UMenu, USvgSqareWidget,
+from ._base_widgets import (NotifyWid, BtnSmall, UMenu, USvgSqareWidget,
                             UTextEdit, UMainWindow)
 from .actions import Actions
 from .grid import Grid, NoItemsLabel, Thumb
@@ -58,7 +58,7 @@ class WinMissedFiles(UMainWindow):
         h_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         h_wid.setLayout(h_lay)
 
-        ok_btn = SmallBtn(WinMissedFiles.ok_text)
+        ok_btn = BtnSmall(WinMissedFiles.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)
