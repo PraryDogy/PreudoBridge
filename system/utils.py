@@ -67,6 +67,7 @@ class Utils:
 
     @classmethod
     def qimage_from_array(cls, image: np.ndarray) -> QImage | None:
+        image = np.ascontiguousarray(image)
         if not (isinstance(image, np.ndarray) and QApplication.instance()):
             return None
         if image.ndim == 2:  # grayscale
