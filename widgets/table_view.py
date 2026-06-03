@@ -267,8 +267,7 @@ class TableView(QTableView):
     def folder_actions(self):
         name_path_item = NameUrlItem(
             name=os.path.basename(self.url_under_mouse),
-            url=self.url_under_mouse,
-            urls=[self.url_under_mouse, ]
+            url=self.url_under_mouse
         )
         self.context_menu.add_action(
             action=self.context_actions.new_main_win,
