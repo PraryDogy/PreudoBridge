@@ -240,18 +240,15 @@ class ImgUtils:
 
     @classmethod
     def _read_jpg(cls, path: str):
+        heics = (".heic", ".HEIC")
         try:
-            img = Image.open(path)
-            img = ImageOps.exif_transpose(img) 
-            icc_profile = img.info.get("icc_profile")
-            if icc_profile:
-                src_profile = ImageCms.ImageCmsProfile(io.BytesIO(icc_profile))
-                dst_profile = ImageCms.createProfile("sRGB")
-                img = ImageCms.profileToProfile(img, src_profile, dst_profile)
-            img = img.convert("RGB")
-            array_img = np.array(img)
-            img.close()
-            return array_img
+            if path.endswith(heics):
+                img = Image.open(path)
+                img = img.convert("RGB")
+                return np.array(img)
+            else:
+                img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+                return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         except Exception as e:
             print("read jpg error", e)
             return cls._get_broken_image()
