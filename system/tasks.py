@@ -255,10 +255,13 @@ class DirScaner(URunnable):
             self.sigs.finished_.emit(self.dir_item)
 
     def task_(self):
+        apps = (".app", ".APP")
         for entry in os.scandir(self.dir_item.main_win_item.abs_current_dir):
             if entry.name.startswith(Static.hidden_symbols):
                 continue
             if not os.access(entry.path, 4):
+                continue
+            if entry.name.endswith(apps):
                 continue
             if entry.is_dir() or entry.name.endswith(ImgUtils.ext_all):
                 item = DataItem(entry.path)
