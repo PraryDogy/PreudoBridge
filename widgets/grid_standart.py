@@ -9,6 +9,7 @@ from cfg import Dynamic, Static
 from system.items import (ClipboardItemGlob, DataItem, DirItem, MainWinItem,
                           TotalCountItem)
 from system.multiprocess import ImgLoader, ProcessWorker, WatchdogTask
+from system.shared_utils import ImgUtils
 from system.tasks import DirScaner, UThreadPool
 from system.utils import Utils
 
@@ -273,6 +274,13 @@ class GridStandart(Grid):
             i.toLocalFile().rstrip(os.sep)
             for i in a0.mimeData().urls()
         ]
+        urls = [
+            i
+            for i in urls
+            if i.endswith(ImgUtils.ext_all)
+        ]
+        if not urls:
+            return
         src = os.path.dirname(urls[0])
         if src == self.main_win_item.abs_current_dir:
             print("нельзя копировать в себя через DropEvent")
