@@ -86,7 +86,10 @@ class DataItem:
             meta = OSXMetaData(self.abs_path)
             self.added = int(meta.get("kMDItemDateAdded").timestamp())
         except Exception:
-            self.added = int(os.stat(self.abs_path).st_mtime)
+            try:
+                self.added = int(os.stat(self.abs_path).st_mtime)
+            except AttributeError:
+                self.added = 000
 
     @classmethod
     def sort_(cls, data_items: list["DataItem"], sort_item: SortItem):
