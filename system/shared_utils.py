@@ -247,7 +247,7 @@ class ImgUtils:
                 img = img.convert("RGB")
                 return np.array(img)
             else:
-                img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+                img = cv2.imread(path, cv2.IMREAD_COLOR)
                 return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         except Exception as e:
             print("read jpg error", e)
