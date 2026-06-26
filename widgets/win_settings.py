@@ -250,7 +250,7 @@ class ThemeBtn(QWidget):
         self.svg_widget.setFixedSize(50, 50)
         layout_.addWidget(self.svg_widget, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        label = QLabel(text_mappings[theme])
+        label = QLabel(text_mappings[theme].capitalize())
         layout_.addWidget(label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.clear_selection()
