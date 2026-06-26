@@ -342,10 +342,12 @@ class TableView(QTableView):
             action=self.context_actions.new_folder,
             callback=lambda: self.base_signals.new_folder.emit()
         )
-        self.context_menu.add_action(
-            action=self.context_actions.update_grid,
-            callback=lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir)
-        )
+        if ClipboardItemGlob.src_dir:
+            self.context_menu.add_action(
+                action=self.context_actions.paste_files,
+                callback=lambda: self.paste_files.emit()
+            )
+        self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.win_info,
             callback=lambda: self.base_signals.info.emit(self.selected_urls)
@@ -364,17 +366,6 @@ class TableView(QTableView):
             action=self.context_actions.copy_name,
             callback=lambda: self.base_signals.copy_names.emit(self.selected_urls)
         )
-        self.context_menu.addSeparator()
-        self.context_menu.add_menu(
-            menu=self.context_menus.change_view,
-            callback=lambda: self.base_signals.change_view.emit()
-        )
-        if ClipboardItemGlob.src_dir:
-            self.context_menu.addSeparator()
-            self.context_menu.add_action(
-                action=self.context_actions.paste_files,
-                callback=lambda: self.paste_files.emit()
-            )
 
     def contextMenuEvent(self, event: QContextMenuEvent):
         # определяем выделена ли строка
