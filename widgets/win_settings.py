@@ -267,15 +267,22 @@ class ThemeBtn(QWidget):
         return super().mouseReleaseEvent(a0)
 
 
-class ThemesWidget(QGroupBox):
+class ThemesWidget(GroupWid):
     theme_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
 
-        themes_layout = QHBoxLayout(self)
+        self.layout_.addSpacerItem(QSpacerItem(0, 5))
+        title = QLabel("Темы")
+        self.layout_.addWidget(title)
+        self.layout_.addSpacerItem(QSpacerItem(0, 5))
+        self.layout_.addWidget(HSep())
+
+        themes_layout = QHBoxLayout()
         themes_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         themes_layout.setContentsMargins(0, 0, 0, 0)
+        self.layout_.addLayout(themes_layout)
         
         for i in (Themes.macintosh, Themes.dark, Themes.light):
             btn = ThemeBtn(i)
