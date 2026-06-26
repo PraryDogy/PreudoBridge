@@ -243,6 +243,8 @@ class ThemeBtn(QWidget):
         self.setFixedWidth(self.ww)
 
         layout_ = QVBoxLayout(self)
+        layout_.setContentsMargins(0, 0, 0, 0)
+        layout_.setSpacing(2)
         
         self.svg_widget = QSvgWidget()
         self.svg_widget.setFixedSize(50, 50)
@@ -273,6 +275,7 @@ class ThemesWidget(QGroupBox):
 
         themes_layout = QHBoxLayout(self)
         themes_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        themes_layout.setContentsMargins(0, 0, 0, 0)
         
         for i in (Themes.macintosh, Themes.dark, Themes.light):
             btn = ThemeBtn(i)
