@@ -274,7 +274,7 @@ class ThemesWidget(GroupWid):
         super().__init__()
 
         self.layout_.addSpacerItem(QSpacerItem(0, 5))
-        title = QLabel("Темы")
+        title = QLabel("Тема")
         self.layout_.addWidget(title)
         self.layout_.addSpacerItem(QSpacerItem(0, 5))
         self.layout_.addWidget(HSep())
