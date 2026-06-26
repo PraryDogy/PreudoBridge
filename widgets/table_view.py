@@ -348,6 +348,42 @@ class TableView(QTableView):
                 callback=lambda: self.paste_files.emit()
             )
         self.context_menu.addSeparator()
+
+        self.context_menu.add_action(
+            action=self.context_actions.new_main_win,
+            callback=lambda: self.base_signals.new_main_win.emit(self.main_win_item.abs_current_dir)
+        )
+
+        if self.main_win_item.abs_current_dir in JsonData.favs:
+            self.context_menu.add_action(
+                action=self.context_actions.fav_remove,
+                callback=lambda: self.base_signals.remove_fav.emit(self.main_win_item.abs_current_dir)
+            )
+        else:
+            item = NameUrlItem(
+                name=os.path.basename(self.main_win_item.abs_current_dir),
+                url=self.main_win_item.abs_current_dir
+            )
+            self.context_menu.add_action(
+                action=self.context_actions.fav_add,
+                callback=lambda: self.base_signals.new_fav.emit(item)
+            )
+
+
+        # if self.main_win_item.abs_current_dir in JsonData.favs:
+        #     self.context_menu.add_action(
+        #         action=self.context_actions.fav_remove,
+        #         callback=lambda: self.fav_cmd(-1, self.main_win_item.abs_current_dir)
+        #     )
+        # else:
+        #     self.context_menu.add_action(
+        #         action=self.context_actions.fav_add,
+        #         callback=lambda: self.fav_cmd(1, self.main_win_item.abs_current_dir)
+        #     )
+
+        
+        self.context_menu.addSeparator()
+
         self.context_menu.add_action(
             action=self.context_actions.win_info,
             callback=lambda: self.base_signals.info.emit(self.selected_urls)
