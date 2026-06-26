@@ -479,7 +479,7 @@ class Grid(UScrollArea):
     def setup_clipboard(self, is_cut: bool):
         if is_cut:
             self.set_transparent_thumbs()
-        ClipboardItemGlob.set_is_cut(True)
+        ClipboardItemGlob.set_is_cut(is_cut)
         self.setup_urls_to_copy()
 
     def rename_file_cmd(self, filepath: str):
