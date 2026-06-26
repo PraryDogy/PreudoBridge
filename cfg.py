@@ -1,6 +1,12 @@
 import json
 import os
 
+class Themes:
+    macintosh = "macintosh"
+    dark = "dark"
+    light = "light"
+
+
 class Static:
     app_name = "PreudoBridge"
     app_ver = 6.31
@@ -28,8 +34,8 @@ class Static:
 class JsonData:
     favs = {}
     go_to_now = False
-    dark_mode = None    
     show_text = False
+    theme = Themes.macintosh
 
     @classmethod
     def get_data(cls):

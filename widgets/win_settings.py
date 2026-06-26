@@ -5,17 +5,17 @@ from datetime import datetime
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QCheckBox, QFrame, QSpacerItem, QGroupBox,
-                             QHBoxLayout, QLabel, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
+                             QSpacerItem, QVBoxLayout, QWidget)
+from typing_extensions import Literal
 
-from cfg import JsonData, Static
+from cfg import JsonData, Static, Themes
 from system.shared_utils import SharedUtils
 from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 
 from ._base_widgets import HSep, UMainWindow, USvgSqareWidget
 # возможно в main win
 from .win_warn import ConfirmWindow, WinWarn
-
 
 class GroupWid(QGroupBox):
     def __init__(self):
@@ -226,116 +226,69 @@ class CheckboxWidgets(GroupWid):
 
 
 class ThemeBtn(QWidget):
-    clicked = pyqtSignal()
+    clicked = pyqtSignal(str)
+    ww = 70
 
-    def __init__(self, svg_path: str, label_text: str):
+    def __init__(self, theme: Literal["macintosh", "light", "dark"]):
         super().__init__()
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(0, 0, 0, 0)
-        v_lay.setSpacing(0)
-        self.setLayout(v_lay)
+        self.theme = theme
+        self.svg = f"./images/{theme}_theme.svg"
+        self.svg_selected = f"./images/{theme}_theme_selected.svg"
+        text_mappings = {
+            Themes.macintosh: Themes.macintosh,
+            Themes.dark: "Темная",
+            Themes.light: "Светлая",
+        }
 
-        self.svg_container = QFrame()
-        self.svg_container.setObjectName("svg_container")
-        self.svg_container.setStyleSheet(self.regular_style())
-        v_lay.addWidget(self.svg_container)
+        self.setFixedWidth(self.ww)
 
-        svg_lay = QVBoxLayout()
-        svg_lay.setContentsMargins(0, 0, 0, 0)
-        svg_lay.setSpacing(0)
-        self.svg_container.setLayout(svg_lay)
-
-        self.svg_widget = QSvgWidget(svg_path)
+        layout_ = QVBoxLayout(self)
+        
+        self.svg_widget = QSvgWidget()
         self.svg_widget.setFixedSize(50, 50)
-        svg_lay.addWidget(self.svg_widget)
+        layout_.addWidget(self.svg_widget, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        label = QLabel(text_mappings[theme])
+        layout_.addWidget(label, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.clear_selection()
+
+    def select(self):
+        self.svg_widget.load(self.svg_selected)
+
+    def clear_selection(self):
+        self.svg_widget.load(self.svg)
+
+    def mouseReleaseEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit(self.theme)
+        return super().mouseReleaseEvent(a0)
 
 
-        label = QLabel(label_text)
-        label.setAlignment(Qt.AlignCenter)
-        v_lay.addWidget(label)
-
-    def regular_style(self):
-        return """
-            #svg_container {
-                border: 2px solid transparent;
-                border-radius: 10px;
-            }
-        """
-
-    def border_style(self):
-        return """
-            #svg_container {
-                border: 2px solid #007aff;
-                border-radius: 10px;
-            }
-        """
-
-    def selected(self, enable=True):
-        if enable:
-            self.svg_container.setStyleSheet(self.border_style())
-        else:
-            self.svg_container.setStyleSheet(self.regular_style())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.clicked.emit()
-
-
-class Themes(QGroupBox):
-    system_text = "Авто"
-    dark_text = "Темная"
-    light_text = "Светлая"
+class ThemesWidget(QGroupBox):
     theme_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(10, 10, 10, 10)
-        h_lay.setSpacing(20)
-        h_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.setLayout(h_lay)
 
-        self.frames = []
+        themes_layout = QHBoxLayout(self)
+        themes_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        
+        for i in (Themes.macintosh, Themes.dark, Themes.light):
+            btn = ThemeBtn(i)
+            btn.clicked.connect(lambda theme, btn=btn: self.on_btn_clicked(theme, btn))
+            themes_layout.addWidget(btn)
+            if i == JsonData.theme:
+                btn.select()
 
-        images = Static.internal_images_dir
-        self.system_theme = ThemeBtn(
-            os.path.join(images, "theme_sys.svg"), self.system_text
-        )
-        self.dark_theme = ThemeBtn(
-            os.path.join(images, "theme_dark.svg"), self.dark_text
-        )
-        self.light_theme = ThemeBtn(
-            os.path.join(images, "theme_light.svg"), self.light_text
-        )
-
-        for f in (self.system_theme, self.dark_theme, self.light_theme):
-            h_lay.addWidget(f)
-            self.frames.append(f)
-            f.clicked.connect(self.on_frame_clicked)
-
-        if JsonData.dark_mode is None:
-            self.set_selected(self.system_theme)
-        elif JsonData.dark_mode:
-            self.set_selected(self.dark_theme)
-        else:
-            self.set_selected(self.light_theme)
-
-    def on_frame_clicked(self):
-        sender: ThemeBtn = self.sender()
-        self.set_selected(sender)
-
-        if sender == self.system_theme:
-            JsonData.dark_mode = None
-        elif sender == self.dark_theme:
-            JsonData.dark_mode = True
-        elif sender == self.light_theme:
-            JsonData.dark_mode = False
-
-        self.theme_changed.emit()
-
-    def set_selected(self, selected_frame: ThemeBtn):
-        for f in self.frames:
-            f.selected(f is selected_frame)
+    def on_btn_clicked(self, theme: Literal["macintosh", "light", "dark"], btn: ThemeBtn):
+        theme_btns = self.findChildren(ThemeBtn)
+        if theme != JsonData.theme:
+            for i in theme_btns:
+                i.clear_selection()
+            btn.select()
+            JsonData.theme = theme
+            self.theme_changed.emit()
 
 
 class WinSettings(UMainWindow):
@@ -362,7 +315,7 @@ class WinSettings(UMainWindow):
         checkbox_group.show_texts_sig.connect(self.show_texts_sig.emit)
         main_lay.addWidget(checkbox_group)
 
-        themes_wid = Themes()
+        themes_wid = ThemesWidget()
         themes_wid.theme_changed.connect(self.theme_changed_cmd)
         main_lay.addWidget(themes_wid)
 

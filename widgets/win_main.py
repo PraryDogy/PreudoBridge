@@ -7,16 +7,16 @@ from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import JsonData, Static
-from system.items import (ClipboardItemGlob, ImgViewItem,
-                          MainWinItem, NameUrlItem, SearchItem, SortItem)
+from cfg import JsonData, Static, Themes
+from system.items import (ClipboardItemGlob, ImgViewItem, MainWinItem,
+                          NameUrlItem, SearchItem, SortItem)
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils
 from system.tasks import FileRemover, RevealFiles, UThreadPool
 from system.utils import Utils
 
-from ._base_widgets import USep, UMainWindow
+from ._base_widgets import UMainWindow, USep
 from .bar_macos import BarMacos
 from .bar_path import BarPath
 from .bar_sort import BarSort
@@ -301,10 +301,10 @@ class WinMain(UMainWindow):
 
     def change_theme(self):
         app: QApplication = QApplication.instance()
-        if JsonData.dark_mode is None:
+        if JsonData.theme == Themes.macintosh:
             app.setPalette(QPalette())
             app.setStyle("macintosh")
-        elif JsonData.dark_mode:
+        elif JsonData.theme == Themes.dark:
             app.setPalette(UPallete.dark())
             app.setStyle("Fusion")
         else:
