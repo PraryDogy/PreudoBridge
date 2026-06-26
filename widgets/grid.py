@@ -589,15 +589,6 @@ class Grid(UScrollArea):
             action=self.context_actions.copy_name,
             callback=lambda: self.base_signals.copy_names.emit(urls)
         )
-        self.context_menu.addSeparator()
-        self.context_menu.add_menu(
-            menu=self.context_menus.change_view,
-            callback=lambda: self.base_signals.change_view.emit()
-        )
-        self.context_menu.add_menu(
-            menu=self.context_menus.sort_menu,
-            callback=lambda: (self.sort(), self.rearrange())
-        )
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:

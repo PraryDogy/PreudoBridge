@@ -224,24 +224,19 @@ class GridStandart(Grid):
         self.load_visible_thumbs()
 
     def grid_actions(self):
-        if ClipboardItemGlob.src_dir:
-            self.context_menu.addSeparator()
-            self.context_menu.add_action(
-                action=self.context_actions.paste_files,
-                callback=lambda: self.paste_files.emit()
-            )
-            self.context_menu.addSeparator()
-        self.folder_actions()
-        self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.new_folder,
             callback=lambda: self.base_signals.new_folder.emit()
         )
-        self.context_menu.add_action(
-            action=self.context_actions.update_grid,
-            callback=lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir)
-        )
+        if ClipboardItemGlob.src_dir:
+            self.context_menu.add_action(
+                action=self.context_actions.paste_files,
+                callback=lambda: self.paste_files.emit()
+            )
+        self.context_menu.addSeparator()
 
+        self.folder_actions()
+        self.context_menu.addSeparator()
 
         self.context_menu.addSeparator()
         super().base_grid_actions()
