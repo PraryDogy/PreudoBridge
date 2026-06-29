@@ -584,6 +584,8 @@ class WinMain(UMainWindow):
             self.setup_grid_signals()
             self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
 
+            QTimer.singleShot(100, self.grid.setFocus)
+
         def show_no_path_win():
             self.no_path_win.center(self.window())
             self.no_path_win.show()
