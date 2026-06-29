@@ -168,7 +168,7 @@ class WinCopyFiles(WinProgressbar):
         src_dest_text = f"Из \"{src_txt}\" в \"{dest_txt}\""
         self.above_label.setText(src_dest_text)
         self.below_label.setText(self.preparing_text)
-        self.progressbar.setMaximum(0)
+        self.progressbar.setMaximum(100)
         self.cancel_btn.clicked.connect(self.stop_task)
         self.cancel_btn.clicked.connect(self.deleteLater)
         self.adjustSize()
@@ -180,7 +180,10 @@ class WinCopyFiles(WinProgressbar):
             is_cut=ClipboardItemGlob.is_cut
         )
 
-        self.copy_task = CopyWorker(target=CopyTask.start, args=(self.copy_item, ))
+        self.copy_task = CopyWorker(
+            target=CopyTask.start,
+            args=(self.copy_item, )
+        )
 
         self.copy_timer = QTimer(self)
         self.copy_timer.timeout.connect(self.poll_task)
@@ -215,20 +218,17 @@ class WinCopyFiles(WinProgressbar):
             
             elif copy_item.msg == "finished":
                 finished = True
-            
-            if self.progressbar.maximum() == 0:
-                self.progressbar.setMaximum(copy_item.total_bytes)
 
             if len(self.dst_urls) == 0 and copy_item.dst_urls:
                 self.dst_urls.extend(copy_item.dst_urls)
 
-            self.progressbar.setValue(copy_item.current_size)
+            self.progressbar.setValue(copy_item.current_percent)
             self.below_label.setText(
                 f'{self.windowTitle()} {copy_item.current_file_count} из {copy_item.total_file_count}'
             )
 
         if not self.copy_task.is_alive() or finished:
-            self.progressbar.setValue(self.progressbar.maximum())
+            self.progressbar.setValue(100)
             self.below_label.setText(
                 f'{self.windowTitle()} {self.copy_item.total_file_count} из {self.copy_item.total_file_count}'
             )     
