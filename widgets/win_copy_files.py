@@ -217,20 +217,20 @@ class WinCopyFiles(WinProgressbar):
                 finished = True
             
             if self.progressbar.maximum() == 0:
-                self.progressbar.setMaximum(copy_item.total_size)
+                self.progressbar.setMaximum(copy_item.total_bytes)
 
             if len(self.dst_urls) == 0 and copy_item.dst_urls:
                 self.dst_urls.extend(copy_item.dst_urls)
 
             self.progressbar.setValue(copy_item.current_size)
             self.below_label.setText(
-                f'{self.windowTitle()} {copy_item.current_count} из {copy_item.total_count}'
+                f'{self.windowTitle()} {copy_item.current_file_count} из {copy_item.total_file_count}'
             )
 
         if not self.copy_task.is_alive() or finished:
             self.progressbar.setValue(self.progressbar.maximum())
             self.below_label.setText(
-                f'{self.windowTitle()} {self.copy_item.total_count} из {self.copy_item.total_count}'
+                f'{self.windowTitle()} {self.copy_item.total_file_count} из {self.copy_item.total_file_count}'
             )     
             self.finished_.emit(self.dst_urls)
             self.stop_task()

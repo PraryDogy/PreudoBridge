@@ -405,8 +405,8 @@ class CopyTask:
         for src, dest in src_dst_urls:
             total_size += os.path.getsize(src)
 
-        copy_item.total_size = total_size // 1024
-        copy_item.total_count = len(src_dst_urls)
+        copy_item.total_bytes = total_size
+        copy_item.total_file_count = len(src_dst_urls)
         replace_all = False
 
         for count, (src, dest) in enumerate(src_dst_urls, start=1):
@@ -428,7 +428,7 @@ class CopyTask:
                             break
 
             os.makedirs(dest.parent, exist_ok=True)
-            copy_item.current_count = count
+            copy_item.current_file_count = count
             copy_item.msg = ""
             try:
                 if os.path.exists(dest) and dest.is_file():
