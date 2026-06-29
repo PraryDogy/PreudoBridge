@@ -521,8 +521,15 @@ class WinImgView(UMainWindow):
             callback=lambda: self.base_signals.copy_names.emit(urls)
         )
         self.context_menu.addSeparator()
-        self.context_menu.add_menu(
-            menu=self.context_menus.rotate_menu,
-            callback=lambda value: self.rotate_image(value)
+        
+        self.context_menu.add_action(
+            action=self.context_actions.rotate_cw,
+            callback=lambda: self.rotate_image(90)
         )
+
+        self.context_menu.add_action(
+            action=self.context_actions.rotate_ccw,
+            callback=lambda: self.rotate_image(-90)
+        )
+
         self.context_menu.show_under_mouse()

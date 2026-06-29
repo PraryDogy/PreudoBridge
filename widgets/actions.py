@@ -176,24 +176,36 @@ class ChangeViewMenu(UMenu):
             list_.setChecked(True)
 
 
-class RotateMenu(UMenu):
-    triggered = pyqtSignal(int)
-    text_menu = "Повернуть"
-    clockwise = "Повернуть по ч.с. (⌘ + →)"
-    counter_clockwise = "Повернуть против ч.с. (⌘ + ←)"
+# class RotateMenu(UMenu):
+#     triggered = pyqtSignal(int)
+#     text_menu = "Повернуть"
+#     clockwise = "Повернуть по ч.с. (⌘ + →)"
+#     counter_clockwise = "Повернуть против ч.с. (⌘ + ←)"
 
+#     def __init__(self, parent: UMenu):
+#         super().__init__(self.text_menu, parent)
+
+#         # отобразить сеткой
+#         grid_ = QAction(self.clockwise, self)
+#         grid_.triggered.connect(lambda: self.triggered.emit(90))
+#         self.addAction(grid_)
+
+#         # отобразить списком
+#         list_ = QAction(self.counter_clockwise, self)
+#         list_.triggered.connect(lambda: self.triggered.emit(-90))
+#         self.addAction(list_)
+
+
+class RotateCW(QAction):
+    text_ = "Повернуть по ч.с. (⌘ + →)"
     def __init__(self, parent: UMenu):
-        super().__init__(self.text_menu, parent)
+        super().__init__(self.text_, parent)
 
-        # отобразить сеткой
-        grid_ = QAction(self.clockwise, self)
-        grid_.triggered.connect(lambda: self.triggered.emit(90))
-        self.addAction(grid_)
 
-        # отобразить списком
-        list_ = QAction(self.counter_clockwise, self)
-        list_.triggered.connect(lambda: self.triggered.emit(-90))
-        self.addAction(list_)
+class RotateCCW(QAction):
+    text_ = "Повернуть против ч.с. (⌘ + ←)"
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
 
 
 class NewMainWin(QAction):
@@ -286,6 +298,8 @@ class Actions:
         self.new_folder = NewFolder(menu)
         self.update_grid = UpdateGrid(menu)
         self.paste_files = PasteFiles(menu)
+        self.rotate_cw = RotateCW(menu)
+        self.rotate_ccw = RotateCCW(menu)
 
 
 class Menus:
@@ -294,4 +308,4 @@ class Menus:
             self.change_view = ChangeViewMenu(menu, main_win_item)
             self.sort_menu = SortMenu(menu, main_win_item)
         self.open_in_app_menu = OpenInApp(menu)
-        self.rotate_menu = RotateMenu(menu)
+        # self.rotate_menu = RotateMenu(menu)
