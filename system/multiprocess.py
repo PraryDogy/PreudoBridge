@@ -507,8 +507,15 @@ class CopyTask:
                 if not buf:
                     break
                 fdst.write(buf)
-                copy_item.current_size += len(buf) // 1024
-                queue.put(copy_item)
+                # copy_item.current_size += len(buf) // 1024
+                copy_item.copied_bytes += len(buf)
+                percent = (copy_item.copied_bytes * 100) // copy_item.total_bytes
+                if percent > copy_item.current_percent:
+                    copy_item.current_percent = percent
+                    queue.put(copy_item)
+            fdst.flush()
+            os.fsync(fdst.fileno())
+
         try:
             shutil.copystat(src, dest, follow_symlinks=True)
         except OSError:
