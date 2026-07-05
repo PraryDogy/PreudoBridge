@@ -306,10 +306,10 @@ class WinMain(UMainWindow):
             app.setStyle("macintosh")
         elif JsonData.theme == Themes.dark:
             app.setPalette(UPallete.dark())
-            app.setStyle("Fusion")
+            app.setStyle("macintosh")
         else:
             app.setPalette(UPallete.light())
-            app.setStyle("Fusion")
+            app.setStyle("macintosh")
         
         if not WinMain.first_load:
             self.grid.reload_rubber()

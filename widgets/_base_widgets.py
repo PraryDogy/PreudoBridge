@@ -41,10 +41,13 @@ class UMenu(QMenu):
         sep_color = color_data[text_color]
 
         self.setStyleSheet(f"""
+            QMenu {{ 
+                border-radius: 0px; 
+            }}
             QMenu::separator {{
                 height: 1px;
-                background: {sep_color};
-                margin: 4px 10px;
+                padding-left: 5px;
+                padding-right: 5px;
             }}
         """)
 
