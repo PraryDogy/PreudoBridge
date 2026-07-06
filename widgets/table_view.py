@@ -68,9 +68,9 @@ class MyFileSystemModel(UFileSystemModel):
 
 
 class TableView(QTableView):
-    col: int = 0
-    order: int = 0
-    sizes: list = [250, 100, 100, 150]
+    col = 0
+    order = Qt.SortOrder.AscendingOrder 
+    sizes = [250, 100, 100, 150]
 
     rename_file = pyqtSignal(NameUrlItem)
     menu_sort_update = pyqtSignal()
@@ -255,7 +255,7 @@ class TableView(QTableView):
 
     def select_row(self, index: QModelIndex):
         self.setCurrentIndex(index)
-        tags = QItemSelectionModel.Select | QItemSelectionModel.Rows
+        tags = QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows
         self.selectionModel().select(index, tags)
 
     def rename_file_cmd(self, filepath: str):
