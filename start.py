@@ -114,7 +114,5 @@ else:
 
 if __name__ == "__main__":
 
-    import qdarktheme
     app = App(argv=sys.argv)
-    # qdarktheme.setup_theme()
     app.exec()
