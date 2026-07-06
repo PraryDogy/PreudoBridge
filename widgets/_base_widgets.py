@@ -31,6 +31,7 @@ class UMenu(QMenu):
         - show_: открывает контекстное меню по месту клика
         """
 
+        return
         self.setStyleSheet(f"""
             QMenu {{ 
                 border-radius: 0px; 

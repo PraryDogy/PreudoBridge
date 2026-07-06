@@ -90,6 +90,11 @@ class App(QApplication):
             self.aboutToQuit.connect(lambda: self.main_win.on_exit())
             self.installEventFilter(self)
 
+            # from widgets.theme_chooser import ThemeChooserWindow
+            # from PyQt6.QtCore import QTimer
+            # self.themes = ThemeChooserWindow()
+            # QTimer.singleShot(100, self.themes.show)
+
         self.on_start_task = OnStartTask()
         self.on_start_task.sigs.finished_.connect(fin)
         UThreadPool.start(self.on_start_task)
