@@ -196,20 +196,20 @@ class WinMain(UMainWindow):
 
         self.bar_top = BarTop(self.main_win_item, self.search_item)
         self.bar_top.history_item(dir)
-        self.right_side_layout.insertWidget(0, self.bar_top)
-        self.right_side_layout.insertWidget(1, USep())
+        self.right_side_layout.addWidget(self.bar_top)
+        self.right_side_layout.addWidget(USep())
 
         self.grid = Grid(self.main_win_item)
         Utils.fill_missing_methods(GridSearch, Grid)
-        self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
-        self.right_side_layout.insertWidget(4, USep())
+        self.right_side_layout.addWidget(self.grid)
+        self.right_side_layout.addWidget(USep())
 
         self.bar_path = BarPath(self.main_win_item)
-        self.right_side_layout.insertWidget(5, self.bar_path)
-        self.right_side_layout.insertWidget(6, USep())
+        self.right_side_layout.addWidget(self.bar_path)
+        self.right_side_layout.addWidget(USep())
 
         self.bar_sort = BarSort(self.main_win_item)
-        self.right_side_layout.insertWidget(7, self.bar_sort)
+        self.right_side_layout.addWidget(self.bar_sort)
 
         self.main_splitter = QSplitter()
         self.main_splitter.setHandleWidth(WinMain.splitter_handle_width)
