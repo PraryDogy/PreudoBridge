@@ -94,7 +94,7 @@ class ImgWid(QGraphicsView):
 
     def keyPressEvent(self, event):
         # Если это стрелки, не обрабатываем их здесь
-        if event.key() in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
+        if event.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down):
             event.ignore()  # передаём событие родителю
             return
         # для остальных клавиш можно оставить стандартную обработку
