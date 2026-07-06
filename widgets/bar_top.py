@@ -1,16 +1,16 @@
 import os
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
-                             QSpacerItem, QVBoxLayout, QWidget, QPushButton)
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
+                             QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem, SearchItem
 from system.utils import Utils
 
-from ._base_widgets import (BtnSmall, UFrame, ULineEdit, UMenu,
-                            USvgSqareWidget, UTextEdit, UMainWindow, BaseSignals, BtnNext)
+from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, UFrame, ULineEdit,
+                            UMainWindow, UMenu, USvgSqareWidget, UTextEdit)
 
 
 class BarTopBtn(QWidget):

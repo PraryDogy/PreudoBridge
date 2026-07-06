@@ -1,14 +1,14 @@
 import os
 
-from PyQt5.QtCore import QDir, QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
-                         QPalette, QTextCursor, QWheelEvent)
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
-                             QGraphicsDropShadowEffect, QGroupBox, QHBoxLayout,
-                             QLabel, QLineEdit, QMainWindow, QMenu,
-                             QPushButton, QScrollArea, QSlider, QTextEdit,
-                             QWidget)
+from PyQt6.QtCore import QDir, QObject, Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import (QAction, QColor, QContextMenuEvent, QCursor,
+                         QFileSystemModel, QMouseEvent, QPalette, QTextCursor,
+                         QWheelEvent)
+from PyQt6.QtSvgWidgets import QSvgWidget
+from PyQt6.QtWidgets import (QApplication, QFrame, QGraphicsDropShadowEffect,
+                             QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+                             QMainWindow, QMenu, QPushButton, QScrollArea,
+                             QSlider, QTextEdit, QWidget)
 
 from cfg import Static
 from system.items import ImgViewItem, NameUrlItem
@@ -30,29 +30,15 @@ class UMenu(QMenu):
         - отключен правый клик
         - show_: открывает контекстное меню по месту клика
         """
-        palette = QApplication.palette()
-        text_color = palette.color(QPalette.WindowText).name().lower()
-
-        color_data = {
-            "#000000": "#8a8a8a",
-            "#ffffff": "#5A5A5A",
-        }
-
-        sep_color = color_data[text_color]
 
         self.setStyleSheet(f"""
             QMenu {{ 
                 border-radius: 0px; 
             }}
-            QMenu::separator {{
-                height: 1px;
-                padding-left: 5px;
-                padding-right: 5px;
-            }}
         """)
 
     def show_under_mouse(self):
-        self.exec_(QCursor.pos())
+        self.exec(QCursor.pos())
 
     def add_action(self, action: QAction, callback: callable):
         action.triggered.connect(lambda: QTimer.singleShot(100, callback))

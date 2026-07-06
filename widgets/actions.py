@@ -1,7 +1,7 @@
 import os
 
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QAction
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtGui import QAction
 
 from cfg import Dynamic
 from system.items import MainWinItem

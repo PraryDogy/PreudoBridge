@@ -1,16 +1,16 @@
 import os
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
-                             QLabel, QSpacerItem, QWidget)
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QAction, QContextMenuEvent, QKeyEvent
+from PyQt6.QtWidgets import (QGraphicsOpacityEffect, QGridLayout, QLabel,
+                             QSpacerItem, QWidget)
 
 from cfg import Static
 from system.items import DataItem, MultipleInfoItem, NameUrlItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
-from ._base_widgets import UMenu, UMainWindow, BaseSignals, UMainWidget
+from ._base_widgets import BaseSignals, UMainWidget, UMainWindow, UMenu
 from .actions import Actions
 
 

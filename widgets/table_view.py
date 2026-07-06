@@ -1,11 +1,11 @@
 import os
 
-from PyQt5.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
+from PyQt6.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
                           QModelIndex, Qt, QTimer, QUrl, pyqtSignal)
-from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
+from PyQt6.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QImage, QKeyEvent,
                          QPixmap)
-from PyQt5.QtWidgets import (QAbstractItemView, QApplication, 
+from PyQt6.QtWidgets import (QAbstractItemView, QApplication, 
                              QLabel, QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
@@ -23,8 +23,8 @@ class MyFileSystemModel(UFileSystemModel):
         super().__init__(*args, **kwargs)
         self.cut_rows = set()
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             headers = ["Имя", "Размер", "Тип", "Дата изменения"]
             if 0 <= section < len(headers):
                 return headers[section]
@@ -36,8 +36,8 @@ class MyFileSystemModel(UFileSystemModel):
             return f & ~Qt.ItemFlag.ItemIsEnabled
         return f
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             col = index.column()
             if col == 1:  # Размер
                 size = self.size(index)
@@ -94,7 +94,7 @@ class TableView(QTableView):
 
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
-        self.setDragDropMode(QAbstractItemView.DragDrop)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         self.setDropIndicatorShown(True)
 
         self.base_signals = BaseSignals()
@@ -103,7 +103,7 @@ class TableView(QTableView):
         self.url_to_item: dict[str, DataItem] = {}
         self.main_win_item = main_win_item
 
-        self.setSelectionBehavior(QTableView.SelectRows)
+        self.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.setSortingEnabled(True)
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().sectionClicked.connect(self.save_sort_settings)
@@ -128,7 +128,8 @@ class TableView(QTableView):
             )
             no_images.show()
             return
-
+        
+        self.setSortingEnabled(True)
         self.sortByColumn(TableView.col, TableView.order)
         for i in range(0, 4):
             self.setColumnWidth(i, TableView.sizes[i])

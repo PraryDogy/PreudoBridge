@@ -1,10 +1,10 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QMenuBar,
-                             QSpacerItem, QVBoxLayout, QWidget)
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QAction, QContextMenuEvent, QKeyEvent
+from PyQt6.QtSvgWidgets import QSvgWidget
+from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QMenu, QMenuBar, QSpacerItem,
+                             QVBoxLayout, QWidget)
 
 from cfg import Static
 from system.utils import Utils

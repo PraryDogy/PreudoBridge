@@ -2,10 +2,10 @@ import os
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QKeyEvent
+from PyQt6.QtSvgWidgets import QSvgWidget
+from PyQt6.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
                              QSpacerItem, QVBoxLayout, QWidget)
 from typing_extensions import Literal
 
@@ -16,6 +16,7 @@ from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 from ._base_widgets import HSep, UMainWindow, USvgSqareWidget
 # возможно в main win
 from .win_warn import ConfirmWindow, WinWarn
+
 
 class GroupWid(QGroupBox):
     def __init__(self):
@@ -229,13 +230,13 @@ class ThemeBtn(QWidget):
     clicked = pyqtSignal(str)
     ww = 70
 
-    def __init__(self, theme: Literal["macintosh", "light", "dark"]):
+    def __init__(self, theme: Literal["macos", "light", "dark"]):
         super().__init__()
         self.theme = theme
         self.svg = f"./images/{theme}_theme.svg"
         self.svg_selected = f"./images/{theme}_theme_selected.svg"
         text_mappings = {
-            Themes.macintosh: Themes.macintosh,
+            Themes.macos: Themes.macos,
             Themes.dark: "Темная",
             Themes.light: "Светлая",
         }
@@ -284,7 +285,7 @@ class ThemesWidget(GroupWid):
         themes_layout.setContentsMargins(0, 0, 0, 0)
         self.layout_.addLayout(themes_layout)
         
-        for i in (Themes.macintosh, Themes.dark, Themes.light):
+        for i in (Themes.macos, Themes.dark, Themes.light):
             btn = ThemeBtn(i)
             btn.clicked.connect(lambda theme, btn=btn: self.on_btn_clicked(theme, btn))
             themes_layout.addWidget(btn)

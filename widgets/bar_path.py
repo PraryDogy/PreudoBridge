@@ -1,8 +1,8 @@
 import os
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QImage, QPixmap
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QContextMenuEvent, QImage, QPixmap
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import JsonData, Static
 from system.items import DataItem, ImgViewItem, MainWinItem, NameUrlItem

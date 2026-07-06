@@ -7,7 +7,7 @@ from typing import Literal
 import numpy as np
 import sqlalchemy
 from osxmetadata import OSXMetaData
-from PyQt5.QtGui import QImage
+from PyQt6.QtGui import QImage
 
 from cfg import Static
 

@@ -1,8 +1,8 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QImage
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QImage
+from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
                              QWidget)
 
 from cfg import Static

@@ -1,8 +1,8 @@
 import os
 
-from PyQt5.QtCore import QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QDropEvent, QIcon
-from PyQt5.QtWidgets import QListWidget, QListWidgetItem
+from PyQt6.QtCore import QSize, Qt, pyqtSignal
+from PyQt6.QtGui import QDropEvent, QIcon
+from PyQt6.QtWidgets import QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
 from system.items import MainWinItem, NameUrlItem

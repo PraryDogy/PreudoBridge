@@ -2,8 +2,8 @@ import os
 import sys
 import traceback
 
-from PyQt5.QtCore import QEvent, QObject, Qt
-from PyQt5.QtWidgets import (QApplication, QDialog, QPushButton, QTextEdit,
+from PyQt6.QtCore import QEvent, QObject, Qt
+from PyQt6.QtWidgets import (QApplication, QDialog, QPushButton, QTextEdit,
                              QVBoxLayout)
 
 from cfg import JsonData
@@ -67,7 +67,7 @@ class Tools:
         #lib folder appears when we pack this project to .app with py2app
         if os.path.exists("lib"): 
             ver = f"{sys.version_info.major}.{sys.version_info.minor}"
-            plugin_path = f"lib/python{ver}/PyQt5/Qt5/plugins"
+            plugin_path = f"lib/python{ver}/PyQt6/Qt5/plugins"
             os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = plugin_path
             return True
         else:
@@ -76,8 +76,8 @@ class Tools:
 
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
+        # QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
+        # QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
         super().__init__(argv)
         ThumbImgWidget.create_icons()
         JsonData.init()

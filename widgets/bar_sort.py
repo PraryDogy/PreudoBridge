@@ -1,8 +1,8 @@
 import os
 
-from PyQt5.QtCore import QPoint, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
+from PyQt6.QtCore import QPoint, Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QMouseEvent
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import Dynamic, Static
 from system.items import MainWinItem, SortItem, TotalCountItem

@@ -2,7 +2,7 @@ import json
 import os
 
 class Themes:
-    macintosh = "macintosh"
+    macos = "macos"
     dark = "dark"
     light = "light"
 
@@ -23,8 +23,8 @@ class Static:
     rgba_blue = "rgb(70, 130, 240)"
     star_symbol = "\U00002605" # ★
     long_line_symbol = "\U00002014" # —
-    paragraph_symbol = "\u2029" # символ PyQt5, который равен новой строке
-    line_feed_symbol  = "\u000a" # символ PyQt5, который равен новой строке
+    paragraph_symbol = "\u2029" # символ PyQt6, который равен новой строке
+    line_feed_symbol  = "\u000a" # символ PyQt6, который равен новой строке
     hidden_symbols = (".", "~$", "$")
     base_ww, base_hh = 1120, 760
     max_thumb_size = 210
@@ -35,7 +35,7 @@ class JsonData:
     favs = {}
     go_to_now = False
     show_text = False
-    theme = Themes.macintosh
+    theme = Themes.macos
 
     @classmethod
     def get_data(cls):

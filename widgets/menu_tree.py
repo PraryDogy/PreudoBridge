@@ -1,12 +1,13 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt, pyqtSignal
-from PyQt5.QtWidgets import QAbstractItemView, QFileSystemModel, QTreeView
+from PyQt6.QtCore import QDir, Qt, pyqtSignal
+from PyQt6.QtGui import QFileSystemModel
+from PyQt6.QtWidgets import QAbstractItemView, QTreeView
 
 from cfg import JsonData
 from system.items import MainWinItem, NameUrlItem
 
-from ._base_widgets import UMenu, BaseSignals
+from ._base_widgets import BaseSignals, UMenu
 from .actions import Actions
 
 

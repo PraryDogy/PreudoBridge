@@ -3,11 +3,11 @@ import os
 from multiprocessing import shared_memory
 
 import numpy as np
-from PyQt5.QtCore import QEvent, QPointF, QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QCursor, QImage, QKeyEvent,
+from PyQt6.QtCore import QEvent, QPointF, QSize, Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import (QContextMenuEvent, QCursor, QImage, QKeyEvent,
                          QMouseEvent, QPixmap, QResizeEvent, QTransform)
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
+from PyQt6.QtSvgWidgets import QSvgWidget
+from PyQt6.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QGraphicsScene, QGraphicsView, QHBoxLayout,
                              QLabel, QVBoxLayout, QWidget, QGraphicsOpacityEffect, QGraphicsBlurEffect)
 
@@ -103,7 +103,7 @@ class ImgWid(QGraphicsView):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if self.pixmap_item:
-            self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
+            self.fitInView(self.pixmap_item, Qt.AspectRatioMode.KeepAspectRatio)
 
 
 class UserSvg(USvgSqareWidget):

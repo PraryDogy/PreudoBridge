@@ -1,10 +1,10 @@
 import os
 import re
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static, Themes
@@ -301,15 +301,15 @@ class WinMain(UMainWindow):
 
     def change_theme(self):
         app: QApplication = QApplication.instance()
-        if JsonData.theme == Themes.macintosh:
+        if JsonData.theme == Themes.macos:
             app.setPalette(QPalette())
-            app.setStyle("macintosh")
+            app.setStyle("macos")
         elif JsonData.theme == Themes.dark:
             app.setPalette(UPallete.dark())
-            app.setStyle("macintosh")
+            app.setStyle("macos")
         else:
             app.setPalette(UPallete.light())
-            app.setStyle("macintosh")
+            app.setStyle("macos")
         
         if not WinMain.first_load:
             self.grid.reload_rubber()

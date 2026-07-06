@@ -8,8 +8,8 @@ import traceback
 
 import numpy as np
 import sqlalchemy
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
-from PyQt5.QtGui import QImage
+from PyQt6.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
+from PyQt6.QtGui import QImage
 
 from cfg import Dynamic, Static
 from system.shared_utils import ImgUtils

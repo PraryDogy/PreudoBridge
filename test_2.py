@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QLabel
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QWidget, QGridLayout, QLabel
+from PyQt6.QtCore import Qt
 
 class GridNavigation(QWidget):
     def __init__(self):

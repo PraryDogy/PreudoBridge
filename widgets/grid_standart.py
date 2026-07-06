@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 from time import perf_counter
 
-from PyQt5.QtCore import QRect, QSize, Qt, QTimer
+from PyQt6.QtCore import QRect, QSize, Qt, QTimer
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, Static

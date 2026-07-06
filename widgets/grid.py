@@ -1,10 +1,10 @@
 import os
 
-from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
+from PyQt6.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
                           pyqtSignal)
-from PyQt5.QtGui import (QContextMenuEvent, QDrag, QImage, QKeyEvent,
+from PyQt6.QtGui import (QContextMenuEvent, QCursor, QDrag, QImage, QKeyEvent,
                          QMouseEvent, QPixmap)
-from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
+from PyQt6.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QVBoxLayout,
                              QWidget)
 
@@ -292,7 +292,7 @@ class Grid(UScrollArea):
         self.grid_wid = QWidget()
         self.setWidget(self.grid_wid)
         self.origin_pos = QPoint()
-        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
+        self.rubberBand = QRubberBand(QRubberBand.Shape.Rectangle, self.grid_wid)
 
         self.grid_layout = QGridLayout()
         self.grid_wid.setLayout(self.grid_layout)
@@ -460,7 +460,8 @@ class Grid(UScrollArea):
             wid.set_frame()
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
-        wid = QApplication.widgetAt(a0.globalPos())
+        global_pos = QCursor.pos() 
+        wid = QApplication.widgetAt(global_pos)
         if isinstance(wid, (WhiteTextWid, BlueTextWid, ThumbImgWidget)):
             return wid.parent()
         elif isinstance(wid, QLabel):

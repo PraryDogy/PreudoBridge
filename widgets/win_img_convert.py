@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QTimer, pyqtSignal
+from PyQt6.QtCore import QTimer, pyqtSignal
 
 from cfg import Static
 from system.items import JpgConvertItem

@@ -3,16 +3,15 @@ import os
 import subprocess
 from dataclasses import dataclass
 
-from PyQt5.QtCore import QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QListWidget,
-                             QListWidgetItem, QSpacerItem, QVBoxLayout,
-                             QWidget)
+from PyQt6.QtCore import QSize, Qt, pyqtSignal
+from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtSvgWidgets import QSvgWidget
+from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
+                             QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Static
 
-from ._base_widgets import UMainWindow, BtnSmall, ULineEdit, UMenu
+from ._base_widgets import BtnSmall, ULineEdit, UMainWindow, UMenu
 from .win_warn import ConfirmWindow
 
 # from cfg import Cfg
