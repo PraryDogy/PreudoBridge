@@ -58,7 +58,7 @@ class ImgWid(QGraphicsView):
     def zoom_fit(self):
         if self.pixmap_item:
             self.resetTransform()
-            self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
+            self.fitInView(self.pixmap_item, Qt.AspectRatioMode.KeepAspectRatio)
             self.is_zoomed = False
             self.setCursor(Qt.CursorShape.ArrowCursor)
 
@@ -69,14 +69,14 @@ class ImgWid(QGraphicsView):
 
     # ---------------------- Drag через мышь ----------------------
     def mousePressEvent(self, event: QMouseEvent):
-        if event.button() == Qt.LeftButton:
-            self.setCursor(Qt.ClosedHandCursor)
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
             self._last_mouse_pos = event.pos()
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QMouseEvent):
         self.mouse_moved.emit()
-        if self._last_mouse_pos and event.buttons() & Qt.LeftButton:
+        if self._last_mouse_pos and event.buttons() & Qt.MouseButton.LeftButton:
             delta = event.pos() - self._last_mouse_pos
             self._last_mouse_pos = event.pos()
 

@@ -93,7 +93,7 @@ class USlider(QSlider):
         e.ignore()
 
     def mousePressEvent(self, ev: QMouseEvent) -> None:
-        if ev.button() != Qt.LeftButton:
+        if ev.button() != Qt.MouseButton.LeftButton:
             ev.ignore()
             return
 
@@ -349,7 +349,7 @@ class NotifyWid(QFrame):
 
         # текст
         self.label = QLabel(text, self)
-        self.label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
 
         # лейаут
         layout = QHBoxLayout(self)

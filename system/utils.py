@@ -168,7 +168,7 @@ class Utils:
             size,
             QImage.Format_ARGB32_Premultiplied
         )
-        image.fill(Qt.transparent)
+        image.fill(Qt.GlobalColor.transparent)
 
         painter = QPainter(image)
         painter.setRenderHint(QPainter.Antialiasing)

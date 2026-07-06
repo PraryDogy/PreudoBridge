@@ -76,8 +76,6 @@ class Tools:
 
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
-        # QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-        # QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
         super().__init__(argv)
         ThumbImgWidget.create_icons()
         JsonData.init()
