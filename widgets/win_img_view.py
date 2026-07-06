@@ -173,15 +173,23 @@ class ZoomBtns(QFrame):
 
     def mouseReleaseEvent(self, e):
         self.setCursor(Qt.CursorShape.ArrowCursor)
+        
         if self.is_move:
             self.is_move = False
-            return  # не считаем клик, если двигали мышь
-        pos = e.globalPos()
-        wid = QApplication.widgetAt(pos)
+            # Передаем событие дальше, так как это было движение, а не клик
+            super().mouseReleaseEvent(e)
+            return  
+        # Идеально для PyQt6: берем точные системные координаты курсора
+        global_pos = QCursor.pos()
+        wid = QApplication.widgetAt(global_pos)
         if isinstance(wid, UserSvg):
             func = self.mappings.get(wid.value)
             if func:
                 func()
+                # Важно для macOS: принимаем событие, чтобы операционная система
+                # знала, что клик успешно обработан и не передавала его дальше
+                e.accept()
+                return 
         super().mouseReleaseEvent(e)
 
 
