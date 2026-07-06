@@ -303,7 +303,7 @@ class Grid(UScrollArea):
 
     def reload_rubber(self):
         self.rubberBand.deleteLater()
-        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
+        self.rubberBand = QRubberBand(QRubberBand.Shape.Rectangle, self.grid_wid)
     
     def get_max_columns(self):
         try:
