@@ -33,6 +33,9 @@ class Servers:
                 Servers.items.append(i)
         except Exception as e:
             print("Servers json to app error", e)
+            # with open(cls.filepath, "w", encoding="utf-8") as f:
+                # ...
+
     
     @classmethod
     def write_json_data(cls):
