@@ -3,7 +3,7 @@ opencv-python==4.11.0.86
 pillow==11.2.1
 pillow_heif==1.2.0
 py2app==0.28.8
-PyQt6==5.15.11
+PyQt6==6.11.0
 rawpy==0.21.0
 SQLAlchemy==2.0.41
 tifffile==2026.1.28
