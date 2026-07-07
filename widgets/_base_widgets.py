@@ -98,7 +98,7 @@ class USlider(QSlider):
             ev.ignore()
             return
 
-        ratio = ev.x() / self.width()
+        ratio = ev.pos().x() / self.width()
         value = self.minimum() + round(ratio * (self.maximum() - self.minimum()))
         self.setValue(value)
         ev.accept()

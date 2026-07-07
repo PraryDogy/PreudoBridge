@@ -48,7 +48,7 @@ class Tools:
         l.addWidget(QPushButton("Закрыть", clicked=d.close))
         d.resize(500, 400)
         d.setFocus()
-        d.exec_()
+        d.exec()
 
     def proj_error_handler(exctype, value, tb):
         if exctype == RuntimeError:

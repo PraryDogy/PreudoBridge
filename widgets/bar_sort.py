@@ -118,7 +118,7 @@ class SortFrame(UFrame):
         # меню всплывает точно над данным виджетом
         menu_center_top = self.mapToGlobal(widget_rect.center()) - centered
         menus.sort_menu.move(menu_center_top)
-        menus.sort_menu.exec_()
+        menus.sort_menu.exec()
         super().leaveEvent(a0)
         
 

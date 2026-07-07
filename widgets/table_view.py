@@ -531,7 +531,7 @@ class TableView(QTableView):
             self.mime_data.setUrls(urls)
 
             self.drag.setMimeData(self.mime_data)
-            self.drag.exec_(Qt.DropAction.CopyAction)
+            self.drag.exec(Qt.DropAction.CopyAction)
         return super().mouseMoveEvent(e)
 
     def mouseReleaseEvent(self, e):

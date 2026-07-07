@@ -306,7 +306,7 @@ class BarTop(QWidget):
 
     non_text_height = 46
     non_text_spacing = 0
-    text_height = 53
+    text_height = 60
     text_spacing = 15
     history_items_limit = 100
     topbar_btn_texts = [

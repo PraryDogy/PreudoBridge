@@ -714,7 +714,7 @@ class Grid(UScrollArea):
         self.total_count_update.emit(item)
         self.drag.setMimeData(self.mime_data)
         self.setup_urls_to_copy()
-        self.drag.exec_(Qt.DropAction.CopyAction)
+        self.drag.exec(Qt.DropAction.CopyAction)
         return super().mouseMoveEvent(a0)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
