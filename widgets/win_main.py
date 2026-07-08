@@ -6,7 +6,7 @@ from PyQt6.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
-
+from PyQt6.QtSvgWidgets import QSvgWidget
 from cfg import JsonData, Static, Themes
 from system.items import (ClipboardItemGlob, ImgViewItem, MainWinItem,
                           NameUrlItem, SearchItem, SortItem)
@@ -55,22 +55,15 @@ class TreeFavsWid(QTabWidget):
             a0.ignore()
 
 
-class ScrollUpBtn(QLabel):
+class ScrollUpBtn(QSvgWidget):
     clicked = pyqtSignal()
-    arrow_up_sym = "\u25B2" # ▲
-    border_radius = 20
     svg_size = 40
+    svg_path = "./images/up.svg"
 
-    def __init__(self, parent: QWidget):
-        super().__init__(ScrollUpBtn.arrow_up_sym, parent)
+    def __init__(self):
+        super().__init__()
+        self.load(self.svg_path)
         self.setFixedSize(ScrollUpBtn.svg_size, ScrollUpBtn.svg_size)
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setStyleSheet(
-            f"""
-            background-color: rgba(128, 128, 128, 0.3);
-            border-radius: {ScrollUpBtn.border_radius}px;
-            """
-            )
         
     def mouseReleaseEvent(self, ev):
         if ev.button() == Qt.MouseButton.LeftButton:
@@ -223,7 +216,8 @@ class WinMain(UMainWindow):
         main_lay.addWidget(self.main_splitter)
 
         # --- ScrollUp кнопка ---
-        self.scroll_up = ScrollUpBtn(self)
+        self.scroll_up = ScrollUpBtn()
+        self.scroll_up.setParent(self)
         self.scroll_up.clicked.connect(
             lambda: self.grid.verticalScrollBar().setValue(0)
         )
