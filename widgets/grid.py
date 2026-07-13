@@ -529,10 +529,16 @@ class Grid(UScrollArea):
                 menu=self.context_menus.open_in_app_menu,
                 callback=lambda app_path: self.base_signals.open_in_app.emit((img_urls, app_path))
             )
+            self.context_menu.addSeparator()
             self.context_menu.add_action(
                 action=self.context_actions.convert_to_jpg,
                 callback=lambda: self.open_img_convert_win(img_urls)
             )
+            self.context_menu.add_action(
+                action=self.context_actions.update_thumb,
+                callback=lambda: print(img_urls)
+            )
+            
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.win_info,

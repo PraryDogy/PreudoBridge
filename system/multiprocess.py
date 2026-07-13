@@ -106,6 +106,7 @@ class ImgLoader:
         }
 
         new_items: list[DataItem] = []
+        broken_thumb = Utils.read_thumb("./images/broken_thumb.jpg")
 
         for data, thumb_path in db_items_dict.items():
             if data in finder_items_dict:
@@ -114,13 +115,23 @@ class ImgLoader:
                 if data_item._img_array is None:
                     # print("data item none, go new item", data_item.filename)
                     new_items.append(data_item)
+                # битые изображения пытаться загрузить заново
+                elif np.array_equal(data_item._img_array, broken_thumb):
+                    new_items.append(data_item)
                 else:
                     queue.put(data_item)
+                
+                # print(data_item._img_array.shape, broken_thumb.shape)
 
         for (filename, mod, size), data_item in finder_items_dict.items():
             if (filename, mod, size) not in db_items_dict:
                 new_items.append(data_item)
                 # print("new_data_iten, go new item", data_item.filename)
+
+        new_items = sorted(new_items, key=lambda x: x.size)
+
+        for i in new_items:
+            print(i.size)
 
         if new_items:
             ImgLoader.process_new_items(img_item, new_items)

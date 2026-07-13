@@ -274,6 +274,12 @@ class Rename(QAction):
         super().__init__(self.text_, parent)
 
 
+class UpdateThumb(QAction):
+    text_ = "Обновить данные"
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
+
+
 class Actions:
     def __init__(self, menu: UMenu):
         self.copy_text = CopyText(menu)
@@ -300,6 +306,7 @@ class Actions:
         self.paste_files = PasteFiles(menu)
         self.rotate_cw = RotateCW(menu)
         self.rotate_ccw = RotateCCW(menu)
+        self.update_thumb = UpdateThumb(menu)
 
 
 class Menus:

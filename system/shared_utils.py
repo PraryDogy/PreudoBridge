@@ -141,7 +141,7 @@ class ImgUtils:
         array_img = np.array(img)
         img.close()
         return array_img
-
+    
     @classmethod
     def _read_tiff(cls, path: str):
 
