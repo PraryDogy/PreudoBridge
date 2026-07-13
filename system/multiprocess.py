@@ -129,10 +129,6 @@ class ImgLoader:
                 # print("new_data_iten, go new item", data_item.filename)
 
         new_items = sorted(new_items, key=lambda x: x.size)
-
-        for i in new_items:
-            print(i.size)
-
         if new_items:
             ImgLoader.process_new_items(img_item, new_items)
 
