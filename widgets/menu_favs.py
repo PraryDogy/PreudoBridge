@@ -198,10 +198,16 @@ class MenuFavs(QListWidget):
         return super().mouseReleaseEvent(e)
 
     def dragMoveEvent(self, e):
-        index = self.indexAt(e.pos()).row()
+        # Получаем индекс строки под курсором
+        index = self.indexAt(e.position().toPoint()).row()
+        
+        # В PyQt6 e.pos() устарел, лучше использовать e.position().toPoint()
         if 0 < index < 5:
+            # Явно запрещаем сброс в этой области
+            e.setDropAction(Qt.DropAction.IgnoreAction)
             e.ignore()
         else:
+            # Разрешаем стандартное поведение для остальных строк
             super().dragMoveEvent(e)
 
     def dragEnterEvent(self, e):
