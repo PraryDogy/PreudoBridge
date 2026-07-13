@@ -346,16 +346,9 @@ class WinMain(UMainWindow):
                 self.main_win_item.go_to_widget = path
                 self.load_st_grid(os.path.dirname(path))
 
-        user_path = user_path.strip("\"\'\n ")
-        template = r"^(\/[^/]+)+\/?$"
-        if not bool(re.fullmatch(template, user_path)):
-            return
-        if not os.path.exists(user_path):
-            fixed_path = self.main_win_item.fix_path(user_path)
-            if fixed_path:
-                finalize(fixed_path)
-        else:
-            finalize(user_path)
+        fixed_path = self.main_win_item.fix_network_path(user_path)
+        if fixed_path:
+            finalize(fixed_path)
 
     def img_convert_win_open(self, urls: list[str]):
         self.convert_win = WinImgConvert(urls)

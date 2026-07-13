@@ -132,7 +132,7 @@ class MainWinItem:
     
     def set_current_dir(self, path: str):
         if not os.path.exists(path):
-            path = self.fix_path(path)
+            path = self.fix_network_path(path)
             if not os.path.exists(path):
                 # self.abs_current_dir = None
                 # self.fs_id = None
@@ -143,16 +143,32 @@ class MainWinItem:
         self.rel_parent = Utils.get_rel_parent(path)
         return True
 
-    def fix_path(self, path: str):
-        volumes = [i.path for i in os.scandir("/Volumes")]
-        rel_path = path.strip(os.sep).split(os.sep)
-        rel_path = os.sep.join(rel_path[2:])
-        for i in volumes:
-            new_path = os.path.join(i, rel_path)
-            if os.path.exists(new_path):
-                return new_path
-        return path
+    def fix_network_path(self, path: str):
+        path = path.strip("\"\'\n ").strip(os.sep)
+        path = os.sep + path
 
+        if path.startswith(os.path.expanduser("~")):
+            return path
+
+        volumes = [i.path for i in os.scandir("/Volumes")][1:]
+        if not volumes:
+            return None
+
+        path_chunks = [i for i in path.split(os.sep) if i]
+        all_paths = []
+        for i in range(0, len(path_chunks)):
+            temp_chunks = path_chunks[i:]
+            temp_path = os.sep + os.sep.join(temp_chunks)
+            for vol in volumes:
+                path_with_vol = vol + temp_path
+                all_paths.append(path_with_vol)
+
+        all_paths.sort(key=len, reverse=True)
+
+        for i in all_paths:
+            if os.path.exists(i):
+                return i
+        return None
 
 class ClipboardItemGlob:
     src_urls: list[str] = []
