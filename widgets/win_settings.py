@@ -3,17 +3,18 @@ import subprocess
 from datetime import datetime
 
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QKeyEvent
+from PyQt6.QtGui import QKeyEvent, QPixmap
 from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
+from PyQt6.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
                              QSpacerItem, QVBoxLayout, QWidget)
 from typing_extensions import Literal
 
 from cfg import JsonData, Static, Themes
 from system.shared_utils import SharedUtils
 from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
+from system.utils import Utils
 
-from ._base_widgets import HSep, UMainWindow, USvgSqareWidget
+from ._base_widgets import HSep, UMainWindow
 # возможно в main win
 from .win_warn import ConfirmWindow, WinWarn
 
@@ -147,7 +148,8 @@ class ClickableWidgets(GroupWid):
 
 
 class AboutWidget(QGroupBox):
-    svg_size = 70
+    icon_size = 70
+    icon_path = os.path.join(Static.internal_images_dir, "icon.png")
     text_ = (
             f"{Static.app_name} {Static.app_ver}\n"
             f"{datetime.now().year} Evgeny Loshakev"
@@ -159,15 +161,16 @@ class AboutWidget(QGroupBox):
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        images = Static.internal_images_dir
-        svg_ = USvgSqareWidget(
-            os.path.join(images, "icon.svg"), AboutWidget.svg_size
-        )
-        h_lay.addWidget(svg_)
+        icon = QLabel()
+        pixmap = QPixmap(self.icon_path)
+        pixmap = Utils.qiconed_resize(pixmap, self.icon_size)
+        icon.setPixmap(pixmap)
+        h_lay.addWidget(icon)
 
         descr = QLabel(AboutWidget.text_)
         h_lay.addWidget(descr)
 
+        h_lay.addStretch()
 
 class UCheckBox(QCheckBox):
     hh = 35

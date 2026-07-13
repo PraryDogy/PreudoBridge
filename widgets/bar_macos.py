@@ -1,17 +1,13 @@
 import os
 
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QAction, QContextMenuEvent, QKeyEvent
-from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QMenu, QMenuBar, QSpacerItem,
-                             QVBoxLayout, QWidget)
+from PyQt6.QtGui import QAction, QContextMenuEvent, QKeyEvent, QPixmap
+from PyQt6.QtWidgets import QLabel, QMenu, QMenuBar, QVBoxLayout, QWidget
 
 from cfg import Static
 from system.utils import Utils
 
 from ._base_widgets import UMainWindow, UMenu
-from .win_servers import WinServers
-from .win_settings import WinSettings
 
 
 class SelectableLabel(QLabel):
@@ -76,8 +72,8 @@ class AboutWin(UMainWindow):
         - Закрывается по Escape или Enter.
     """
     ww, hh = 280, 240
-    svg_ww, svg_hh = 150, 130
-    svg_icon = os.path.join(Static.internal_images_dir, "icon.svg")
+    icon_size = 150
+    icon_path = os.path.join(Static.internal_images_dir, "icon.png")
 
     def __init__(self):
         super().__init__()
@@ -92,11 +88,10 @@ class AboutWin(UMainWindow):
         self.central_layout.setSpacing(0)
         self.centralWidget().setLayout(self.central_layout)
 
-        # --- Иконка приложения ---
-        icon = QSvgWidget()
-        icon.load(self.svg_icon)
-        icon.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
-        icon.setFixedSize(self.svg_ww, self.svg_hh)
+        icon = QLabel()
+        pixmap = QPixmap(self.icon_path)
+        pixmap = Utils.qiconed_resize(pixmap, self.icon_size)
+        icon.setPixmap(pixmap)
         self.central_layout.addWidget(icon, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # --- Информационный текст ---

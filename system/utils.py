@@ -8,7 +8,7 @@ from datetime import datetime
 import cv2
 import numpy as np
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QImage, QPainter
+from PyQt6.QtGui import QIcon, QImage, QPainter, QPixmap
 from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtWidgets import QApplication
 
@@ -223,3 +223,7 @@ class Utils:
         else:
             splited = abs_path.strip(os.sep).split(os.sep)
             return os.sep + os.sep.join(splited[2:])
+        
+    @classmethod
+    def qiconed_resize(cls, pixmap: QPixmap, max_side: int) -> QPixmap:
+        return QIcon(pixmap).pixmap(QSize(max_side, max_side))
