@@ -2,7 +2,7 @@ import os
 
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
+from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QSizePolicy,
                              QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
@@ -16,7 +16,7 @@ from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, UFrame, ULineEdit,
 
 class BarTopBtn(QWidget):
     clicked = pyqtSignal()
-    svg_size = 30
+    svg_size = 15
 
     def __init__(self, filename: str):
         super().__init__()
@@ -28,6 +28,7 @@ class BarTopBtn(QWidget):
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.svg_btn = QSvgWidget()
+        self.svg_btn.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         self.svg_btn.setFixedSize(self.svg_size, self.svg_size)
         self.v_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
