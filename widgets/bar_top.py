@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
                              QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
+from PyQt6.QtSvgWidgets import QSvgWidget
 from system.items import MainWinItem, SearchItem
 from system.utils import Utils
 
@@ -20,23 +21,13 @@ class BarTopBtn(QWidget):
     svg_size = 20
 
     def __init__(self):
-        """
-        QFrame с изменением стиля при наведении курсора и svg иконкой.
-        """
         super().__init__()
 
-        self.v_lay = QVBoxLayout()
+        self.v_lay = QVBoxLayout(self)
         self.v_lay.setContentsMargins(0, 0, 0, 0)
-        self.v_lay.setSpacing(1)
+        self.v_lay.setSpacing(0)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setLayout(self.v_lay)
 
-        self.svg_frame = UFrame()
-        self.svg_frame.setFixedSize(self.width_, self.height_)
-        svg_lay = QHBoxLayout()
-        svg_lay.setContentsMargins(0, 0, 0, 0)
-        self.svg_frame.setLayout(svg_lay)
-        self.v_lay.addWidget(self.svg_frame, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.svg_btn = USvgSqareWidget(None, BarTopBtn.svg_size)
         svg_lay.addWidget(self.svg_btn)
