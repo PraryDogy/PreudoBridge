@@ -16,21 +16,20 @@ from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, UFrame, ULineEdit,
 
 class BarTopBtn(QWidget):
     clicked = pyqtSignal()
-    width_ = 40
-    height_ = 35
-    svg_size = 20
+    svg_size = 30
 
-    def __init__(self):
+    def __init__(self, filename: str):
         super().__init__()
+        self.filename = filename
 
         self.v_lay = QVBoxLayout(self)
         self.v_lay.setContentsMargins(0, 0, 0, 0)
         self.v_lay.setSpacing(0)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-
-        self.svg_btn = USvgSqareWidget(None, BarTopBtn.svg_size)
-        svg_lay.addWidget(self.svg_btn)
+        self.svg_btn = QSvgWidget()
+        self.svg_btn.setFixedSize(self.svg_size, self.svg_size)
+        self.v_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.lbl = QLabel()
         self.lbl.setStyleSheet("font-size: 10px;")
@@ -41,6 +40,18 @@ class BarTopBtn(QWidget):
         self._click_timer = QTimer(self)
         self._click_timer.setSingleShot(True)
         self._click_timer.timeout.connect(self._unlock_click)
+
+        self.set_normal_style()
+
+    def set_solid_style(self):
+        icon_name = f"{self.filename}_selected.svg"
+        icon_path = os.path.join(Static.internal_images_dir, icon_name)
+        self.svg_btn.load(icon_path)
+
+    def set_normal_style(self):
+        icon_name = f"{self.filename}.svg"
+        icon_path = os.path.join(Static.internal_images_dir, icon_name)
+        self.svg_btn.load(icon_path)
 
     def load(self, path: str):
         self.svg_btn.load(path)
@@ -336,47 +347,39 @@ class BarTop(QWidget):
         self.main_lay.setContentsMargins(0, 3, 0, 3)
         self.setLayout(self.main_lay)
 
-        back = BarTopBtn()
-        back.load(os.path.join(Static.internal_images_dir, "arrow_left.svg"))
+        back = BarTopBtn("arrow_left")
         back.clicked.connect(lambda: self.navigate_cmd(-1))
         self.main_lay.addWidget(back)
 
-        next = BarTopBtn()
-        next.load(os.path.join(Static.internal_images_dir, "arrow_right.svg"))
+        next = BarTopBtn("arrow_right")
         next.clicked.connect(lambda: self.navigate_cmd(1))
         self.main_lay.addWidget(next)
 
-        level_up_btn = BarTopBtn()
+        level_up_btn = BarTopBtn("level_up")
         level_up_btn.clicked.connect(self.base_signals.level_up.emit)
-        level_up_btn.load(os.path.join(Static.internal_images_dir, "level_up.svg"))
         self.main_lay.addWidget(level_up_btn)
 
         self.main_lay.addStretch(1)
         self.main_lay.addSpacerItem(QSpacerItem(20, 0))
 
-        self.update_btn = BarTopBtn()
-        self.update_btn.load(os.path.join(Static.internal_images_dir, "update.svg"))
+        self.update_btn = BarTopBtn("update")
         self.update_btn.clicked.connect(lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir))
         self.main_lay.addWidget(self.update_btn)
 
-        self.new_folder_btn = BarTopBtn()
-        # cmd = lambda e: self.open_in_new_win.emit(self.main_win_item.main_dir)
-        cmd = lambda e: self.base_signals.new_folder.emit()
-        self.new_folder_btn.mouseReleaseEvent = cmd
-        self.new_folder_btn.load(os.path.join(Static.internal_images_dir, "new_folder.svg"))
+        self.new_folder_btn = BarTopBtn("new_folder")
+        self.new_folder_btn.clicked.connect(lambda: self.base_signals.new_folder.emit())
         self.main_lay.addWidget(self.new_folder_btn)
 
-        self.change_view_btn = BarTopBtn()
-        self.change_view_btn.mouseReleaseEvent = lambda e: self.base_signals.change_view.emit()
         if self.main_win_item.view_mode == 0:
-            self.change_view_btn.load(os.path.join(Static.internal_images_dir, "list.svg"))
+            self.change_view_btn = BarTopBtn("list")
+            self.change_view_btn.clicked.connect(lambda: self.base_signals.change_view.emit())
         else:
-            self.change_view_btn.load(os.path.join(Static.internal_images_dir, "grid.svg"))
+            self.change_view_btn = BarTopBtn("grid")
+            self.change_view_btn.clicked.connect(lambda: self.base_signals.change_view.emit())
         self.main_lay.addWidget(self.change_view_btn)
 
-        self.sett_btn = BarTopBtn()
+        self.sett_btn = BarTopBtn("settings")
         self.sett_btn.clicked.connect(self.base_signals.settings.emit)
-        self.sett_btn.load(os.path.join(Static.internal_images_dir, "settings.svg"))
         self.main_lay.addWidget(self.sett_btn)
 
         self.main_lay.addStretch(1)
