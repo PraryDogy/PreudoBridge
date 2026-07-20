@@ -586,17 +586,13 @@ class WinMain(UMainWindow):
 
     def change_view_cmd(self):
         if self.main_win_item.view_mode == 0:
-            self.bar_top.change_view_btn.load(
-                os.path.join(Static.internal_images_dir, "grid.svg")
-            )
-            self.bar_top.change_view_btn.lbl.setText(self.grid_text)
+            self.bar_top.change_view_btn.load_svg_data("grid_view")
+            self.bar_top.change_view_btn.lbl.setText("Сетка")
             self.main_win_item.view_mode = 1
 
         else:
-            self.bar_top.change_view_btn.load(
-                os.path.join(Static.internal_images_dir, "list.svg")
-            )
-            self.bar_top.change_view_btn.lbl.setText(self.list_text)
+            self.bar_top.change_view_btn.load_svg_data("list_view")
+            self.bar_top.change_view_btn.lbl.setText("Список")
             self.main_win_item.view_mode = 0
 
         self.load_st_grid(self.main_win_item.abs_current_dir)

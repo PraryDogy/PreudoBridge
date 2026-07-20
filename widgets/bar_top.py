@@ -250,9 +250,8 @@ class BarTopBtn(QWidget):
 
     def __init__(self, filename: str):
         super().__init__()
-        self.filename = filename
-        self.normal_svg_data = self._load_svg_data(f"{filename}.svg")
-        self.solid_svg_data = self._load_svg_data(f"{filename}_selected.svg")
+        self.normal_svg_data = None
+        self.solid_svg_data = None
 
         self.v_lay = QVBoxLayout(self)
         self.v_lay.setContentsMargins(0, 0, 0, 0)
@@ -267,12 +266,22 @@ class BarTopBtn(QWidget):
         self.lbl.setStyleSheet("font-size: 10px;")
         self.v_lay.addWidget(self.lbl, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        self.load_svg_data(filename)
         self.set_normal_style()
 
-    def _load_svg_data(self, icon_name: str):
-        path = os.path.join(Static.internal_images_dir, icon_name)
-        with open(path, "rb") as f:
-            return QByteArray(f.read())
+    def load_svg_data(self, filename: str):
+        normal_path = os.path.join(
+            Static.internal_images_dir,
+            filename + ".svg"
+        )
+        solid_path = os.path.join(
+            Static.internal_images_dir,
+            filename + "_selected.svg"
+        )
+        with open(normal_path, "rb") as f:
+            self.normal_svg_data = QByteArray(f.read())
+        with open(solid_path, "rb") as f:
+            self.solid_svg_data = QByteArray(f.read())
 
     def set_solid_style(self):
         self.svg_btn.load(self.solid_svg_data)
@@ -323,7 +332,7 @@ class NewFolderBtn(BarTopBtn):
         self.lbl.setText("Новая папка")
 
 
-class ListViewBtn(BarTopBtn):
+class ViewBtn(BarTopBtn):
     def __init__(self):
         super().__init__("list_view")
         self.lbl.setText("Список")
@@ -378,12 +387,8 @@ class BarTop(QWidget):
         self.new_folder_btn.clicked.connect(lambda: self.base_signals.new_folder.emit())
         self.main_lay.addWidget(self.new_folder_btn)
 
-        if self.main_win_item.view_mode == 0:
-            self.change_view_btn = ListViewBtn()
-            self.change_view_btn.clicked.connect(lambda: self.base_signals.change_view.emit())
-        else:
-            self.change_view_btn = ListViewBtn()
-            self.change_view_btn.clicked.connect(lambda: self.base_signals.change_view.emit())
+        self.change_view_btn = ViewBtn()
+        self.change_view_btn.clicked.connect(lambda: self.base_signals.change_view.emit())
         self.main_lay.addWidget(self.change_view_btn)
 
         self.sett_btn = SettingsBtn()
