@@ -13,67 +13,6 @@ from system.utils import Utils
 from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, UFrame, ULineEdit,
                             UMainWindow, UMenu, USvgSqareWidget, UTextEdit)
 
-
-class BarTopBtn(QWidget):
-    clicked = pyqtSignal()
-    svg_size = 15
-
-    def __init__(self, filename: str):
-        super().__init__()
-        self.filename = filename
-
-        self.v_lay = QVBoxLayout(self)
-        self.v_lay.setContentsMargins(0, 0, 0, 0)
-        self.v_lay.setSpacing(0)
-        self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.svg_btn = QSvgWidget()
-        self.svg_btn.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        self.svg_btn.setFixedSize(self.svg_size, self.svg_size)
-        self.v_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        self.lbl = QLabel()
-        self.lbl.setStyleSheet("font-size: 10px;")
-        self.v_lay.addWidget(self.lbl, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.lbl.hide()
-
-        self._click_blocked = False
-        self._click_timer = QTimer(self)
-        self._click_timer.setSingleShot(True)
-        self._click_timer.timeout.connect(self._unlock_click)
-
-        self.set_normal_style()
-
-    def set_solid_style(self):
-        icon_name = f"{self.filename}_selected.svg"
-        icon_path = os.path.join(Static.internal_images_dir, icon_name)
-        self.svg_btn.load(icon_path)
-
-    def set_normal_style(self):
-        icon_name = f"{self.filename}.svg"
-        icon_path = os.path.join(Static.internal_images_dir, icon_name)
-        self.svg_btn.load(icon_path)
-
-    def load(self, path: str):
-        self.svg_btn.load(path)
-
-    def set_pressed(self, value: bool):
-        self.svg_frame.pressed = value
-
-    def _unlock_click(self):
-        self._click_blocked = False
-
-    def mouseReleaseEvent(self, e):
-        if e.button() == Qt.MouseButton.LeftButton:
-            if self._click_blocked:
-                return
-            self._click_blocked = True
-            self._click_timer.stop()
-            self._click_timer.start(500)  # мс
-            self.clicked.emit()
-        super().mouseReleaseEvent(e)
-
-
 class WinSearchList(UMainWindow):
     title_text = "Поиск"
     search_place_text = "Место поиска:"
@@ -302,84 +241,136 @@ class SearchWidget(ULineEdit):
         if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.start_search()
         return super().keyPressEvent(a0)
+    
+
+class BarTopBtn(QWidget):
+    clicked = pyqtSignal()
+    svg_size = 30
+
+    def __init__(self, filename: str):
+        super().__init__()
+        self.filename = filename
+
+        self.v_lay = QVBoxLayout(self)
+        self.v_lay.setContentsMargins(0, 0, 0, 0)
+        self.v_lay.setSpacing(1)
+        self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.svg_btn = QSvgWidget()
+        self.svg_btn.setFixedSize(self.svg_size, self.svg_size)
+        self.v_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.lbl = QLabel()
+        self.lbl.setStyleSheet("font-size: 10px;")
+        self.v_lay.addWidget(self.lbl, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.set_normal_style()
+
+    def set_solid_style(self):
+        icon_name = f"{self.filename}_selected.svg"
+        icon_path = os.path.join(Static.internal_images_dir, icon_name)
+        self.svg_btn.load(icon_path)
+
+    def set_normal_style(self):
+        icon_name = f"{self.filename}.svg"
+        icon_path = os.path.join(Static.internal_images_dir, icon_name)
+        self.svg_btn.load(icon_path)
+
+
+class BackBtn(BarTopBtn):
+    def __init__(self):
+        super().__init__("back")
+        self.lbl.setText("Назад")
+
+
+class ForwardBtn(BarTopBtn):
+    def __init__(self):
+        super().__init__("forward")
+        self.lbl.setText("Вперед")
+
+
+class LevelUpBtn(BarTopBtn):
+    def __init__(self):
+        super().__init__("level_up")
+        self.lbl.setText("Наверх")
+
+
+class UpdateBtn(BarTopBtn):
+    def __init__(self):
+        super().__init__("update")
+        self.lbl.setText("Обновить")
+
+
+class NewFolderBtn(BarTopBtn):
+    def __init__(self):
+        super().__init__("new_folder")
+        self.lbl.setText("Новая папка")
+
+
+class ListViewBtn(BarTopBtn):
+    def __init__(self):
+        super().__init__("list_view")
+        self.lbl.setText("Список")
+
+
+class SettingsBtn(BarTopBtn):
+    def __init__(self):
+        super().__init__("settings")
+        self.lbl.setText("Настройки")
+
 
 
 class BarTop(QWidget):
     load_search_grid = pyqtSignal()
-
-    non_text_height = 46
-    non_text_spacing = 0
-    text_height = 60
-    text_spacing = 15
+    hh = 60
     history_items_limit = 100
-    topbar_btn_texts = [
-        "Назад",
-        "Вперед",
-        "Наверх",
-        "Обновить",
-        "Новая папка",
-        "Список",
-        "Настройки"
-    ]
-    sym_only_text = "Только значок"
-    sym_text_text = "Значок и текст"
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
-        """
-        Верхний бар в окне приложения:
-        - кнопки: Назад / вперед
-        - кнопка На уровень вверх
-        - Открыть в новом окне
-        - Показать сеткой
-        - Показать списком
-        - Настройки
-        - Поле ввода для поиска
-        """
         super().__init__()
-        self.setFixedHeight(self.non_text_height)
+        self.setFixedHeight(self.hh)
+
         self.base_signals = BaseSignals()
         self.main_win_item = main_win_item
         self.search_item = search_item
         self.history_items: list[str] = []
         self.current_index = -1
 
-        self.main_lay = QHBoxLayout()
-        self.main_lay.setSpacing(0)
+        self.main_lay = QHBoxLayout(self)
         self.main_lay.setContentsMargins(0, 3, 0, 3)
-        self.setLayout(self.main_lay)
+        self.main_lay.setSpacing(15)
 
-        back = BarTopBtn("arrow_left")
+        back = BackBtn()
         back.clicked.connect(lambda: self.navigate_cmd(-1))
         self.main_lay.addWidget(back)
 
-        next = BarTopBtn("arrow_right")
+        next = ForwardBtn()
         next.clicked.connect(lambda: self.navigate_cmd(1))
         self.main_lay.addWidget(next)
 
-        level_up_btn = BarTopBtn("level_up")
+        level_up_btn = LevelUpBtn()
         level_up_btn.clicked.connect(self.base_signals.level_up.emit)
         self.main_lay.addWidget(level_up_btn)
 
         self.main_lay.addStretch(1)
         self.main_lay.addSpacerItem(QSpacerItem(20, 0))
 
-        self.update_btn = BarTopBtn("update")
+        self.update_btn = UpdateBtn()
         self.update_btn.clicked.connect(lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir))
         self.main_lay.addWidget(self.update_btn)
 
-        self.new_folder_btn = BarTopBtn("new_folder")
+        self.new_folder_btn = NewFolderBtn()
         self.new_folder_btn.clicked.connect(lambda: self.base_signals.new_folder.emit())
         self.main_lay.addWidget(self.new_folder_btn)
 
         if self.main_win_item.view_mode == 0:
-            self.change_view_btn = BarTopBtn("list")
+            self.change_view_btn = ListViewBtn()
             self.change_view_btn.clicked.connect(lambda: self.base_signals.change_view.emit())
         else:
-            self.change_view_btn = BarTopBtn("grid")
+            self.change_view_btn = ListViewBtn()
             self.change_view_btn.clicked.connect(lambda: self.base_signals.change_view.emit())
         self.main_lay.addWidget(self.change_view_btn)
 
-        self.sett_btn = BarTopBtn("settings")
+        self.sett_btn = SettingsBtn()
         self.sett_btn.clicked.connect(self.base_signals.settings.emit)
         self.main_lay.addWidget(self.sett_btn)
 
@@ -392,26 +383,6 @@ class BarTop(QWidget):
             lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir)
         )
         self.main_lay.addWidget(self.search_wid)
-
-        for btn, txt in zip(self.findChildren(BarTopBtn), self.topbar_btn_texts):
-            btn.lbl.setText(txt)
-
-        self.toggle_texts()
-
-    def toggle_texts(self):
-        if JsonData.show_text:
-            self.main_lay.setSpacing(self.text_spacing)
-            self.setFixedHeight(self.text_height)
-            for btn in self.findChildren(BarTopBtn):
-                btn.lbl.show()
-        else:
-            self.main_lay.setSpacing(self.non_text_spacing)
-            self.setFixedHeight(self.non_text_height)
-            for btn in self.findChildren(BarTopBtn):
-                btn.lbl.hide()
-
-    def set_show_text(self, value: bool):
-        JsonData.show_text = value
 
     def history_item(self, dir: str):
         """
@@ -480,30 +451,3 @@ class BarTop(QWidget):
             self.current_index = new_index
             new_main_dir = self.history_items[self.current_index]
             self.base_signals.load_st_grid.emit(new_main_dir)
-
-    def resizeEvent(self, a0):
-        return super().resizeEvent(a0)
-    
-    def contextMenuEvent(self, a0):
-        menu_ = UMenu()
-
-        first = QAction(parent=menu_, text=self.sym_only_text)
-        first.triggered.connect(lambda: self.set_show_text(False))
-        first.triggered.connect(lambda: self.toggle_texts())
-        first.setCheckable(True)
-        menu_.addAction(first)
-
-        second = QAction(parent=menu_, text=self.sym_text_text)
-        second.triggered.connect(lambda: self.set_show_text(True))
-        second.triggered.connect(lambda: self.toggle_texts())
-        second.setCheckable(True)
-        menu_.addAction(second)
-
-        if JsonData.show_text:
-            second.setChecked(True)
-        else:
-            first.setChecked(True)
-        
-        menu_.show_under_mouse()
-
-        return super().contextMenuEvent(a0)
