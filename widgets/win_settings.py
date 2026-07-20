@@ -200,33 +200,14 @@ class CheckboxWidgets(GroupWid):
         )
         self.layout_.addWidget(self.enable_go_to)
 
-        self.layout_.addWidget(HSep())
-
-        self.show_texts = UCheckBox(self.show_texts_text)
-        self.layout_.addWidget(self.show_texts)
-
         if JsonData.go_to_now:
             self.enable_go_to.setChecked(True)
 
-        if JsonData.show_text:
-            self.show_texts.setChecked(True)
-
         self.enable_go_to.stateChanged.connect(self.on_state_changed_two)
-        self.show_texts.stateChanged.connect(self.show_texts_cmd)
          
     def on_state_changed_two(self, value: int):
         data = {0: False, 2: True}
         JsonData.go_to_now = data.get(value)
-
-    def show_texts_cmd(self):
-        if JsonData.show_text:
-            JsonData.show_text = False
-            self.show_texts.setChecked(False)
-        else:
-            JsonData.show_text = True
-            self.show_texts.setChecked(True)
-
-        self.show_texts_sig.emit()
 
 
 class ThemeBtn(QWidget):
