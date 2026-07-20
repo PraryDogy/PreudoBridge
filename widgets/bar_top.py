@@ -269,17 +269,15 @@ class BarTopBtn(QWidget):
 
         self.set_normal_style()
 
-    def _load_svg_data(self, icon_name: str) -> QByteArray:
+    def _load_svg_data(self, icon_name: str):
         path = os.path.join(Static.internal_images_dir, icon_name)
         with open(path, "rb") as f:
             return QByteArray(f.read())
 
     def set_solid_style(self):
-        # Мгновенная загрузка из оперативной памяти
         self.svg_btn.load(self.solid_svg_data)
 
     def set_normal_style(self):
-        # Мгновенная загрузка из оперативной памяти
         self.svg_btn.load(self.normal_svg_data)
     
     def mouseReleaseEvent(self, a0):
