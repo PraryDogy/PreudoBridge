@@ -250,6 +250,8 @@ class BarTopBtn(QWidget):
 
     def __init__(self, filename: str):
         super().__init__()
+        self.setFixedWidth(65)
+        # self.setStyleSheet("background: red")
         self.normal_svg_data = None
         self.solid_svg_data = None
 
@@ -362,7 +364,7 @@ class BarTop(QWidget):
 
         self.main_lay = QHBoxLayout(self)
         self.main_lay.setContentsMargins(0, 3, 0, 3)
-        self.main_lay.setSpacing(15)
+        self.main_lay.setSpacing(0)
 
         back = BackBtn()
         back.clicked.connect(lambda: self.navigate_cmd(-1))
@@ -377,7 +379,6 @@ class BarTop(QWidget):
         self.main_lay.addWidget(level_up_btn)
 
         self.main_lay.addStretch(1)
-        self.main_lay.addSpacerItem(QSpacerItem(20, 0))
 
         self.update_btn = UpdateBtn()
         self.update_btn.clicked.connect(lambda: self.base_signals.load_st_grid.emit(self.main_win_item.abs_current_dir))
@@ -396,7 +397,6 @@ class BarTop(QWidget):
         self.main_lay.addWidget(self.sett_btn)
 
         self.main_lay.addStretch(1)
-        self.main_lay.addSpacerItem(QSpacerItem(20, 0))
 
         self.search_wid = SearchWidget(self.search_item, self.main_win_item)
         self.search_wid.load_search_grid.connect(self.load_search_grid.emit)

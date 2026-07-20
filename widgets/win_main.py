@@ -595,6 +595,7 @@ class WinMain(UMainWindow):
             self.bar_top.change_view_btn.lbl.setText("Список")
             self.main_win_item.view_mode = 0
 
+        self.bar_top.change_view_btn.set_solid_style()
         self.load_st_grid(self.main_win_item.abs_current_dir)
 
     def open_in_app(self, data: tuple[list[str], str]):
