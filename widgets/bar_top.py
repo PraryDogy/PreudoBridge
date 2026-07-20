@@ -1,17 +1,18 @@
 import os
 
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtCore import QByteArray, Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QAction
+from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QSizePolicy,
                              QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from PyQt6.QtSvgWidgets import QSvgWidget
 from system.items import MainWinItem, SearchItem
 from system.utils import Utils
 
 from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, UFrame, ULineEdit,
                             UMainWindow, UMenu, USvgSqareWidget, UTextEdit)
+
 
 class WinSearchList(UMainWindow):
     title_text = "Поиск"
@@ -250,6 +251,8 @@ class BarTopBtn(QWidget):
     def __init__(self, filename: str):
         super().__init__()
         self.filename = filename
+        self.normal_svg_data = self._load_svg_data(f"{filename}.svg")
+        self.solid_svg_data = self._load_svg_data(f"{filename}_selected.svg")
 
         self.v_lay = QVBoxLayout(self)
         self.v_lay.setContentsMargins(0, 0, 0, 0)
@@ -266,23 +269,30 @@ class BarTopBtn(QWidget):
 
         self.set_normal_style()
 
+    def _load_svg_data(self, icon_name: str) -> QByteArray:
+        path = os.path.join(Static.internal_images_dir, icon_name)
+        with open(path, "rb") as f:
+            return QByteArray(f.read())
+
     def set_solid_style(self):
-        icon_name = f"{self.filename}_selected.svg"
-        icon_path = os.path.join(Static.internal_images_dir, icon_name)
-        self.svg_btn.load(icon_path)
+        # Мгновенная загрузка из оперативной памяти
+        self.svg_btn.load(self.solid_svg_data)
 
     def set_normal_style(self):
-        icon_name = f"{self.filename}.svg"
-        icon_path = os.path.join(Static.internal_images_dir, icon_name)
-        self.svg_btn.load(icon_path)
-
-    def mousePressEvent(self, a0):
-        self.set_solid_style()
-        return super().mousePressEvent(a0)
+        # Мгновенная загрузка из оперативной памяти
+        self.svg_btn.load(self.normal_svg_data)
     
     def mouseReleaseEvent(self, a0):
-        self.set_normal_style()
+        self.clicked.emit()
         return super().mouseReleaseEvent(a0)
+    
+    def enterEvent(self, event):
+        self.set_solid_style()
+        return super().enterEvent(event)
+    
+    def leaveEvent(self, a0):
+        self.set_normal_style()
+        return super().leaveEvent(a0)
 
 
 class BackBtn(BarTopBtn):
