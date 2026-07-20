@@ -276,6 +276,14 @@ class BarTopBtn(QWidget):
         icon_path = os.path.join(Static.internal_images_dir, icon_name)
         self.svg_btn.load(icon_path)
 
+    def mousePressEvent(self, a0):
+        self.set_solid_style()
+        return super().mousePressEvent(a0)
+    
+    def mouseReleaseEvent(self, a0):
+        self.set_normal_style()
+        return super().mouseReleaseEvent(a0)
+
 
 class BackBtn(BarTopBtn):
     def __init__(self):
