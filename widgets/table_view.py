@@ -5,8 +5,8 @@ from PyQt6.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
 from PyQt6.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QImage, QKeyEvent,
                          QPixmap)
-from PyQt6.QtWidgets import (QAbstractItemView, QApplication, 
-                             QLabel, QSplitter, QTableView)
+from PyQt6.QtWidgets import (QAbstractItemView, QApplication, QLabel,
+                             QSplitter, QTableView, QTableWidget)
 
 from cfg import Dynamic, JsonData, Static
 from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
@@ -14,7 +14,7 @@ from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
-from ._base_widgets import UFileSystemModel, UMenu, BaseSignals
+from ._base_widgets import BaseSignals, UFileSystemModel, UMenu
 from .actions import Actions, Menus
 
 
@@ -24,10 +24,17 @@ class MyFileSystemModel(UFileSystemModel):
         self.cut_rows = set()
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        # 1. Сначала обрабатываем текст заголовков
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             headers = ["Имя", "Размер", "Тип", "Дата изменения"]
             if 0 <= section < len(headers):
                 return headers[section]
+
+        # 2. Добавляем перехват выравнивания: центрируем текст по горизонтали и вертикали
+        if role == Qt.ItemDataRole.TextAlignmentRole and orientation == Qt.Orientation.Horizontal:
+            return Qt.AlignmentFlag.AlignVCenter
+
+        # 3. Для всех остальных случаев вызываем базовый класс
         return super().headerData(section, orientation, role)
 
     def flags(self, index):
@@ -107,13 +114,10 @@ class TableView(QTableView):
         self.setSortingEnabled(True)
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().sectionClicked.connect(self.save_sort_settings)
+        self.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
         self.doubleClicked.connect(self.double_clicked)
 
         self._model = MyFileSystemModel()
-        # self._model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot)
-        # if JsonData.show_hidden:
-            # self._model.setFilter(self._model.filter() | QDir.Hidden)
-
         if main_win_item.abs_current_dir is not None:
             self.setModel(self._model)
             self._model.setRootPath(self.main_win_item.abs_current_dir)
@@ -133,7 +137,6 @@ class TableView(QTableView):
         self.sortByColumn(TableView.col, TableView.order)
         for i in range(0, 4):
             self.setColumnWidth(i, TableView.sizes[i])
-
         self._model.directoryLoaded.connect(self.set_url_to_index_)
 
     def set_url_to_index_(self):
