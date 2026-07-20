@@ -366,15 +366,20 @@ class BarTop(QWidget):
         self.main_lay.setContentsMargins(0, 3, 0, 3)
         self.main_lay.setSpacing(0)
 
+        small_ww = 50
+
         back = BackBtn()
+        back.setFixedWidth(small_ww)
         back.clicked.connect(lambda: self.navigate_cmd(-1))
         self.main_lay.addWidget(back)
 
         next = ForwardBtn()
+        next.setFixedWidth(small_ww)
         next.clicked.connect(lambda: self.navigate_cmd(1))
         self.main_lay.addWidget(next)
 
         level_up_btn = LevelUpBtn()
+        level_up_btn.setFixedWidth(small_ww)
         level_up_btn.clicked.connect(self.base_signals.level_up.emit)
         self.main_lay.addWidget(level_up_btn)
 
