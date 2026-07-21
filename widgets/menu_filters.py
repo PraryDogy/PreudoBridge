@@ -34,9 +34,9 @@ class MenuFilters(QTabWidget):
         btn_layout.setContentsMargins(0, 0, 0, 3)
         btn_layout.setSpacing(10)
         self.apply_btn = BtnSmall("Применить")
-        self.apply_btn.setFixedWidth(95)
+        self.apply_btn.setFixedWidth(75)
         self.clear_btn = BtnSmall("Очистить")
-        self.clear_btn.setFixedWidth(95)
+        self.clear_btn.setFixedWidth(75)
         self.apply_btn.clicked.connect(
             lambda: (
                 self.line_edit.clearFocus(),
