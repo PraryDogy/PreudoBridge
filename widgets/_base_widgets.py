@@ -248,14 +248,14 @@ class UFrame(QFrame):
         self.setStyleSheet(self.normal_style())
 
     def normal_style(self):
-        return f"""#{UFrame.object_name} {{
+        return f"""#{self.object_name} {{
                         background: transparent;
                         padding-left: 2px;
                         padding-right: 2px;
                 }}"""
 
     def solid_style(self):
-        return f"""#{UFrame.object_name} {{
+        return f"""#{self.object_name} {{
                         background: rgba(128, 128, 128, 0.95); 
                         border-radius: 7px;
                         padding-left: 2px;
