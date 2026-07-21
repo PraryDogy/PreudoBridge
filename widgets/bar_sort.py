@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 from cfg import Dynamic, Static
 from system.items import MainWinItem, SortItem, TotalCountItem
 
-from ._base_widgets import (BaseSignals, GrayLabel, UFrame, USlider,
+from ._base_widgets import (BaseSignals, HoverGrayLabel, UFrame, USlider,
                             USvgSqareWidget)
 from .actions import Menus
 
@@ -34,7 +34,7 @@ class GoToBtn(UFrame):
         self.go_btn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "go_to.svg"), GoToBtn.svg_size)
         h_lay.addWidget(self.go_btn)
 
-        self.go_label = GrayLabel(GoToBtn.go_to_text)
+        self.go_label = HoverGrayLabel(GoToBtn.go_to_text)
         self.go_label.set_text_size(11)
         h_lay.addWidget(self.go_label)
 
@@ -54,20 +54,17 @@ class SortFrame(UFrame):
     desc_text = "по возр."
 
     def __init__(self, main_win_item: MainWinItem):
-        """
-        Виджет с раскрывающимся меню, которое предлагает сортировку сетки
-        """
         super().__init__()
         self.main_win_item = main_win_item
 
         h_lay = QHBoxLayout(self)
         h_lay.setContentsMargins(2, 0, 2, 0)
 
-        self.total_text_label = GrayLabel("")
+        self.total_text_label = HoverGrayLabel("")
         self.total_text_label.set_text_size(11)
         h_lay.addWidget(self.total_text_label)
 
-        self.sort_wid = GrayLabel("")
+        self.sort_wid = HoverGrayLabel("")
         self.sort_wid.set_text_size(11)
         h_lay.addWidget(self.sort_wid)
 

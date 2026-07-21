@@ -476,3 +476,22 @@ class GrayLabel(QLabel):
     def set_text_size(self, size_px: int = 9):
         self.font_size_px = size_px
         self._update_stylesheet()
+
+
+class HoverGrayLabel(GrayLabel):
+    def __init__(self, text: str):
+        super().__init__(text)
+
+    def _update_stylesheet(self):
+        self.setStyleSheet(
+            f"""
+                HoverGrayLabel {{
+                    color: rgba(128, 128, 128, 1.0);
+                    font-size: {self.font_size_px}px;
+                }}
+                HoverGrayLabel:hover {{
+                    /* palette(window-text) или palette(text) в зависимости от нужной роли палитры */
+                    color: palette(window-text); 
+                }}
+            """
+        )

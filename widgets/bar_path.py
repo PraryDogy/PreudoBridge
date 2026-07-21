@@ -9,7 +9,7 @@ from system.items import DataItem, ImgViewItem, MainWinItem, NameUrlItem
 from system.shared_utils import ImgUtils
 from system.utils import Utils
 
-from ._base_widgets import BaseSignals, GrayLabel, UMenu
+from ._base_widgets import BaseSignals, HoverGrayLabel, UMenu
 from .actions import Actions
 
 
@@ -49,7 +49,7 @@ class PathItem(QWidget):
         self.img_wid = QLabel()
         item_layout.addWidget(self.img_wid)
         
-        self.text_wid = GrayLabel(text=name)
+        self.text_wid = HoverGrayLabel(text=name)
         self.text_wid.set_text_size(11)
         self.collapse()
         item_layout.addWidget(self.text_wid)
