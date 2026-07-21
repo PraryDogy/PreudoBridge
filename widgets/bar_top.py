@@ -355,12 +355,10 @@ class SettingsBtn(BarTopBtn):
 
 class BarTop(QWidget):
     load_search_grid = pyqtSignal()
-    hh = 60
     history_items_limit = 100
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
-        self.setFixedHeight(self.hh)
 
         self.base_signals = BaseSignals()
         self.main_win_item = main_win_item
@@ -369,10 +367,10 @@ class BarTop(QWidget):
         self.current_index = -1
 
         self.main_lay = QHBoxLayout(self)
-        self.main_lay.setContentsMargins(0, 3, 0, 3)
+        self.main_lay.setContentsMargins(0, 0, 0, 5)
         self.main_lay.setSpacing(0)
 
-        small_ww = 50
+        small_ww = 45
 
         back = BackBtn()
         back.setFixedWidth(small_ww)
@@ -399,8 +397,10 @@ class BarTop(QWidget):
         self.new_folder_btn.clicked.connect(lambda: self.base_signals.new_folder.emit())
         self.main_lay.addWidget(self.new_folder_btn)
 
+        view_ww = 50
         self.change_view_btn = ViewBtn()
         self.change_view_btn.clicked.connect(lambda: self.base_signals.change_view.emit())
+        self.change_view_btn.setFixedWidth(view_ww)
         self.main_lay.addWidget(self.change_view_btn)
 
         self.sett_btn = SettingsBtn()
