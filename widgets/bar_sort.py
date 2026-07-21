@@ -1,6 +1,7 @@
 import os
 
-from PyQt6.QtCore import QPoint, Qt, QTimer, pyqtSignal
+from PyQt6.QtCore import (QCoreApplication, QEvent, QPoint, Qt, QTimer,
+                          pyqtSignal)
 from PyQt6.QtGui import QMouseEvent
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
@@ -10,6 +11,12 @@ from system.items import MainWinItem, SortItem, TotalCountItem
 from ._base_widgets import (BaseSignals, HoverGrayLabel, UFrame, USlider,
                             USvgSqareWidget)
 from .actions import Menus
+
+
+class BarSortFrame(UFrame):
+    def __init__(self):
+        super().__init__()
+
 
 
 class GoToBtn(UFrame):
@@ -43,6 +50,16 @@ class GoToBtn(UFrame):
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
             self.clicked_.emit()
+
+    def enterEvent(self, event: QEvent):
+        enter_event = QEvent(QEvent.Type.Enter)
+        QCoreApplication.sendEvent(self.go_label, enter_event)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event: QEvent):
+        leave_event = QEvent(QEvent.Type.Leave)
+        QCoreApplication.sendEvent(self.go_label, leave_event)
+        super().leaveEvent(event)
 
 
 class SortFrame(UFrame):
@@ -118,6 +135,18 @@ class SortFrame(UFrame):
         menus.sort_menu.move(menu_center_top)
         menus.sort_menu.exec()
         super().leaveEvent(a0)
+
+    def enterEvent(self, event: QEvent):
+        enter_event = QEvent(QEvent.Type.Enter)
+        QCoreApplication.sendEvent(self.total_text_label, enter_event)
+        QCoreApplication.sendEvent(self.sort_wid, enter_event)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event: QEvent):
+        leave_event = QEvent(QEvent.Type.Leave)
+        QCoreApplication.sendEvent(self.total_text_label, leave_event)
+        QCoreApplication.sendEvent(self.sort_wid, leave_event)
+        super().leaveEvent(event)
         
 
 class CustomSlider(USlider):
