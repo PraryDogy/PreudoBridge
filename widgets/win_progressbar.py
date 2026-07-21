@@ -33,20 +33,18 @@ class WinProgressbar(UMainWindow):
         self.set_close_only()
         self.setWindowTitle(title)
 
-        main_lay = QHBoxLayout()
+        main_lay = QHBoxLayout(self.centralWidget())
         main_lay.setContentsMargins(10, 5, 10, 5)
         main_lay.setSpacing(5)
-        self.centralWidget().setLayout(main_lay)
 
         icon = "./images/copy_files.svg"
         left_side_icon = USvgSqareWidget(icon, 50)
         main_lay.addWidget(left_side_icon)
 
         right_side_wid = QWidget()
-        right_side_lay = QVBoxLayout()
+        right_side_lay = QVBoxLayout(right_side_wid)
         right_side_lay.setContentsMargins(0, 0, 0, 0)
         right_side_lay.setSpacing(0)
-        right_side_wid.setLayout(right_side_lay)
         main_lay.addWidget(right_side_wid)
 
         self.above_label = QLabel()
@@ -54,10 +52,9 @@ class WinProgressbar(UMainWindow):
 
         progressbar_row = QWidget()
         right_side_lay.addWidget(progressbar_row)
-        progressbar_lay = QHBoxLayout()
+        progressbar_lay = QHBoxLayout(progressbar_row)
         progressbar_lay.setContentsMargins(0, 0, 0, 0)
         progressbar_lay.setSpacing(10)
-        progressbar_row.setLayout(progressbar_lay)
 
         self.progressbar = QProgressBar()
         self.progressbar.setTextVisible(False)

@@ -32,14 +32,14 @@ class WinSearchList(UMainWindow):
         self.setWindowTitle(self.title_text)
         self.main_win_item = main_win_item
         self.search_item = search_item
-        self.centralWidget().setLayout(self.create_main_layout())
+        self.create_main_layout()
         self.input_.setText(
             "\n".join(self.search_item.search_list.values())
         )
         self.adjustSize()
 
     def create_main_layout(self):
-        v_lay = QVBoxLayout()
+        v_lay = QVBoxLayout(self.centralWidget())
         v_lay.setContentsMargins(10, 5, 10, 5)
         v_lay.setSpacing(10)
 
@@ -52,10 +52,9 @@ class WinSearchList(UMainWindow):
     
     def create_first_row(self):
         first_row = QGroupBox()
-        first_lay = QVBoxLayout()
+        first_lay = QVBoxLayout(first_row)
         first_lay.setContentsMargins(2, 5, 2, 5)
         first_lay.setSpacing(5)
-        first_row.setLayout(first_lay)
 
         first_title = QLabel(WinSearchList.search_place_text)
         first_lay.addWidget(first_title)
@@ -79,10 +78,9 @@ class WinSearchList(UMainWindow):
 
     def create_buttons(self):
         btns_wid = QWidget()
-        btns_lay = QHBoxLayout()
+        btns_lay = QHBoxLayout(btns_wid)
         btns_lay.setContentsMargins(0, 0, 0, 0)
         btns_lay.setSpacing(10)
-        btns_wid.setLayout(btns_lay)
 
         btns_lay.addStretch()
 

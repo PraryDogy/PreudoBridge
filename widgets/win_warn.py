@@ -17,10 +17,9 @@ class ConfirmWindow(UMainWindow):
         self.setWindowTitle("Внимание!")
         self.setFixedWidth(350)
 
-        self.central_layout = QVBoxLayout()
+        self.central_layout = QVBoxLayout(self.centralWidget())
         self.central_layout.setContentsMargins(10, 10, 10, 5)
         self.central_layout.setSpacing(5)
-        self.centralWidget().setLayout(self.central_layout)
 
         text_layout = QHBoxLayout()
         text_layout.setContentsMargins(0, 0, 0, 0)

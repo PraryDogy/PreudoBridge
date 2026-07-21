@@ -83,10 +83,9 @@ class AboutWin(UMainWindow):
         # --- Настройка окна ---
         self.setWindowTitle(Static.app_name)
 
-        self.central_layout = QVBoxLayout()
+        self.central_layout = QVBoxLayout(self.centralWidget())
         self.central_layout.setContentsMargins(10, 0, 10, 10)
         self.central_layout.setSpacing(0)
-        self.centralWidget().setLayout(self.central_layout)
 
         icon = QLabel()
         pixmap = QPixmap(self.icon_path)

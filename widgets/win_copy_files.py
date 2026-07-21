@@ -33,18 +33,16 @@ class WinReplaceFiles(UMainWindow):
         self.setWindowTitle(self.title_text)
         self.setFixedSize(400, 100)
 
-        main_lay = QVBoxLayout()
+        main_lay = QVBoxLayout(self.centralWidget())
         main_lay.setContentsMargins(10, 5, 10, 10)
         main_lay.setSpacing(10)
-        self.centralWidget().setLayout(main_lay)
 
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
 
-        h_lay = QHBoxLayout()
+        h_lay = QHBoxLayout(h_wid)
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
-        h_wid.setLayout(h_lay)
 
         warn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "warning.svg"), self.icon_size)
         h_lay.addWidget(warn)
@@ -56,11 +54,10 @@ class WinReplaceFiles(UMainWindow):
         btn_wid = QWidget()
         main_lay.addWidget(btn_wid, alignment=Qt.AlignmentFlag.AlignRight)
 
-        btn_lay = QHBoxLayout()
+        btn_lay = QHBoxLayout(btn_wid)
         btn_lay.setContentsMargins(0, 0, 0, 0)
         btn_lay.setSpacing(10)
         btn_lay.setAlignment(Qt.AlignmentFlag.AlignRight)
-        btn_wid.setLayout(btn_lay)
 
         # btn_lay.addStretch()
 
@@ -107,18 +104,16 @@ class WinError(UMainWindow):
         self.set_close_only()
         self.setWindowTitle(WinError.title_text)
 
-        main_lay = QVBoxLayout()
+        main_lay = QVBoxLayout(self.centralWidget())
         main_lay.setContentsMargins(10, 5, 10, 10)
         main_lay.setSpacing(0)
-        self.centralWidget().setLayout(main_lay)
 
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
 
-        h_lay = QHBoxLayout()
+        h_lay = QHBoxLayout(h_wid)
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
-        h_wid.setLayout(h_lay)
 
         warn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "warning.svg"), WinError.icon_size)
         h_lay.addWidget(warn)

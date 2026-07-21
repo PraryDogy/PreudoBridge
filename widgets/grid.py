@@ -294,8 +294,7 @@ class Grid(UScrollArea):
         self.origin_pos = QPoint()
         self.rubberBand = QRubberBand(QRubberBand.Shape.Rectangle, self.grid_wid)
 
-        self.grid_layout = QGridLayout()
-        self.grid_wid.setLayout(self.grid_layout)
+        self.grid_layout = QGridLayout(self.grid_wid)
         self.grid_layout.setSpacing(self.grid_spacing)
         self.grid_layout.setAlignment(
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft

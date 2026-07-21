@@ -25,10 +25,9 @@ class WinGoTo(UMainWindow):
         self.set_always_on_top()
         self.set_close_only()
         self.setWindowTitle(WinGoTo.title_text)
-        v_lay = QVBoxLayout()
+        v_lay = QVBoxLayout(self.centralWidget())
         v_lay.setContentsMargins(10, 10, 10, 5)
         v_lay.setSpacing(5)
-        self.centralWidget().setLayout(v_lay)
 
         self.input_wid = ULineEdit()
         self.input_wid.textChanged.connect(self.text_changed)
@@ -40,10 +39,9 @@ class WinGoTo(UMainWindow):
         h_wid = QWidget()
         v_lay.addWidget(h_wid)
 
-        h_lay = QHBoxLayout()
+        h_lay = QHBoxLayout(h_wid)
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
-        h_wid.setLayout(h_lay)
 
         h_lay.addStretch()
 

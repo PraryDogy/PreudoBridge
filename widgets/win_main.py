@@ -151,10 +151,9 @@ class WinMain(UMainWindow):
         self.setMenuBar(self.bar_macos)
 
         # --- Основной layout ---
-        main_lay = QHBoxLayout()
+        main_lay = QHBoxLayout(self.centralWidget())
         main_lay.setContentsMargins(5, 0, 5, 0)
         main_lay.setSpacing(0)
-        self.centralWidget().setLayout(main_lay)
 
         # --- Левый виджет ---
         left_side_widget = QSplitter()
@@ -182,8 +181,7 @@ class WinMain(UMainWindow):
 
         # --- Правый виджет ---
         right_side_widget = QWidget()
-        self.right_side_layout = QVBoxLayout()
-        right_side_widget.setLayout(self.right_side_layout)
+        self.right_side_layout = QVBoxLayout(right_side_widget)
         self.right_side_layout.setContentsMargins(0, 0, 0, 0)
         self.right_side_layout.setSpacing(0)
 

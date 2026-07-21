@@ -20,10 +20,9 @@ class MenuFilters(QTabWidget):
         self.addTab(wid, "Фильтры")
         self.tabBar().hide()
 
-        layout_ = QVBoxLayout()
+        layout_ = QVBoxLayout(wid)
         layout_.setContentsMargins(0, 0, 0, 0)
         layout_.setSpacing(5)
-        wid.setLayout(layout_)
 
         self.line_edit = UTextEdit()
         self.line_edit.setPlaceholderText(self.filter_placeholder)

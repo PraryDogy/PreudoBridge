@@ -42,10 +42,9 @@ class PathItem(QWidget):
         self.setFixedHeight(PathItem.item_height)
         self.item_dir = dir
 
-        item_layout = QHBoxLayout()
+        item_layout = QHBoxLayout(self)
         item_layout.setContentsMargins(0, 0, 0, 0)
         item_layout.setSpacing(5)
-        self.setLayout(item_layout)
 
         self.img_wid = QLabel()
         item_layout.addWidget(self.img_wid)
@@ -133,11 +132,10 @@ class BarPath(QWidget):
         self.main_win_item = main_win_item
         self.current_path: str = None
 
-        self.main_lay = QHBoxLayout()
+        self.main_lay = QHBoxLayout(self)
         self.main_lay.setContentsMargins(0, 0, 0, 0)
         self.main_lay.setSpacing(5)
         self.main_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.setLayout(self.main_lay)
         self.update(self.main_win_item.abs_current_dir)
 
     def create_icons(self):

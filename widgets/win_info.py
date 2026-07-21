@@ -72,11 +72,10 @@ class WinInfo(UMainWindow):
             data_item.set_properties()
             self.data_items.append(data_item)
 
-        self.grid_layout = QGridLayout()
+        self.grid_layout = QGridLayout(self.centralWidget())
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.setContentsMargins(10, 10, 10, 10)
         self.grid_layout.setSpacing(5)
-        self.centralWidget().setLayout(self.grid_layout)
 
         self.init_ui()
         self.set_transparent()

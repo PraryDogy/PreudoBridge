@@ -146,9 +146,8 @@ class WinLogin(UMainWindow):
         self.set_always_on_top()
         self.set_close_only()
         self.setFixedWidth(self.ww)
-        self.central_layout = QVBoxLayout()
+        self.central_layout = QVBoxLayout(self.centralWidget())
         self.central_layout.setContentsMargins(5, 5, 5, 5)
-        self.centralWidget().setLayout(self.central_layout)
         self.central_layout.setSpacing(5)
 
         alias_label = ServerLabel(text="Псевдоним")
@@ -263,8 +262,7 @@ class WinServers(UMainWindow):
         self.setWindowTitle("Подключиться к серверу")
         self.setFixedSize(350, 250)
 
-        self.central_layout = QVBoxLayout()
-        self.centralWidget().setLayout(self.central_layout)
+        self.central_layout = QVBoxLayout(self.centralWidget())
         self.central_layout.setContentsMargins(5, 5, 5, 5)
         self.central_layout.setSpacing(10)
 
@@ -279,8 +277,7 @@ class WinServers(UMainWindow):
 
         # Кнопки
         btn_widget = QWidget()
-        btn_layout = QHBoxLayout()
-        btn_widget.setLayout(btn_layout)
+        btn_layout = QHBoxLayout(btn_widget)
         btn_layout.setContentsMargins(0, 0, 0, 0)
         btn_layout.setSpacing(10)
         self.central_layout.addWidget(btn_widget)

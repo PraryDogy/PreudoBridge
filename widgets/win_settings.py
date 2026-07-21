@@ -25,10 +25,9 @@ class GroupWid(QGroupBox):
         QGroupBox + self.layout_ (vertical layout)
         """
         super().__init__()
-        self.layout_ = QVBoxLayout()
+        self.layout_ = QVBoxLayout(self)
         self.layout_.setContentsMargins(6, 2, 6, 2)
         self.layout_.setSpacing(2)
-        self.setLayout(self.layout_)
 
 
 class GroupChild(QWidget):
@@ -39,10 +38,9 @@ class GroupChild(QWidget):
         """
         super().__init__()
         self.setFixedHeight(self.hh)
-        self.layout_ = QHBoxLayout()
+        self.layout_ = QHBoxLayout(self)
         self.layout_.setContentsMargins(0, 0, 0, 0)
         self.layout_.setSpacing(0)
-        self.setLayout(self.layout_)
 
 
 class SvgArrow(QSvgWidget):
@@ -157,9 +155,8 @@ class AboutWidget(QGroupBox):
     def __init__(self):
         super().__init__()
 
-        h_lay = QHBoxLayout()
+        h_lay = QHBoxLayout(self)
         h_lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(h_lay)
 
         icon = QLabel()
         pixmap = QPixmap(self.icon_path)
@@ -298,10 +295,9 @@ class WinSettings(UMainWindow):
         self.set_close_only()
         self.setFixedWidth(470)
 
-        main_lay = QVBoxLayout()
+        main_lay = QVBoxLayout(self.centralWidget())
         main_lay.setContentsMargins(10, 0, 10, 10)
         main_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.centralWidget().setLayout(main_lay)
 
         h_wid = QWidget()
         main_lay.addWidget(h_wid)

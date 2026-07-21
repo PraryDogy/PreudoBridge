@@ -23,14 +23,12 @@ class GoToBtn(UFrame):
         """
         super().__init__()
 
-        h_lay = QHBoxLayout()
-        # h_lay.setContentsMargins(2, 2, 2, 2)
+        h_lay = QHBoxLayout(self)
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setAlignment(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
         h_lay.setSpacing(4)
-        self.setLayout(h_lay)
 
         self.go_btn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "go_to.svg"), GoToBtn.svg_size)
         h_lay.addWidget(self.go_btn)
@@ -60,9 +58,8 @@ class SortFrame(UFrame):
         super().__init__()
         self.main_win_item = main_win_item
 
-        h_lay = QHBoxLayout()
+        h_lay = QHBoxLayout(self)
         h_lay.setContentsMargins(2, 0, 2, 0)
-        self.setLayout(h_lay)
 
         self.total_text_label = QLabel()
         h_lay.addWidget(self.total_text_label)
@@ -187,7 +184,6 @@ class BarSort(QWidget):
 
     def init_ui(self):
         self.main_lay = self.create_main_layout()
-        self.setLayout(self.main_lay)
 
         self.create_go_to_button()
         self.main_lay.addStretch()
@@ -198,7 +194,7 @@ class BarSort(QWidget):
 
     def create_main_layout(self):
         """Создает и настраивает основной layout"""
-        layout = QHBoxLayout()
+        layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 10, 0)
         layout.setSpacing(5)
         return layout

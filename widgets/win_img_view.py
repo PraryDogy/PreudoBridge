@@ -232,9 +232,8 @@ class WinImgView(UMainWindow):
         self.mouse_move_timer.setSingleShot(True)
         self.mouse_move_timer.timeout.connect(self.hide_btns)
 
-        self.v_layout = QVBoxLayout()
+        self.v_layout = QVBoxLayout(self.centralWidget())
         self.v_layout.setContentsMargins(0, 0, 0, 0)
-        self.centralWidget().setLayout(self.v_layout)
 
         self.img_wid = ImgWid(QPixmap())
         self.img_wid.mouse_moved.connect(self.show_btns)

@@ -27,15 +27,13 @@ class WinMissedFiles(UMainWindow):
         self.set_close_only()
         self.setWindowTitle(WinMissedFiles.title_text)
 
-        v_lay = QVBoxLayout()
+        v_lay = QVBoxLayout(self.centralWidget())
         v_lay.setContentsMargins(10, 5, 10, 5)
-        self.centralWidget().setLayout(v_lay)
 
         self.first_row_wid = QWidget()
         v_lay.addWidget(self.first_row_wid)
-        self.first_row_lay = QHBoxLayout()
+        self.first_row_lay = QHBoxLayout(self.first_row_wid)
         self.first_row_lay.setContentsMargins(0, 0, 0, 0)
-        self.first_row_wid.setLayout(self.first_row_lay)
 
         icon = os.path.join(Static.internal_images_dir, "warning.svg")
         warn = USvgSqareWidget(icon, 30)
@@ -52,11 +50,10 @@ class WinMissedFiles(UMainWindow):
 
         h_wid = QWidget()
         v_lay.addWidget(h_wid)
-        h_lay = QHBoxLayout()
+        h_lay = QHBoxLayout(h_wid)
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
         h_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        h_wid.setLayout(h_lay)
 
         ok_btn = BtnSmall(WinMissedFiles.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
