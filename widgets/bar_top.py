@@ -1,17 +1,16 @@
 import os
 
 from PyQt6.QtCore import QByteArray, Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QAction, QPalette
 from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QSizePolicy,
-                             QSpacerItem, QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QVBoxLayout,
+                             QWidget)
 
 from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem, SearchItem
 from system.utils import Utils
 
-from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, UFrame, ULineEdit,
-                            UMainWindow, UMenu, USvgSqareWidget, UTextEdit)
+from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, ULineEdit,
+                            UMainWindow, UTextEdit)
 
 
 class WinSearchList(UMainWindow):
