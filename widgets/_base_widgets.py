@@ -240,13 +240,8 @@ class USep(QFrame):
 
 class UFrame(QFrame):
     object_name = "bar_top_btn"
-    gray_color = "rgba(128, 128, 128, 0.95)"
 
     def __init__(self):
-        """
-        Стандартный QFrame с пользовательским стилем:   
-        При наведении курсора мыши на виджет, он принимает выделенный стиль
-        """
         super().__init__()
         self.pressed = False
         self.setObjectName(UFrame.object_name)
@@ -261,7 +256,7 @@ class UFrame(QFrame):
 
     def solid_style(self):
         return f"""#{UFrame.object_name} {{
-                        background: {self.gray_color}; 
+                        background: rgba(128, 128, 128, 0.95); 
                         border-radius: 7px;
                         padding-left: 2px;
                         padding-right: 2px;
