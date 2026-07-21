@@ -9,8 +9,8 @@ from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem, SearchItem
 from system.utils import Utils
 
-from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, ULineEdit,
-                            UMainWindow, UTextEdit)
+from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, GrayLabel,
+                            ULineEdit, UMainWindow, UTextEdit)
 
 
 class WinSearchList(UMainWindow):
@@ -262,13 +262,7 @@ class BarTopBtn(QWidget):
         self.svg_btn.setFixedSize(self.svg_size, self.svg_size)
         self.v_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.lbl = QLabel()
-        self.lbl.setStyleSheet(
-            f"""
-                color: rgba(128, 128, 128, 1.0);
-                font-size: 9px;
-            """
-        )
+        self.lbl = GrayLabel("")
         self.v_lay.addWidget(self.lbl, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.load_svg_data(filename)

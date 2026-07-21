@@ -7,7 +7,8 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 from cfg import Dynamic, Static
 from system.items import MainWinItem, SortItem, TotalCountItem
 
-from ._base_widgets import UFrame, USlider, USvgSqareWidget, BaseSignals
+from ._base_widgets import (BaseSignals, GrayLabel, UFrame, USlider,
+                            USvgSqareWidget)
 from .actions import Menus
 
 
@@ -33,7 +34,8 @@ class GoToBtn(UFrame):
         self.go_btn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "go_to.svg"), GoToBtn.svg_size)
         h_lay.addWidget(self.go_btn)
 
-        self.go_label = QLabel(GoToBtn.go_to_text)
+        self.go_label = GrayLabel(GoToBtn.go_to_text)
+        self.go_label.set_text_size(11)
         h_lay.addWidget(self.go_label)
 
         self.adjustSize()
@@ -61,10 +63,12 @@ class SortFrame(UFrame):
         h_lay = QHBoxLayout(self)
         h_lay.setContentsMargins(2, 0, 2, 0)
 
-        self.total_text_label = QLabel()
+        self.total_text_label = GrayLabel("")
+        self.total_text_label.set_text_size(11)
         h_lay.addWidget(self.total_text_label)
 
-        self.sort_wid = QLabel()
+        self.sort_wid = GrayLabel("")
+        self.sort_wid.set_text_size(11)
         h_lay.addWidget(self.sort_wid)
 
     def set_sort_text(self):
