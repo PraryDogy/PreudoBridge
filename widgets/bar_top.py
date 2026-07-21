@@ -1,7 +1,7 @@
 import os
 
 from PyQt6.QtCore import QByteArray, Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QPalette
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QSizePolicy,
                              QSpacerItem, QVBoxLayout, QWidget)
@@ -247,10 +247,11 @@ class SearchWidget(ULineEdit):
 class BarTopBtn(QWidget):
     clicked = pyqtSignal()
     svg_size = 30
+    widget_width = 60
 
     def __init__(self, filename: str):
         super().__init__()
-        self.setFixedWidth(65)
+        self.setFixedWidth(self.widget_width)
         # self.setStyleSheet("background: red")
         self.normal_svg_data = None
         self.solid_svg_data = None
@@ -265,7 +266,12 @@ class BarTopBtn(QWidget):
         self.v_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.lbl = QLabel()
-        self.lbl.setStyleSheet("font-size: 10px;")
+        self.lbl.setStyleSheet(
+            f"""
+                color: rgba(128, 128, 128, 1.0);
+                font-size: 9px;
+            """
+        )
         self.v_lay.addWidget(self.lbl, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.load_svg_data(filename)
