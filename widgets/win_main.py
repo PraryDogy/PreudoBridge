@@ -58,7 +58,7 @@ class TreeFavsWid(QTabWidget):
 class ScrollUpBtn(QSvgWidget):
     clicked = pyqtSignal()
     svg_size = 40
-    svg_path = "./images/up.svg"
+    svg_path = os.path.join(Static.internal_images_dir, "up.svg")
 
     def __init__(self):
         super().__init__()

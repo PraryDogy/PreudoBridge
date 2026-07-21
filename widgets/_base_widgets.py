@@ -437,7 +437,7 @@ class BaseSignals(QObject):
 
 class BtnNext(QGroupBox):
     clicked = pyqtSignal()
-    img = "./images/next.svg"
+    img = os.path.join(Static.internal_images_dir, "next.svg")
     size_ = 16
     hh = 35
 

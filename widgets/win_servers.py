@@ -52,7 +52,7 @@ class ServerItem:
 
 
 class ServerListItem(QListWidgetItem):
-    iconpath = "./images/next.svg"
+    iconpath = os.path.join(Static.internal_images_dir, "next.svg")
     def __init__(self, parent: QListWidget, text: str, server_item: ServerItem):
         super().__init__(text, parent)
         self.server_item = server_item
@@ -60,8 +60,8 @@ class ServerListItem(QListWidgetItem):
 
 
 class EyeSvg(QSvgWidget):
-    eye_on = "./images/eye_on.svg"
-    eye_off = "./images/eye_off.svg"
+    eye_on = os.path.join(Static.internal_images_dir, "eye_on.svg")
+    eye_off = os.path.join(Static.internal_images_dir, "eye_off.svg")
 
     def __init__(self):
         super().__init__()

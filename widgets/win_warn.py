@@ -1,14 +1,18 @@
+import os
+
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 
-from ._base_widgets import UMainWindow, BtnSmall
+from cfg import Static
+
+from ._base_widgets import BtnSmall, UMainWindow
 
 
 class ConfirmWindow(UMainWindow):
     ok_clicked = pyqtSignal()
     ww = 360
-    svg_icon = "./images/warning.svg"
+    svg_icon = os.path.join(Static.internal_images_dir, "warning.svg")
 
     def __init__(self, text: str):
         super().__init__()

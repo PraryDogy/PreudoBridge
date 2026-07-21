@@ -15,6 +15,8 @@ import rawpy._rawpy
 import tifffile
 from PIL import Image, ImageCms, ImageOps
 
+from cfg import Static
+
 
 class SharedUtils:
                                 
@@ -136,7 +138,11 @@ class ImgUtils:
 
     @classmethod
     def _get_broken_image(cls):
-        path = Path("./images/broken_image.jpg")
+        icon_path = os.path.join(
+            Static.internal_images_dir,
+            "broken_image.jpg"
+        )
+        path = Path(icon_path)
         img = Image.open(path)
         array_img = np.array(img)
         img.close()

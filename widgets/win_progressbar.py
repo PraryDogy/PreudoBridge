@@ -37,7 +37,7 @@ class WinProgressbar(UMainWindow):
         main_lay.setContentsMargins(10, 5, 10, 5)
         main_lay.setSpacing(5)
 
-        icon = "./images/copy_files.svg"
+        icon = os.path.join(Static.internal_images_dir, "copy_files.svg")
         left_side_icon = USvgSqareWidget(icon, 50)
         main_lay.addWidget(left_side_icon)
 

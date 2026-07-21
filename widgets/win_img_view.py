@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (QApplication, QGraphicsOpacityEffect,
                              QGraphicsPixmapItem, QGraphicsScene,
                              QGraphicsView, QLabel, QVBoxLayout)
 
+from cfg import Static
 from system.items import DataItem, ImgViewItem, ReadImgItem
 from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
@@ -137,7 +138,7 @@ class ZoomWidget(CustomSvg):
     zoom_in = pyqtSignal()
     zoom_out = pyqtSignal()
     zoom_fit = pyqtSignal()
-    svg_path = "./images/zoom.svg"
+    svg_path = os.path.join(Static.internal_images_dir, "zoom.svg")
 
     def __init__(self):
         super().__init__()
@@ -185,7 +186,7 @@ class ZoomWidget(CustomSvg):
 
 
 class PrevButton(CustomSvg):
-    svg_path = "./images/prev.svg"
+    svg_path = os.path.join(Static.internal_images_dir, "prev.svg")
 
     def __init__(self) -> None:
         super().__init__()
@@ -193,7 +194,7 @@ class PrevButton(CustomSvg):
 
 
 class NextButton(CustomSvg):
-    svg_path = "./images/next.svg"
+    svg_path = os.path.join(Static.internal_images_dir, "next.svg")
 
     def __init__(self) -> None:
         super().__init__()

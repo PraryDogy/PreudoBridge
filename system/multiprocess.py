@@ -106,7 +106,11 @@ class ImgLoader:
         }
 
         new_items: list[DataItem] = []
-        broken_thumb = Utils.read_thumb("./images/broken_thumb.jpg")
+        icon_path = os.path.join(
+            Static.internal_images_dir,
+            "broken_thumb.jpg"
+        )
+        broken_thumb = Utils.read_thumb(icon_path)
 
         for data, thumb_path in db_items_dict.items():
             if data in finder_items_dict:

@@ -44,7 +44,7 @@ class GroupChild(QWidget):
 
 
 class SvgArrow(QSvgWidget):
-    img = "./images/next.svg"
+    img = os.path.join(Static.internal_images_dir, "next.svg")
     size_ = 16
     def __init__(self, *args, **kwargs):
         super().__init__()
@@ -214,8 +214,8 @@ class ThemeBtn(QWidget):
     def __init__(self, theme: Literal["macos", "light", "dark"]):
         super().__init__()
         self.theme = theme
-        self.svg = f"./images/{theme}_theme.svg"
-        self.svg_selected = f"./images/{theme}_theme_selected.svg"
+        self.svg = f"{Static.internal_images_dir}/{theme}_theme.svg"
+        self.svg_selected = f"{Static.internal_images_dir}/{theme}_theme_selected.svg"
         text_mappings = {
             Themes.macos: Themes.macos,
             Themes.dark: "Темная",
