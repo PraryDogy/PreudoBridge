@@ -342,8 +342,8 @@ class NewFolderBtn(BarTopBtn):
 
 class ViewBtn(BarTopBtn):
     def __init__(self):
-        super().__init__("list_view")
-        self.lbl.setText("Список")
+        super().__init__("grid_view")
+        self.lbl.setText("Сетка")
 
 
 class SettingsBtn(BarTopBtn):
