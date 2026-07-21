@@ -388,7 +388,7 @@ class BarTop(QWidget):
         self.new_folder_btn.clicked.connect(lambda: self.base_signals.new_folder.emit())
         self.main_lay.addWidget(self.new_folder_btn)
 
-        view_ww = 50
+        view_ww = 53
         self.change_view_btn = ViewBtn()
         self.change_view_btn.clicked.connect(lambda: self.base_signals.change_view.emit())
         self.change_view_btn.setFixedWidth(view_ww)
