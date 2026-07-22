@@ -10,7 +10,7 @@ from system.items import DataItem, MultipleInfoItem, NameUrlItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
-from ._base_widgets import BaseSignals, UMainWidget, UMainWindow, UMenu
+from ._base_widgets import BaseSignals, UMainWidget, UMenu
 from .actions import Actions
 
 
@@ -39,7 +39,7 @@ class SelectableLabel(ULabel):
         ev.ignore()
 
 
-class WinInfo(UMainWindow):
+class WinInfo(UMainWidget):
     finished_ = pyqtSignal()
     copy_text = pyqtSignal(str)
 
@@ -72,7 +72,12 @@ class WinInfo(UMainWindow):
             data_item.set_properties()
             self.data_items.append(data_item)
 
-        self.grid_layout = QGridLayout(self.centralWidget())
+        self.central_layout.setContentsMargins(0, 0, 0, 0)
+
+        container = QWidget()
+        self.central_layout.addWidget(container)
+
+        self.grid_layout = QGridLayout(container)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.setContentsMargins(10, 10, 10, 10)
         self.grid_layout.setSpacing(5)

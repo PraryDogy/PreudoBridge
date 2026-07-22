@@ -10,13 +10,12 @@ from system.items import DataItem, MainWinItem, SearchItem, TotalCountItem
 from system.multiprocess import ProcessWorker, SearchTask, WatchdogTask
 from system.utils import Utils
 
-from ._base_widgets import (NotifyWid, BtnSmall, UMenu, USvgSqareWidget,
-                            UTextEdit, UMainWindow)
-from .actions import Actions
+from ._base_widgets import (BtnSmall, NotifyWid, QGroupBox, QVBoxLayout,
+                            UMainWidget, USvgSqareWidget, UTextEdit)
 from .grid import Grid, NoItemsLabel, Thumb
 
 
-class WinMissedFiles(UMainWindow):
+class WinMissedFiles(UMainWidget):
     title_text = "Внимание!"
     descr_text = "Не найдены файлы:"
     ok_text = "Ок"
@@ -27,11 +26,11 @@ class WinMissedFiles(UMainWindow):
         self.set_close_only()
         self.setWindowTitle(WinMissedFiles.title_text)
 
-        v_lay = QVBoxLayout(self.centralWidget())
-        v_lay.setContentsMargins(10, 5, 10, 5)
+        self.central_layout.setContentsMargins(5, 5, 5, 5)
+        self.central_layout.setSpacing(5)
 
         self.first_row_wid = QWidget()
-        v_lay.addWidget(self.first_row_wid)
+        self.central_layout.addWidget(self.first_row_wid)
         self.first_row_lay = QHBoxLayout(self.first_row_wid)
         self.first_row_lay.setContentsMargins(0, 0, 0, 0)
 
@@ -42,14 +41,19 @@ class WinMissedFiles(UMainWindow):
         label_ = QLabel(WinMissedFiles.descr_text)
         self.first_row_lay.addWidget(label_)
 
+        container = QGroupBox()
+        self.central_layout.addWidget(container)
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(2, 2, 2, 2)
+
         scrollable = UTextEdit()
         scrollable.setText("\n".join(files))
         scrollable.setReadOnly(True)
         scrollable.setCursor(Qt.CursorShape.IBeamCursor)
-        v_lay.addWidget(scrollable)
+        container_layout.addWidget(scrollable)
 
         h_wid = QWidget()
-        v_lay.addWidget(h_wid)
+        self.central_layout.addWidget(h_wid)
         h_lay = QHBoxLayout(h_wid)
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)

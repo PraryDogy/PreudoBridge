@@ -4,10 +4,10 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from ._base_widgets import UMainWindow, BtnSmall, ULineEdit
+from ._base_widgets import BtnSmall, ULineEdit, UMainWidget
 
 
-class WinRename(UMainWindow):
+class WinRename(UMainWidget):
     finished_ = pyqtSignal(str)
     placeholder_text = "Введите текст"
     ok_text = "Ок"
@@ -22,19 +22,18 @@ class WinRename(UMainWindow):
         self.set_close_only()
         self.setWindowTitle(WinRename.title_text)
 
-        v_lay = QVBoxLayout(self.centralWidget())
-        v_lay.setContentsMargins(10, 10, 10, 5)
-        v_lay.setSpacing(5)
+        self.central_layout.setContentsMargins(10, 10, 10, 5)
+        self.central_layout.setSpacing(10)
 
         self.input_wid = ULineEdit() 
         self.input_wid.setFixedWidth(WinRename.input_width)
         self.input_wid.setPlaceholderText(WinRename.placeholder_text)
         self.input_wid.setText(text)
         self.input_wid.textChanged.connect(self.text_changed)
-        v_lay.addWidget(self.input_wid)
+        self.central_layout.addWidget(self.input_wid)
 
         h_wid = QWidget()
-        v_lay.addWidget(h_wid)
+        self.central_layout.addWidget(h_wid)
         h_lay = QHBoxLayout(h_wid)
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
@@ -52,10 +51,9 @@ class WinRename(UMainWindow):
         h_lay.addStretch()
         self.adjustSize()
 
-        text, ext = os.path.splitext(text)
-        self.input_wid.setSelection(0, len(text))
         self.input_wid.move_clear_btn()
         if text:
+            self.input_wid.setCursorPosition(0)
             self.input_wid.clear_btn.show()
 
     def finish_rename(self):

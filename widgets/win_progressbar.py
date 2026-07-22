@@ -1,14 +1,12 @@
 import os
 
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QImage
 from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
                              QWidget)
 
 from cfg import Static
-from system.utils import Utils
 
-from ._base_widgets import USvgSqareWidget, UMainWindow
+from ._base_widgets import UMainWidget, USvgSqareWidget
 
 
 class CancelBtn(USvgSqareWidget):
@@ -24,8 +22,10 @@ class CancelBtn(USvgSqareWidget):
         return super().mouseReleaseEvent(a0)
 
 
-class WinProgressbar(UMainWindow):
+class WinProgressbar(UMainWidget):
     progressbar_width = 300
+    icon_path = os.path.join(Static.internal_images_dir, "copy_files.svg")
+    icon_size = 50
 
     def __init__(self, title: str):
         super().__init__()
@@ -33,12 +33,17 @@ class WinProgressbar(UMainWindow):
         self.set_close_only()
         self.setWindowTitle(title)
 
-        main_lay = QHBoxLayout(self.centralWidget())
+        self.central_layout.setContentsMargins(0, 5, 0, 5)
+        self.central_layout.setSpacing(0)
+
+        container = QWidget()
+        self.central_layout.addWidget(container)
+
+        main_lay = QHBoxLayout(container)
         main_lay.setContentsMargins(10, 5, 10, 5)
         main_lay.setSpacing(5)
 
-        icon = os.path.join(Static.internal_images_dir, "copy_files.svg")
-        left_side_icon = USvgSqareWidget(icon, 50)
+        left_side_icon = USvgSqareWidget(self.icon_path, self.icon_size)
         main_lay.addWidget(left_side_icon)
 
         right_side_wid = QWidget()
@@ -68,7 +73,8 @@ class WinProgressbar(UMainWindow):
         self.below_label = QLabel()
         right_side_lay.addWidget(self.below_label)
 
-        self.setFixedSize(400, 80)
         self.above_label.setMaximumWidth(self.progressbar.width() - 10)
         self.below_label.setMaximumWidth(self.progressbar.width() - 10)
+
+        self.adjustSize()
 

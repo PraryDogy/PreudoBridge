@@ -9,42 +9,51 @@ from system.items import ClipboardItemGlob, CopyItem
 from system.multiprocess import CopyTask, CopyWorker
 from system.utils import Utils
 
-from ._base_widgets import BtnSmall, USvgSqareWidget, UMainWindow
+from ._base_widgets import BtnSmall, UMainWidget, USvgSqareWidget
 from .win_progressbar import WinProgressbar
 
 
-class WinReplaceFiles(UMainWindow):
+class CustomBtn(BtnSmall):
+    ww = 75
+
+    def __init__(self, text):
+        super().__init__(text)
+        self.setStyleSheet("""font-size: 9pt;""")
+        self.setFixedWidth(self.ww)
+
+
+class WinReplaceFiles(UMainWidget):
     descr_text = "Заменить существующие файлы?"
     title_text = "Замена"
     replace_one_text = "Заменить"
     replace_all_text = "Заменить все"
     stop_text = "Стоп"
     icon_size = 50
-    btn_w = 100
+    ww = 330
 
     replace_one_press = pyqtSignal()
     replace_all_press = pyqtSignal()
     stop_pressed = pyqtSignal()
+    icon_path = os.path.join(Static.internal_images_dir, "warning.svg")
 
     def __init__(self):
         super().__init__()
         self.set_always_on_top()
         self.set_close_only()
         self.setWindowTitle(self.title_text)
-        self.setFixedSize(400, 100)
+        self.setFixedWidth(self.ww)
 
-        main_lay = QVBoxLayout(self.centralWidget())
-        main_lay.setContentsMargins(10, 5, 10, 10)
-        main_lay.setSpacing(10)
+        self.central_layout.setContentsMargins(7, 7, 7, 7)
+        self.central_layout.setSpacing(0)
 
         h_wid = QWidget()
-        main_lay.addWidget(h_wid)
+        self.central_layout.addWidget(h_wid)
 
         h_lay = QHBoxLayout(h_wid)
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
 
-        warn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "warning.svg"), self.icon_size)
+        warn = USvgSqareWidget(self.icon_path, self.icon_size)
         h_lay.addWidget(warn)
 
         test_two = QLabel(self.descr_text)
@@ -52,31 +61,27 @@ class WinReplaceFiles(UMainWindow):
         h_lay.addWidget(test_two)
 
         btn_wid = QWidget()
-        main_lay.addWidget(btn_wid, alignment=Qt.AlignmentFlag.AlignRight)
+        self.central_layout.addWidget(btn_wid, alignment=Qt.AlignmentFlag.AlignRight)
 
         btn_lay = QHBoxLayout(btn_wid)
         btn_lay.setContentsMargins(0, 0, 0, 0)
         btn_lay.setSpacing(10)
         btn_lay.setAlignment(Qt.AlignmentFlag.AlignRight)
 
-        # btn_lay.addStretch()
+        btn_lay.addStretch()
 
-        replace_all_btn = BtnSmall(self.replace_all_text)
-        replace_all_btn.setFixedWidth(self.btn_w)
+        replace_all_btn = CustomBtn(self.replace_all_text)
         replace_all_btn.clicked.connect(lambda: self.replace_all_cmd())
         btn_lay.addWidget(replace_all_btn)
 
-        replace_one_btn = BtnSmall(self.replace_one_text)
-        replace_one_btn.setFixedWidth(self.btn_w)
+        replace_one_btn = CustomBtn(self.replace_one_text)
         replace_one_btn.clicked.connect(lambda: self.replace_one_cmd())
         btn_lay.addWidget(replace_one_btn)
 
-        stop_btn = BtnSmall(self.stop_text)
-        stop_btn.setFixedWidth(self.btn_w)
+        stop_btn = CustomBtn(self.stop_text)
         stop_btn.clicked.connect(lambda: self.stop_cmd())
         btn_lay.addWidget(stop_btn)
-        
-        # btn_lay.addStretch()
+
         self.adjustSize()
 
     def replace_one_cmd(self):
@@ -92,11 +97,12 @@ class WinReplaceFiles(UMainWindow):
         a0.ignore()
     
 
-class WinError(UMainWindow):
+class WinError(UMainWidget):
     descr_text = "Произошла ошибка при копировании"
     title_text = "Ошибка"
     ok_text = "Ок"
     icon_size = 50
+    icon_path = os.path.join(Static.internal_images_dir, "warning.svg")
 
     def __init__(self):
         super().__init__()
@@ -104,18 +110,17 @@ class WinError(UMainWindow):
         self.set_close_only()
         self.setWindowTitle(WinError.title_text)
 
-        main_lay = QVBoxLayout(self.centralWidget())
-        main_lay.setContentsMargins(10, 5, 10, 10)
-        main_lay.setSpacing(0)
+        self.central_layout.setContentsMargins(7, 7, 7, 12)
+        self.central_layout.setSpacing(0)
 
         h_wid = QWidget()
-        main_lay.addWidget(h_wid)
+        self.central_layout.addWidget(h_wid)
 
         h_lay = QHBoxLayout(h_wid)
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
 
-        warn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "warning.svg"), WinError.icon_size)
+        warn = USvgSqareWidget(self.icon_path, WinError.icon_size)
         h_lay.addWidget(warn)
 
         test_two = QLabel(WinError.descr_text)
@@ -125,7 +130,7 @@ class WinError(UMainWindow):
         ok_btn = BtnSmall(WinError.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
-        main_lay.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.central_layout.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.adjustSize()
 
@@ -155,6 +160,12 @@ class WinCopyFiles(WinProgressbar):
             title_text = "Копирую файлы"
 
         super().__init__(title_text)
+
+        # one = WinReplaceFiles()
+        # one.show()
+        # two = WinError()
+        # two.show()
+        # return
 
         self.dst_urls = []
 

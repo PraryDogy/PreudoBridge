@@ -87,6 +87,7 @@ class TableView(QTableView):
     go_to_widget = pyqtSignal(str)
     paste_files = pyqtSignal()
     img_convert_win = pyqtSignal(list)
+    collage = pyqtSignal(list)
 
     files_icon = Utils.scaled(
         qimage=QImage(os.path.join(Static.internal_images_dir, "files.png")),

@@ -2,10 +2,10 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
-from ._base_widgets import UMainWindow, ULineEdit, BtnSmall
+from ._base_widgets import UMainWidget, ULineEdit, BtnSmall
 
 
-class WinGoTo(UMainWindow):
+class WinGoTo(UMainWidget):
     closed = pyqtSignal(str)
     placeholder_text = "Вставьте путь к файлу/папке"
     title_text = "Перейти к ..."
@@ -25,19 +25,19 @@ class WinGoTo(UMainWindow):
         self.set_always_on_top()
         self.set_close_only()
         self.setWindowTitle(WinGoTo.title_text)
-        v_lay = QVBoxLayout(self.centralWidget())
-        v_lay.setContentsMargins(10, 10, 10, 5)
-        v_lay.setSpacing(5)
+
+        self.central_layout.setContentsMargins(7, 10, 7, 5)
+        self.central_layout.setSpacing(5)
 
         self.input_wid = ULineEdit()
         self.input_wid.textChanged.connect(self.text_changed)
         self.input_wid.setPlaceholderText(WinGoTo.placeholder_text)
         self.input_wid.setFixedWidth(WinGoTo.input_width)
 
-        v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.central_layout.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         h_wid = QWidget()
-        v_lay.addWidget(h_wid)
+        self.central_layout.addWidget(h_wid)
 
         h_lay = QHBoxLayout(h_wid)
         h_lay.setContentsMargins(0, 0, 0, 0)
@@ -52,6 +52,8 @@ class WinGoTo(UMainWindow):
         h_lay.addStretch()
         self.adjustSize()
         self.input_wid.move_clear_btn()
+
+        self.adjustSize()
 
     def text_changed(self, text: str):
         if text:

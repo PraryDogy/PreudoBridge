@@ -14,7 +14,7 @@ from system.shared_utils import SharedUtils
 from system.tasks import CacheCleaner, DataSizeCounter, UThreadPool
 from system.utils import Utils
 
-from ._base_widgets import HSep, UMainWindow
+from ._base_widgets import HSep, UMainWidget
 # возможно в main win
 from .win_warn import ConfirmWindow, WinWarn
 
@@ -283,7 +283,7 @@ class ThemesWidget(GroupWid):
             self.theme_changed.emit()
 
 
-class WinSettings(UMainWindow):
+class WinSettings(UMainWidget):
     title_text = "Настройки"
     theme_changed = pyqtSignal()
     show_texts_sig = pyqtSignal()
@@ -295,29 +295,28 @@ class WinSettings(UMainWindow):
         self.set_close_only()
         self.setFixedWidth(470)
 
-        main_lay = QVBoxLayout(self.centralWidget())
-        main_lay.setContentsMargins(10, 0, 10, 10)
-        main_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.central_layout.setContentsMargins(10, 0, 10, 10)
+        self.central_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         h_wid = QWidget()
-        main_lay.addWidget(h_wid)
+        self.central_layout.addWidget(h_wid)
 
         checkbox_group = CheckboxWidgets()
         checkbox_group.show_texts_sig.connect(self.show_texts_sig.emit)
-        main_lay.addWidget(checkbox_group)
+        self.central_layout.addWidget(checkbox_group)
 
         themes_wid = ThemesWidget()
         themes_wid.theme_changed.connect(self.theme_changed_cmd)
-        main_lay.addWidget(themes_wid)
+        self.central_layout.addWidget(themes_wid)
 
         data_size_wid = DataSizeWidget()
-        main_lay.addWidget(data_size_wid)
+        self.central_layout.addWidget(data_size_wid)
 
         clickable_labels = ClickableWidgets()
-        main_lay.addWidget(clickable_labels)
+        self.central_layout.addWidget(clickable_labels)
 
         about_wid = AboutWidget()
-        main_lay.addWidget(about_wid)
+        self.central_layout.addWidget(about_wid)
 
         self.adjustSize()
 

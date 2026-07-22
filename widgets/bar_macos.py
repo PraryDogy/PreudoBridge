@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QLabel, QMenu, QMenuBar, QVBoxLayout, QWidget
 from cfg import Static
 from system.utils import Utils
 
-from ._base_widgets import UMainWindow, UMenu
+from ._base_widgets import UMainWidget, UMenu
 
 
 class SelectableLabel(QLabel):
@@ -62,15 +62,7 @@ class SelectableLabel(QLabel):
         context_menu.show_umenu()
 
 
-class AboutWin(UMainWindow):
-    """
-    Окно "О программе" с информацией о версии, авторе и контактами.
-    
-    Особенности:
-        - Отображает иконку приложения.
-        - Содержит SelectableLabel с информацией, которую можно копировать.
-        - Закрывается по Escape или Enter.
-    """
+class AboutWin(UMainWidget):
     ww, hh = 280, 240
     icon_size = 150
     icon_path = os.path.join(Static.internal_images_dir, "icon.png")
@@ -79,11 +71,8 @@ class AboutWin(UMainWindow):
         super().__init__()
         self.set_always_on_top()
         self.set_close_only()
-
-        # --- Настройка окна ---
         self.setWindowTitle(Static.app_name)
 
-        self.central_layout = QVBoxLayout(self.centralWidget())
         self.central_layout.setContentsMargins(10, 0, 10, 10)
         self.central_layout.setSpacing(0)
 

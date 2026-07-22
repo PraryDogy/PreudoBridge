@@ -6,10 +6,10 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 
 from cfg import Static
 
-from ._base_widgets import BtnSmall, UMainWindow
+from ._base_widgets import BtnSmall, UMainWidget
 
 
-class ConfirmWindow(UMainWindow):
+class ConfirmWindow(UMainWidget):
     ok_clicked = pyqtSignal()
     ww = 360
     svg_icon = os.path.join(Static.internal_images_dir, "warning.svg")
@@ -21,7 +21,6 @@ class ConfirmWindow(UMainWindow):
         self.setWindowTitle("Внимание!")
         self.setFixedWidth(350)
 
-        self.central_layout = QVBoxLayout(self.centralWidget())
         self.central_layout.setContentsMargins(10, 10, 10, 5)
         self.central_layout.setSpacing(5)
 

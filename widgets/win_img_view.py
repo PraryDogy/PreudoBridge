@@ -16,7 +16,7 @@ from system.items import DataItem, ImgViewItem, ReadImgItem
 from system.multiprocess import ProcessWorker, ReadImg
 from system.tasks import ImgArrayQImage, UThreadPool
 
-from ._base_widgets import BaseSignals, UMainWindow, UMenu
+from ._base_widgets import BaseSignals, UMainWidget, UMenu
 from .actions import Actions, Menus
 
 
@@ -201,7 +201,7 @@ class NextButton(CustomSvg):
         self.load(self.svg_path)
 
 
-class WinImgView(UMainWindow):
+class WinImgView(UMainWidget):
     cached_images: dict[str, QImage] = {}
     object_name = "win_img_view"
     loading_text = "Загрузка"
@@ -233,12 +233,11 @@ class WinImgView(UMainWindow):
         self.mouse_move_timer.setSingleShot(True)
         self.mouse_move_timer.timeout.connect(self.hide_btns)
 
-        self.v_layout = QVBoxLayout(self.centralWidget())
-        self.v_layout.setContentsMargins(0, 0, 0, 0)
+        self.central_layout.setContentsMargins(0, 0, 0, 0)
 
         self.img_wid = ImgWid(QPixmap())
         self.img_wid.mouse_moved.connect(self.show_btns)
-        self.v_layout.addWidget(self.img_wid)
+        self.central_layout.addWidget(self.img_wid)
 
         self.prev_btn = PrevButton()
         self.prev_btn.setParent(self)
@@ -308,7 +307,7 @@ class WinImgView(UMainWindow):
         self.img_wid.hide()  # скрываем старый
         new_wid = ImgWid(pixmap)
         new_wid.mouse_moved.connect(self.show_btns)
-        self.v_layout.addWidget(new_wid)
+        self.central_layout.addWidget(new_wid)
 
         self.img_wid.deleteLater()
         self.img_wid = new_wid

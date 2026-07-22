@@ -5,15 +5,14 @@ from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QVBoxLayout,
                              QWidget)
 
-from cfg import Dynamic, JsonData, Static
+from cfg import Static
 from system.items import MainWinItem, SearchItem
-from system.utils import Utils
 
 from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, GrayLabel,
-                            ULineEdit, UMainWindow, UTextEdit)
+                            ULineEdit, UMainWidget, UTextEdit)
 
 
-class WinSearchList(UMainWindow):
+class WinSearchList(UMainWidget):
     title_text = "Поиск"
     search_place_text = "Место поиска:"
     descr_text = "Вставьте текст"
@@ -28,27 +27,22 @@ class WinSearchList(UMainWindow):
         super().__init__()
         self.set_always_on_top()
         self.set_close_only()
+        self.central_layout.setContentsMargins(10, 5, 10, 5)
         self.setMinimumSize(self.min_w, self.min_h)
         self.setWindowTitle(self.title_text)
+
         self.main_win_item = main_win_item
         self.search_item = search_item
-        self.create_main_layout()
+
+        self.create_first_row()
+        self.create_input_text_edit()
+        self.create_convert_btn()
+        self.create_buttons()
+
         self.input_.setText(
             "\n".join(self.search_item.search_list.values())
         )
         self.adjustSize()
-
-    def create_main_layout(self):
-        v_lay = QVBoxLayout(self.centralWidget())
-        v_lay.setContentsMargins(10, 5, 10, 5)
-        v_lay.setSpacing(10)
-
-        v_lay.addWidget(self.create_first_row())
-        v_lay.addWidget(self.create_input_text_edit())
-        v_lay.addWidget(self.create_convert_btn())
-        v_lay.addWidget(self.create_buttons())
-
-        return v_lay
     
     def create_first_row(self):
         first_row = QGroupBox()
@@ -62,19 +56,25 @@ class WinSearchList(UMainWindow):
         main_dir_label = QLabel(self.wrap_text(self.main_win_item.abs_current_dir))
         first_lay.addWidget(main_dir_label)
 
-        return first_row
+        self.central_layout.addWidget(first_row)
 
     def create_input_text_edit(self):
+        container = QGroupBox()
+        self.central_layout.addWidget(container)
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(2, 2, 2, 2)
+
         self.input_ = UTextEdit()
         self.input_.setPlaceholderText(
             "Введите текст (через запятую или с новой строки)"
         )
-        return self.input_
+        container_layout.addWidget(self.input_)
+        self.central_layout.addWidget(container)
     
     def create_convert_btn(self):
         btn = BtnNext("Преобразовать текст в список")
         btn.clicked.connect(self.convert_to_list)
-        return btn
+        self.central_layout.addWidget(btn)
 
     def create_buttons(self):
         btns_wid = QWidget()
@@ -94,7 +94,7 @@ class WinSearchList(UMainWindow):
 
         btns_lay.addStretch()
 
-        return btns_wid
+        self.central_layout.addWidget(btns_wid)
 
     def convert_to_list(self):
         if "," in self.input_.toPlainText():

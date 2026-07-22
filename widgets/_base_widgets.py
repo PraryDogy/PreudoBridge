@@ -8,7 +8,7 @@ from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import (QApplication, QFrame, QGraphicsDropShadowEffect,
                              QGroupBox, QHBoxLayout, QLabel, QLineEdit,
                              QMainWindow, QMenu, QPushButton, QScrollArea,
-                             QSlider, QTextEdit, QWidget)
+                             QSlider, QTextEdit, QVBoxLayout, QWidget)
 
 from cfg import Static
 from system.items import ImgViewItem, NameUrlItem
@@ -183,7 +183,7 @@ class CopyPasteMenu(UMenu):
 class ULineEdit(QLineEdit):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet("padding-left: 2px; padding-right: 18px;")
+        self.setStyleSheet("padding-left: 2px; padding-right: 25px;")
         self.setFixedHeight(30)
 
         self.clear_btn = QSvgWidget(parent=self)
@@ -317,6 +317,7 @@ class UMainWindow(WinMixin, QMainWindow):
 class UMainWidget(WinMixin, QWidget):
     def __init__(self):
         super().__init__()
+        self.central_layout =  QVBoxLayout(self)
 
 
 class NotifyWid(QFrame):

@@ -6,12 +6,13 @@ from dataclasses import dataclass
 from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from PyQt6.QtGui import QAction
 from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
-                             QSpacerItem, QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QListWidget,
+                             QListWidgetItem, QSpacerItem, QVBoxLayout,
+                             QWidget)
 
 from cfg import Static
 
-from ._base_widgets import BtnSmall, ULineEdit, UMainWindow, UMenu
+from ._base_widgets import BtnSmall, ULineEdit, UMainWidget, UMenu
 from .win_warn import ConfirmWindow
 
 # from cfg import Cfg
@@ -136,7 +137,7 @@ class ServerLabel(QLabel):
         self.setStyleSheet("padding-left: 1px;")
 
 
-class WinLogin(UMainWindow):
+class WinLogin(UMainWidget):
     ok_pressed = pyqtSignal(ServerItem)
     ww = 300
 
@@ -146,40 +147,46 @@ class WinLogin(UMainWindow):
         self.set_always_on_top()
         self.set_close_only()
         self.setFixedWidth(self.ww)
-        self.central_layout = QVBoxLayout(self.centralWidget())
+
         self.central_layout.setContentsMargins(5, 5, 5, 5)
-        self.central_layout.setSpacing(5)
+        self.central_layout.setSpacing(0)
+
+        container = QGroupBox()
+        self.central_layout.addWidget(container)
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(2, 2, 2, 2)
+        container_layout.setSpacing(5)
 
         alias_label = ServerLabel(text="Псевдоним")
-        self.central_layout.addWidget(alias_label)
+        container_layout.addWidget(alias_label)
 
         self.alias = ULineEdit()
         self.alias.setPlaceholderText("Псевдоним")
-        self.central_layout.addWidget(self.alias)
+        container_layout.addWidget(self.alias)
 
         server_label = ServerLabel(text="Сервер")
-        self.central_layout.addWidget(server_label)
+        container_layout.addWidget(server_label)
 
         self.server = ULineEdit()
         self.server.setPlaceholderText("Сервер")
-        self.central_layout.addWidget(self.server)
+        container_layout.addWidget(self.server)
 
         login_label = ServerLabel(text="Логин")
-        self.central_layout.addWidget(login_label)
+        container_layout.addWidget(login_label)
 
         self.login = ULineEdit()
         self.login.setPlaceholderText("Логин")
-        self.central_layout.addWidget(self.login)
+        container_layout.addWidget(self.login)
 
-        self.central_layout.addSpacerItem(QSpacerItem(0, 10))
+        container_layout.addSpacerItem(QSpacerItem(0, 10))
 
         pass_label = ServerLabel(text="Пароль")
-        self.central_layout.addWidget(pass_label)
+        container_layout.addWidget(pass_label)
 
         self.pass_ = ULineEdit()
         self.pass_.setEchoMode(ULineEdit.EchoMode.Password)
         self.pass_.setPlaceholderText("Пароль")
-        self.central_layout.addWidget(self.pass_)
+        container_layout.addWidget(self.pass_)
         self.pass_.setStyleSheet(
             "padding-right: 33px;"
         )
@@ -252,7 +259,7 @@ class WinLogin(UMainWindow):
         return super().keyPressEvent(a0)
 
 
-class WinServers(UMainWindow):
+class WinServers(UMainWidget):
     def __init__(self):
         super().__init__()
         self.set_always_on_top()
@@ -260,18 +267,24 @@ class WinServers(UMainWindow):
         self.setWindowTitle("Подключиться к серверу")
         self.setFixedSize(350, 250)
 
-        self.central_layout = QVBoxLayout(self.centralWidget())
         self.central_layout.setContentsMargins(5, 5, 5, 5)
         self.central_layout.setSpacing(10)
 
         favs = ServerLabel("Избранное")
         self.central_layout.addWidget(favs)
 
+        container = QGroupBox()
+        self.central_layout.addWidget(container)
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(2, 2, 2, 2)
+        container_layout.setSpacing(0)
+
+
         self.v_list = ServerList()
         self.v_list.edit_server.connect(self.show_login_win)
         self.v_list.remove_server.connect(self.remove_cmd)
         self.v_list.connect_server.connect(self.connect_cmd)
-        self.central_layout.addWidget(self.v_list)
+        container_layout.addWidget(self.v_list)
 
         # Кнопки
         btn_widget = QWidget()
