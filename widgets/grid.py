@@ -263,6 +263,7 @@ class Grid(UScrollArea):
     go_to_widget = pyqtSignal(str)
     paste_files = pyqtSignal()
     img_convert_win = pyqtSignal(list)
+    collage = pyqtSignal(list)
 
     grid_spacing = 5
     files_icon = Utils.scaled(
@@ -513,9 +514,11 @@ class Grid(UScrollArea):
     def base_thumb_actions(self):
         img_urls = []
         all_urls = []
+        data_items = []
         for i in self.selected_thumbs:
             if i.data_item.type_ != Static.folder_type:
                 img_urls.append(i.data_item.abs_path)
+                data_items.append(i.data_item)
             all_urls.append(i.data_item.abs_path)
         self.context_menu.add_action(
             action=self.context_actions.open_thumb,
@@ -533,10 +536,11 @@ class Grid(UScrollArea):
                 action=self.context_actions.convert_to_jpg,
                 callback=lambda: self.open_img_convert_win(img_urls)
             )
-            # self.context_menu.add_action(
-            #     action=self.context_actions.update_thumb,
-            #     callback=lambda: print(img_urls)
-            # )
+            if len(img_urls) > 1:
+                self.context_menu.add_action(
+                    action=self.context_actions.collage,
+                    callback=lambda: self.collage.emit(data_items)
+                )
             
         self.context_menu.addSeparator()
         self.context_menu.add_action(

@@ -4,12 +4,13 @@ import re
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
+from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
-from PyQt6.QtSvgWidgets import QSvgWidget
+
 from cfg import JsonData, Static, Themes
-from system.items import (ClipboardItemGlob, ImgViewItem, MainWinItem,
-                          NameUrlItem, SearchItem, SortItem)
+from system.items import (ClipboardItemGlob, DataItem, ImgViewItem,
+                          MainWinItem, NameUrlItem, SearchItem, SortItem)
 from system.multiprocess import BaseProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import ImgUtils
@@ -28,6 +29,7 @@ from .menu_favs import MenuFavs
 from .menu_filters import MenuFilters
 from .menu_tree import MenuTree
 from .table_view import TableView
+from .win_collage import WinCollage
 from .win_copy_files import WinCopyFiles
 from .win_go_to import WinGoTo
 from .win_img_convert import WinImgConvert
@@ -407,6 +409,7 @@ class WinMain(UMainWindow):
         self.grid.go_to_widget.connect(self.go_to_cmd)
         self.grid.paste_files.connect(self.paste_files)
         self.grid.img_convert_win.connect(self.img_convert_win_open)
+        self.grid.collage.connect(self.win_collage_open)
 
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
 
@@ -433,6 +436,11 @@ class WinMain(UMainWindow):
         self.scroll_up.hide()
         self.menu_filters.set_disabled(True)
         QTimer.singleShot(100, self.grid.setFocus)
+
+    def win_collage_open(self, data_items: list[DataItem]):
+        self.win_collage = WinCollage(data_items)
+        self.win_collage.center(self)
+        self.win_collage.show()
 
     def info_fav_win_open(self, name_url_item: NameUrlItem):
         self.win_info = WinInfoFav(name_url_item)

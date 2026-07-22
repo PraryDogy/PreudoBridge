@@ -280,6 +280,12 @@ class UpdateThumb(QAction):
         super().__init__(self.text_, parent)
 
 
+class Collage(QAction):
+    text_ = "Коллаж"
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
+
+
 class Actions:
     def __init__(self, menu: UMenu):
         self.copy_text = CopyText(menu)
@@ -307,6 +313,7 @@ class Actions:
         self.rotate_cw = RotateCW(menu)
         self.rotate_ccw = RotateCCW(menu)
         self.update_thumb = UpdateThumb(menu)
+        self.collage = Collage(menu)
 
 
 class Menus:
