@@ -1,21 +1,24 @@
 import os
 
 from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
                              QWidget)
 
 from cfg import Static
 
-from ._base_widgets import UMainWidget, USvgSqareWidget
+from ._base_widgets import UMainWidget
 
 
-class CancelBtn(USvgSqareWidget):
+class CancelBtn(QSvgWidget):
     icon_size = 16
     svg_icon = os.path.join(Static.internal_images_dir, "clear.svg")
     clicked = pyqtSignal()
 
     def __init__(self):
-        super().__init__(self.svg_icon, self.icon_size)
+        super().__init__()
+        self.load(self.svg_icon)
+        self.setFixedSize(self.icon_size, self.icon_size)
 
     def mouseReleaseEvent(self, a0):
         self.clicked.emit()
@@ -43,7 +46,9 @@ class WinProgressbar(UMainWidget):
         main_lay.setContentsMargins(10, 5, 10, 5)
         main_lay.setSpacing(5)
 
-        left_side_icon = USvgSqareWidget(self.icon_path, self.icon_size)
+        left_side_icon = QSvgWidget()
+        left_side_icon.load(self.icon_path)
+        left_side_icon.setFixedSize(self.icon_size, self.icon_size)
         main_lay.addWidget(left_side_icon)
 
         right_side_wid = QWidget()

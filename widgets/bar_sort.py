@@ -3,13 +3,13 @@ import os
 from PyQt6.QtCore import (QCoreApplication, QEvent, QPoint, Qt, QTimer,
                           pyqtSignal)
 from PyQt6.QtGui import QMouseEvent
+from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import Dynamic, Static
 from system.items import MainWinItem, SortItem, TotalCountItem
 
-from ._base_widgets import (BaseSignals, HoverGrayLabel, UFrame, USlider,
-                            USvgSqareWidget)
+from ._base_widgets import BaseSignals, HoverGrayLabel, UFrame, USlider
 from .actions import Menus
 
 
@@ -23,12 +23,9 @@ class GoToBtn(UFrame):
     clicked_ = pyqtSignal()
     svg_size = 14
     go_to_text = "Перейти"
+    icon_path = os.path.join(Static.internal_images_dir, "go_to.svg")
 
     def __init__(self):
-        """
-        Виджет, который открывает окно "Перейти", чтобы перейти к файлу / папке
-        внутри приложения или в Finder
-        """
         super().__init__()
 
         h_lay = QHBoxLayout(self)
@@ -38,10 +35,12 @@ class GoToBtn(UFrame):
         )
         h_lay.setSpacing(4)
 
-        self.go_btn = USvgSqareWidget(os.path.join(Static.internal_images_dir, "go_to.svg"), GoToBtn.svg_size)
+        self.go_btn = QSvgWidget()
+        self.go_btn.load(self.icon_path)
+        self.go_btn.setFixedSize(self.svg_size, self.svg_size)
         h_lay.addWidget(self.go_btn)
 
-        self.go_label = HoverGrayLabel(GoToBtn.go_to_text)
+        self.go_label = HoverGrayLabel(self.go_to_text)
         self.go_label.set_text_size(11)
         h_lay.addWidget(self.go_label)
 

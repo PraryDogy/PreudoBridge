@@ -1,15 +1,14 @@
 import os
 
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QImage
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PyQt6.QtSvgWidgets import QSvgWidget
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import Static
 from system.items import ClipboardItemGlob, CopyItem
 from system.multiprocess import CopyTask, CopyWorker
-from system.utils import Utils
 
-from ._base_widgets import BtnSmall, UMainWidget, USvgSqareWidget
+from ._base_widgets import BtnSmall, UMainWidget
 from .win_progressbar import WinProgressbar
 
 
@@ -53,7 +52,9 @@ class WinReplaceFiles(UMainWidget):
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
 
-        warn = USvgSqareWidget(self.icon_path, self.icon_size)
+        warn = QSvgWidget()
+        warn.load(self.icon_path)
+        warn.setFixedSize(self.icon_size, self.icon_size)
         h_lay.addWidget(warn)
 
         test_two = QLabel(self.descr_text)
@@ -120,7 +121,9 @@ class WinError(UMainWidget):
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
 
-        warn = USvgSqareWidget(self.icon_path, WinError.icon_size)
+        warn = QSvgWidget()
+        warn.load(self.icon_path)
+        warn.setFixedSize(self.icon_size, self.icon_size)
         h_lay.addWidget(warn)
 
         test_two = QLabel(WinError.descr_text)

@@ -2,6 +2,7 @@ import os
 
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QDragEnterEvent, QDropEvent
+from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from watchdog.events import FileSystemEvent
 
@@ -11,7 +12,7 @@ from system.multiprocess import ProcessWorker, SearchTask, WatchdogTask
 from system.utils import Utils
 
 from ._base_widgets import (BtnSmall, NotifyWid, QGroupBox, QVBoxLayout,
-                            UMainWidget, USvgSqareWidget, UTextEdit)
+                            UMainWidget, UTextEdit)
 from .grid import Grid, NoItemsLabel, Thumb
 
 
@@ -19,6 +20,8 @@ class WinMissedFiles(UMainWidget):
     title_text = "Внимание!"
     descr_text = "Не найдены файлы:"
     ok_text = "Ок"
+    icon_path = os.path.join(Static.internal_images_dir, "warning.svg")
+    icon_size = 30
 
     def __init__(self, files: list[str]):
         super().__init__()
@@ -26,7 +29,7 @@ class WinMissedFiles(UMainWidget):
         self.set_close_only()
         self.setWindowTitle(WinMissedFiles.title_text)
 
-        self.central_layout.setContentsMargins(5, 5, 5, 5)
+        self.central_layout.setContentsMargins(7, 5, 7, 5)
         self.central_layout.setSpacing(5)
 
         self.first_row_wid = QWidget()
@@ -34,8 +37,9 @@ class WinMissedFiles(UMainWidget):
         self.first_row_lay = QHBoxLayout(self.first_row_wid)
         self.first_row_lay.setContentsMargins(0, 0, 0, 0)
 
-        icon = os.path.join(Static.internal_images_dir, "warning.svg")
-        warn = USvgSqareWidget(icon, 30)
+        warn = QSvgWidget()
+        warn.load(self.icon_path)
+        warn.setFixedSize(self.icon_size, self.icon_size)
         self.first_row_lay.addWidget(warn)
 
         label_ = QLabel(WinMissedFiles.descr_text)

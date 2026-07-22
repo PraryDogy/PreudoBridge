@@ -105,19 +105,6 @@ class USlider(QSlider):
         return super().mousePressEvent(ev)
 
 
-class USvgSqareWidget(QSvgWidget):
-    def __init__(self, src: str, size: int):
-        """
-        Квадратный Svg виджет
-        """
-        super().__init__()
-        self.setStyleSheet(f"""background-color: transparent;""")
-        self.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
-        self.setFixedSize(size, size)
-        if src:
-            self.load(src)
-
-
 class CopyPasteMenu(UMenu):
     def __init__(self, parent: QLineEdit | QTextEdit):
         super().__init__()
