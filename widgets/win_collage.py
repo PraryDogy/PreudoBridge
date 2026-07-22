@@ -26,6 +26,7 @@ class WinCollage(UMainWidget):
         self.pixmaps: list[QPixmap] = [
             QPixmap.fromImage(i.qimages["src"])
             for i in data_items
+            if i.qimages
         ]
         self.image_labels: list[QLabel] = []
 
