@@ -19,9 +19,8 @@ class ConfirmWindow(UMainWidget):
         self.set_always_on_top()
         self.set_close_only()
         self.setWindowTitle("Внимание!")
-        self.setFixedWidth(350)
 
-        self.central_layout.setContentsMargins(10, 10, 10, 5)
+        self.central_layout.setContentsMargins(10, 5, 10, 5)
         self.central_layout.setSpacing(5)
 
         text_layout = QHBoxLayout()
@@ -42,8 +41,9 @@ class ConfirmWindow(UMainWidget):
         btn_layout = QHBoxLayout()
         btn_layout.setContentsMargins(0, 0, 0, 0)
         btn_layout.setSpacing(10)
-        btn_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.central_layout.addLayout(btn_layout)
+
+        btn_layout.addStretch()
 
         self.ok_btn = BtnSmall("Ок")
         self.ok_btn.clicked.connect(self.ok_clicked.emit)
@@ -52,6 +52,8 @@ class ConfirmWindow(UMainWidget):
         self.cancel_btn = BtnSmall("Отмена")
         self.cancel_btn.clicked.connect(self.deleteLater)
         btn_layout.addWidget(self.cancel_btn)
+
+        btn_layout.addStretch()
 
         self.adjustSize()
 

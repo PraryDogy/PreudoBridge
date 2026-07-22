@@ -80,6 +80,7 @@ class NoPathWin(WinWarn):
             "\nВозможно не подключен сетевой диск."
         )
         super().__init__(text)
+        self.setFixedWidth(300)
 
 
 class WinMain(UMainWindow):

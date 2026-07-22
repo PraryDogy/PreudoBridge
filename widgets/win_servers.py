@@ -88,6 +88,7 @@ class ServerList(QListWidget):
         self.win_warn = ConfirmWindow(
             text="Вы уверены, что хотите удалить данные сервера?"
         )
+        self.win_warn.setFixedWidth(300)
         self.win_warn.ok_clicked.connect(
             lambda: self.remove_server.emit(server_item)
         )

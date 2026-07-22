@@ -20,4 +20,3 @@ class WinRemoveFiles(ConfirmWindow):
             t = f"{WinRemoveFiles.remove_perm}?"
 
         super().__init__(text=t)
-        self.setFixedSize(270, 100)

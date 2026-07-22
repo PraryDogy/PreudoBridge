@@ -128,6 +128,7 @@ class ClickableWidgets(GroupWid):
                 "Настройки останутся без изменений."
             )
         )
+        self.clear_win.setFixedWidth(330)
         self.clear_win.center(self.window())
         self.clear_win.ok_clicked.connect(self.clear_cmd)
         self.clear_win.show()
@@ -135,7 +136,7 @@ class ClickableWidgets(GroupWid):
     def open_clear_fin(self):
         self.clear_win.deleteLater()
         self.clear_fin_win = WinWarn("Очистка завершена.")
-        self.clear_fin_win.setFixedSize(250, 100)
+        self.clear_fin_win.setFixedSize(250, 80)
         self.clear_fin_win.center(self.window())
         self.clear_fin_win.show()
 
