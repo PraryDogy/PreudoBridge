@@ -79,7 +79,7 @@ class GridSearch(Grid):
     search_finished = pyqtSignal()
     no_result_text = "Ничего не найдено"
     noti_text = "Завершите поиск, затем перетащите файлы"
-    warning_svg = os.path.join(Static.internal_images_dir, "warning.svg")
+    icon_path = os.path.join(Static.internal_images_dir, "warning.svg")
     pause_time_ms = 1000
     search_timer_ms = 500
 
@@ -273,7 +273,7 @@ class GridSearch(Grid):
         a0.accept()
 
     def dropEvent(self, a0: QDropEvent):
-        noti = NotifyWid(self, self.noti_text, self.warning_svg)
+        noti = NotifyWid(self, self.noti_text, self.icon_path)
         noti._show()
 
     def contextMenuEvent(self, a0):

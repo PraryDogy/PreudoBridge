@@ -11,13 +11,13 @@ from ._base_widgets import UMainWidget
 
 
 class CancelBtn(QSvgWidget):
-    icon_size = 16
-    svg_icon = os.path.join(Static.internal_images_dir, "clear.svg")
     clicked = pyqtSignal()
+    icon_path = os.path.join(Static.internal_images_dir, "clear.svg")
+    icon_size = 16
 
     def __init__(self):
         super().__init__()
-        self.load(self.svg_icon)
+        self.load(self.icon_path)
         self.setFixedSize(self.icon_size, self.icon_size)
 
     def mouseReleaseEvent(self, a0):

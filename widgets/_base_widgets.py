@@ -168,14 +168,17 @@ class CopyPasteMenu(UMenu):
 
 
 class ULineEdit(QLineEdit):
+    icon_path = os.path.join(Static.internal_images_dir, "clear.svg")
+    icon_size = 14
+
     def __init__(self):
         super().__init__()
         self.setStyleSheet("padding-left: 2px; padding-right: 25px;")
         self.setFixedHeight(30)
 
         self.clear_btn = QSvgWidget(parent=self)
-        self.clear_btn.load(os.path.join(Static.internal_images_dir, "clear.svg"))
-        self.clear_btn.setFixedSize(14, 14)
+        self.clear_btn.load(self.icon_path)
+        self.clear_btn.setFixedSize(self.icon_size, self.icon_size)
         self.clear_btn.mouseReleaseEvent = lambda e: self.clear()
         self.clear_btn.enterEvent = (
             lambda e: self.setCursor(Qt.CursorShape.ArrowCursor)
@@ -422,8 +425,8 @@ class BaseSignals(QObject):
 
 class BtnNext(QGroupBox):
     clicked = pyqtSignal()
-    img = os.path.join(Static.internal_images_dir, "next.svg")
-    size_ = 16
+    icon_path = os.path.join(Static.internal_images_dir, "next.svg")
+    icon_size = 16
     hh = 35
 
     def __init__(self, text: str):
@@ -440,8 +443,8 @@ class BtnNext(QGroupBox):
         h_lay.addStretch()
 
         arrow = QSvgWidget()
-        arrow.load(self.img)
-        arrow.setFixedSize(self.size_, self.size_)
+        arrow.load(self.icon_path)
+        arrow.setFixedSize(self.icon_size, self.icon_size)
         h_lay.addWidget(arrow)
 
     def mouseReleaseEvent(self, event):

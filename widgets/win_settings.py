@@ -44,12 +44,13 @@ class GroupChild(QWidget):
 
 
 class SvgArrow(QSvgWidget):
-    img = os.path.join(Static.internal_images_dir, "next.svg")
-    size_ = 16
+    icon_path = os.path.join(Static.internal_images_dir, "next.svg")
+    icon_size = 16
+
     def __init__(self, *args, **kwargs):
         super().__init__()
-        self.load(self.img)
-        self.setFixedSize(self.size_, self.size_)
+        self.load(self.icon_path)
+        self.setFixedSize(self.icon_size, self.icon_size)
 
     def mouseReleaseEvent(self, a0):
         return super().mouseReleaseEvent(a0)

@@ -27,13 +27,13 @@ class WinReplaceFiles(UMainWidget):
     replace_one_text = "Заменить"
     replace_all_text = "Заменить все"
     stop_text = "Стоп"
-    icon_size = 50
     ww = 330
 
     replace_one_press = pyqtSignal()
     replace_all_press = pyqtSignal()
     stop_pressed = pyqtSignal()
     icon_path = os.path.join(Static.internal_images_dir, "warning.svg")
+    icon_size = 50
 
     def __init__(self):
         super().__init__()
@@ -102,8 +102,8 @@ class WinError(UMainWidget):
     descr_text = "Произошла ошибка при копировании"
     title_text = "Ошибка"
     ok_text = "Ок"
-    icon_size = 50
     icon_path = os.path.join(Static.internal_images_dir, "warning.svg")
+    icon_size = 50
 
     def __init__(self):
         super().__init__()

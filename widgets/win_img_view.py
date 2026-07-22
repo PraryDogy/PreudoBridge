@@ -138,11 +138,11 @@ class ZoomWidget(CustomSvg):
     zoom_in = pyqtSignal()
     zoom_out = pyqtSignal()
     zoom_fit = pyqtSignal()
-    svg_path = os.path.join(Static.internal_images_dir, "zoom.svg")
+    icon_path = os.path.join(Static.internal_images_dir, "zoom.svg")
 
     def __init__(self):
         super().__init__()
-        self.load(self.svg_path)
+        self.load(self.icon_path)
         self.zone_width = self.width() / 4
         self.start_pos = None
         self.is_move = False
@@ -186,19 +186,19 @@ class ZoomWidget(CustomSvg):
 
 
 class PrevButton(CustomSvg):
-    svg_path = os.path.join(Static.internal_images_dir, "prev.svg")
+    icon_path = os.path.join(Static.internal_images_dir, "prev.svg")
 
     def __init__(self) -> None:
         super().__init__()
-        self.load(self.svg_path)
+        self.load(self.icon_path)
 
 
 class NextButton(CustomSvg):
-    svg_path = os.path.join(Static.internal_images_dir, "next.svg")
+    icon_path = os.path.join(Static.internal_images_dir, "next.svg")
 
     def __init__(self) -> None:
         super().__init__()
-        self.load(self.svg_path)
+        self.load(self.icon_path)
 
 
 class WinImgView(UMainWidget):

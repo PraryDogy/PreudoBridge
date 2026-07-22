@@ -12,7 +12,8 @@ from ._base_widgets import BtnSmall, UMainWidget
 class ConfirmWindow(UMainWidget):
     ok_clicked = pyqtSignal()
     ww = 360
-    svg_icon = os.path.join(Static.internal_images_dir, "warning.svg")
+    icon_path = os.path.join(Static.internal_images_dir, "warning.svg")
+    icon_size = 50
 
     def __init__(self, text: str):
         super().__init__()
@@ -29,8 +30,8 @@ class ConfirmWindow(UMainWidget):
         self.central_layout.addLayout(text_layout)
 
         svg_wid = QSvgWidget()
-        svg_wid.load(self.svg_icon)
-        svg_wid.setFixedSize(50, 50)
+        svg_wid.load(self.icon_path)
+        svg_wid.setFixedSize(self.icon_size, self.icon_size)
         text_layout.addWidget(svg_wid)
 
         text_wid = QLabel(text)

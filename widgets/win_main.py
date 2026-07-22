@@ -59,13 +59,13 @@ class TreeFavsWid(QTabWidget):
 
 class ScrollUpBtn(QSvgWidget):
     clicked = pyqtSignal()
-    svg_size = 40
-    svg_path = os.path.join(Static.internal_images_dir, "up.svg")
+    icon_path = os.path.join(Static.internal_images_dir, "up.svg")
+    icon_size = 40
 
     def __init__(self):
         super().__init__()
-        self.load(self.svg_path)
-        self.setFixedSize(ScrollUpBtn.svg_size, ScrollUpBtn.svg_size)
+        self.load(self.icon_path)
+        self.setFixedSize(self.icon_size, self.icon_size)
         
     def mouseReleaseEvent(self, ev):
         if ev.button() == Qt.MouseButton.LeftButton:

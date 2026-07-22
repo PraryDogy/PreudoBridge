@@ -53,7 +53,9 @@ class ServerItem:
 
 
 class ServerListItem(QListWidgetItem):
-    iconpath = os.path.join(Static.internal_images_dir, "next.svg")
+    icon_path = os.path.join(Static.internal_images_dir, "next.svg")
+
+
     def __init__(self, parent: QListWidget, text: str, server_item: ServerItem):
         super().__init__(text, parent)
         self.server_item = server_item
@@ -63,10 +65,11 @@ class ServerListItem(QListWidgetItem):
 class EyeSvg(QSvgWidget):
     eye_on = os.path.join(Static.internal_images_dir, "eye_on.svg")
     eye_off = os.path.join(Static.internal_images_dir, "eye_off.svg")
+    icon_size = 20
 
     def __init__(self):
         super().__init__()
-        self.setFixedSize(20, 20)
+        self.setFixedSize(self.icon_size, self.icon_size)
         self.load(self.eye_off)
 
     def enterEvent(self, a0):

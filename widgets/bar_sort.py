@@ -21,9 +21,9 @@ class BarSortFrame(UFrame):
 
 class GoToBtn(UFrame):
     clicked_ = pyqtSignal()
-    svg_size = 14
     go_to_text = "Перейти"
     icon_path = os.path.join(Static.internal_images_dir, "go_to.svg")
+    icon_size = 14
 
     def __init__(self):
         super().__init__()
@@ -37,7 +37,7 @@ class GoToBtn(UFrame):
 
         self.go_btn = QSvgWidget()
         self.go_btn.load(self.icon_path)
-        self.go_btn.setFixedSize(self.svg_size, self.svg_size)
+        self.go_btn.setFixedSize(self.icon_size, self.icon_size)
         h_lay.addWidget(self.go_btn)
 
         self.go_label = HoverGrayLabel(self.go_to_text)
