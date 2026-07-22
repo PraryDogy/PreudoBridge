@@ -1,5 +1,6 @@
 import os
 import shutil
+from dataclasses import dataclass
 from multiprocessing import Process, Queue, shared_memory
 from pathlib import Path
 from time import sleep
@@ -13,8 +14,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 from cfg import Static
 from system.database import CacheTable, Dbase
 from system.items import (CopyItem, DataItem, ImgLoaderItem, JpgConvertItem,
-                          MainWinItem, MultipleInfoItem, ReadImgItem,
-                          SearchItem)
+                          MainWinItem, MultipleInfoItem, SearchItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.tasks import Utils
 
@@ -203,6 +203,14 @@ class ImgLoader:
         with img_item.engine.connect() as conn:
             return conn.execute(stmt)
     
+
+@dataclass(slots=True)
+class ReadImgItem:
+    src: str
+    shm_name: str
+    shape: tuple[int, ...]
+    dtype: str
+
 
 class ReadImg:
     @staticmethod

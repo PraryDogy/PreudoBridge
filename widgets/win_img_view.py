@@ -12,8 +12,8 @@ from PyQt6.QtWidgets import (QApplication, QGraphicsOpacityEffect,
                              QGraphicsView, QLabel, QVBoxLayout)
 
 from cfg import Static
-from system.items import DataItem, ImgViewItem, ReadImgItem
-from system.multiprocess import ProcessWorker, ReadImg
+from system.items import DataItem, ImgViewItem
+from system.multiprocess import ProcessWorker, ReadImg, ReadImgItem
 from system.tasks import ImgArrayQImage, UThreadPool
 
 from ._base_widgets import BaseSignals, UMainWidget, UMenu
