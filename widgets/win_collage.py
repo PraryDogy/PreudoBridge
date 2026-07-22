@@ -19,8 +19,6 @@ class WinCollage(UMainWidget):
         self.set_close_only()
         self.resize(self.ww, self.hh)
         self.setWindowTitle(self.title)
-
-        self.central_layout = QVBoxLayout(self)
         self.central_layout.setContentsMargins(0, 0, 0, 0)
 
         self.pixmaps: list[QPixmap] = [
