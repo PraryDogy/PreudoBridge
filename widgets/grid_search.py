@@ -57,7 +57,6 @@ class WinMissedFiles(UMainWindow):
 
         ok_btn = BtnSmall(WinMissedFiles.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
-        ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)
 
         self.adjustSize()

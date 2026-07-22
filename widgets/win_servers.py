@@ -194,11 +194,9 @@ class WinLogin(UMainWindow):
 
         self.ok_btn = BtnSmall("Ок")
         self.ok_btn.clicked.connect(self.ok_cmd)
-        self.ok_btn.setFixedWidth(90)
         self.btn_layout.addWidget(self.ok_btn)
 
         self.cancel_btn = BtnSmall("Отмена")
-        self.cancel_btn.setFixedWidth(90)
         self.cancel_btn.clicked.connect(self.deleteLater)
         self.btn_layout.addWidget(self.cancel_btn)
 
@@ -285,12 +283,10 @@ class WinServers(UMainWindow):
         btn_layout.addStretch()
 
         btn_add = BtnSmall("Добавить")
-        btn_add.setFixedWidth(90)
         btn_add.clicked.connect(self.show_login_win)
         btn_layout.addWidget(btn_add)
 
         btn_connect = BtnSmall("Подкл.")
-        btn_connect.setFixedWidth(90)
         btn_connect.clicked.connect(self.connect_cmd)
         btn_layout.addWidget(btn_connect)
 

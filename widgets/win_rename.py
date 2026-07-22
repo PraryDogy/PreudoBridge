@@ -43,12 +43,10 @@ class WinRename(UMainWindow):
 
         self.ok_btn = BtnSmall(WinRename.ok_text)
         self.ok_btn.clicked.connect(self.finish_rename)
-        self.ok_btn.setFixedWidth(90)
         h_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         cancel_btn = BtnSmall(WinRename.cancel_text)
         cancel_btn.clicked.connect(self.deleteLater)
-        cancel_btn.setFixedWidth(90)
         h_lay.addWidget(cancel_btn)
 
         h_lay.addStretch()

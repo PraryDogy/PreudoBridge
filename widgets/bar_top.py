@@ -86,12 +86,10 @@ class WinSearchList(UMainWindow):
 
         ok_btn = BtnSmall(WinSearchList.ok_text)
         ok_btn.clicked.connect(self.ok_cmd)
-        ok_btn.setFixedWidth(100)
         btns_lay.addWidget(ok_btn)
 
         can_btn = BtnSmall(WinSearchList.cancel_text)
         can_btn.clicked.connect(self.deleteLater)
-        can_btn.setFixedWidth(100)
         btns_lay.addWidget(can_btn)
 
         btns_lay.addStretch()

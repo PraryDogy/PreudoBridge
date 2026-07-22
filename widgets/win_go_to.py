@@ -46,7 +46,6 @@ class WinGoTo(UMainWindow):
         h_lay.addStretch()
 
         go_btn = BtnSmall(WinGoTo.go_to_text)
-        go_btn.setFixedWidth(100)
         go_btn.clicked.connect(self.inner_clicked)
         h_lay.addWidget(go_btn)
 

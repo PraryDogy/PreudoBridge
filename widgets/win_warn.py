@@ -47,12 +47,10 @@ class ConfirmWindow(UMainWindow):
         self.central_layout.addLayout(btn_layout)
 
         self.ok_btn = BtnSmall("Ок")
-        self.ok_btn.setFixedWidth(90)
         self.ok_btn.clicked.connect(self.ok_clicked.emit)
         btn_layout.addWidget(self.ok_btn)
 
         self.cancel_btn = BtnSmall("Отмена")
-        self.cancel_btn.setFixedWidth(90)
         self.cancel_btn.clicked.connect(self.deleteLater)
         btn_layout.addWidget(self.cancel_btn)
 

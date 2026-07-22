@@ -380,8 +380,10 @@ class NotifyWid(QFrame):
 
 
 class BtnSmall(QPushButton):
+    ww = 80
     def __init__(self, text: str):
         super().__init__(text)
+        self.setFixedWidth(self.ww)
         self.setStyleSheet("""font-size: 11pt;""")
 
 
