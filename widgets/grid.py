@@ -55,7 +55,6 @@ class ThumbImgWidget(QLabel):
     def set_margins(self):
         m = self.margins[Dynamic.pixmap_size_ind]
         self.setContentsMargins(m, m, m, m)
-        print(m)
 
     def set_framed_style(self):
         corner = self.corners[Dynamic.pixmap_size_ind]
