@@ -1,4 +1,8 @@
-from PyQt6.QtCore import Qt, QTimer
+import io  # Встроенный модуль Python для BytesIO
+
+from PIL import Image, ImageEnhance
+from PyQt6.QtCore import (QBuffer, QIODevice,  # QBuffer импортируется отсюда
+                          Qt, QTimer)
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (QGridLayout, QLabel, QScrollArea, QVBoxLayout,
                              QWidget)
@@ -22,7 +26,7 @@ class WinCollage(UMainWidget):
         self.central_layout.setContentsMargins(0, 0, 0, 0)
 
         self.pixmaps: list[QPixmap] = [
-            QPixmap.fromImage(i.qimages["src"])
+            self.increase_sharpness_pillow(QPixmap.fromImage(i.qimages["src"]), 3)
             for i in data_items
             if i.qimages
         ]
@@ -77,6 +81,28 @@ class WinCollage(UMainWidget):
             label.setFixedSize(Static.max_thumb_size, Static.max_thumb_size)
             self.grid_layout.addWidget(label, row, col)
             self.image_labels.append(label)
+
+    def increase_sharpness_pillow(self, pixmap: QPixmap, factor: float = 2.0) -> QPixmap:
+        # 1. Конвертируем QPixmap в PIL Image через QBuffer
+        buffer = QBuffer()
+        buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+        pixmap.save(buffer, "PNG")
+        
+        # buffer.data().data() возвращает bytes, которые читает io.BytesIO
+        pil_img = Image.open(io.BytesIO(buffer.data().data()))
+        
+        # 2. Повышаем резкость (1.0 — оригинал, 2.0 — в два раза резче)
+        enhancer = ImageEnhance.Sharpness(pil_img)
+        sharper_pil_img = enhancer.enhance(factor)
+        
+        # 3. Конвертируем обратно в QPixmap
+        output_buffer = io.BytesIO()
+        sharper_pil_img.save(output_buffer, format="PNG")
+        
+        new_pixmap = QPixmap()
+        new_pixmap.loadFromData(output_buffer.getvalue())
+        return new_pixmap
+
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
