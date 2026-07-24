@@ -124,8 +124,11 @@ class GridStandart(Grid):
 
         def process_item(item: DataItem):
             qimages = {"src": Utils.qimage_from_array(item._img_array)}
-            for i in Static.pixmap_sizes:
-                qimages[i] = Utils.scaled(qimages["src"], i)
+            for x, i in enumerate(Static.pixmap_sizes, start=0):
+                # чтобы вмещалось в квадратик
+                size = i - 20
+                qimages[i] = Utils.scaled(qimages["src"], size)
+
             thumb = self.url_to_wid[item.abs_path] # QLabel
             thumb.data_item.qimages.update(qimages)
             thumb.set_image()

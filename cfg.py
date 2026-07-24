@@ -28,7 +28,7 @@ class Static:
     hidden_symbols = (".", "~$", "$")
     base_ww, base_hh = 1120, 760
     max_thumb_size = 210
-    pixmap_sizes = [50, 70, 100, 170]
+    pixmap_sizes = [45, 65, 80, 165]
 
 
 class JsonData:

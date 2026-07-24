@@ -22,7 +22,10 @@ FONT_SIZE = 11
 
 class ThumbImgWidget(QLabel):
     # длина списков должна соответствовать длине Static.image_sizes
-    corners = [5, 7, 10, 17]
+    corners = [7, 9, 10, 21]
+
+    # маргины это рамка вокруг виджета с картинкой
+    margins = [0, 0, 0, 0]
 
     gray_color = "rgba(128, 128, 128, 0.95)"
     offset = 5
@@ -32,8 +35,7 @@ class ThumbImgWidget(QLabel):
     disk_icons: dict[int, QPixmap] = {}
     def __init__(self):
         super().__init__()
-        self.setContentsMargins(self.offset, self.offset, self.offset, self.offset)
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter)
         self.set_no_frame_style()
 
     @classmethod
@@ -49,6 +51,11 @@ class ThumbImgWidget(QLabel):
             cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
             cls.image_icons[i] = QPixmap.fromImage(resized_image)
             cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
+
+    def set_margins(self):
+        m = self.margins[Dynamic.pixmap_size_ind]
+        self.setContentsMargins(m, m, m, m)
+        print(m)
 
     def set_framed_style(self):
         corner = self.corners[Dynamic.pixmap_size_ind]
@@ -210,6 +217,7 @@ class Thumb(QFrame):
     def update_all(self, sort_item: SortItem):
         self.white_text_wid.set_text(self.data_item)
         self.blue_text_wid.set_text(self.data_item, sort_item)
+        self.img_wid.set_margins()
         stmt = (
             self.width() == Thumb.thumb_width,
             self.height() == Thumb.thumb_height
