@@ -126,7 +126,7 @@ class GridStandart(Grid):
             qimages = {"src": Utils.qimage_from_array(item._img_array)}
             for x, i in enumerate(Static.pixmap_sizes, start=0):
                 # чтобы вмещалось в квадратик
-                size = i - 20
+                size = i - 5
                 qimages[i] = Utils.scaled(qimages["src"], size)
 
             thumb = self.url_to_wid[item.abs_path] # QLabel

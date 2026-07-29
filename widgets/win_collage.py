@@ -26,7 +26,7 @@ class WinCollage(UMainWidget):
         self.central_layout.setContentsMargins(0, 0, 0, 0)
 
         self.pixmaps: list[QPixmap] = [
-            self.increase_sharpness_pillow(QPixmap.fromImage(i.qimages["src"]), 3)
+            QPixmap.fromImage(i.qimages["src"])
             for i in data_items
             if i.qimages
         ]
