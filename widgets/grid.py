@@ -78,7 +78,7 @@ class ThumbImgWidget(QLabel):
 class WhiteTextWid(QLabel):
     border_radius = 5
     # длина списков должна соответствовать длине Static.image_sizes
-    row_limits = [20, 20, 25, 32]
+    row_limits = [18, 18, 21, 32]
 
     def __init__(self):
         super().__init__()
@@ -167,8 +167,8 @@ class Thumb(QFrame):
     thumb_height: int = 0
 
     # длина списков должна соответствовать длине Static.image_sizes
-    heights = [130, 150, 185, 270]
-    widths = [145, 145, 180, 230]
+    heights = [100, 120, 140, 210]
+    widths = [130, 135, 160, 230]
 
     def __init__(self, data_item: DataItem):
         super().__init__()
@@ -187,6 +187,8 @@ class Thumb(QFrame):
 
         self.blue_text_wid = BlueTextWid()
         self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # self.setStyleSheet("background: red;")
     
     @classmethod
     def calc_size(cls):
