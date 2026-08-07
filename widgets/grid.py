@@ -22,7 +22,8 @@ FONT_SIZE = 11
 
 class ThumbImgWidget(QLabel):
     # длина списков должна соответствовать длине Static.image_sizes
-    corners = [7, 9, 10, 21]
+    # corners = [7, 9, 10, 21]
+    corners = [8, 8, 8, 8]
 
     # маргины это рамка вокруг виджета с картинкой
     margins = [0, 0, 0, 0]
