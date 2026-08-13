@@ -148,11 +148,11 @@ class BlueTextWid(QLabel):
 
 
 class Thumb(QFrame):
-    pixmap_size: int = 0
-    wid_width: int = 0
-    wid_height: int = 0
+    wid_width = 0
+    wid_height = 0
     img_wid_width = 0
     img_wid_height = 0
+    img_wid_pixmap_size = 0
 
     def __init__(self, data_item: DataItem):
         super().__init__()
@@ -177,9 +177,20 @@ class Thumb(QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
-        Thumb.pixmap_size = Static.thumb_widget_pixmap_size[ind]
-        Thumb.wid_width = Static.thumb_widget_width[ind]
-        Thumb.wid_height = Static.thumb_widget_height[ind]
+        Thumb.img_wid_pixmap_size = Static.thumb_widget_pixmap_size[ind]
+        Thumb.wid_width = Static.thumb_widget_width[ind] + 10
+        Thumb.wid_height = Static.thumb_widget_height[ind] + 10
+
+
+
+        # self.setFixedSize(
+        #     Thumb.wid_width + 10,
+        #     Thumb.wid_height + 10
+        # )
+        # self.img_wid.setFixedSize(
+        #     Thumb.pixmap_size + 10,
+        #     Thumb.pixmap_size + 10
+        # )
 
     def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
@@ -192,10 +203,10 @@ class Thumb(QFrame):
             icons = ThumbImgWidget.disk_icons
         else:
             icons = ThumbImgWidget.folder_icons
-        self.img_wid.setPixmap(icons[Thumb.pixmap_size])
+        self.img_wid.setPixmap(icons[Thumb.img_wid_pixmap_size])
 
     def set_pixmap(self):
-        qimage = self.data_item.qimages[Thumb.pixmap_size]
+        qimage = self.data_item.qimages[Thumb.img_wid_pixmap_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
 
@@ -210,14 +221,9 @@ class Thumb(QFrame):
         if all(stmt):
             return
 
-        self.setFixedSize(
-            Thumb.wid_width + 10,
-            Thumb.wid_height + 10
-        )
-        self.img_wid.setFixedSize(
-            Thumb.pixmap_size + 10,
-            Thumb.pixmap_size + 10
-        )
+        self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
+        self.img_wid.setFixedSize(Thumb.img_wid_pixmap_size, Thumb.img_wid_pixmap_size)
+
         if self.data_item.qimages:
             self.set_pixmap()
         else:
