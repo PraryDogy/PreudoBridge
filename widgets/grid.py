@@ -152,10 +152,6 @@ class Thumb(QFrame):
     thumb_width: int = 0
     thumb_height: int = 0
 
-    # длина списков должна соответствовать длине Static.image_sizes
-    heights = [100, 120, 140, 210]
-    widths = [130, 135, 160, 230]
-
     def __init__(self, data_item: DataItem):
         super().__init__()
         self.data_item = data_item
@@ -180,8 +176,8 @@ class Thumb(QFrame):
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
         Thumb.pixmap_size = Static.thumb_widget_pixmap_size[ind]
-        Thumb.thumb_width = cls.widths[ind]
-        Thumb.thumb_height = cls.heights[ind]
+        Thumb.thumb_width = Static.thumb_widget_width[ind]
+        Thumb.thumb_height = Static.thumb_widget_height[ind]
 
     def set_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
