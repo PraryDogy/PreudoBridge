@@ -71,12 +71,12 @@ class WhiteTextWid(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.set_no_frame_style()
 
-    def set_text(self, data: DataItem, parent_width: int):
+    def set_text(self, data: DataItem, parent_width: int, offset = 5):
         metrics = QFontMetrics(self.font())
         text = metrics.elidedText(
             data.filename,
             Qt.TextElideMode.ElideMiddle,
-            parent_width
+            parent_width - offset
         )
         self.setText(text)
 
