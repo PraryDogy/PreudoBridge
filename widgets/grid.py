@@ -179,12 +179,13 @@ class Thumb(QFrame):
         # self.setStyleSheet("background: red;")
     
     @classmethod
-    def calc_size(cls, img_wid_border = 10, w_offset = 50, h_offset = 50):
+    def calc_size(cls, img_wid_border = 10, h_offset = 50, w_offset = 20):
         ind = Dynamic.pixmap_size_ind
 
         Thumb.img_wid_pixmap_size = Static.thumb_widget_pixmap_size[ind]
         Thumb.img_wid_width = Thumb.img_wid_pixmap_size + img_wid_border
         Thumb.img_wid_height = Thumb.img_wid_pixmap_size + img_wid_border
+
 
         Thumb.wid_width = Thumb.img_wid_width + w_offset
         Thumb.wid_height = Thumb.img_wid_height + h_offset

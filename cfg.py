@@ -29,8 +29,7 @@ class Static:
     base_ww, base_hh = 1120, 760
     max_thumb_size = 210
 
-    thumb_widget_pixmap_size = [45, 65, 80, 165]
-    thumb_widget_white_text_len = [18, 18, 21, 32]
+    thumb_widget_pixmap_size = [65, 80, 165]
 
 class JsonData:
     favs = {}
