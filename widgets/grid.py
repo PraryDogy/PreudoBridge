@@ -70,10 +70,11 @@ class WhiteTextWid(QLabel):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.set_no_frame_style()
+        self.setWordWrap(True)
 
-    def set_text(self, data: DataItem) -> list[str]:
+    def set_text(self, data: DataItem, max_row: int) -> list[str]:
         name: str | list = data.filename
-        max_row = Static.thumb_widget_white_text_limit[Dynamic.pixmap_size_ind]
+        # max_row = Static.thumb_widget_white_text_limit[Dynamic.pixmap_size_ind]
         lines: list[str] = []
         if len(name) > max_row:
             first_line = name[:max_row]
@@ -153,6 +154,7 @@ class Thumb(QFrame):
     img_wid_width = 0
     img_wid_height = 0
     img_wid_pixmap_size = 0
+    white_text_wid_row_len = 0
 
     def __init__(self, data_item: DataItem):
         super().__init__()
@@ -185,6 +187,8 @@ class Thumb(QFrame):
         Thumb.wid_width = Thumb.img_wid_width + w_offset
         Thumb.wid_height = Thumb.img_wid_height + h_offset
 
+        Thumb.white_text_wid_row_len = Static.thumb_widget_white_text_len[ind]
+
     def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
             icons = ThumbImgWidget.image_icons
@@ -204,8 +208,6 @@ class Thumb(QFrame):
         self.img_wid.setPixmap(pixmap)
 
     def set_text_and_size(self, sort_item: SortItem):
-        self.white_text_wid.set_text(self.data_item)
-        self.blue_text_wid.set_text(self.data_item, sort_item)
         stmt = (
             self.width() == Thumb.wid_width,
             self.height() == Thumb.wid_height
@@ -215,6 +217,9 @@ class Thumb(QFrame):
 
         self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
         self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
+
+        self.white_text_wid.set_text(self.data_item, Thumb.white_text_wid_row_len)
+        self.blue_text_wid.set_text(self.data_item, sort_item)
 
         if self.data_item.qimages:
             self.set_pixmap_with_actual_size()

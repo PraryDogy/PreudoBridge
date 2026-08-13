@@ -30,8 +30,7 @@ class Static:
     max_thumb_size = 210
 
     thumb_widget_pixmap_size = [45, 65, 80, 165]
-    thumb_widget_white_text_limit = [18, 18, 21, 32]
-    thumb_widget_height = [100, 120, 140, 210]
+    thumb_widget_white_text_len = [18, 18, 21, 32]
 
 class JsonData:
     favs = {}
