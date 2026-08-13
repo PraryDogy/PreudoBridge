@@ -172,7 +172,7 @@ class Thumb(QFrame):
         self.blue_text_wid = BlueTextWid()
         self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.setStyleSheet("background: red;")
+        # self.setStyleSheet("background: red;")
     
     @classmethod
     def calc_size(cls, border_width: int = 10):
@@ -214,7 +214,7 @@ class Thumb(QFrame):
             return
 
         # self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
-        self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
+        # self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
 
         if self.data_item.qimages:
             self.set_pixmap_with_actual_size()
