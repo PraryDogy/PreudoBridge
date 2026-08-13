@@ -157,7 +157,6 @@ class Thumb(QFrame):
     img_wid_width = 0
     img_wid_height = 0
     img_wid_pixmap_size = 0
-    white_text_wid_row_len = 0
 
     def __init__(self, data_item: DataItem):
         super().__init__()
@@ -189,8 +188,6 @@ class Thumb(QFrame):
 
         Thumb.wid_width = Thumb.img_wid_width + w_offset
         Thumb.wid_height = Thumb.img_wid_height + h_offset
-
-        Thumb.white_text_wid_row_len = Static.thumb_widget_white_text_len[ind]
 
     def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
