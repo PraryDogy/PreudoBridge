@@ -21,7 +21,7 @@ FONT_SIZE = 11
 
 
 class ThumbImgWidget(QLabel):
-    corners = [8, 8, 8, 8]
+    border_radius = 8
     gray_color = "rgba(128, 128, 128, 0.95)"
     image_icons: dict[int, QPixmap] = {}
     folder_icons: dict[int, QPixmap] = {}
@@ -50,20 +50,18 @@ class ThumbImgWidget(QLabel):
         self.setContentsMargins(margin, margin, margin, margin)
 
     def set_framed_style(self):
-        corner = self.corners[Dynamic.pixmap_size_ind]
         self.setStyleSheet(
             f"""
                 background: {self.gray_color};
-                border-radius: {corner}px;
+                border-radius: {self.border_radius}px;
             """
         )
 
     def set_no_frame_style(self):
-        corner = self.corners[Dynamic.pixmap_size_ind]
         self.setStyleSheet(
             f"""
                 background: transparent;
-                border-radius: {corner}px;
+                border-radius: {self.border_radius}px;
             """
         )
     
