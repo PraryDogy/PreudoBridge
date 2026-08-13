@@ -149,8 +149,10 @@ class BlueTextWid(QLabel):
 
 class Thumb(QFrame):
     pixmap_size: int = 0
-    thumb_width: int = 0
-    thumb_height: int = 0
+    wid_width: int = 0
+    wid_height: int = 0
+    img_wid_width = 0
+    img_wid_height = 0
 
     def __init__(self, data_item: DataItem):
         super().__init__()
@@ -176,8 +178,8 @@ class Thumb(QFrame):
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
         Thumb.pixmap_size = Static.thumb_widget_pixmap_size[ind]
-        Thumb.thumb_width = Static.thumb_widget_width[ind]
-        Thumb.thumb_height = Static.thumb_widget_height[ind]
+        Thumb.wid_width = Static.thumb_widget_width[ind]
+        Thumb.wid_height = Static.thumb_widget_height[ind]
 
     def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
@@ -202,15 +204,15 @@ class Thumb(QFrame):
         self.blue_text_wid.set_text(self.data_item, sort_item)
         # self.img_wid.set_margins() 
         stmt = (
-            self.width() == Thumb.thumb_width,
-            self.height() == Thumb.thumb_height
+            self.width() == Thumb.wid_width,
+            self.height() == Thumb.wid_height
         )
         if all(stmt):
             return
 
         self.setFixedSize(
-            Thumb.thumb_width + 10,
-            Thumb.thumb_height + 10
+            Thumb.wid_width + 10,
+            Thumb.wid_height + 10
         )
         self.img_wid.setFixedSize(
             Thumb.pixmap_size + 10,
@@ -298,7 +300,7 @@ class Grid(UScrollArea):
     
     def get_max_columns(self):
         try:
-            return self.viewport().width() // Thumb.thumb_width
+            return self.viewport().width() // Thumb.wid_width
         except ZeroDivisionError:
             return 1
 
