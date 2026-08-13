@@ -136,7 +136,6 @@ class BlueTextWid(QLabel):
                 )
         self.setText(row)
 
-
 class Thumb(QFrame):
     wid_width = 0
     wid_height = 0
