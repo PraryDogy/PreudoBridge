@@ -172,18 +172,21 @@ class Thumb(QFrame):
         self.blue_text_wid = BlueTextWid()
         self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # self.setStyleSheet("background: red;")
+        self.setStyleSheet("background: red;")
     
     @classmethod
-    def calc_size(cls, border_width: int = 10):
+    def calc_size(cls, img_wid_border = 10, w_offset = 50, h_offset = 50):
         ind = Dynamic.pixmap_size_ind
 
-        Thumb.wid_width = Static.thumb_widget_width[ind]
-        Thumb.wid_height = Static.thumb_widget_height[ind]
+        # Thumb.wid_width = Static.thumb_widget_width[ind]
+        # Thumb.wid_height = Static.thumb_widget_height[ind]
 
         Thumb.img_wid_pixmap_size = Static.thumb_widget_pixmap_size[ind]
-        Thumb.img_wid_width = Thumb.img_wid_pixmap_size + border_width
-        Thumb.img_wid_height = Thumb.img_wid_pixmap_size + border_width
+        Thumb.img_wid_width = Thumb.img_wid_pixmap_size + img_wid_border
+        Thumb.img_wid_height = Thumb.img_wid_pixmap_size + img_wid_border
+
+        Thumb.wid_width = Thumb.img_wid_width + w_offset
+        Thumb.wid_height = Thumb.img_wid_height + h_offset
 
     def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
@@ -213,8 +216,8 @@ class Thumb(QFrame):
         if all(stmt):
             return
 
-        # self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
-        # self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
+        self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
+        self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
 
         if self.data_item.qimages:
             self.set_pixmap_with_actual_size()
