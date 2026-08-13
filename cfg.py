@@ -34,7 +34,7 @@ class Static:
     # рамка вокруг QPixmap в виджете Thumb
     img_wid_border = 10
     # дополнительное пространство к ширине виджета Thumb
-    thumb_widget_extra_w = 30
+    thumb_widget_extra_w = 40
 
 class JsonData:
     favs = {}
