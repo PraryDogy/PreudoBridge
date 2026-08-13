@@ -161,10 +161,10 @@ class Thumb(QFrame):
         self.blue_text_wid = BlueTextWid()
         self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.setStyleSheet("background: red;")
+        # self.setStyleSheet("background: red;")
     
     @classmethod
-    def calc_size(cls, img_wid_border = 10, h_offset = 50, w_offset = 20):
+    def calc_size(cls, img_wid_border = 10, h_offset = 50, w_offset = 30):
         ind = Dynamic.current_pixmap_size_index
 
         Thumb.img_wid_pixmap_size = Static.thumb_widget_pixmap_size[ind]
@@ -289,7 +289,12 @@ class Grid(UScrollArea):
     
     def get_max_columns(self):
         try:
-            return self.viewport().width() // Thumb.wid_width
+            # теперь виджет правильной ширины
+            # но теперь есть лишние спейсинги справа и слева в концах сетки
+            # что мы учитываем в total_w
+            thumb_w = Thumb.wid_width + self.grid_spacing
+            total_w = self.viewport().width() - (self.grid_spacing * 2)
+            return total_w // thumb_w
         except ZeroDivisionError:
             return 1
 
