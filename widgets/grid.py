@@ -73,7 +73,11 @@ class WhiteTextWid(QLabel):
 
     def set_text(self, data: DataItem, parent_width: int):
         metrics = QFontMetrics(self.font())
-        text = metrics.elidedText(data.filename, Qt.TextElideMode.ElideMiddle, parent_width)
+        text = metrics.elidedText(
+            data.filename,
+            Qt.TextElideMode.ElideMiddle,
+            parent_width
+        )
         self.setText(text)
 
     def set_framed_style(self):
