@@ -165,7 +165,7 @@ class GridSearch(Grid):
                 self.search_timer.start(self.search_timer_ms)
 
 
-        Thumb.calc_size()
+        Thumb.calculate_size()
         self.search_item.root_dir = self.main_win_item.abs_current_dir
         self.search_task = ProcessWorker(
             target=SearchTask.start,

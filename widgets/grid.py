@@ -164,7 +164,7 @@ class Thumb(QFrame):
         # self.setStyleSheet("background: red;")
     
     @classmethod
-    def calc_size(cls):
+    def calculate_size(cls):
         ind = Dynamic.current_pixmap_size_index
 
         Thumb.img_wid_pixmap_size = Static.thumb_widget_pixmap_size[ind]
@@ -172,6 +172,9 @@ class Thumb(QFrame):
         Thumb.img_wid_height = Thumb.img_wid_pixmap_size + Static.img_wid_border
 
         Thumb.wid_width = Thumb.img_wid_width + Static.thumb_widget_extra_w
+
+        print(Thumb.img_wid_pixmap_size)
+        print(Thumb.img_wid_size)
 
     def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
@@ -336,7 +339,7 @@ class Grid(UScrollArea):
             self.no_items_label_remove()
 
     def resize(self):
-        Thumb.calc_size()
+        Thumb.calculate_size()
         for wid in self.url_to_wid.values():
             wid.set_text_and_size(self.main_win_item.sort_item)
 

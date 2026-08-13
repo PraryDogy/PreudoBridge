@@ -181,7 +181,7 @@ class GridStandart(Grid):
         )
         self.bar_path_update.emit(self.main_win_item.abs_current_dir)
         self.total_count_update.emit(item)
-        Thumb.calc_size()
+        Thumb.calculate_size()
         self.create_thumbs(dir_item.data_items)
         self.select_thumbs()
         QTimer.singleShot(0, self.rearrange_thumbs)
