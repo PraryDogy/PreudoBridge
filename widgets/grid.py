@@ -72,28 +72,10 @@ class WhiteTextWid(QLabel):
         self.set_no_frame_style()
 
     def set_text(self, data: DataItem, parent_width: int):
-        char_length = 7
-        max_row = parent_width //char_length
+        metrics = QFontMetrics(self.font())
+        text = metrics.elidedText(data.filename, Qt.TextElideMode.ElideMiddle, parent_width)
+        self.setText(text)
 
-        name: str | list = data.filename
-        lines: list[str] = []
-        if len(name) > max_row:
-            first_line = name[:max_row]
-            second_line = name[max_row:]
-            if len(second_line) > max_row:
-                second_line = self.short_text(second_line, max_row)
-            lines.append(first_line)
-            lines.append(second_line)
-        else:
-            name = lines.append(name)
-
-        self.setText("\n".join(lines))
-
-        self.adjustSize()
-
-    def short_text(self, text: str, max_row: int):
-        return f"{text[:max_row - 10]}...{text[-7:]}"
-    
     def set_framed_style(self):
         self.setStyleSheet(
             f"""
@@ -176,7 +158,7 @@ class Thumb(QFrame):
         self.blue_text_wid = BlueTextWid()
         self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # self.setStyleSheet("background: red;")
+        self.setStyleSheet("background: red;")
     
     @classmethod
     def calc_size(cls, img_wid_border = 10, h_offset = 50, w_offset = 20):
