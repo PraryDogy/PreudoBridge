@@ -30,6 +30,10 @@ class Static:
     max_thumb_size = 210
 
     thumb_widget_pixmap_size = [65, 80, 165]
+    # рамка вокруг QPixmap thumb_widget_pixmap_size + img_wid_border
+    img_wid_border = 10
+    thumb_widget_extra_w = 30
+    thumb_widget_extra_h = 50
 
 class JsonData:
     favs = {}
