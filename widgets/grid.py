@@ -21,15 +21,8 @@ FONT_SIZE = 11
 
 
 class ThumbImgWidget(QLabel):
-    # длина списков должна соответствовать длине Static.image_sizes
-    # corners = [7, 9, 10, 21]
     corners = [8, 8, 8, 8]
-
-    # маргины это рамка вокруг виджета с картинкой
-    margins = [0, 0, 0, 0]
-
     gray_color = "rgba(128, 128, 128, 0.95)"
-    offset = 5
     corner_value = 10
     image_icons: dict[int, QPixmap] = {}
     folder_icons: dict[int, QPixmap] = {}
@@ -40,22 +33,21 @@ class ThumbImgWidget(QLabel):
         self.set_no_frame_style()
 
     @classmethod
-    def create_icons(cls):
+    def create_icons(cls, offset: int = 0):
         images = Static.internal_images_dir
         folder_icon = QImage(os.path.join(images, "folder.png"))
         image_icon = QImage(os.path.join(images, "image.png"))
         disk_icon = QImage(os.path.join(images, "disk.png"))
         for i in Static.pixmap_sizes:
-            resized_folder = Utils.scaled(folder_icon, i - cls.offset)
-            resized_image = Utils.scaled(image_icon, i - cls.offset)
-            resized_disk = Utils.scaled(disk_icon, i - cls.offset)
+            resized_folder = Utils.scaled(folder_icon, i - offset)
+            resized_image = Utils.scaled(image_icon, i - offset)
+            resized_disk = Utils.scaled(disk_icon, i - offset)
             cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
             cls.image_icons[i] = QPixmap.fromImage(resized_image)
             cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
 
-    def set_margins(self):
-        m = self.margins[Dynamic.pixmap_size_ind]
-        self.setContentsMargins(m, m, m, m)
+    def set_margins(self, margin: int = 0):
+        self.setContentsMargins(margin, margin, margin, margin)
 
     def set_framed_style(self):
         corner = self.corners[Dynamic.pixmap_size_ind]
