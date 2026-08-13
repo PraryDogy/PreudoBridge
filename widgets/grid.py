@@ -170,9 +170,6 @@ class Thumb(QFrame):
         Thumb.img_wid_size = Thumb.img_wid_pixmap_size + Static.img_wid_border
         Thumb.wid_width = Thumb.img_wid_size + Static.thumb_widget_extra_w
 
-        print(Thumb.img_wid_pixmap_size)
-        print(Thumb.img_wid_size)
-
     def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
             icons = ThumbImgWidget.image_icons
