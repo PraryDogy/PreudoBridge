@@ -162,7 +162,7 @@ class Thumb(QFrame):
     
     @classmethod
     def calc_size(cls, img_wid_border = 10, h_offset = 50, w_offset = 20):
-        ind = Dynamic.pixmap_size_ind
+        ind = Dynamic.current_pixmap_size_index
 
         Thumb.img_wid_pixmap_size = Static.thumb_widget_pixmap_size[ind]
         Thumb.img_wid_width = Thumb.img_wid_pixmap_size + img_wid_border
@@ -740,12 +740,12 @@ class Grid(UScrollArea):
                     self.base_signals.info.emit([data.abs_path, ])
 
             elif a0.key() == Qt.Key.Key_Equal:
-                new_value = Dynamic.pixmap_size_ind + 1
+                new_value = Dynamic.current_pixmap_size_index + 1
                 if new_value <= len(Static.thumb_widget_pixmap_size) - 1:
                     self.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:
-                new_value = Dynamic.pixmap_size_ind - 1
+                new_value = Dynamic.current_pixmap_size_index - 1
                 if new_value >= 0:
                     self.move_slider.emit(new_value)
 

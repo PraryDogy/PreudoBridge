@@ -87,5 +87,5 @@ class JsonData:
 
 class Dynamic:
     word_filters: list[str] = []
-    pixmap_size_ind = 1
+    current_pixmap_size_index = 1
     image_apps: list[str] = []

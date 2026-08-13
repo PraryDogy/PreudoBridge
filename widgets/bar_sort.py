@@ -169,7 +169,7 @@ class CustomSlider(USlider):
             maximum=len(Static.thumb_widget_pixmap_size) - 1
         )
         self.setFixedSize(CustomSlider.width_, CustomSlider.height_)
-        self.setValue(Dynamic.pixmap_size_ind)
+        self.setValue(Dynamic.current_pixmap_size_index)
         self.valueChanged.connect(self.move_slider_cmd)
     
     def move_slider_cmd(self, value: int):
@@ -177,7 +177,7 @@ class CustomSlider(USlider):
         Обрабатывает изменение слайдера при его перемещении мышью.
         Обновляет размер виджетов и инициирует перетасовку сетки.
         """
-        Dynamic.pixmap_size_ind = value
+        Dynamic.current_pixmap_size_index = value
         self.resize_grid.emit()
         self.rearrange_grid.emit()
 
