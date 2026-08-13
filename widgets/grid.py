@@ -175,15 +175,15 @@ class Thumb(QFrame):
         # self.setStyleSheet("background: red;")
     
     @classmethod
-    def calc_size(cls):
+    def calc_size(cls, border_width: int = 10):
         ind = Dynamic.pixmap_size_ind
 
         Thumb.wid_width = Static.thumb_widget_width[ind]
         Thumb.wid_height = Static.thumb_widget_height[ind]
 
         Thumb.img_wid_pixmap_size = Static.thumb_widget_pixmap_size[ind]
-        Thumb.img_wid_width = Thumb.img_wid_pixmap_size + 10
-        Thumb.img_wid_height = Thumb.img_wid_pixmap_size + 10
+        Thumb.img_wid_width = Thumb.img_wid_pixmap_size + border_width
+        Thumb.img_wid_height = Thumb.img_wid_pixmap_size + border_width
 
     def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
