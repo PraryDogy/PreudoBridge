@@ -177,7 +177,7 @@ class Thumb(QFrame):
         self.blue_text_wid = BlueTextWid()
         self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.setStyleSheet("background: red;")
+        # self.setStyleSheet("background: red;")
     
     @classmethod
     def calc_size(cls, img_wid_border = 10, w_offset = 50, h_offset = 50):
