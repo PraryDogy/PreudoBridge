@@ -196,7 +196,6 @@ class Thumb(QFrame):
         if self.width() == Thumb.wid_width:
             return
 
-        # self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
         self.setFixedWidth(Thumb.wid_width)
         self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
 

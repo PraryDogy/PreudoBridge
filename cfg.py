@@ -29,11 +29,12 @@ class Static:
     base_ww, base_hh = 1120, 760
     max_thumb_size = 210
 
+    # размеры для QPixmap в виджете Thumb
     thumb_widget_pixmap_size = [65, 80, 165]
-    # рамка вокруг QPixmap thumb_widget_pixmap_size + img_wid_border
+    # рамка вокруг QPixmap в виджете Thumb
     img_wid_border = 10
+    # дополнительное пространство к ширине виджета Thumb
     thumb_widget_extra_w = 30
-    thumb_widget_extra_h = 50
 
 class JsonData:
     favs = {}
