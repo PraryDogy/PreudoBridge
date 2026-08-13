@@ -21,7 +21,7 @@ FONT_SIZE = 11
 
 
 class ThumbImgWidget(QLabel):
-    border_radius = 8
+    border_radius = 10
     gray_color = "rgba(128, 128, 128, 0.95)"
     image_icons: dict[int, QPixmap] = {}
     folder_icons: dict[int, QPixmap] = {}
