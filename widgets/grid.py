@@ -177,20 +177,13 @@ class Thumb(QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
+
+        Thumb.wid_width = Static.thumb_widget_width[ind]
+        Thumb.wid_height = Static.thumb_widget_height[ind]
+
         Thumb.img_wid_pixmap_size = Static.thumb_widget_pixmap_size[ind]
-        Thumb.wid_width = Static.thumb_widget_width[ind] + 10
-        Thumb.wid_height = Static.thumb_widget_height[ind] + 10
-
-
-
-        # self.setFixedSize(
-        #     Thumb.wid_width + 10,
-        #     Thumb.wid_height + 10
-        # )
-        # self.img_wid.setFixedSize(
-        #     Thumb.pixmap_size + 10,
-        #     Thumb.pixmap_size + 10
-        # )
+        Thumb.img_wid_width = Thumb.img_wid_pixmap_size + 10
+        Thumb.img_wid_height = Thumb.img_wid_pixmap_size + 10
 
     def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
@@ -213,7 +206,6 @@ class Thumb(QFrame):
     def set_text_and_size(self, sort_item: SortItem):
         self.white_text_wid.set_text(self.data_item)
         self.blue_text_wid.set_text(self.data_item, sort_item)
-        # self.img_wid.set_margins() 
         stmt = (
             self.width() == Thumb.wid_width,
             self.height() == Thumb.wid_height
@@ -222,7 +214,7 @@ class Thumb(QFrame):
             return
 
         self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
-        self.img_wid.setFixedSize(Thumb.img_wid_pixmap_size, Thumb.img_wid_pixmap_size)
+        self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
 
         if self.data_item.qimages:
             self.set_pixmap()
