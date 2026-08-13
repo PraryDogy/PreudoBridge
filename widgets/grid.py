@@ -33,15 +33,15 @@ class ThumbImgWidget(QLabel):
         self.set_no_frame_style()
 
     @classmethod
-    def create_icons(cls, offset: int = 0):
+    def create_icons(cls):
         images = Static.internal_images_dir
         folder_icon = QImage(os.path.join(images, "folder.png"))
         image_icon = QImage(os.path.join(images, "image.png"))
         disk_icon = QImage(os.path.join(images, "disk.png"))
         for i in Static.thumb_widget_pixmap_size:
-            resized_folder = Utils.scaled(folder_icon, i - offset)
-            resized_image = Utils.scaled(image_icon, i - offset)
-            resized_disk = Utils.scaled(disk_icon, i - offset)
+            resized_folder = Utils.scaled(folder_icon, i)
+            resized_image = Utils.scaled(image_icon, i)
+            resized_disk = Utils.scaled(disk_icon, i)
             cls.folder_icons[i] = QPixmap.fromImage(resized_folder)
             cls.image_icons[i] = QPixmap.fromImage(resized_image)
             cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
