@@ -139,8 +139,7 @@ class BlueTextWid(QLabel):
 class Thumb(QFrame):
     wid_width = 0
     wid_height = 0
-    img_wid_width = 0
-    img_wid_height = 0
+    img_wid_size = 0
     img_wid_pixmap_size = 0
 
     def __init__(self, data_item: DataItem):
@@ -168,10 +167,8 @@ class Thumb(QFrame):
         ind = Dynamic.current_pixmap_size_index
 
         Thumb.img_wid_pixmap_size = Static.thumb_widget_pixmap_size[ind]
-        Thumb.img_wid_width = Thumb.img_wid_pixmap_size + Static.img_wid_border
-        Thumb.img_wid_height = Thumb.img_wid_pixmap_size + Static.img_wid_border
-
-        Thumb.wid_width = Thumb.img_wid_width + Static.thumb_widget_extra_w
+        Thumb.img_wid_size = Thumb.img_wid_pixmap_size + Static.img_wid_border
+        Thumb.wid_width = Thumb.img_wid_size + Static.thumb_widget_extra_w
 
         print(Thumb.img_wid_pixmap_size)
         print(Thumb.img_wid_size)
@@ -199,7 +196,7 @@ class Thumb(QFrame):
             return
 
         self.setFixedWidth(Thumb.wid_width)
-        self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
+        self.img_wid.setFixedSize(Thumb.img_wid_size, Thumb.img_wid_size)
 
         self.white_text_wid.set_text(self.data_item, Thumb.wid_width)
         self.blue_text_wid.set_text(self.data_item, sort_item)
