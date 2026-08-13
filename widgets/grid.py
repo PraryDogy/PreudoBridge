@@ -38,7 +38,7 @@ class ThumbImgWidget(QLabel):
         folder_icon = QImage(os.path.join(images, "folder.png"))
         image_icon = QImage(os.path.join(images, "image.png"))
         disk_icon = QImage(os.path.join(images, "disk.png"))
-        for i in Static.pixmap_sizes:
+        for i in Static.thumb_widget_pixmap_size:
             resized_folder = Utils.scaled(folder_icon, i - offset)
             resized_image = Utils.scaled(image_icon, i - offset)
             resized_disk = Utils.scaled(disk_icon, i - offset)
@@ -61,12 +61,10 @@ class ThumbImgWidget(QLabel):
                 border-radius: {self.border_radius}px;
             """
         )
-    
+
 
 class WhiteTextWid(QLabel):
     border_radius = 5
-    # длина списков должна соответствовать длине Static.image_sizes
-    row_limits = [18, 18, 21, 32]
 
     def __init__(self):
         super().__init__()
@@ -75,7 +73,7 @@ class WhiteTextWid(QLabel):
 
     def set_text(self, data: DataItem) -> list[str]:
         name: str | list = data.filename
-        max_row = self.row_limits[Dynamic.pixmap_size_ind]
+        max_row = Static.thumb_widget_white_text_limit[Dynamic.pixmap_size_ind]
         lines: list[str] = []
         if len(name) > max_row:
             first_line = name[:max_row]
@@ -181,7 +179,7 @@ class Thumb(QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
-        Thumb.pixmap_size = Static.pixmap_sizes[ind]
+        Thumb.pixmap_size = Static.thumb_widget_pixmap_size[ind]
         Thumb.thumb_width = cls.widths[ind]
         Thumb.thumb_height = cls.heights[ind]
 
@@ -215,12 +213,12 @@ class Thumb(QFrame):
             return
 
         self.setFixedSize(
-            Thumb.thumb_width,
-            Thumb.thumb_height
+            Thumb.thumb_width + 10,
+            Thumb.thumb_height + 10
         )
         self.img_wid.setFixedSize(
-            Thumb.pixmap_size,
-            Thumb.pixmap_size
+            Thumb.pixmap_size + 10,
+            Thumb.pixmap_size + 10
         )
         if self.data_item.qimages:
             self.set_image()
@@ -759,7 +757,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
-                if new_value <= len(Static.pixmap_sizes) - 1:
+                if new_value <= len(Static.thumb_widget_pixmap_size) - 1:
                     self.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:

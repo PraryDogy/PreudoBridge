@@ -124,7 +124,7 @@ class GridStandart(Grid):
 
         def process_item(item: DataItem):
             qimages = {"src": Utils.qimage_from_array(item._img_array)}
-            for x, i in enumerate(Static.pixmap_sizes, start=0):
+            for x, i in enumerate(Static.thumb_widget_pixmap_size, start=0):
                 # чтобы вмещалось в квадратик
                 size = i - 5
                 qimages[i] = Utils.scaled(qimages["src"], size)

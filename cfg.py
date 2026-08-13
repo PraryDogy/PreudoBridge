@@ -28,7 +28,11 @@ class Static:
     hidden_symbols = (".", "~$", "$")
     base_ww, base_hh = 1120, 760
     max_thumb_size = 210
-    pixmap_sizes = [45, 65, 80, 165]
+
+    thumb_widget_pixmap_size = [45, 65, 80, 165]
+    thumb_widget_white_text_limit = [18, 18, 21, 32]
+    thumb_widget_height = [100, 120, 140, 210]
+    thumb_widget_width = [130, 135, 160, 230]
 
 
 class JsonData:
