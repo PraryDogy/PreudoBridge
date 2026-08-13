@@ -131,7 +131,7 @@ class GridStandart(Grid):
 
             thumb = self.url_to_wid[item.abs_path] # QLabel
             thumb.data_item.qimages.update(qimages)
-            thumb.set_pixmap()
+            thumb.set_pixmap_with_actual_size()
             thumb.data_item.qimages_loaded = True
 
         def poll_task(helper: ImgLoaderHelper):

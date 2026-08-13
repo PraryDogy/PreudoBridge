@@ -172,7 +172,7 @@ class Thumb(QFrame):
         self.blue_text_wid = BlueTextWid()
         self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # self.setStyleSheet("background: red;")
+        self.setStyleSheet("background: red;")
     
     @classmethod
     def calc_size(cls, border_width: int = 10):
@@ -198,7 +198,7 @@ class Thumb(QFrame):
             icons = ThumbImgWidget.folder_icons
         self.img_wid.setPixmap(icons[Thumb.img_wid_pixmap_size])
 
-    def set_pixmap(self):
+    def set_pixmap_with_actual_size(self):
         qimage = self.data_item.qimages[Thumb.img_wid_pixmap_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
@@ -213,11 +213,11 @@ class Thumb(QFrame):
         if all(stmt):
             return
 
-        self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
+        # self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
         self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
 
         if self.data_item.qimages:
-            self.set_pixmap()
+            self.set_pixmap_with_actual_size()
         else:
             self.set_common_icon()
 
