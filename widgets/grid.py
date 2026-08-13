@@ -179,7 +179,7 @@ class Thumb(QFrame):
         Thumb.thumb_width = Static.thumb_widget_width[ind]
         Thumb.thumb_height = Static.thumb_widget_height[ind]
 
-    def set_icon(self):
+    def set_common_icon(self):
         if self.data_item.abs_path.endswith(ImgUtils.ext_all):
             icons = ThumbImgWidget.image_icons
         elif (
@@ -192,7 +192,7 @@ class Thumb(QFrame):
             icons = ThumbImgWidget.folder_icons
         self.img_wid.setPixmap(icons[Thumb.pixmap_size])
 
-    def set_image(self):
+    def set_pixmap(self):
         qimage = self.data_item.qimages[Thumb.pixmap_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
@@ -217,9 +217,9 @@ class Thumb(QFrame):
             Thumb.pixmap_size + 10
         )
         if self.data_item.qimages:
-            self.set_image()
+            self.set_pixmap()
         else:
-            self.set_icon()
+            self.set_common_icon()
 
     def set_frame(self):
         self.data_item.is_selected = True

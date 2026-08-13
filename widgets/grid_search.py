@@ -117,7 +117,7 @@ class GridSearch(Grid):
                         qimage=thumb.data_item.qimages["src"],
                         size=i
                     )
-                thumb.set_image()
+                thumb.set_pixmap()
 
             current_count = len(self.url_to_wid) 
             cols = self.get_max_columns()

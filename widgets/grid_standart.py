@@ -131,7 +131,7 @@ class GridStandart(Grid):
 
             thumb = self.url_to_wid[item.abs_path] # QLabel
             thumb.data_item.qimages.update(qimages)
-            thumb.set_image()
+            thumb.set_pixmap()
             thumb.data_item.qimages_loaded = True
 
         def poll_task(helper: ImgLoaderHelper):
@@ -191,7 +191,7 @@ class GridStandart(Grid):
             thumb = Thumb(data_item)
             thumb.set_text_and_size(self.main_win_item.sort_item)
             thumb.set_no_frame()
-            thumb.set_icon()
+            thumb.set_common_icon()
             self.add_widget_data(thumb, 0, 0)
 
     def select_thumbs(self):
@@ -212,7 +212,7 @@ class GridStandart(Grid):
         thumb = Thumb(data)
         thumb.set_text_and_size(self.main_win_item.sort_item)
         thumb.set_no_frame()
-        thumb.set_icon()
+        thumb.set_common_icon()
 
         current_count = len(self.url_to_wid) 
         cols = self.get_max_columns()
