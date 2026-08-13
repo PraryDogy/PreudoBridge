@@ -105,7 +105,7 @@ class GridSearch(Grid):
 
         def create_thumb(data_item: DataItem):
             thumb = Thumb(data_item)
-            thumb.update_all(self.main_win_item.sort_item)
+            thumb.set_text_and_size(self.main_win_item.sort_item)
             thumb.set_no_frame()
 
             if thumb.data_item._img_array is not None:

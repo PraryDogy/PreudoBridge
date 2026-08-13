@@ -189,7 +189,7 @@ class GridStandart(Grid):
     def create_thumbs(self, data_items: list[DataItem]):
         for data_item in data_items:
             thumb = Thumb(data_item)
-            thumb.update_all(self.main_win_item.sort_item)
+            thumb.set_text_and_size(self.main_win_item.sort_item)
             thumb.set_no_frame()
             thumb.set_icon()
             self.add_widget_data(thumb, 0, 0)
@@ -210,7 +210,7 @@ class GridStandart(Grid):
         data = DataItem(url)
         data.set_properties()
         thumb = Thumb(data)
-        thumb.update_all(self.main_win_item.sort_item)
+        thumb.set_text_and_size(self.main_win_item.sort_item)
         thumb.set_no_frame()
         thumb.set_icon()
 

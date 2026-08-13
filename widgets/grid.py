@@ -23,13 +23,13 @@ FONT_SIZE = 11
 class ThumbImgWidget(QLabel):
     corners = [8, 8, 8, 8]
     gray_color = "rgba(128, 128, 128, 0.95)"
-    corner_value = 10
     image_icons: dict[int, QPixmap] = {}
     folder_icons: dict[int, QPixmap] = {}
     disk_icons: dict[int, QPixmap] = {}
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter)
+        self.setContentsMargins(0, 0, 0, 0)
         self.set_no_frame_style()
 
     @classmethod
@@ -208,10 +208,10 @@ class Thumb(QFrame):
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
 
-    def update_all(self, sort_item: SortItem):
+    def set_text_and_size(self, sort_item: SortItem):
         self.white_text_wid.set_text(self.data_item)
         self.blue_text_wid.set_text(self.data_item, sort_item)
-        self.img_wid.set_margins()
+        # self.img_wid.set_margins() 
         stmt = (
             self.width() == Thumb.thumb_width,
             self.height() == Thumb.thumb_height
@@ -333,7 +333,7 @@ class Grid(UScrollArea):
         for i in sorted_data_items:
             wid = self.url_to_wid.get(i.abs_path)
             new_url_to_wid[i.abs_path] = wid
-            wid.update_all(self.main_win_item.sort_item)
+            wid.set_text_and_size(self.main_win_item.sort_item)
         self.url_to_wid = new_url_to_wid
                 
     def filter(self):
@@ -359,7 +359,7 @@ class Grid(UScrollArea):
     def resize(self):
         Thumb.calc_size()
         for wid in self.url_to_wid.values():
-            wid.update_all(self.main_win_item.sort_item)
+            wid.set_text_and_size(self.main_win_item.sort_item)
 
     def rearrange(self):
         self.grid_wid.hide()
