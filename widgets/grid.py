@@ -2,8 +2,8 @@ import os
 
 from PyQt6.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
                           pyqtSignal)
-from PyQt6.QtGui import (QContextMenuEvent, QCursor, QDrag, QImage, QKeyEvent,
-                         QMouseEvent, QPixmap)
+from PyQt6.QtGui import (QContextMenuEvent, QCursor, QDrag, QFontMetrics,
+                         QImage, QKeyEvent, QMouseEvent, QPixmap)
 from PyQt6.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QVBoxLayout,
                              QWidget)
@@ -70,11 +70,12 @@ class WhiteTextWid(QLabel):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.set_no_frame_style()
-        self.setWordWrap(True)
 
-    def set_text(self, data: DataItem, max_row: int) -> list[str]:
+    def set_text(self, data: DataItem, parent_width: int):
+        char_length = 7
+        max_row = parent_width //char_length
+
         name: str | list = data.filename
-        # max_row = Static.thumb_widget_white_text_limit[Dynamic.pixmap_size_ind]
         lines: list[str] = []
         if len(name) > max_row:
             first_line = name[:max_row]
@@ -87,6 +88,8 @@ class WhiteTextWid(QLabel):
             name = lines.append(name)
 
         self.setText("\n".join(lines))
+
+        self.adjustSize()
 
     def short_text(self, text: str, max_row: int):
         return f"{text[:max_row - 10]}...{text[-7:]}"
@@ -218,7 +221,7 @@ class Thumb(QFrame):
         self.setFixedSize(Thumb.wid_width, Thumb.wid_height)
         self.img_wid.setFixedSize(Thumb.img_wid_width, Thumb.img_wid_height)
 
-        self.white_text_wid.set_text(self.data_item, Thumb.white_text_wid_row_len)
+        self.white_text_wid.set_text(self.data_item, Thumb.wid_width)
         self.blue_text_wid.set_text(self.data_item, sort_item)
 
         if self.data_item.qimages:
