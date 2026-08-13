@@ -46,9 +46,6 @@ class ThumbImgWidget(QLabel):
             cls.image_icons[i] = QPixmap.fromImage(resized_image)
             cls.disk_icons[i] = QPixmap.fromImage(resized_disk)
 
-    def set_margins(self, margin: int = 0):
-        self.setContentsMargins(margin, margin, margin, margin)
-
     def set_framed_style(self):
         self.setStyleSheet(
             f"""
