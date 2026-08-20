@@ -29,7 +29,7 @@ class ThumbBaseLabel(QLabel):
         # Эффект создается один раз для предотвращения утечек памяти
         self._opacity_effect = QGraphicsOpacityEffect(self)
         self.setGraphicsEffect(self._opacity_effect)
-        self.set_opacity(opacity_percent / 100)
+        self.set_opacity(opacity_percent)
 
     def get_shorten_text(self, text: str, parent_width: int, offset=5):
         metrics = QFontMetrics(self.font())
@@ -39,8 +39,8 @@ class ThumbBaseLabel(QLabel):
             max(0, parent_width - offset)
         )
 
-    def set_opacity(self, value: float):
-        self._opacity_effect.setOpacity(value)
+    def set_opacity(self, percent: int):
+        self._opacity_effect.setOpacity(percent / 100)
 
 
 class ThumbImgWidget(ThumbBaseLabel):
@@ -157,6 +157,7 @@ class BlueTextWid(ThumbBaseLabel):
                 )
         self.setText(row)
 
+
 class Thumb(QFrame):
     wid_width = 0
     wid_height = 0
@@ -210,8 +211,8 @@ class Thumb(QFrame):
         self.img_wid.setPixmap(pixmap)
 
     def set_text_and_size(self, sort_item: SortItem):
-        if self.width() == Thumb.wid_width:
-            return
+        # if self.width() == Thumb.wid_width:
+            # return
 
         self.setFixedWidth(Thumb.wid_width)
         self.img_wid.setFixedSize(Thumb.img_wid_size, Thumb.img_wid_size)
@@ -233,11 +234,6 @@ class Thumb(QFrame):
         self.data_item.is_selected = False
         self.white_text_wid.set_no_frame_style()
         self.img_wid.set_no_frame_style()
-
-    def set_transparent_frame(self, value: float):
-        effect = QGraphicsOpacityEffect(self)
-        effect.setOpacity(value)
-        self.setGraphicsEffect(effect)
 
 
 class NoItemsLabel(QLabel):
@@ -474,7 +470,8 @@ class Grid(UScrollArea):
 
     def set_transparent_thumbs(self):
         for i in self.selected_thumbs:
-            i.set_transparent_frame(0.5)
+            i.img_wid.set_opacity(50)
+            i.white_text_wid.set_opacity(50)
 
     def setup_clipboard(self, is_cut: bool):
         if is_cut:
