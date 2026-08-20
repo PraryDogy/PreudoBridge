@@ -133,10 +133,7 @@ class MainWinItem:
     def set_current_dir(self, path: str):
         if not os.path.exists(path):
             path = self.fix_network_path(path)
-            if not os.path.exists(path):
-                # self.abs_current_dir = None
-                # self.fs_id = None
-                # self.rel_parent = None
+            if path is None or not os.path.exists(path):
                 return None
         self.abs_current_dir = path
         self.fs_id = Utils.get_fs_id(path)
