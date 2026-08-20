@@ -20,7 +20,30 @@ from .actions import Actions, Menus
 FONT_SIZE = 11
 RGBA_GRAY = "rgba(128, 128, 128, 0.5)"
 
-class ThumbImgWidget(QLabel):
+
+class ThumbBaseLabel(QLabel):
+    def __init__(self, opacity_percent: int = 100):
+        super().__init__()
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        # Эффект создается один раз для предотвращения утечек памяти
+        self._opacity_effect = QGraphicsOpacityEffect(self)
+        self.setGraphicsEffect(self._opacity_effect)
+        self.set_opacity(opacity_percent / 100)
+
+    def get_shorten_text(self, text: str, parent_width: int, offset=5):
+        metrics = QFontMetrics(self.font())
+        return metrics.elidedText(
+            text,
+            Qt.TextElideMode.ElideMiddle,
+            max(0, parent_width - offset)
+        )
+
+    def set_opacity(self, value: float):
+        self._opacity_effect.setOpacity(value)
+
+
+class ThumbImgWidget(ThumbBaseLabel):
     border_radius = 10
     image_icons: dict[int, QPixmap] = {}
     folder_icons: dict[int, QPixmap] = {}
@@ -28,7 +51,6 @@ class ThumbImgWidget(QLabel):
 
     def __init__(self):
         super().__init__()
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter)
         self.setContentsMargins(0, 0, 0, 0)
         self.set_no_frame_style()
 
@@ -63,12 +85,11 @@ class ThumbImgWidget(QLabel):
         )
 
 
-class WhiteTextWid(QLabel):
+class WhiteTextWid(ThumbBaseLabel):
     border_radius = 5
 
     def __init__(self):
         super().__init__()
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.set_no_frame_style()
 
     def set_text(self, data: DataItem, parent_width: int, offset = 5):
@@ -103,11 +124,10 @@ class WhiteTextWid(QLabel):
         )
 
 
-class BlueTextWid(QLabel):
+class BlueTextWid(ThumbBaseLabel):
 
-    def __init__(self):
-        super().__init__()
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    def __init__(self, opacity_percent = 40):
+        super().__init__(opacity_percent)
         self.setStyleSheet(
             f"""
                 font-size: {FONT_SIZE}px;
