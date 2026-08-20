@@ -18,14 +18,16 @@ from ._base_widgets import BaseSignals, UMenu, UScrollArea
 from .actions import Actions, Menus
 
 FONT_SIZE = 11
-
+RGBA_BLUE = "rgba(97, 153, 228, 0.7)"
+RGBA_GRAY = "rgba(128, 128, 128, 0.5)"
+RGBA_WHITE = "rgba(255, 255, 255, 0.8)"
 
 class ThumbImgWidget(QLabel):
     border_radius = 10
-    gray_color = "rgba(128, 128, 128, 0.95)"
     image_icons: dict[int, QPixmap] = {}
     folder_icons: dict[int, QPixmap] = {}
     disk_icons: dict[int, QPixmap] = {}
+
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter)
@@ -49,7 +51,7 @@ class ThumbImgWidget(QLabel):
     def set_framed_style(self):
         self.setStyleSheet(
             f"""
-                background: {self.gray_color};
+                background: {RGBA_GRAY};
                 border-radius: {self.border_radius}px;
             """
         )
@@ -83,7 +85,8 @@ class WhiteTextWid(QLabel):
     def set_framed_style(self):
         self.setStyleSheet(
             f"""
-                background: {Static.rgba_blue};
+                color: {RGBA_WHITE};
+                background: palette(highlight);
                 font-size: {FONT_SIZE}px;
                 border-radius: {self.border_radius}px;
                 padding: 2px;
@@ -93,6 +96,7 @@ class WhiteTextWid(QLabel):
     def set_no_frame_style(self):
         self.setStyleSheet(
             f"""
+                color: {RGBA_WHITE};
                 background: transparent;
                 font-size: {FONT_SIZE}px;
                 border-radius: {self.border_radius}px;
@@ -110,7 +114,7 @@ class BlueTextWid(QLabel):
         self.setStyleSheet(
             f"""
                 font-size: {FONT_SIZE}px;
-                color: {self.blue_color};
+                color: {RGBA_BLUE};
             """
         )
     
