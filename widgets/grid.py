@@ -18,9 +18,7 @@ from ._base_widgets import BaseSignals, UMenu, UScrollArea
 from .actions import Actions, Menus
 
 FONT_SIZE = 11
-RGBA_BLUE = "rgba(97, 153, 228, 0.7)"
 RGBA_GRAY = "rgba(128, 128, 128, 0.5)"
-RGBA_WHITE = "rgba(255, 255, 255, 0.8)"
 
 class ThumbImgWidget(QLabel):
     border_radius = 10
@@ -85,7 +83,7 @@ class WhiteTextWid(QLabel):
     def set_framed_style(self):
         self.setStyleSheet(
             f"""
-                color: {RGBA_WHITE};
+                color: palette(text);
                 background: palette(highlight);
                 font-size: {FONT_SIZE}px;
                 border-radius: {self.border_radius}px;
@@ -96,7 +94,7 @@ class WhiteTextWid(QLabel):
     def set_no_frame_style(self):
         self.setStyleSheet(
             f"""
-                color: {RGBA_WHITE};
+                color: palette(text);
                 background: transparent;
                 font-size: {FONT_SIZE}px;
                 border-radius: {self.border_radius}px;
@@ -106,7 +104,6 @@ class WhiteTextWid(QLabel):
 
 
 class BlueTextWid(QLabel):
-    blue_color = "#6199E4"
 
     def __init__(self):
         super().__init__()
@@ -114,7 +111,7 @@ class BlueTextWid(QLabel):
         self.setStyleSheet(
             f"""
                 font-size: {FONT_SIZE}px;
-                color: {RGBA_BLUE};
+                color: palette(text);
             """
         )
     

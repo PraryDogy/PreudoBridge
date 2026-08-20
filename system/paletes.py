@@ -6,40 +6,44 @@ class UPallete:
     @classmethod
     def light(cls):
         p = QPalette()
-        # Для удобства создаем короткую ссылку на перечисление
-        role = QPalette.ColorRole
-        
-        p.setColor(role.Window, QColor("#ffffff"))             # фон окон
-        p.setColor(role.WindowText, QColor("#000000"))         # обычный текст на окне
-        p.setColor(role.Base, QColor("#f5f5f5"))               # фон полей ввода
-        p.setColor(role.AlternateBase, QColor("#ffffff"))      # фон чередующихся строк
-        p.setColor(role.ToolTipBase, QColor("#000000"))        # фон тултипа
-        p.setColor(role.ToolTipText, QColor("#ffffff"))        # текст тултипа
-        p.setColor(role.Text, QColor("#000000"))               # основной текст
-        p.setColor(role.Button, QColor("#f0f0f0"))             # фон кнопок
-        p.setColor(role.ButtonText, QColor("#000000"))         # текст на кнопках
-        p.setColor(role.BrightText, QColor("#ff0000"))         # аварийный текст
-        p.setColor(role.Link, QColor("#007aff"))               # цвет ссылок
-        p.setColor(role.Highlight, QColor("#007aff"))          # фон выделения
-        p.setColor(role.HighlightedText, QColor("#ffffff"))    # текст на фоне выделения
+        color = QPalette.ColorRole
+        p.setColor(color.Window, QColor("#ffffff"))
+        p.setColor(color.WindowText, QColor("#000000"))
+        p.setColor(color.Base, QColor("#f5f5f5"))
+        p.setColor(color.AlternateBase, QColor("#ffffff"))
+        p.setColor(color.ToolTipBase, QColor("#ffffff"))   
+        p.setColor(color.ToolTipText, QColor("#000000"))   
+        p.setColor(color.Text, QColor("#000000"))
+        p.setColor(color.Button, QColor("#f0f0f0"))
+        p.setColor(color.ButtonText, QColor("#000000"))
+        p.setColor(color.BrightText, QColor("#ff0000"))
+        p.setColor(color.Link, QColor("#0059d1"))
+        p.setColor(color.Highlight, QColor("#0059d1"))
+        p.setColor(color.HighlightedText, QColor("#ffffff"))
         return p
 
     @classmethod
     def dark(cls):
         p = QPalette()
-        role = QPalette.ColorRole
-        
-        p.setColor(role.Window, QColor("#1e1e1e"))
-        p.setColor(role.WindowText, QColor("#ffffff"))
-        p.setColor(role.Base, QColor("#191919"))
-        p.setColor(role.AlternateBase, QColor("#2a2a2a"))
-        p.setColor(role.ToolTipBase, QColor("#ffffff"))
-        p.setColor(role.ToolTipText, QColor("#000000"))
-        p.setColor(role.Text, QColor("#ffffff"))
-        p.setColor(role.Button, QColor("#2d2d2d"))
-        p.setColor(role.ButtonText, QColor("#ffffff"))
-        p.setColor(role.BrightText, QColor("#ff453a"))          # macOS red
-        p.setColor(role.Link, QColor("#0a84ff"))               # macOS system blue
-        p.setColor(role.Highlight, QColor("#0a84ff"))
-        p.setColor(role.HighlightedText, QColor("#000000"))
+        color = QPalette.ColorRole
+        p.setColor(color.Window, QColor("#1e1e1e"))
+        p.setColor(color.WindowText, QColor("#ffffff"))
+        p.setColor(color.Base, QColor("#191919"))
+        p.setColor(color.AlternateBase, QColor("#2a2a2a"))
+        p.setColor(color.ToolTipBase, QColor("#2a2a2a"))   
+        p.setColor(color.ToolTipText, QColor("#ffffff"))   
+        p.setColor(color.Text, QColor("#ffffff"))
+        p.setColor(color.Button, QColor("#2d2d2d"))
+        p.setColor(color.ButtonText, QColor("#ffffff"))
+        p.setColor(color.BrightText, QColor("#ff453a"))
+        p.setColor(color.Link, QColor("#0059d1"))
+        p.setColor(color.Highlight, QColor("#0059d1"))
+        p.setColor(color.HighlightedText, QColor("#000000"))
+        return p
+
+    @classmethod
+    def macinthosh(cls):
+        p = QPalette()
+        color = p.ColorRole
+        p.setColor(color.Highlight, QColor("#0059d1"))
         return p
