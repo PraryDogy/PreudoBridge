@@ -11,6 +11,11 @@ from ._base_widgets import UMenu, BaseSignals
 from .actions import Actions
 
 
+RGBA_BLUE = "rgba(97, 153, 228, 0.7)"
+RGBA_GRAY = "rgba(128, 128, 128, 0.5)"
+RGBA_WHITE = "rgba(255, 255, 255, 0.8)"
+
+
 class ListItemBase(QListWidgetItem):
     hh = 30
 
@@ -61,6 +66,13 @@ class MenuFavs(QListWidget):
         self.setAcceptDrops(True)
         self.create_icons()
         self.init_ui()
+
+        self.setStyleSheet(f"""
+            QListWidget::item {{
+                color: {RGBA_WHITE}; 
+            }}
+        """)
+
 
     def create_icons(self):
         folder = os.path.join(Static.internal_images_dir, "folder.png")
