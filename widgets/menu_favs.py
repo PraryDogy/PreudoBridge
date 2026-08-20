@@ -67,11 +67,11 @@ class MenuFavs(QListWidget):
         self.create_icons()
         self.init_ui()
 
-        self.setStyleSheet(f"""
-            QListWidget::item {{
-                color: {RGBA_WHITE}; 
-            }}
-        """)
+        # self.setStyleSheet(f"""
+        #     QListWidget::item {{
+        #         color: {RGBA_WHITE}; 
+        #     }}
+        # """)
 
 
     def create_icons(self):
