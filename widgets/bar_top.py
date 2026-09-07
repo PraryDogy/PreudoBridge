@@ -2,10 +2,10 @@ import os
 
 from PyQt6.QtCore import QByteArray, Qt, QTimer, pyqtSignal
 from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QVBoxLayout,
-                             QWidget)
+from PyQt6.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
+                             QVBoxLayout, QWidget)
 
-from cfg import Static
+from cfg import Static,Dynamic
 from system.items import MainWinItem, SearchItem
 
 from ._base_widgets import (BaseSignals, BtnNext, BtnSmall, GrayLabel,
