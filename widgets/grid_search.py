@@ -8,7 +8,8 @@ from watchdog.events import FileSystemEvent
 
 from cfg import Static
 from system.items import DataItem, MainWinItem, SearchItem, TotalCountItem
-from system.multiprocess import ProcessWorker, SearchTask, WatchdogTask
+from system.multiprocess import (ProcessWorker, SearchProgress, SearchTask,
+                                 WatchdogTask)
 from system.utils import Utils
 
 from ._base_widgets import (BtnSmall, NotifyWid, QGroupBox, QVBoxLayout,
@@ -154,20 +155,28 @@ class GridSearch(Grid):
             self.search_timer.stop()
             data_items: list[DataItem] = []
             finished_result = None
+            last_progress: str | None = None
 
             while not self.search_task.queue.empty():
                 result = self.search_task.queue.get()
                 if isinstance(result, DataItem):
                     data_items.append(result)
+                elif isinstance(result, SearchProgress):
+                    # Берём только последнее сообщение, остальные не нужны
+                    last_progress = result.text
                 else:
                     finished_result = result
                     break
 
-            # Сначала создаём миниатюры, потом завершаем поиск,
-            # чтобы fin видел уже заполненную сетку
+            # Сначала создаём миниатюры
             for i in data_items:
                 create_thumb(i)
 
+            # Прогресс уходит в сигнал, принт не используется
+            if last_progress is not None:
+                self.title_text.emit(last_progress)
+
+            # Поиск завершён: fin видит уже заполненную сетку
             if finished_result is not None:
                 fin(finished_result)
 

@@ -704,6 +704,11 @@ class CopyTask:
         return path
 
 
+@dataclass(slots=True)
+class SearchProgress:
+    text: str
+
+
 class SearchTask:
     sleep_s = 0.1
 
@@ -759,10 +764,14 @@ class SearchTask:
         total = len(dirs)
 
         if total == 0:
-            print("Поиск: директории не найдены")
+            search_item.queue.put(
+                SearchProgress("Поиск: директории не найдены")
+            )
             return
 
-        print(f"Поиск: всего директорий {total}")
+        search_item.queue.put(
+            SearchProgress(f"Поиск: всего директорий {total}")
+        )
 
         last_percent = -1
         for index, current_dir in enumerate(dirs, start=1):
@@ -771,11 +780,13 @@ class SearchTask:
             except Exception:
                 Utils.print_error()
 
-            # Печатаем только когда процент изменился, чтобы не засорять консоль
+            # Отправляем прогресс только когда процент изменился
             percent = index * 100 // total
             if percent != last_percent:
-                print(f"Поиск: {percent}% ({index} из {total})")
                 last_percent = percent
+                search_item.queue.put(
+                    SearchProgress(f"Поиск: {percent}% ({index} из {total})")
+                )
 
     @staticmethod
     def scan_single_dir(current_dir: str, search_item: SearchItem):

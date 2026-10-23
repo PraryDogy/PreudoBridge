@@ -432,6 +432,9 @@ class WinMain(UMainWindow):
         self.grid.search_finished.connect(
             lambda: self.setWindowTitle(self.search_fin_text)
         )
+        self.grid.title_text.connect(
+            lambda text: self.setWindowTitle(text)
+        )
         self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
         self.setWindowTitle(self.search_text)
         self.scroll_up.hide()
