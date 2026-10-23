@@ -82,6 +82,7 @@ class GridSearch(Grid):
     icon_path = os.path.join(Static.internal_images_dir, "warning.svg")
     pause_time_ms = 1000
     search_timer_ms = 500
+    title_text = pyqtSignal(str)
 
     def __init__(
             self,

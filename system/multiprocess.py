@@ -726,24 +726,59 @@ class SearchTask:
         return False
 
     @staticmethod
-    def scandir_recursive(search_item: SearchItem):
-        dirs_list = [search_item.root_dir, ]
-        while dirs_list:
-            current_dir = dirs_list.pop()
-            if not os.path.exists(current_dir):
-                continue
-            try:
-                # Сканируем текущий каталог и добавляем новые пути в стек
-                SearchTask.scan_single_dir(current_dir, dirs_list, search_item)
-            except OSError as e:
-                Utils.print_error()
-                continue
-            except Exception as e:
-                Utils.print_error()
+    def collect_dirs(root_dir: str) -> list[str]:
+        """
+        Сначала собирает все директории в список, без сканирования файлов.
+        Скрытые папки пропускаются так же, как при сканировании.
+        """
+        result: list[str] = []
+        stack = [root_dir]
+
+        while stack:
+            current_dir = stack.pop()
+            if not os.path.isdir(current_dir):
                 continue
 
+            result.append(current_dir)
+
+            try:
+                with os.scandir(current_dir) as it:
+                    for entry in it:
+                        if entry.name.startswith(Static.hidden_symbols):
+                            continue
+                        if entry.is_dir():
+                            stack.append(entry.path)
+            except OSError:
+                Utils.print_error()
+
+        return result
+
     @staticmethod
-    def scan_single_dir(current_dir: str, dir_list: list, search_item: SearchItem):
+    def scandir_recursive(search_item: SearchItem):
+        dirs = SearchTask.collect_dirs(search_item.root_dir)
+        total = len(dirs)
+
+        if total == 0:
+            print("Поиск: директории не найдены")
+            return
+
+        print(f"Поиск: всего директорий {total}")
+
+        last_percent = -1
+        for index, current_dir in enumerate(dirs, start=1):
+            try:
+                SearchTask.scan_single_dir(current_dir, search_item)
+            except Exception:
+                Utils.print_error()
+
+            # Печатаем только когда процент изменился, чтобы не засорять консоль
+            percent = index * 100 // total
+            if percent != last_percent:
+                print(f"Поиск: {percent}% ({index} из {total})")
+                last_percent = percent
+
+    @staticmethod
+    def scan_single_dir(current_dir: str, search_item: SearchItem):
         fs_id = Utils.get_fs_id(current_dir)
         rel_parent = Utils.get_rel_parent(current_dir)
         search_item.fs_id = fs_id
@@ -758,8 +793,8 @@ class SearchTask:
             )
             stmt = (
                 sqlalchemy.select(*clmns)
-                .where(CacheTable.fs_id==fs_id)
-                .where(CacheTable.rel_parent==rel_parent)
+                .where(CacheTable.fs_id == fs_id)
+                .where(CacheTable.rel_parent == rel_parent)
             )
             search_item.db_items = {
                 (filename, size, mod): thumb_path
@@ -770,13 +805,12 @@ class SearchTask:
         for x, entry in enumerate(os.scandir(current_dir), start=1):
             if entry.name.startswith(Static.hidden_symbols):
                 continue
-            if entry.is_dir():
-                dir_list.append(entry.path)
             if SearchTask.process_entry(entry, search_item):
                 SearchTask.process_data_item(entry, search_item)
             if x == step:
                 SearchTask.insert_records(search_item, search_item.new_items)
                 search_item.new_items.clear()
+
         SearchTask.insert_records(search_item, search_item.new_items)
         search_item.new_items.clear()
 
@@ -807,6 +841,7 @@ class SearchTask:
                 search_item.new_items.append(data_item)
             search_item.queue.put(data_item)
 
+    @staticmethod
     def insert_records(search_item: SearchItem, data_items: list[DataItem]):
         if not data_items:
             return
