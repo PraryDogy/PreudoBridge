@@ -870,3 +870,4 @@ class Grid(UScrollArea):
     def deleteLater(self):
         urls = [i.data_item.abs_path for i in self.selected_thumbs]
         self.main_win_item.urls_to_select = urls
+        return super().deleteLater()
