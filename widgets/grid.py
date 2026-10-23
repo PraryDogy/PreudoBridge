@@ -25,7 +25,7 @@ class ThumbBaseLabel(QLabel):
     def __init__(self, opacity_percent: int = 100):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
+
         # Эффект создается один раз для предотвращения утечек памяти
         self._opacity_effect = QGraphicsOpacityEffect(self)
         self.setGraphicsEffect(self._opacity_effect)
@@ -134,7 +134,7 @@ class BlueTextWid(ThumbBaseLabel):
                 color: palette(text);
             """
         )
-    
+
     def set_text(self, data_item: DataItem, sort_item: SortItem):
         if sort_item.item_type == sort_item.mod:
             row = f"Изм: {SharedUtils.get_f_date(data_item.mod)}"
@@ -183,7 +183,7 @@ class Thumb(QFrame):
         self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # self.setStyleSheet("background: red;")
-    
+
     @classmethod
     def calculate_size(cls):
         ind = Dynamic.current_pixmap_size_index
@@ -239,9 +239,12 @@ class Thumb(QFrame):
 class NoItemsLabel(QLabel):
     no_files = "Нет изображений"
     no_filter = "Нет файлов с выбранным рейтингом или фильтром."
-    def __init__(self, text: str):
-        super().__init__(text)
+
+    def __init__(self, text: str, parent: QWidget | None = None):
+        super().__init__(text, parent)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Метка не перехватывает клики, чтобы сетка оставалась кликабельной
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
 
 
 class Grid(UScrollArea):
@@ -279,6 +282,7 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
+        self._no_items_label: NoItemsLabel | None = None
 
         self.grid_wid = QWidget()
         self.setWidget(self.grid_wid)
@@ -294,7 +298,7 @@ class Grid(UScrollArea):
     def reload_rubber(self):
         self.rubberBand.deleteLater()
         self.rubberBand = QRubberBand(QRubberBand.Shape.Rectangle, self.grid_wid)
-    
+
     def get_max_columns(self):
         try:
             # теперь виджет правильной ширины
@@ -328,7 +332,7 @@ class Grid(UScrollArea):
             new_url_to_wid[i.abs_path] = wid
             wid.set_text_and_size(self.main_win_item.sort_item)
         self.url_to_wid = new_url_to_wid
-                
+
     def filter(self):
         visible_thumbs = 0
         for wid in self.url_to_wid.values():
@@ -344,7 +348,6 @@ class Grid(UScrollArea):
                 wid.data_item.must_hidden = True
                 wid.hide()
         if visible_thumbs == 0:
-            self.no_items_label_remove()
             self.no_items_label_create(NoItemsLabel.no_filter)
         else:
             self.no_items_label_remove()
@@ -358,7 +361,7 @@ class Grid(UScrollArea):
         self.grid_wid.hide()
         self.cell_to_wid.clear()
         cols = self.get_max_columns()
-        visible_count = 0 
+        visible_count = 0
         for thumb in self.url_to_wid.values():
             if thumb.data_item.must_hidden:
                 continue
@@ -423,17 +426,30 @@ class Grid(UScrollArea):
             ClipboardItemGlob.src_urls.append(i.data_item.abs_path)
 
     def no_items_label_remove(self):
-        wid = self.grid_wid.findChild(NoItemsLabel)
-        if wid:
-            wid.deleteLater()
-            flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
-            self.grid_layout.setAlignment(flags)
+        label = self._no_items_label
+        if label is not None:
+            label.deleteLater()
+            self._no_items_label = None
 
     def no_items_label_create(self, text: str):
-        no_images = NoItemsLabel(text)
-        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.grid_layout.addWidget(no_images, 0, 0)
-        
+        # Всегда удаляем старую метку, чтобы не было дублей
+        self.no_items_label_remove()
+        # Метка живёт поверх viewport, а не в grid_layout,
+        # поэтому не влияет на расположение миниатюр
+        self._no_items_label = NoItemsLabel(text, self.viewport())
+        self._place_no_items_label()
+        self._no_items_label.show()
+
+    def _place_no_items_label(self):
+        label = self._no_items_label
+        if label is not None:
+            label.setGeometry(self.viewport().rect())
+            label.raise_()
+
+    def resizeEvent(self, a0):
+        super().resizeEvent(a0)
+        self._place_no_items_label()
+
     def clear_selected_widgets(self):
         for i in self.selected_thumbs:
             i.set_no_frame()
@@ -455,7 +471,7 @@ class Grid(UScrollArea):
             wid.set_frame()
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
-        global_pos = QCursor.pos() 
+        global_pos = QCursor.pos()
         wid = QApplication.widgetAt(global_pos)
         if isinstance(wid, (WhiteTextWid, BlueTextWid, ThumbImgWidget)):
             return wid.parent()
@@ -537,7 +553,7 @@ class Grid(UScrollArea):
                     action=self.context_actions.collage,
                     callback=lambda: self.collage.emit(data_items)
                 )
-            
+
         self.context_menu.addSeparator()
         self.context_menu.add_action(
             action=self.context_actions.win_info,
@@ -589,7 +605,7 @@ class Grid(UScrollArea):
         self.context_menu.add_action(
             action=self.context_actions.copy_path,
             callback=lambda: self.base_signals.copy_urls.emit(urls)
-            
+
         )
         self.context_menu.add_action(
             action=self.context_actions.copy_name,
@@ -631,7 +647,7 @@ class Grid(UScrollArea):
         elif self.wid_under_mouse is None:
             self.clear_selected_widgets()
             self.bar_path_update_cmd(self.main_win_item.abs_current_dir)
-        
+
         elif a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
             # шифт клик: если не было выделенных виджетов
             if not self.selected_thumbs:
@@ -707,7 +723,7 @@ class Grid(UScrollArea):
         self.mime_data = QMimeData()
         img_ = QPixmap.fromImage(self.files_icon)
         self.drag.setPixmap(img_)
-        urls = [QUrl.fromLocalFile(i.data_item.abs_path) for i in self.selected_thumbs]        
+        urls = [QUrl.fromLocalFile(i.data_item.abs_path) for i in self.selected_thumbs]
         if urls:
             self.mime_data.setUrls(urls)
         if self.wid_under_mouse:
@@ -799,14 +815,14 @@ class Grid(UScrollArea):
             if not self.wid_under_mouse:
                 return
             coords = (
-                self.wid_under_mouse.data_item.row + offset[0], 
+                self.wid_under_mouse.data_item.row + offset[0],
                 self.wid_under_mouse.data_item.col + offset[1]
             )
             next_wid = self.cell_to_wid.get(coords)
             if next_wid is None:
                 if a0.key() == Qt.Key.Key_Right:
                     coords = (
-                        self.wid_under_mouse.data_item.row + 1, 
+                        self.wid_under_mouse.data_item.row + 1,
                         0
                     )
                 elif a0.key() == Qt.Key.Key_Left:
@@ -850,13 +866,7 @@ class Grid(UScrollArea):
         self.context_menu = UMenu()
         self.context_actions = Actions(self.context_menu)
         self.context_menus = Menus(self.context_menu, self.main_win_item)
-    
+
     def deleteLater(self):
         urls = [i.data_item.abs_path for i in self.selected_thumbs]
         self.main_win_item.urls_to_select = urls
-        return super().deleteLater()
-    
-    def closeEvent(self, a0):
-        urls = [i.src for i in self.selected_thumbs]
-        self.main_win_item.urls_to_select = urls
-        return super().closeEvent(a0)

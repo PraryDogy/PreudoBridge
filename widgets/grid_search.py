@@ -95,11 +95,19 @@ class GridSearch(Grid):
         self.search_item = search_item
         self.total_widgets = 0
         self.pause_by_btn: bool = False
+        self.search_done = False
         self.pause_timer = QTimer(self)
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
         self.start_search()
         self.watchdog_start()
+
+    def show_no_result(self):
+        if self._no_items_label is None:
+            self.no_items_label_create(GridSearch.no_result_text)
+
+    def clear_no_result(self):
+        self.no_items_label_remove()
 
     def start_search(self):
 
@@ -119,51 +127,60 @@ class GridSearch(Grid):
                     )
                 thumb.set_pixmap_with_actual_size()
 
-            current_count = len(self.url_to_wid) 
+            # Миниатюра появилась: убираем служебную метку
+            self.clear_no_result()
+
+            current_count = len(self.url_to_wid)
             cols = self.get_max_columns()
             row, col = divmod(current_count, cols)
             self.add_widget_data(thumb, row, col)
             self.grid_layout.addWidget(thumb, row, col)
 
         def fin(missed_files: dict[str, str]):
+            self.search_done = True
             self.search_finished.emit()
-            
-            if not self.cell_to_wid:
-                no_images = QLabel(GridSearch.no_result_text)
-                no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.grid_layout.addWidget(no_images, 0, 0)
+
+            if not self.url_to_wid:
+                self.show_no_result()
 
             if missed_files:
                 missed_files = list(missed_files.values())
                 self.win_missed_files = WinMissedFiles(missed_files)
                 self.win_missed_files.center(self.window())
                 self.win_missed_files.show()
-        
+
         def poll_task():
             self.search_timer.stop()
             data_items: list[DataItem] = []
+            finished_result = None
+
             while not self.search_task.queue.empty():
                 result = self.search_task.queue.get()
                 if isinstance(result, DataItem):
                     data_items.append(result)
                 else:
-                    fin(result)
+                    finished_result = result
                     break
-            if data_items:
-                for i in data_items:
-                    create_thumb(i)
+
+            # Сначала создаём миниатюры, потом завершаем поиск,
+            # чтобы fin видел уже заполненную сетку
+            for i in data_items:
+                create_thumb(i)
+
+            if finished_result is not None:
+                fin(finished_result)
+
             selected, total = 0, len(self.url_to_wid)
             item = TotalCountItem(
                 selected=selected,
                 total=total
             )
             self.total_count_update.emit(item)
+
             if not self.search_task.is_alive() and self.search_task.queue.empty():
                 self.search_task.terminate_join()
             else:
                 self.search_timer.start(self.search_timer_ms)
-
 
         Thumb.calculate_size()
         self.search_item.root_dir = self.main_win_item.abs_current_dir
@@ -207,11 +224,9 @@ class GridSearch(Grid):
         if e.event_type == "deleted":
             self.del_thumb(e.src_path)
 
-        if not self.url_to_wid:
-            self.no_items_label_remove()
-            self.no_items_label_create(NoItemsLabel.no_files)
-        else:
-            self.no_items_label_remove()
+        # Пока поиск не завершён, пустая сетка ещё ничего не значит
+        if self.search_done and not self.url_to_wid:
+            self.show_no_result()
 
     def sort(self):
         self.search_task.pause = True
@@ -258,8 +273,8 @@ class GridSearch(Grid):
     def resizeEvent(self, a0):
         self.resize()
         return super().resizeEvent(a0)
-    
-    def closeEvent(self, a0):   
+
+    def closeEvent(self, a0):
         self.search_task.terminate_join()
         self.watchdog_task.terminate_join()
         return super().closeEvent(a0)
@@ -268,7 +283,7 @@ class GridSearch(Grid):
         self.search_task.terminate_join()
         self.watchdog_task.terminate_join()
         return super().deleteLater()
-    
+
     def dragEnterEvent(self, a0: QDragEnterEvent):
         a0.accept()
 
