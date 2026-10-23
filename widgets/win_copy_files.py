@@ -1,12 +1,13 @@
 import os
+from queue import Empty
 
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import Static
-from system.items import ClipboardItemGlob, CopyItem
-from system.multiprocess import CopyTask, CopyWorker
+from system.items import ClipboardItemGlob
+from system.multiprocess import CopyTask, CopyTaskItem, CopyTaskWorker
 
 from ._base_widgets import BtnSmall, UMainWidget
 from .win_progressbar import WinProgressbar
@@ -96,7 +97,7 @@ class WinReplaceFiles(UMainWidget):
 
     def closeEvent(self, a0):
         a0.ignore()
-    
+
 
 class WinError(UMainWidget):
     descr_text = "Произошла ошибка при копировании"
@@ -156,7 +157,6 @@ class WinCopyFiles(WinProgressbar):
     copy_timer_ms = 100
 
     def __init__(self):
-
         if ClipboardItemGlob.is_cut:
             title_text = "Перемещаю файлы"
         else:
@@ -164,118 +164,170 @@ class WinCopyFiles(WinProgressbar):
 
         super().__init__(title_text)
 
-        # one = WinReplaceFiles()
-        # one.show()
-        # two = WinError()
-        # two.show()
-        # return
-
-        self.dst_urls = []
+        self.dst_urls: list[str] = []
+        self.copy_item: CopyTaskItem | None = None
+        self.replace_win: WinReplaceFiles | None = None
+        self.stopping = False
 
         src_txt = self.limit_string(os.path.basename(ClipboardItemGlob.src_dir))
         dest_txt = self.limit_string(os.path.basename(ClipboardItemGlob.dst_dir))
-        src_dest_text = f"Из \"{src_txt}\" в \"{dest_txt}\""
-        self.above_label.setText(src_dest_text)
+        self.above_label.setText(f'Из "{src_txt}" в "{dest_txt}"')
         self.below_label.setText(self.preparing_text)
         self.progressbar.setMaximum(100)
         self.cancel_btn.clicked.connect(self.stop_task)
         self.cancel_btn.clicked.connect(self.deleteLater)
         self.adjustSize()
-        
-        self.copy_item = CopyItem(
-            src_dir=ClipboardItemGlob.src_dir,
+
+        self.copy_item = CopyTaskItem(
             dst_dir=ClipboardItemGlob.dst_dir,
             src_urls=ClipboardItemGlob.src_urls,
-            is_cut=ClipboardItemGlob.is_cut
+            current_percent=0,
+            copied_bytes=0,
+            total_bytes=0,
+            current_file_count=0,
+            total_file_count=0,
+            dst_urls=[],
+            msg="none",
+            is_cut=ClipboardItemGlob.is_cut,
         )
 
-        self.copy_task = CopyWorker(
+        self.copy_task = CopyTaskWorker(
             target=CopyTask.start,
-            args=(self.copy_item, )
+            args=(self.copy_item,),
         )
 
         self.copy_timer = QTimer(self)
-        self.copy_timer.timeout.connect(self.poll_task)
         self.copy_timer.setSingleShot(True)
+        self.copy_timer.timeout.connect(self.poll_task)
 
-        self.copy_task.start()  
+        self.copy_task.start()
         self.copy_timer.start(self.copy_timer_ms)
 
     def poll_task(self):
-        self.copy_timer.stop()
-        finished = False
+        if self.stopping:
+            return
 
-        if not self.copy_task.queue.empty():
-            copy_item: CopyItem = self.copy_task.queue.get()
+        while True:
+            try:
+                copy_item: CopyTaskItem = self.copy_task.process_queue.get_nowait()
+            except Empty:
+                break
+
+            self.copy_item = copy_item
+
+            if copy_item.dst_urls:
+                self.dst_urls = list(copy_item.dst_urls)
 
             if copy_item.msg == "error":
-                self.error_win = WinError()
-                self.error_win.center(self.window())
-                self.error_win.show()
-                self.stop_task()
-                self.deleteLater()
+                self.show_error(copy_item.error_traceback)
                 return
-            
-            elif copy_item.msg == "need_replace":
-                self.replace_win = WinReplaceFiles()
-                self.replace_win.center(self)
-                self.replace_win.replace_all_press.connect(self.replace_all)
-                self.replace_win.replace_one_press.connect(self.replace_one)
-                self.replace_win.stop_pressed.connect(self.stop_pressed)
-                self.replace_win.show()
+
+            if copy_item.msg == "need_replace":
+                self.show_replace_window()
                 return
-            
-            elif copy_item.msg == "finished":
-                finished = True
 
-            if len(self.dst_urls) == 0 and copy_item.dst_urls:
-                self.dst_urls.extend(copy_item.dst_urls)
+            if copy_item.msg == "finished":
+                self.finish_task()
+                return
 
-            self.progressbar.setValue(copy_item.current_percent)
-            self.below_label.setText(
-                f'{self.windowTitle()} {copy_item.current_file_count} из {copy_item.total_file_count}'
-            )
+            self.update_progress(copy_item)
 
-        if not self.copy_task.is_alive() or finished:
-            self.progressbar.setValue(100)
-            self.below_label.setText(
-                f'{self.windowTitle()} {self.copy_item.total_file_count} из {self.copy_item.total_file_count}'
-            )     
-            self.finished_.emit(self.dst_urls)
-            self.stop_task()
-            self.deleteLater()
-        else:
-            self.copy_timer.start(self.copy_timer_ms)
+        if not self.copy_task.is_alive():
+            self.finish_task()
+            return
+
+        self.copy_timer.start(self.copy_timer_ms)
+
+    def update_progress(self, copy_item: CopyTaskItem):
+        self.progressbar.setValue(copy_item.current_percent)
+        self.below_label.setText(
+            f"{self.windowTitle()} {copy_item.current_file_count} из {copy_item.total_file_count}"
+        )
+
+    def show_replace_window(self):
+        if self.stopping:
+            return
+
+        self.replace_win = WinReplaceFiles()
+        self.replace_win.center(self)
+        self.replace_win.replace_one_press.connect(self.replace_one)
+        self.replace_win.replace_all_press.connect(self.replace_all)
+        self.replace_win.stop_pressed.connect(self.cancel_from_replace)
+        self.replace_win.show()
+
+    def replace_one(self):
+        if self.stopping:
+            return
+        self.close_replace_window()
+        self.copy_task.replace_one()
+        self.copy_timer.start(self.copy_timer_ms)
+
+    def replace_all(self):
+        if self.stopping:
+            return
+        self.close_replace_window()
+        self.copy_task.replace_all()
+        self.copy_timer.start(self.copy_timer_ms)
+
+    def cancel_from_replace(self):
+        self.stop_task()
+        self.deleteLater()
+
+    def close_replace_window(self):
+        if self.replace_win is None:
+            return
+        window = self.replace_win
+        self.replace_win = None
+        # WinReplaceFiles игнорирует closeEvent, поэтому только deleteLater
+        window.deleteLater()
+
+    def show_error(self, traceback_text: str):
+        if self.stopping:
+            return
+
+        self.close_replace_window()
+        print(traceback_text)
+
+        self.error_win = WinError()
+        self.error_win.center(self.window())
+        self.error_win.show()
+
+        self.stop_task()
+        self.deleteLater()
+
+    def finish_task(self):
+        if self.stopping:
+            return
+
+        total = self.copy_item.total_file_count if self.copy_item else 0
+        self.progressbar.setValue(100)
+        self.below_label.setText(f"{self.windowTitle()} {total} из {total}")
+
+        self.finished_.emit(self.dst_urls)
+
+        self.stop_task()
+        self.deleteLater()
+
+    def stop_task(self):
+        if self.stopping:
+            return
+
+        self.stopping = True
+        self.copy_timer.stop()
+        self.close_replace_window()
+
+        if self.copy_task.is_alive():
+            self.copy_task.cancel()
+
+        self.copy_task.terminate_join()
 
     def limit_string(self, text: str, limit: int = 30):
         if len(text) > limit:
             return text[:limit] + "..."
         return text
-    
-    def stop_pressed(self):
-        self.replace_win.deleteLater()
-        self.stop_task()
-        self.deleteLater()
-    
-    def replace_one(self):
-        self.copy_timer.stop()
-        self.copy_item.msg = "replace_one"
-        self.copy_task.gui_queue.put(self.copy_item)
-        self.replace_win.deleteLater()
-        self.copy_timer.start(self.copy_timer_ms)
-
-    def replace_all(self):
-        self.copy_timer.stop()
-        self.copy_item.msg = "replace_all"
-        self.copy_task.gui_queue.put(self.copy_item)
-        self.replace_win.deleteLater()
-        self.copy_timer.start(self.copy_timer_ms)
-
-    def stop_task(self):
-        self.copy_timer.stop()
-        self.copy_task.terminate_join()
 
     def closeEvent(self, a0):
+        self.stop_task()
         ClipboardItemGlob.reset()
         return super().closeEvent(a0)
 

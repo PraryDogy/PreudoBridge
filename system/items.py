@@ -88,7 +88,7 @@ class DataItem:
         except Exception:
             try:
                 self.added = int(os.stat(self.abs_path).st_mtime)
-            except AttributeError:
+            except (AttributeError, FileNotFoundError):
                 self.added = 000
 
     @classmethod

@@ -129,10 +129,13 @@ class GridStandart(Grid):
                 size = i - 5
                 qimages[i] = Utils.scaled(qimages["src"], size)
 
-            thumb = self.url_to_wid[item.abs_path] # QLabel
-            thumb.data_item.qimages.update(qimages)
-            thumb.set_pixmap_with_actual_size()
-            thumb.data_item.qimages_loaded = True
+            try:
+                thumb = self.url_to_wid[item.abs_path] # QLabel
+                thumb.data_item.qimages.update(qimages)
+                thumb.set_pixmap_with_actual_size()
+                thumb.data_item.qimages_loaded = True
+            except KeyError:
+                return
 
         def poll_task(helper: ImgLoaderHelper):
             helper.timer.stop()

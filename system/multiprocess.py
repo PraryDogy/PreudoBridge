@@ -1,9 +1,12 @@
 import os
-import shutil
+import traceback
 from dataclasses import dataclass
+from enum import Enum, auto
 from multiprocessing import Process, Queue, shared_memory
 from pathlib import Path
+from queue import Empty
 from time import sleep
+from typing import Literal
 
 import numpy as np
 import sqlalchemy
@@ -13,7 +16,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Static
 from system.database import CacheTable, Dbase
-from system.items import (CopyItem, DataItem, ImgLoaderItem, JpgConvertItem,
+from system.items import (DataItem, ImgLoaderItem, JpgConvertItem,
                           MainWinItem, MultipleInfoItem, SearchItem)
 from system.shared_utils import ImgUtils, SharedUtils
 from system.tasks import Utils
@@ -33,7 +36,7 @@ class BaseProcessWorker:
 
     def is_alive(self):
         return self.process.is_alive()
-    
+
     def terminate_join(self):
         """
         Корректно terminate с join
@@ -83,7 +86,7 @@ class ImgLoader:
 
         if not os.path.exists(main_win_item.abs_current_dir):
             return
-        
+
         engine = Dbase.create_engine()
         img_item = ImgLoaderItem(
             engine=engine,
@@ -91,7 +94,7 @@ class ImgLoader:
             fs_id=main_win_item.fs_id,
             rel_parent=main_win_item.rel_parent
         )
-        
+
         data_items = sorted(data_items, key=lambda x: x.size)
 
         res = ImgLoader._get_records(img_item)
@@ -117,20 +120,16 @@ class ImgLoader:
                 data_item = finder_items_dict[data]
                 data_item._img_array = Utils.read_thumb(thumb_path)
                 if data_item._img_array is None:
-                    # print("data item none, go new item", data_item.filename)
                     new_items.append(data_item)
                 # битые изображения пытаться загрузить заново
                 elif np.array_equal(data_item._img_array, broken_thumb):
                     new_items.append(data_item)
                 else:
                     queue.put(data_item)
-                
-                # print(data_item._img_array.shape, broken_thumb.shape)
 
         for (filename, mod, size), data_item in finder_items_dict.items():
             if (filename, mod, size) not in db_items_dict:
                 new_items.append(data_item)
-                # print("new_data_iten, go new item", data_item.filename)
 
         new_items = sorted(new_items, key=lambda x: x.size)
         if new_items:
@@ -145,7 +144,6 @@ class ImgLoader:
         ]
         for chunk in chunks:
             for data_item in chunk:
-                # print("new item", data_item.filename)
                 _img = ImgUtils.read_img(data_item.abs_path)
                 data_item._thumb_path = Utils.create_thumb_path(
                     filename=data_item.filename,
@@ -202,7 +200,7 @@ class ImgLoader:
         )
         with img_item.engine.connect() as conn:
             return conn.execute(stmt)
-    
+
 
 @dataclass(slots=True)
 class ReadImgItem:
@@ -311,11 +309,12 @@ class JpgConverter:
 
 class ImgRes:
     undef_text = "Неизвестно"
+
     @staticmethod
     def psd_read(path: str):
         try:
             w, h = ImgUtils.get_psd_size(path)
-            resol= f"{w}x{h}"
+            resol = f"{w}x{h}"
         except Exception as e:
             print("multiprocess > ImgRes psd error", e)
             resol = ImgRes.undef_text
@@ -326,7 +325,7 @@ class ImgRes:
         img_ = ImgUtils.read_img(path)
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
-            resol= f"{w}x{h}"
+            resol = f"{w}x{h}"
         else:
             resol = ImgRes.undef_text
         return resol
@@ -352,8 +351,8 @@ class MultipleInfo:
             total_size=0,
             total_files=0,
             total_folders=0,
-            folders = set(),
-            files = set()
+            folders=set(),
+            files=set()
         )
 
         try:
@@ -403,142 +402,306 @@ class MultipleInfo:
                     info_item.files.add(entry.path)
 
 
-class CopyWorker(BaseProcessWorker):
+@dataclass(slots=True)
+class CopyTaskItem:
+    dst_dir: str
+    src_urls: list[str]
+    current_percent: int
+    copied_bytes: int
+    total_bytes: int
+    current_file_count: int
+    total_file_count: int
+    dst_urls: list[str]
+    msg: Literal["none", "error", "need_replace", "finished"]
+    error_traceback: str = ""
+    is_cut: bool = False
+
+
+class CopyCommand(Enum):
+    REPLACE_ONE = auto()
+    REPLACE_ALL = auto()
+    SKIP = auto()
+    CANCEL = auto()
+    KEEP_BOTH = auto()
+    KEEP_ALL = auto()
+
+
+@dataclass(slots=True)
+class CopyPlanItem:
+    top_dest: Path
+    src_dirs: list[Path]
+    dest_dirs: list[Path]
+    files: list[tuple[Path, Path]]
+
+
+class CopyTaskWorker(BaseProcessWorker):
     def __init__(self, target, args):
-        self.queue = Queue()
+        self.process_queue = Queue()
         self.gui_queue = Queue()
-        super().__init__(target, (*args, self.queue, self.gui_queue))
+        super().__init__(target, (*args, self.process_queue, self.gui_queue))
+
+    def replace_one(self):
+        self.gui_queue.put(CopyCommand.REPLACE_ONE)
+
+    def replace_all(self):
+        self.gui_queue.put(CopyCommand.REPLACE_ALL)
+
+    def skip(self):
+        self.gui_queue.put(CopyCommand.SKIP)
+
+    def cancel(self):
+        self.gui_queue.put(CopyCommand.CANCEL)
+
+    def keep_both(self):
+        self.gui_queue.put(CopyCommand.KEEP_BOTH)
+
+    def keep_all(self):
+        self.gui_queue.put(CopyCommand.KEEP_ALL)
+
+
+# Совместимость: если где-то импортируется старое имя
+CopyWorker = CopyTaskWorker
 
 
 class CopyTask:
     @staticmethod
-    def start(copy_item: CopyItem, queue: Queue, gui_queue: Queue):
-        if copy_item.src_dir != copy_item.dst_dir:
-            src_dst_urls = CopyTask.get_another_dir_urls(copy_item)
-        else:
-            src_dst_urls = CopyTask.get_same_dir_urls(copy_item)
+    def start(copy_item: CopyTaskItem, process_queue: Queue, gui_queue: Queue):
+        try:
+            plan = CopyTask.build_plan(copy_item)
 
-        copy_item.dst_urls = [dst for src, dst in src_dst_urls]
+            copy_item.dst_urls = []
+            copy_item.total_file_count = sum(len(p.files) for p in plan)
+            copy_item.total_bytes = sum(
+                src.stat().st_size for p in plan for src, _ in p.files
+            )
 
-        total_size = 0
-        for src, dest in src_dst_urls:
-            total_size += os.path.getsize(src)
+            replace_all = False
+            keep_all = False
+            count = 0
+            moved: list[Path] = []
 
-        copy_item.total_bytes = total_size
-        copy_item.total_file_count = len(src_dst_urls)
-        replace_all = False
+            for entry in plan:
+                for dest_dir in entry.dest_dirs:
+                    dest_dir.mkdir(parents=True, exist_ok=True)
 
-        for count, (src, dest) in enumerate(src_dst_urls, start=1):
+                copied_any = False
 
-            if src.is_dir():
+                for src, dest in entry.files:
+                    count += 1
+                    copy_item.current_file_count = count
+
+                    if dest.exists():
+                        if keep_all:
+                            dest = CopyTask.set_count_name(dest)
+
+                        elif not replace_all:
+                            copy_item.msg = "need_replace"
+                            process_queue.put(copy_item)
+
+                            command = CopyTask.wait_command(gui_queue)
+
+                            if command == CopyCommand.CANCEL:
+                                return
+                            if command == CopyCommand.SKIP:
+                                continue
+                            if command == CopyCommand.REPLACE_ALL:
+                                replace_all = True
+                            elif command == CopyCommand.KEEP_ALL:
+                                keep_all = True
+                                dest = CopyTask.set_count_name(dest)
+                            elif command == CopyCommand.KEEP_BOTH:
+                                dest = CopyTask.set_count_name(dest)
+                            elif command != CopyCommand.REPLACE_ONE:
+                                return
+
+                    copy_item.msg = "none"
+                    copy_item.error_traceback = ""
+
+                    result = CopyTask.copy_file_with_progress(
+                        process_queue, gui_queue, copy_item, src, dest
+                    )
+                    if result == CopyCommand.CANCEL:
+                        return
+
+                    copied_any = True
+                    moved.append(src)
+
+                if copied_any:
+                    copy_item.dst_urls.append(str(entry.top_dest))
+
+            if copy_item.is_cut:
+                CopyTask.remove_sources(plan, moved)
+
+            copy_item.current_percent = 100
+            copy_item.msg = "finished"
+            process_queue.put(copy_item)
+
+        except Exception:
+            CopyTask.report_error(copy_item, process_queue)
+
+    @staticmethod
+    def build_plan(copy_item: CopyTaskItem) -> list[CopyPlanItem]:
+        dst_dir = Path(copy_item.dst_dir)
+        plan: list[CopyPlanItem] = []
+
+        for url in copy_item.src_urls:
+            src = Path(url)
+            same_dir = src.parent.resolve() == dst_dir.resolve()
+
+            # Перемещение в ту же папку ничего не меняет
+            if copy_item.is_cut and same_dir:
                 continue
 
-            if not replace_all and dest.exists() and src.name == dest.name:
-                copy_item.msg = "need_replace"
-                queue.put(copy_item)
-                while True:
-                    sleep(1)
-                    if not gui_queue.empty():
-                        new_copy_item: CopyItem = gui_queue.get()
-                        if new_copy_item.msg == "replace_one":
-                            break
-                        elif new_copy_item.msg == "replace_all":
-                            replace_all = True
-                            break
+            top_dest = dst_dir / src.name
+            if same_dir:
+                top_dest = CopyTask.set_count_name(top_dest)
 
-            os.makedirs(dest.parent, exist_ok=True)
-            copy_item.current_file_count = count
-            copy_item.msg = ""
+            if src.is_dir():
+                all_paths = list(src.rglob("*"))
+                src_dirs = [src] + [p for p in all_paths if p.is_dir()]
+                dest_dirs = [top_dest / p.relative_to(src) for p in src_dirs]
+                files = [
+                    (p, top_dest / p.relative_to(src))
+                    for p in all_paths if p.is_file()
+                ]
+            else:
+                src_dirs, dest_dirs = [], []
+                files = [(src, top_dest)]
+
+            plan.append(CopyPlanItem(top_dest, src_dirs, dest_dirs, files))
+
+        return plan
+
+    @staticmethod
+    def remove_sources(plan: list[CopyPlanItem], moved: list[Path]):
+        for src in moved:
             try:
-                if os.path.exists(dest) and dest.is_file():
-                    os.remove(dest)
-                CopyTask.copy_file_with_progress(queue, copy_item, src, dest)
-            except Exception as e:
-                print("CopyTask copy error", e)
-                copy_item.msg = "error"
-                queue.put(copy_item)
-                return
-            if copy_item.is_cut:
-                os.remove(src)
-                "удаляем файлы чтобы очистить директории"
+                src.unlink()
+            except OSError as e:
+                print("CopyTask cannot remove source", src, e)
 
-        if copy_item.is_cut:
-            for src, dst in src_dst_urls:
-                if src.is_dir() and src.exists():
-                    try:
-                        shutil.rmtree(src)
-                    except Exception as e:
-                        print("copy task error dir remove", e)
-        
-        copy_item.msg = "finished"
-        queue.put(copy_item)
+        # Удаляем пустые папки источника: сначала вложенные, потом корневые
+        for entry in plan:
+            for src_dir in sorted(
+                entry.src_dirs, key=lambda p: len(p.parts), reverse=True
+            ):
+                try:
+                    src_dir.rmdir()
+                except OSError:
+                    pass
 
     @staticmethod
-    def get_another_dir_urls(copy_item: CopyItem):
-        src_dst_urls: list[tuple[Path, Path]] = []
-        src_dir = Path(copy_item.src_dir)
-        dst_dir = Path(copy_item.dst_dir)
-        for url in copy_item.src_urls:
-            url = Path(url)
-            if url.is_dir():
-                # мы добавляем директорию в список копирования
-                # чтобы потом можно было удалить ее при вырезании
-                src_dst_urls.append((url, url))
-                for filepath in url.rglob("*"):
-                    if filepath.is_file():
-                        rel_path = filepath.relative_to(src_dir)
-                        new_path = dst_dir.joinpath(rel_path)
-                        src_dst_urls.append((filepath, new_path))
-            else:
-                new_path = dst_dir.joinpath(url.name)
-                src_dst_urls.append((url, new_path))
-        return src_dst_urls
-    
+    def report_error(copy_item: CopyTaskItem, process_queue: Queue):
+        copy_item.msg = "error"
+        copy_item.error_traceback = traceback.format_exc()
+        process_queue.put(copy_item)
+
     @staticmethod
-    def get_same_dir_urls(copy_item: CopyItem, copy_name: str = ""):
-        src_dst_urls: list[tuple[Path, Path]] = []
-        dst_dir = Path(copy_item.dst_dir)
-        for url in copy_item.src_urls:
-            url = Path(url)
-            url_with_copy = dst_dir.joinpath(url.name)
-            counter = 2
-            while url_with_copy.exists():
-                name, ext = os.path.splitext(url.name)
-                new_name = f"{name} {copy_name} {counter}{ext}"
-                url_with_copy = dst_dir.joinpath(new_name)
-                counter += 1
-            if url.is_file():
-                src_dst_urls.append((url, url_with_copy))
-            else:
-                for filepath in url.rglob("*"):
-                    if filepath.is_file():
-                        rel_path = filepath.relative_to(url)
-                        new_url = url_with_copy.joinpath(rel_path)
-                        src_dst_urls.append((filepath, new_url))
-        return src_dst_urls
-    
+    def wait_command(gui_queue: Queue):
+        while True:
+            try:
+                return gui_queue.get(timeout=0.1)
+            except Empty:
+                continue
+
     @staticmethod
-    def copy_file_with_progress(queue: Queue, copy_item: CopyItem, src: Path, dest: Path):
-        block = 4 * 1024 * 1024  # 4 MB
-        with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
+    def check_command(gui_queue: Queue):
+        try:
             while True:
-                buf = fsrc.read(block)
-                if not buf:
-                    break
-                fdst.write(buf)
-                # copy_item.current_size += len(buf) // 1024
-                copy_item.copied_bytes += len(buf)
-                percent = (copy_item.copied_bytes * 100) // copy_item.total_bytes
-                if percent > copy_item.current_percent:
-                    copy_item.current_percent = percent
-                    queue.put(copy_item)
-            fdst.flush()
-            os.fsync(fdst.fileno())
+                command = gui_queue.get_nowait()
+                if command == CopyCommand.CANCEL:
+                    return command
+        except Empty:
+            return None
+
+    @staticmethod
+    def copy_file_with_progress(
+        process_queue: Queue,
+        gui_queue: Queue,
+        copy_item: CopyTaskItem,
+        src: Path,
+        dest: Path,
+    ):
+        block = 4 * 1024 * 1024
+        backup = None
 
         try:
-            shutil.copystat(src, dest, follow_symlinks=True)
-        except OSError:
-            print("copy stat error CopyTask")
+            if dest.exists():
+                backup = CopyTask.set_count_name(dest)
+                dest.rename(backup)
+
+            with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
+                while True:
+                    command = CopyTask.check_command(gui_queue)
+                    if command == CopyCommand.CANCEL:
+                        raise InterruptedError("Копирование отменено")
+
+                    buf = fsrc.read(block)
+                    if not buf:
+                        break
+
+                    fdst.write(buf)
+                    copy_item.copied_bytes += len(buf)
+
+                    if copy_item.total_bytes:
+                        percent = (
+                            copy_item.copied_bytes * 100
+                        ) // copy_item.total_bytes
+
+                        if percent > copy_item.current_percent:
+                            copy_item.current_percent = percent
+                            process_queue.put(copy_item)
+
+                fdst.flush()
+                os.fsync(fdst.fileno())
+
+            stat = src.stat()
+            os.utime(dest, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+
+            if backup is not None:
+                backup.unlink()
+                backup = None
+
+            return None
+
+        except Exception:
+            error = traceback.format_exc()
+
+            try:
+                if dest.exists():
+                    dest.unlink()
+            except OSError:
+                error += (
+                    "\nОшибка удаления частичного файла:\n"
+                    + traceback.format_exc()
+                )
+
+            if backup is not None and backup.exists():
+                try:
+                    backup.rename(dest)
+                except OSError:
+                    error += (
+                        "\nОшибка восстановления резервной копии:\n"
+                        + traceback.format_exc()
+                    )
+
+            copy_item.msg = "error"
+            copy_item.error_traceback = error
+            process_queue.put(copy_item)
+
+            return CopyCommand.CANCEL
+
+    @staticmethod
+    def set_count_name(path: Path) -> Path:
+        counter = 2
+        filename, ext = os.path.splitext(path.name)
+        parent = path.parent
+
+        while path.exists():
+            path = parent / f"{filename} ({counter}){ext}"
+            counter += 1
+
+        return path
 
 
 class SearchTask:
@@ -552,19 +715,6 @@ class SearchTask:
         SearchTask.scandir_recursive(search_item)
         search_item.queue.put(search_item.missed_files)
 
-        # fs_id и rel_parent мы можем получать когда делаем
-        # scan current dir, потому что знаем наверняка, что сейчас
-        # сканится одна директория
-        # в рамках этого:
-        # загрузить кешированную миниатюру:
-        # ищем строку в БД по fs_id rel_parent и сравниваем размер и дату
-        # если есть - загружаем, если нет, отправляем в список на инсерт
-        # сразу со всеми данными включая array
-
-        # когда мы сканим конкретную диру, мы сразу забираем из БД
-        # одним SELECT все что относится к ней, чтобы сравнивать и
-        # открываеть подключения для каждого select
-
     # базовый метод обработки os.DirEntry
     @staticmethod
     def process_entry(entry: os.DirEntry[str], search_item: SearchItem):
@@ -574,7 +724,7 @@ class SearchTask:
                     search_item.missed_files.pop(low)
                 return True
         return False
-    
+
     @staticmethod
     def scandir_recursive(search_item: SearchItem):
         dirs_list = [search_item.root_dir, ]
@@ -591,7 +741,7 @@ class SearchTask:
             except Exception as e:
                 Utils.print_error()
                 continue
-    
+
     @staticmethod
     def scan_single_dir(current_dir: str, dir_list: list, search_item: SearchItem):
         fs_id = Utils.get_fs_id(current_dir)
@@ -648,7 +798,6 @@ class SearchTask:
                     mod=data_item.mod,
                     rel_parent=search_item.rel_parent,
                     fs_id=search_item.fs_id
-
                 )
                 data_item._img_array = ImgUtils.resize(
                     image=img_array,
