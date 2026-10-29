@@ -93,7 +93,7 @@ class WinMain(UMainWindow):
     open_windows: list = []
     list_text = "Список"
     grid_text = "Сетка"
-    search_text = "Идет поиск"
+    search_text = "Собираю информацию"
     search_fin_text = "Поиск завершен"
 
     def __init__(self, dir: str = base_dir):
@@ -702,6 +702,7 @@ class WinMain(UMainWindow):
         if len(UMainWindow.window_list) > 1:
             if self in WinMain.open_windows:
                 WinMain.open_windows.remove(self)
+            self.detach_grid()   # вызывает grid.deleteLater(), который останавливает воркеры
             self.deleteLater()
         else:
             self.hide()
