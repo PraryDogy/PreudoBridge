@@ -167,8 +167,10 @@ class GridStandart(Grid):
                     break
             if not helper.task.is_alive() and helper.task.queue.empty():
                 helper.task.terminate_join()
+                self.helpers = [h for h in self.helpers if h is not helper]
             else:
                 helper.timer.start(0)
+
 
         self.stop_img_loader_tasks()
         img_task = ProcessWorker(

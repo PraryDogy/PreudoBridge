@@ -351,11 +351,12 @@ class Grid(UScrollArea):
         else:
             self.no_items_label_remove()
 
-    def resize(self):
+    # grid.py, класс Grid
+    def resize_thumbs(self):
         Thumb.calculate_size()
         for wid in self.url_to_wid.values():
             wid.set_text_and_size(self.main_win_item.sort_item)
-
+            
     def rearrange(self):
         self.grid_wid.hide()
         self.cell_to_wid.clear()
@@ -469,15 +470,14 @@ class Grid(UScrollArea):
             self.selected_thumbs.append(wid)
             wid.set_frame()
 
-    def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
-        global_pos = QCursor.pos()
-        wid = QApplication.widgetAt(global_pos)
-        if isinstance(wid, (WhiteTextWid, BlueTextWid, ThumbImgWidget)):
-            return wid.parent()
-        elif isinstance(wid, QLabel):
-            return wid.parent().parent()
-        else:
-            return None
+    # grid.py, класс Grid
+    def get_wid_under_mouse(self, a0: QMouseEvent) -> Thumb | None:
+        wid = QApplication.widgetAt(QCursor.pos())
+        while wid is not None and not isinstance(wid, Thumb):
+            if wid is self or wid is self.grid_wid:
+                return None
+            wid = wid.parentWidget()
+        return wid
 
     def open_img_convert_win(self, urls: list[str]):
         urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]

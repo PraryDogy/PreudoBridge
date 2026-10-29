@@ -288,7 +288,7 @@ class WinMain(UMainWindow):
             lambda: self.grid.sort()
         )
         self.bar_sort.base_signals.resize_grid.connect(
-            lambda: self.grid.resize()
+            lambda: self.grid.resize_thumbs()
         )
         self.bar_sort.base_signals.rearrange_grid.connect(
             lambda: self.grid.rearrange()
@@ -375,7 +375,7 @@ class WinMain(UMainWindow):
             self.load_st_grid(new_main_dir)
 
     def resize_timer_timeout(self):
-        self.grid.resize()
+        self.grid.resize_thumbs()
         self.grid.rearrange()
 
     def new_main_win_open(self, path: str, offset: int = 20):
