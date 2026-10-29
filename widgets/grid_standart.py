@@ -173,7 +173,7 @@ class GridStandart(Grid):
                 helper.task.terminate_join()
                 self.helpers = [h for h in self.helpers if h is not helper]
             else:
-                helper.timer.start(0)
+                helper.timer.start(16)
 
         img_task = ProcessWorker(
             target=ImgLoader.start,
@@ -240,6 +240,10 @@ class GridStandart(Grid):
                 wid = self.url_to_wid.get(i)
                 self.selected_thumbs.append(wid)
                 wid.set_frame()
+
+    def rearrange(self):
+        super().rearrange()
+        self.load_visible_thumbs()
 
     def rearrange_thumbs(self):
         super().rearrange()

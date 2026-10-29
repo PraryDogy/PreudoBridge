@@ -110,7 +110,7 @@ class DataItem:
                 else:
                     abc_data_items.append(i)
             key_num = lambda data_item: get_nums(data_item.filename)
-            key_abc = lambda data_item: getattr(data_item, sort_item.item_type)
+            key_abc = lambda data_item: data_item.filename.casefold()
             num_data_items.sort(key=key_num, reverse=sort_item.reversed)
             abc_data_items.sort(key=key_abc, reverse=sort_item.reversed)
             return [*num_data_items, *abc_data_items]
@@ -231,6 +231,8 @@ class SearchItem:
     db_items: dict
     new_items: list[DataItem]
 
+    # событие паузы поиска (multiprocessing.Event), задает GridSearch
+    pause_event: object = None
 
 class CopyItem:
     def __init__(self, src_dir: str, dst_dir: str, src_urls: list[str], is_cut: bool):

@@ -40,6 +40,15 @@ from .win_servers import WinServers
 from .win_settings import WinSettings
 from .win_warn import WinWarn
 
+# Ссылки на открытые диалоги: без них Python удалит окно, пока оно видно
+_open_dialogs: set = set()
+
+
+def _keep_alive(win):
+    _open_dialogs.add(win)
+    win.destroyed.connect(lambda *_: _open_dialogs.discard(win))
+    return win
+
 
 class TreeFavsWid(QTabWidget):
     def __init__(self):
@@ -187,7 +196,6 @@ class WinMain(UMainWindow):
         self.right_side_layout.addWidget(USep())
 
         self.grid = Grid(self.main_win_item)
-        Utils.fill_missing_methods(GridSearch, Grid)
         self.right_side_layout.addWidget(self.grid)
         self.grid_index = self.right_side_layout.indexOf(self.grid)
         self.right_side_layout.addWidget(USep())
@@ -305,7 +313,7 @@ class WinMain(UMainWindow):
 
     def img_view_win_open(self, item: ImgViewItem):
 
-        self.img_view_win = WinImgView(item)
+        self.img_view_win = _keep_alive(WinImgView(item))
         self.img_view_win.move_to_wid.connect(
             lambda item: self.grid.select_single_thumb(item)
         )
@@ -323,7 +331,7 @@ class WinMain(UMainWindow):
         self.img_view_win.show()
 
     def go_to_win(self):
-        self.go_win = WinGoTo()
+        self.go_win = _keep_alive(WinGoTo())
         self.go_win.closed.connect(self.go_to_cmd)
         self.go_win.center(self)
         self.go_win.show()
@@ -351,19 +359,19 @@ class WinMain(UMainWindow):
         if fixed_path:
             finalize(fixed_path)
         else:
-            self.no_path_win = NoPathWin()
+            self.no_path_win = _keep_alive(NoPathWin())
             QTimer.singleShot(100, lambda: (
                 self.no_path_win.center(self.window()),
                 self.no_path_win.show()
             ))
 
     def img_convert_win_open(self, urls: list[str]):
-        self.convert_win = WinImgConvert(urls)
+        self.convert_win = _keep_alive(WinImgConvert(urls))
         self.convert_win.center(self.window())
         self.convert_win.show()
 
     def settings_win_open(self, *args):
-        self.sett_win = WinSettings()
+        self.sett_win = _keep_alive(WinSettings())
         self.sett_win.show_texts_sig.connect(
             lambda: self.bar_top.toggle_texts()
         )
@@ -382,7 +390,7 @@ class WinMain(UMainWindow):
 
     def resize_timer_timeout(self):
         self.grid.resize_thumbs()
-        self.grid.rearrange()
+        self.grid.rearrange_if_needed()
 
     def new_main_win_open(self, path: str, offset: int = 20):
         new_win = WinMain(path)
@@ -433,7 +441,6 @@ class WinMain(UMainWindow):
             search_item=self.search_item,
             parent=self
         )
-        Utils.fill_missing_methods(TableView, Grid)
         self.setup_grid_signals()
         self.grid.search_finished.connect(
             lambda: self.setWindowTitle(self.search_fin_text)
@@ -448,12 +455,12 @@ class WinMain(UMainWindow):
         QTimer.singleShot(100, self.grid.setFocus)
 
     def win_collage_open(self, data_items: list[DataItem]):
-        self.win_collage = WinCollage(data_items)
+        self.win_collage = _keep_alive(WinCollage(data_items))
         self.win_collage.center(self)
         self.win_collage.show()
 
     def info_fav_win_open(self, name_url_item: NameUrlItem):
-        self.win_info = WinInfoFav(name_url_item)
+        self.win_info = _keep_alive(WinInfoFav(name_url_item))
         self.win_info.copy_text.connect(
             lambda text: Utils.write_to_clipboard(text)
         )
@@ -464,7 +471,7 @@ class WinMain(UMainWindow):
         self.win_info.show()
 
     def info_win_open(self, urls: list[str]):
-        self.win_info = WinInfo(urls)
+        self.win_info = _keep_alive(WinInfo(urls))
         self.win_info.copy_text.connect(
             lambda text: Utils.write_to_clipboard(text)
         )
@@ -476,7 +483,7 @@ class WinMain(UMainWindow):
         
     def paste_files(self):
         ClipboardItemGlob.dst_dir = self.main_win_item.abs_current_dir
-        self.win_copy = WinCopyFiles()
+        self.win_copy = _keep_alive(WinCopyFiles())
         self.win_copy.center(self.window())
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
@@ -508,7 +515,7 @@ class WinMain(UMainWindow):
             fav_item.name = text
             self.menu_favs.rename_fav_finalize(fav_item)
 
-        self.rename_win = WinRename(fav_item.name)
+        self.rename_win = _keep_alive(WinRename(fav_item.name))
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
@@ -520,17 +527,17 @@ class WinMain(UMainWindow):
             self.menu_favs.add_fav_cmd(fav_item)
 
         if fav_item.url not in JsonData.favs:
-            self.rename_win = WinRename(fav_item.name)
+            self.rename_win = _keep_alive(WinRename(fav_item.name))
             self.rename_win.finished_.connect(lambda text: finished(text))
             self.rename_win.center(self.window())
             self.rename_win.show()
         else:
-            self.warn_win = WinWarn("Уже есть в избранном")
+            self.warn_win = _keep_alive(WinWarn("Уже есть в избранном"))
             self.warn_win.center(self.window())
             self.warn_win.show()
 
     def show_warn(self, text: str):
-        self.warn_win = WinWarn(text)
+        self.warn_win = _keep_alive(WinWarn(text))
         self.warn_win.center(self.window())
         self.warn_win.show()
 
@@ -539,6 +546,9 @@ class WinMain(UMainWindow):
         def finished(text: str):
             text = text.strip()
             if not text:
+                return
+            if os.sep in text or text in (".", ".."):
+                self.show_warn("Имя не может содержать / и быть . или ..")
                 return
             new_url = os.path.join(os.path.dirname(item.url), text)
             # samefile: смена регистра (photo -> Photo) на macOS не конфликт
@@ -550,7 +560,7 @@ class WinMain(UMainWindow):
             except OSError as e:
                 self.show_warn(f"Не удалось переименовать: {e.strerror}")
 
-        self.rename_win = WinRename(item.name)
+        self.rename_win = _keep_alive(WinRename(item.name))
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
@@ -561,6 +571,9 @@ class WinMain(UMainWindow):
             name = name.strip()
             if not name:
                 return
+            if os.sep in name or name in (".", ".."):
+                self.show_warn("Имя не может содержать / и быть . или ..")
+                return
             root = os.path.join(self.main_win_item.abs_current_dir, name)
             try:
                 os.mkdir(root)
@@ -569,7 +582,7 @@ class WinMain(UMainWindow):
             except OSError as e:
                 self.show_warn(f"Не удалось создать папку: {e.strerror}")
 
-        self.rename_win = WinRename("Новая папка")
+        self.rename_win = _keep_alive(WinRename("Новая папка"))
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(lambda name: fin(name))
         self.rename_win.show()
@@ -622,7 +635,7 @@ class WinMain(UMainWindow):
             prepare_grid(navigated=previous_dir != self.main_win_item.abs_current_dir)
             load_grid()
         else:
-            self.no_path_win = NoPathWin()
+            self.no_path_win = _keep_alive(NoPathWin())
             QTimer.singleShot(100, show_no_path_win)
 
     def change_view_cmd(self, mode: int | None = None):
@@ -656,7 +669,7 @@ class WinMain(UMainWindow):
             )
             UThreadPool.start(self.remove_task)
 
-        self.rem_win = WinRemoveFiles(urls)
+        self.rem_win = _keep_alive(WinRemoveFiles(urls))
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())
@@ -667,7 +680,7 @@ class WinMain(UMainWindow):
         def finished():
             self.menu_favs.remove_fav_finalize(url)
 
-        self.rem_win = WinRemoveFiles([url, ])
+        self.rem_win = _keep_alive(WinRemoveFiles([url, ]))
         self.rem_win.ok_clicked.connect(self.rem_win.deleteLater)
         self.rem_win.ok_clicked.connect(finished)
         self.rem_win.center(self.window())
@@ -675,7 +688,7 @@ class WinMain(UMainWindow):
 
 
     def servers_win_open(self):
-        self.servers_win = WinServers()
+        self.servers_win = _keep_alive(WinServers())
         self.servers_win.center(self)
         self.servers_win.show()
 
@@ -702,7 +715,7 @@ class WinMain(UMainWindow):
         if len(UMainWindow.window_list) > 1:
             if self in WinMain.open_windows:
                 WinMain.open_windows.remove(self)
-            self.detach_grid()   # вызывает grid.deleteLater(), который останавливает воркеры
+            self.detach_grid()
             self.deleteLater()
         else:
             self.hide()

@@ -1,4 +1,5 @@
 import os
+from multiprocessing import Event
 
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QDragEnterEvent, QDropEvent
@@ -9,7 +10,7 @@ from watchdog.events import FileSystemEvent
 from cfg import Static
 from system.items import DataItem, MainWinItem, SearchItem, TotalCountItem
 from system.multiprocess import (ProcessWorker, SearchProgress, SearchTask,
-                                 WatchdogTask)
+                                 WatchdogTask, PreparedDirs)
 from system.utils import Utils
 
 from ._base_widgets import (BtnSmall, NotifyWid, QGroupBox, QVBoxLayout,
@@ -95,6 +96,9 @@ class GridSearch(Grid):
         super().__init__(main_win_item)
         self.setParent(parent)
         self.search_item = search_item
+        # пауза через Event: SearchTask проверяет его между директориями
+        self.pause_event = Event()
+        self.search_item.pause_event = self.pause_event
         self.total_widgets = 0
         self.pause_by_btn: bool = False
         self.search_done = False
@@ -165,7 +169,7 @@ class GridSearch(Grid):
                     # Берём только последнее сообщение, остальные не нужны
                     last_progress = result.text
                 elif isinstance(result, dict):
-                    # Финальное сообщение SearchTask: missed_files
+                    # финальное сообщение SearchTask: missed_files
                     finished_result = result
                     break
 
@@ -195,7 +199,6 @@ class GridSearch(Grid):
 
         Thumb.calculate_size()
         self.search_item.root_dir = self.main_win_item.abs_current_dir
-
         self.search_task = ProcessWorker(
             target=SearchTask.start,
             args=(self.search_item, )
@@ -241,21 +244,21 @@ class GridSearch(Grid):
             self.show_no_result()
 
     def sort(self):
-        self.search_task.pause = True
+        self.pause_event.set()
         super().sort()
         self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
 
     def filter(self):
-        self.search_task.pause = True
+        self.pause_event.set()
         super().filter()
         self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
 
-    def resize(self):
-        self.search_task.pause = True
+    def on_resize(self):
+        self.pause_event.set()
         self.resize_thumbs()
         self.rearrange()
         self.pause_timer.stop()
@@ -267,10 +270,13 @@ class GridSearch(Grid):
     def remove_pause(self):
         if self.search_task:
             if not self.pause_by_btn:
-                self.search_task.pause = False
+                self.pause_event.clear()
 
     def toggle_pause(self, value: bool):
-        self.search_task.pause = value
+        if value:
+            self.pause_event.set()
+        else:
+            self.pause_event.clear()
         self.pause_by_btn = value
 
     def thumb_actions(self):
@@ -283,7 +289,7 @@ class GridSearch(Grid):
         )
 
     def resizeEvent(self, a0):
-        self.resize()
+        self.on_resize()
         return super().resizeEvent(a0)
 
     def closeEvent(self, a0):

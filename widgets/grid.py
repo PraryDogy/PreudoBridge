@@ -284,6 +284,7 @@ class Grid(UScrollArea):
         self.selected_thumbs: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
         self._no_items_label: NoItemsLabel | None = None
+        self._last_cols = 0
 
         self.grid_wid = QWidget()
         self.setWidget(self.grid_wid)
@@ -360,10 +361,21 @@ class Grid(UScrollArea):
 
     # grid.py, класс Grid
     def resize_thumbs(self):
+        old_size = Thumb.img_wid_pixmap_size
         Thumb.calculate_size()
+        if Thumb.img_wid_pixmap_size == old_size:
+            return
         for wid in self.url_to_wid.values():
             wid.set_text_and_size(self.main_win_item.sort_item)
             
+    def rearrange_if_needed(self):
+        """Перестраивает сетку только если изменилось число колонок."""
+        cols = self.get_max_columns()
+        if cols == self._last_cols:
+            return
+        self._last_cols = cols
+        self.rearrange()
+
     def rearrange(self):
         self.grid_wid.hide()
         self.cell_to_wid.clear()
@@ -466,7 +478,9 @@ class Grid(UScrollArea):
 
     def select_single_thumb(self, item: DataItem | Thumb):
         if isinstance(item, DataItem):
-            thumb = self.url_to_wid[item.abs_path]
+            thumb = self.url_to_wid.get(item.abs_path)
+            if thumb is None:
+                return
         else:
             thumb = item
         self.bar_path_update_cmd(thumb.data_item.abs_path)
@@ -651,14 +665,8 @@ class Grid(UScrollArea):
             self.rubberBand.hide()
             ctrl = a0.modifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier)
             for wid in self.cell_to_wid.values():
-                intersects = False
-                inner_widgets = wid.findChildren((WhiteTextWid, ThumbImgWidget))
-                for w in inner_widgets:
-                    top_left = w.mapTo(self.grid_wid, QPoint(0, 0))
-                    w_rect = QRect(top_left, w.size())
-                    if rect.intersects(w_rect):
-                        intersects = True
-                        break
+                top_left = wid.mapTo(self.grid_wid, QPoint(0, 0))
+                intersects = rect.intersects(QRect(top_left, wid.size()))
                 if intersects:
                     if ctrl:
                         if wid in self.selected_thumbs:

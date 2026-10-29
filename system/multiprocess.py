@@ -7,7 +7,7 @@ from pathlib import Path
 from queue import Empty
 from time import sleep
 from typing import Literal
-from system.dir_index import DirIndex
+
 import numpy as np
 import sqlalchemy
 import rawpy
@@ -17,6 +17,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Static
 from system.database import CacheTable, Dbase
+from system.dir_index import DirIndex
 from system.items import (DataItem, ImgLoaderItem, JpgConvertItem,
                           MainWinItem, MultipleInfoItem, SearchItem)
 from system.shared_utils import ImgUtils, SharedUtils
@@ -765,6 +766,12 @@ class SearchProgress:
     text: str
 
 
+@dataclass(slots=True)
+class PreparedDirs:
+    prepared_dirs: list[str]
+
+
+
 class SearchTask:
     sleep_s = 0.1
 
@@ -796,12 +803,14 @@ class SearchTask:
                 SearchProgress("Поиск: директории не найдены")
             )
             return
+
         search_item.queue.put(
             SearchProgress(f"Поиск: всего директорий {total}")
         )
 
         last_percent = -1
         for index, current_dir in enumerate(dirs, start=1):
+            SearchTask.wait_if_paused(search_item)
             try:
                 SearchTask.scan_single_dir(current_dir, search_item)
             except Exception:
@@ -813,6 +822,12 @@ class SearchTask:
                 search_item.queue.put(
                     SearchProgress(f"Поиск: {percent}% ({index} из {total})")
                 )
+
+    @staticmethod
+    def wait_if_paused(search_item: SearchItem):
+        event = search_item.pause_event
+        while event is not None and event.is_set():
+            sleep(SearchTask.sleep_s)
 
     @staticmethod
     def scan_single_dir(current_dir: str, search_item: SearchItem):
