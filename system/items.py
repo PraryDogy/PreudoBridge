@@ -231,6 +231,7 @@ class SearchItem:
     db_items: dict
     new_items: list[DataItem]
 
+    prepared_dirs: list[str]
 
 class CopyItem:
     def __init__(self, src_dir: str, dst_dir: str, src_urls: list[str], is_cut: bool):

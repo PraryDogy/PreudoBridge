@@ -110,7 +110,8 @@ class WinMain(UMainWindow):
             fs_id=str(),
             rel_parent=str(),
             db_items=dict(),
-            new_items=list()
+            new_items=list(),
+            prepared_dirs=[]
 
         )
         sort_item = SortItem(

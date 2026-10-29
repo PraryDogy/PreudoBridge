@@ -9,7 +9,7 @@ from watchdog.events import FileSystemEvent
 from cfg import Static
 from system.items import DataItem, MainWinItem, SearchItem, TotalCountItem
 from system.multiprocess import (ProcessWorker, SearchProgress, SearchTask,
-                                 WatchdogTask)
+                                 WatchdogTask, PreparedDirs)
 from system.utils import Utils
 
 from ._base_widgets import (BtnSmall, NotifyWid, QGroupBox, QVBoxLayout,
@@ -94,6 +94,7 @@ class GridSearch(Grid):
 
         super().__init__(main_win_item)
         self.setParent(parent)
+        self.prepared_dirs = []
         self.search_item = search_item
         self.total_widgets = 0
         self.pause_by_btn: bool = False
@@ -159,6 +160,10 @@ class GridSearch(Grid):
 
             while not self.search_task.queue.empty():
                 result = self.search_task.queue.get()
+                if isinstance(result, PreparedDirs):
+                    self.prepared_dirs.clear()
+                    self.prepared_dirs = result.prepared_dirs
+                    break
                 if isinstance(result, DataItem):
                     data_items.append(result)
                 elif isinstance(result, SearchProgress):
@@ -194,6 +199,10 @@ class GridSearch(Grid):
 
         Thumb.calculate_size()
         self.search_item.root_dir = self.main_win_item.abs_current_dir
+        self.search_item.prepared_dirs = self.prepared_dirs
+
+        print(self.prepared_dirs)
+
         self.search_task = ProcessWorker(
             target=SearchTask.start,
             args=(self.search_item, )

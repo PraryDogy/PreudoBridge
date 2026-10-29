@@ -765,6 +765,12 @@ class SearchProgress:
     text: str
 
 
+@dataclass(slots=True)
+class PreparedDirs:
+    prepared_dirs: list[str]
+
+
+
 class SearchTask:
     sleep_s = 0.1
 
@@ -816,7 +822,13 @@ class SearchTask:
 
     @staticmethod
     def scandir_recursive(search_item: SearchItem):
-        dirs = SearchTask.collect_dirs(search_item.root_dir)
+        if len(search_item.prepared_dirs) == 0:
+            dirs = SearchTask.collect_dirs(search_item.root_dir)
+            print(1)
+        else:
+            dirs = search_item.prepared_dirs
+            print(2)
+
         total = len(dirs)
 
         if total == 0:
@@ -825,6 +837,10 @@ class SearchTask:
             )
             return
 
+        search_item.queue.put(
+            PreparedDirs(dirs)
+        )
+        
         search_item.queue.put(
             SearchProgress(f"Поиск: всего директорий {total}")
         )
