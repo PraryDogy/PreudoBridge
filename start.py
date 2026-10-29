@@ -67,7 +67,7 @@ class Tools:
         #lib folder appears when we pack this project to .app with py2app
         if os.path.exists("lib"): 
             ver = f"{sys.version_info.major}.{sys.version_info.minor}"
-            plugin_path = f"lib/python{ver}/PyQt6/Qt5/plugins"
+            plugin_path = f"lib/python{ver}/PyQt6/Qt6/plugins"
             os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = plugin_path
             return True
         else:
