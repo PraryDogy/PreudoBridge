@@ -7,7 +7,7 @@ from pathlib import Path
 from queue import Empty
 from time import sleep
 from typing import Literal
-
+from system.dir_index import DirIndex
 import numpy as np
 import sqlalchemy
 import rawpy
@@ -765,12 +765,6 @@ class SearchProgress:
     text: str
 
 
-@dataclass(slots=True)
-class PreparedDirs:
-    prepared_dirs: list[str]
-
-
-
 class SearchTask:
     sleep_s = 0.1
 
@@ -793,42 +787,8 @@ class SearchTask:
         return matched
 
     @staticmethod
-    def collect_dirs(root_dir: str) -> list[str]:
-        """
-        Сначала собирает все директории в список, без сканирования файлов.
-        Скрытые папки пропускаются так же, как при сканировании.
-        """
-        result: list[str] = []
-        stack = [root_dir]
-
-        while stack:
-            current_dir = stack.pop()
-            if not os.path.isdir(current_dir):
-                continue
-
-            result.append(current_dir)
-
-            try:
-                with os.scandir(current_dir) as it:
-                    for entry in it:
-                        if entry.name.startswith(Static.hidden_symbols):
-                            continue
-                        if entry.is_dir(follow_symlinks=False):
-                            stack.append(entry.path)
-            except OSError:
-                Utils.print_error()
-
-        return result
-
-    @staticmethod
     def scandir_recursive(search_item: SearchItem):
-        if len(search_item.prepared_dirs) == 0:
-            dirs = SearchTask.collect_dirs(search_item.root_dir)
-            print(1)
-        else:
-            dirs = search_item.prepared_dirs
-            print(2)
-
+        dirs = DirIndex(search_item.engine).get_dirs(search_item.root_dir)
         total = len(dirs)
 
         if total == 0:
@@ -836,11 +796,6 @@ class SearchTask:
                 SearchProgress("Поиск: директории не найдены")
             )
             return
-
-        search_item.queue.put(
-            PreparedDirs(dirs)
-        )
-        
         search_item.queue.put(
             SearchProgress(f"Поиск: всего директорий {total}")
         )
@@ -852,7 +807,6 @@ class SearchTask:
             except Exception:
                 Utils.print_error()
 
-            # Отправляем прогресс только когда процент изменился
             percent = index * 100 // total
             if percent != last_percent:
                 last_percent = percent

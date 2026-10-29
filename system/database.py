@@ -11,7 +11,7 @@ from system.utils import Utils
 
 _METADATA = sqlalchemy.MetaData()
 _TABLE_NAME = "cache"
-
+_schema_checked = False  # проверяем один раз на процесс
 # Версия схемы. При несовпадении с user_version в БД кэш пересоздается.
 # Увеличивайте при изменении таблицы или индексов.
 SCHEMA_VERSION = 2
@@ -44,6 +44,41 @@ class CacheTable:
     mod = _CACHETABLE.c.mod
 
 
+# ---- индекс директорий ----
+_DIR_TABLE = sqlalchemy.Table(
+    "dir_index", _METADATA,
+    sqlalchemy.Column("path", sqlalchemy.Text, primary_key=True),
+    sqlalchemy.Column("parent", sqlalchemy.Text, nullable=False),
+    sqlalchemy.Column("mtime_ns", sqlalchemy.Integer, nullable=False),
+    sqlalchemy.Index("ix_dir_index_parent", "parent"),
+)
+
+
+class DirTable:
+    table = _DIR_TABLE
+    path = _DIR_TABLE.c.path
+    parent = _DIR_TABLE.c.parent
+    mtime_ns = _DIR_TABLE.c.mtime_ns
+
+
+def _ensure_schema(engine: sqlalchemy.Engine):
+    """
+    Создает недостающие таблицы (cache, dir_index) и ничего не трогает,
+    если они уже есть. Безопасно вызывать из нескольких процессов.
+    """
+    global _schema_checked
+    if _schema_checked:
+        return
+    try:
+        with engine.begin() as conn:
+            _METADATA.create_all(conn, checkfirst=True)
+    except sqlalchemy.exc.OperationalError as e:
+        # другой процесс успел создать таблицу между проверкой и CREATE
+        if "already exists" not in str(e):
+            raise
+    _schema_checked = True
+
+
 def _make_engine() -> sqlalchemy.Engine:
     engine = sqlalchemy.create_engine(
         f"sqlite:///{Static.external_db}",
@@ -53,12 +88,12 @@ def _make_engine() -> sqlalchemy.Engine:
 
     @event.listens_for(engine, "connect")
     def _sqlite_pragmas(dbapi_conn, _record):
-        # WAL: читатели не блокируют писателей, несколько процессов работают спокойнее
         cur = dbapi_conn.cursor()
         cur.execute("PRAGMA journal_mode=WAL")
         cur.execute("PRAGMA synchronous=NORMAL")
         cur.close()
 
+    _ensure_schema(engine)
     return engine
 
 
@@ -83,6 +118,9 @@ class Dbase:
                 _METADATA.drop_all(conn)
                 _METADATA.create_all(conn)
                 conn.exec_driver_sql(f"PRAGMA user_version = {SCHEMA_VERSION}")
+            # создает только недостающие таблицы (например dir_index),
+            # существующие не трогает
+            _METADATA.create_all(conn)
 
     @classmethod
     def init(cls):
