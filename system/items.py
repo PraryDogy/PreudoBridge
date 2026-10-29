@@ -147,7 +147,7 @@ class MainWinItem:
         if path.startswith(os.path.expanduser("~")):
             return path
 
-        volumes = [e.path for e in os.scandir("/Volumes") if e.is_dir() and not e.is_symlink()]
+        volumes = [e.path for e in os.scandir("/Volumes") if e.is_dir()]
         if not volumes:
             return None
 

@@ -1,11 +1,10 @@
 import os
-import re
 
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
+from PyQt6.QtGui import (QCloseEvent, QKeyEvent, QPalette,
                          QResizeEvent)
 from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static, Themes
@@ -50,12 +49,6 @@ class TreeFavsWid(QTabWidget):
     def tab_cmd(self, index: int):
         self.setCurrentIndex(index)
 
-    def mouseClickEvent(self, a0: QMouseEvent | None) -> None:
-        if a0.button() == Qt.MouseButton.LeftButton:
-            super().mouseReleaseEvent(a0)
-        else:
-            a0.ignore()
-
 
 class ScrollUpBtn(QSvgWidget):
     clicked = pyqtSignal()
@@ -96,8 +89,10 @@ class WinMain(UMainWindow):
     scroll_up_width_offset = 70
     scroll_up_height_offset = 110
     first_load = True
+    # все открытые окна WinMain: иначе закрытые остаются в памяти
+    open_windows: list = []
     list_text = "Список"
-    grid_text = "Плитка"
+    grid_text = "Сетка"
     search_text = "Идет поиск"
     search_fin_text = "Поиск завершен"
 
@@ -106,7 +101,6 @@ class WinMain(UMainWindow):
         self.setMinimumSize(WinMain.min_width_, WinMain.min_height_)
         self.resize(Static.base_ww, Static.base_hh)
     
-        self.main_win_list: list[WinMain] = []
         self.search_item = SearchItem(
             search_list=dict(),
             missed_files=dict(),
@@ -146,7 +140,7 @@ class WinMain(UMainWindow):
         # --- Меню и панель ---
         self.bar_macos = BarMacos()
         self.bar_macos.new_win.connect(
-            lambda: self.new_main_win_open((self.base_dir, None))
+            lambda: self.new_main_win_open(self.base_dir)
         )
         self.bar_macos.servers_win.connect(self.servers_win_open)
         self.bar_macos.settings_win.connect(self.settings_win_open)
@@ -196,6 +190,7 @@ class WinMain(UMainWindow):
         self.grid = Grid(self.main_win_item)
         Utils.fill_missing_methods(GridSearch, Grid)
         self.right_side_layout.addWidget(self.grid)
+        self.grid_index = self.right_side_layout.indexOf(self.grid)
         self.right_side_layout.addWidget(USep())
 
         self.bar_path = BarPath(self.main_win_item)
@@ -312,7 +307,9 @@ class WinMain(UMainWindow):
     def img_view_win_open(self, item: ImgViewItem):
 
         self.img_view_win = WinImgView(item)
-        self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
+        self.img_view_win.move_to_wid.connect(
+            lambda item: self.grid.select_single_thumb(item)
+        )
         self.img_view_win.base_signals.info.connect(self.info_win_open)
         self.img_view_win.base_signals.open_in_app.connect(self.open_in_app)
         self.img_view_win.base_signals.reveal_urls.connect(self.reveal_urls)
@@ -347,9 +344,19 @@ class WinMain(UMainWindow):
                 self.main_win_item.go_to_widget = path
                 self.load_st_grid(os.path.dirname(path))
 
+        if os.path.exists(user_path):
+            finalize(user_path)
+            return
+
         fixed_path = self.main_win_item.fix_network_path(user_path)
         if fixed_path:
             finalize(fixed_path)
+        else:
+            self.no_path_win = NoPathWin()
+            QTimer.singleShot(100, lambda: (
+                self.no_path_win.center(self.window()),
+                self.no_path_win.show()
+            ))
 
     def img_convert_win_open(self, urls: list[str]):
         self.convert_win = WinImgConvert(urls)
@@ -380,7 +387,7 @@ class WinMain(UMainWindow):
 
     def new_main_win_open(self, path: str, offset: int = 20):
         new_win = WinMain(path)
-        self.main_win_list.append(new_win)
+        WinMain.open_windows.append(new_win)
         x, y = self.window().x(), self.window().y()
         new_win.move(x + offset, y + offset)
         new_win.show()
@@ -421,7 +428,7 @@ class WinMain(UMainWindow):
         )
         self.bar_top.search_wid.setDisabled(True)
         self.grid.grid_wid.hide()
-        self.grid.deleteLater()
+        self.detach_grid()
         self.grid = GridSearch(
             main_win_item=self.main_win_item,
             search_item=self.search_item,
@@ -435,7 +442,7 @@ class WinMain(UMainWindow):
         self.grid.title_text.connect(
             lambda text: self.setWindowTitle(text)
         )
-        self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
+        self.right_side_layout.insertWidget(self.grid_index, self.grid)
         self.setWindowTitle(self.search_text)
         self.scroll_up.hide()
         self.menu_filters.set_disabled(True)
@@ -465,8 +472,7 @@ class WinMain(UMainWindow):
         self.win_info.base_signals.reveal_urls.connect(
             lambda urls: self.reveal_urls(urls)
         )
-        # индекс -1 всегда будет win info, так как это последнее открытое окно
-        self.win_info.center(self.window_list[-2])
+        self.win_info.center(self.window())
         self.win_info.show()
         
     def paste_files(self):
@@ -524,14 +530,26 @@ class WinMain(UMainWindow):
             self.warn_win.center(self.window())
             self.warn_win.show()
 
+    def show_warn(self, text: str):
+        self.warn_win = WinWarn(text)
+        self.warn_win.center(self.window())
+        self.warn_win.show()
+
     def rename_file(self, item: NameUrlItem):
         
         def finished(text: str):
-            new_url = os.path.join(
-                os.path.dirname(item.url),
-                text
-            )
-            os.rename(item.url, new_url)
+            text = text.strip()
+            if not text:
+                return
+            new_url = os.path.join(os.path.dirname(item.url), text)
+            # samefile: смена регистра (photo -> Photo) на macOS не конфликт
+            if os.path.exists(new_url) and not os.path.samefile(item.url, new_url):
+                self.show_warn("Файл с таким именем уже существует")
+                return
+            try:
+                os.rename(item.url, new_url)
+            except OSError as e:
+                self.show_warn(f"Не удалось переименовать: {e.strerror}")
 
         self.rename_win = WinRename(item.name)
         self.rename_win.finished_.connect(lambda text: finished(text))
@@ -541,30 +559,43 @@ class WinMain(UMainWindow):
     def new_folder(self):
 
         def fin(name: str):
+            name = name.strip()
+            if not name:
+                return
+            root = os.path.join(self.main_win_item.abs_current_dir, name)
             try:
-                root = os.path.join(self.main_win_item.abs_current_dir, name)
                 os.mkdir(root)
-            except Exception as e:
-                ...
+            except FileExistsError:
+                self.show_warn("Папка с таким именем уже существует")
+            except OSError as e:
+                self.show_warn(f"Не удалось создать папку: {e.strerror}")
 
         self.rename_win = WinRename("Новая папка")
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(lambda name: fin(name))
         self.rename_win.show()
 
+    def detach_grid(self):
+        """Убирает текущую сетку из layout и удаляет ее; запоминает место вставки."""
+        self.grid_index = self.right_side_layout.indexOf(self.grid)
+        self.right_side_layout.removeWidget(self.grid)
+        self.grid.deleteLater()
+
     def load_st_grid(self, path: str):
 
-        def prepare_grid():
+        def prepare_grid(navigated: bool = False):
             self.bar_top.search_wid.clear_search()
             self.search_item.search_list.clear()
             self.scroll_up.hide()
             self.menu_filters.clear_filters()
-            self.grid.deleteLater()
+            self.detach_grid()
+            if navigated:
+                # выделение старой папки не переносим в новую (но при перезагрузке оставляем)
+                self.main_win_item.urls_to_select = []
 
-            self.setWindowTitle(os.path.basename(path))
+            self.setWindowTitle(os.path.basename(path) or path)
             self.menu_favs.select_fav(path)
             self.menu_tree.expand_path(path)
-            self.grid.deleteLater()
 
         def load_grid():
             if self.main_win_item.view_mode == 0:
@@ -572,14 +603,14 @@ class WinMain(UMainWindow):
                 classes = (TableView, Grid)
                 self.disable_wids(False)
 
-            elif self.main_win_item.view_mode == 1:
+            else:
                 self.grid = TableView(self.main_win_item)
                 classes = (Grid, TableView)
                 self.disable_wids(True)
 
             Utils.fill_missing_methods(*classes)
             self.setup_grid_signals()
-            self.right_side_layout.insertWidget(WinMain.grid_index, self.grid)
+            self.right_side_layout.insertWidget(self.grid_index, self.grid)
 
             QTimer.singleShot(100, self.grid.setFocus)
 
@@ -587,26 +618,29 @@ class WinMain(UMainWindow):
             self.no_path_win.center(self.window())
             self.no_path_win.show()
 
+        previous_dir = self.main_win_item.abs_current_dir
         if self.main_win_item.set_current_dir(path):
-            prepare_grid()
+            prepare_grid(navigated=previous_dir != self.main_win_item.abs_current_dir)
             load_grid()
         else:
             self.no_path_win = NoPathWin()
             QTimer.singleShot(100, show_no_path_win)
 
-    def change_view_cmd(self):
-        if self.main_win_item.view_mode == 0:
-            self.bar_top.change_view_btn.load_svg_data("list_view")
-            self.bar_top.change_view_btn.lbl.setText("Список")
-            self.main_win_item.view_mode = 1
-
+    def change_view_cmd(self, mode: int | None = None):
+        """mode: 0 — плитка, 1 — список; None — переключить."""
+        if mode is None:
+            mode = 1 - self.main_win_item.view_mode
+        if mode == self.main_win_item.view_mode:
+            return
+        self.main_win_item.view_mode = mode
+        btn = self.bar_top.change_view_btn
+        if mode == 1:
+            btn.load_svg_data("list_view")
+            btn.lbl.setText(WinMain.list_text)
         else:
-            self.bar_top.change_view_btn.load_svg_data("grid_view")
-            self.bar_top.change_view_btn.lbl.setText("Сетка")
-
-            self.main_win_item.view_mode = 0
-
-        self.bar_top.change_view_btn.set_solid_style()
+            btn.load_svg_data("grid_view")
+            btn.lbl.setText(WinMain.grid_text)
+        btn.set_solid_style()
         self.load_st_grid(self.main_win_item.abs_current_dir)
 
     def open_in_app(self, data: tuple[list[str], str]):
@@ -655,7 +689,7 @@ class WinMain(UMainWindow):
     def on_exit(self):
         BaseProcessWorker.stop_all()
         JsonData.write_json_data()
-        os._exit(1)
+        os._exit(0)
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.scroll_up.move(
@@ -667,6 +701,8 @@ class WinMain(UMainWindow):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if len(UMainWindow.window_list) > 1:
+            if self in WinMain.open_windows:
+                WinMain.open_windows.remove(self)
             self.deleteLater()
         else:
             self.hide()
@@ -682,8 +718,11 @@ class WinMain(UMainWindow):
             elif a0.key() == Qt.Key.Key_W:
                 self.close()
         
-            elif a0.key() in (Qt.Key.Key_1, Qt.Key.Key_2):
-                self.change_view_cmd()
+            elif a0.key() == Qt.Key.Key_1:
+                self.change_view_cmd(0)
+
+            elif a0.key() == Qt.Key.Key_2:
+                self.change_view_cmd(1)
 
             elif a0.key() == Qt.Key.Key_N:
                 self.new_main_win_open(self.base_dir)
