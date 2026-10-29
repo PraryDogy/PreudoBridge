@@ -88,8 +88,8 @@ class DataItem:
         except Exception:
             try:
                 self.added = int(os.stat(self.abs_path).st_mtime)
-            except (AttributeError, FileNotFoundError):
-                self.added = 000
+            except OSError:
+                self.added = 0
 
     @classmethod
     def sort_(cls, data_items: list["DataItem"], sort_item: SortItem):
@@ -147,7 +147,7 @@ class MainWinItem:
         if path.startswith(os.path.expanduser("~")):
             return path
 
-        volumes = [i.path for i in os.scandir("/Volumes")][1:]
+        volumes = [e.path for e in os.scandir("/Volumes") if e.is_dir() and not e.is_symlink()]
         if not volumes:
             return None
 

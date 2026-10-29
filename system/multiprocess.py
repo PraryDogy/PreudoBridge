@@ -10,6 +10,7 @@ from typing import Literal
 
 import numpy as np
 import sqlalchemy
+import rawpy
 from PIL import Image
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
@@ -27,7 +28,7 @@ class BaseProcessWorker:
 
     def __init__(self, target: callable, args: tuple):
         super().__init__()
-        self.process = Process(target=target, args=(*args, ))
+        self.process = Process(target=target, args=(*args, ), daemon=True)
         self._queues: list[Queue] = [a for a in args if hasattr(a, 'put')]
         BaseProcessWorker._registry.append(self)
 
@@ -180,7 +181,7 @@ class ImgLoader:
                 CacheTable.mod.name: i.mod
             })
         stmt = (
-            sqlalchemy.insert(CacheTable.table)
+            Dbase.insert_stmt()
         )
         with img_item.engine.begin() as conn:
             conn.execute(stmt, values)
@@ -199,7 +200,7 @@ class ImgLoader:
             .where(CacheTable.rel_parent==img_item.rel_parent)
         )
         with img_item.engine.connect() as conn:
-            return conn.execute(stmt)
+            return conn.execute(stmt).all()
 
 
 @dataclass(slots=True)
@@ -229,12 +230,18 @@ class ReadImg:
 
 
 class _DirChangedHandler(FileSystemEventHandler):
+    # modified/opened/closed не меняют состав миниатюр,
+    # но без фильтра каждый тик вызывает полную пересортировку
+    relevant_types = ("created", "deleted", "moved")
+
     def __init__(self, callback):
         super().__init__()
         self.callback = callback
 
     def on_any_event(self, event: FileSystemEvent):
-        dest_path = getattr(event, "dest_path", "")
+        if event.event_type not in self.relevant_types:
+            return
+        dest_path = getattr(event, "dest_path", "") or ""
         stmt = any((
             event.src_path.lower().endswith(ImgUtils.ext_all),
             dest_path.lower().endswith(ImgUtils.ext_all),
@@ -267,26 +274,26 @@ class WatchdogTask:
 class JpgConverter:
     @staticmethod
     def start(jpg_item: JpgConvertItem, queue: Queue):
-        jpg_item.urls = [
+        urls = [
             i
             for i in jpg_item.urls
-            if i.endswith(ImgUtils.ext_all)
+            if i.endswith(ImgUtils.ext_all) and os.path.exists(i)
         ]
-        try:
-            jpg_item.urls.sort(key=lambda p: os.path.getsize(p))
-        except Exception as e:
-            print("multiprocess, JpgConverter sort error", e)
 
-        filename = ""
-        new_urls: list[str] = []
+        def size_of(path: str) -> int:
+            try:
+                return os.path.getsize(path)
+            except OSError:
+                return 0
 
-        for count, url in enumerate(jpg_item.urls, start=1):
+        urls.sort(key=size_of)
+        jpg_item.urls = urls
+
+        for count, url in enumerate(urls, start=1):
             save_path = JpgConverter._save_jpg(url)
             if save_path:
-                new_urls.append(save_path)
-                filename = os.path.basename(url)
                 jpg_item.current_count = count
-                jpg_item.current_filename = filename
+                jpg_item.current_filename = os.path.basename(url)
                 jpg_item.msg = ""
                 queue.put(jpg_item)
 
@@ -295,12 +302,16 @@ class JpgConverter:
 
     @staticmethod
     def _target_path(path: str) -> str | None:
+        """
+        Путь для нового JPG. None, если файл уже JPG (не трогаем).
+        Существующие файлы не перезаписываем: добавляем (2), (3)...
+        """
         base, ext = os.path.splitext(path)
         if ext.lower() in (".jpg", ".jpeg"):
-            return None  # уже JPG, не трогаем
+            return None
         save_path = f"{base}.jpg"
         counter = 2
-        while os.path.exists(save_path):  # не перезаписываем чужие файлы
+        while os.path.exists(save_path):
             save_path = f"{base} ({counter}).jpg"
             counter += 1
         return save_path
@@ -314,10 +325,10 @@ class JpgConverter:
             img_array = ImgUtils.read_img(path)
             image = Image.fromarray(img_array.astype(np.uint8))
             profile = ImgUtils.read_icc(path)
-            kwargs = {"quality": 100}
             if profile:
-                kwargs["icc_profile"] = profile
-            image.save(save_path, **kwargs)
+                image.save(save_path, quality=100, icc_profile=profile)
+            else:
+                image.save(save_path, quality=100)
             return save_path
         except Exception:
             Utils.print_error()
@@ -339,13 +350,21 @@ class ImgRes:
 
     @staticmethod
     def read(path: str):
-        img_ = ImgUtils.read_img(path)
-        if img_ is not None and len(img_.shape) > 1:
-            h, w = img_.shape[0], img_.shape[1]
-            resol = f"{w}x{h}"
-        else:
-            resol = ImgRes.undef_text
-        return resol
+        try:
+            if path.lower().endswith(ImgUtils.ext_raw):
+                # у RAW PIL не работает, берем размер сенсора из rawpy
+                with rawpy.imread(path) as raw:
+                    w, h = raw.sizes.raw_width, raw.sizes.raw_height
+            else:
+                with Image.open(path) as img:  # только заголовок
+                    w, h = img.size
+            return f"{w}x{h}"
+        except Exception:
+            img_ = ImgUtils.read_img(path)
+            if img_ is not None and len(img_.shape) > 1:
+                h, w = img_.shape[0], img_.shape[1]
+                return f"{w}x{h}"
+            return ImgRes.undef_text
 
     @staticmethod
     def start(path: str, queue: Queue):
@@ -402,21 +421,25 @@ class MultipleInfo:
     def get_folder_size(item: dict, info_item: MultipleInfoItem):
         stack = [item["src"]]
         while stack:
-            current_dir = stack.pop()
+            current = stack.pop()
             try:
-                os.listdir(current_dir)
-            except Exception as e:
-                print("tasks, MultipleItemsInfo error", e)
-                break
-            for entry in os.scandir(current_dir):
-                if entry.name.startswith(Static.hidden_symbols):
-                    continue
-                if entry.is_dir():
-                    info_item.folders.add(item["src"])
-                    stack.append(entry.path)
-                else:
-                    info_item.total_size += entry.stat().st_size
-                    info_item.files.add(entry.path)
+                with os.scandir(current) as it:
+                    for entry in it:
+                        if entry.name.startswith(Static.hidden_symbols):
+                            continue
+                        try:
+                            if entry.is_dir(follow_symlinks=False):
+                                info_item.folders.add(entry.path)
+                                stack.append(entry.path)
+                            else:
+                                info_item.total_size += entry.stat(
+                                    follow_symlinks=False
+                                ).st_size
+                                info_item.files.add(entry.path)
+                        except OSError:
+                            continue
+            except OSError as e:
+                print("MultipleInfo, ошибка обхода папки:", e)
 
 
 @dataclass(slots=True)
@@ -478,6 +501,19 @@ class CopyTaskWorker(BaseProcessWorker):
 
 # Совместимость: если где-то импортируется старое имя
 CopyWorker = CopyTaskWorker
+
+
+def copy_xattrs(src, dest):
+    """Переносит расширенные атрибуты (теги Finder, рейтинги, kMDItem*)."""
+    try:
+        names = os.listxattr(src)
+    except OSError:
+        return
+    for name in names:
+        try:
+            os.setxattr(dest, name, os.getxattr(src, name))
+        except OSError:
+            pass
 
 
 class CopyTask:
@@ -562,10 +598,6 @@ class CopyTask:
         plan: list[CopyPlanItem] = []
 
         for url in copy_item.src_urls:
-
-            if src.is_dir() and dst_dir.resolve().is_relative_to(src.resolve()):
-                raise ValueError(f"Нельзя копировать папку в её подпапку: {src}")
-
             src = Path(url)
             same_dir = src.parent.resolve() == dst_dir.resolve()
 
@@ -573,6 +605,8 @@ class CopyTask:
             if copy_item.is_cut and same_dir:
                 continue
 
+            if src.is_dir() and dst_dir.resolve().is_relative_to(src.resolve()):
+                raise ValueError(f"Нельзя копировать папку внутрь неё самой: {src}")
             top_dest = dst_dir / src.name
             if same_dir:
                 top_dest = CopyTask.set_count_name(top_dest)
@@ -678,6 +712,7 @@ class CopyTask:
 
             stat = src.stat()
             os.utime(dest, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+            copy_xattrs(src, dest)
 
             if backup is not None:
                 backup.unlink()
@@ -744,12 +779,12 @@ class SearchTask:
     # базовый метод обработки os.DirEntry
     @staticmethod
     def process_entry(entry: os.DirEntry[str], search_item: SearchItem):
-        for low in search_item.search_list:
+        matched = False
+        for low in list(search_item.search_list):
             if low in entry.name.lower():
-                if low in search_item.missed_files:
-                    search_item.missed_files.pop(low)
-                return True
-        return False
+                matched = True
+                search_item.missed_files.pop(low, None)
+        return matched
 
     @staticmethod
     def collect_dirs(root_dir: str) -> list[str]:
@@ -772,7 +807,7 @@ class SearchTask:
                     for entry in it:
                         if entry.name.startswith(Static.hidden_symbols):
                             continue
-                        if entry.is_dir():
+                        if entry.is_dir(follow_symlinks=False):
                             stack.append(entry.path)
             except OSError:
                 Utils.print_error()
@@ -811,7 +846,7 @@ class SearchTask:
 
     @staticmethod
     def scan_single_dir(current_dir: str, search_item: SearchItem):
-        fs_id = Utils.get_fs_id(current_dir)
+        fs_id = Utils.get_fs_id_cached(current_dir)
         rel_parent = Utils.get_rel_parent(current_dir)
         search_item.fs_id = fs_id
         search_item.rel_parent = rel_parent
@@ -888,5 +923,5 @@ class SearchTask:
                 CacheTable.mod.name: i.mod
             })
         with search_item.engine.begin() as conn:
-            stmt = sqlalchemy.insert(CacheTable.table)
+            stmt = Dbase.insert_stmt()
             conn.execute(stmt, values)

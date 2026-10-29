@@ -2,10 +2,10 @@ import os
 from dataclasses import dataclass
 from time import perf_counter
 
-from PyQt6.QtCore import QRect, QSize, Qt, QTimer
+from PyQt6.QtCore import QTimer, Qt
 from watchdog.events import FileSystemEvent
 
-from cfg import Dynamic, Static
+from cfg import Static
 from system.items import (ClipboardItemGlob, DataItem, DirItem, MainWinItem,
                           TotalCountItem)
 from system.multiprocess import ImgLoader, ProcessWorker, WatchdogTask
@@ -27,7 +27,7 @@ class GridStandart(Grid):
     def __init__(self, main_win_item: MainWinItem):
         super().__init__(main_win_item)
         self.setAcceptDrops(True)
-        self.watchdog_modified_files = set()
+        self.watchdog_modified_files: set[str] = set()
         self.helpers: list[ImgLoaderHelper] = []
         self.scroll_timer = QTimer(self)
         self.scroll_timer.timeout.connect(self.load_visible_thumbs)
@@ -40,9 +40,11 @@ class GridStandart(Grid):
         self.scroll_timer.stop()
         self.scroll_timer.start(ms)
 
+    # ------------------------------------------------------------------
+    # watchdog: события файловой системы
+    # ------------------------------------------------------------------
     def watchdog_start(self, fast_ms=300, slow_ms=1000):
 
-        # standart.py, внутри GridStandart.watchdog_start
         def poll_task():
             ms = slow_ms if ClipboardItemGlob.src_urls else fast_ms
             try:
@@ -55,7 +57,8 @@ class GridStandart(Grid):
                             self.watchdog_apply(ev)
                         except Exception:
                             Utils.print_error()
-                    self.sort()
+                    # тексты и размеры уже актуальны, пересчитываем только порядок
+                    self.sort(update_text=False)
                     self.rearrange_thumbs()
             finally:
                 self.watchdog_timer.start(ms)
@@ -71,35 +74,52 @@ class GridStandart(Grid):
         self.watchdog_timer.start(fast_ms)
         self.watchdog_task.start()
 
-    # standart.py, GridStandart.watchdog_apply
     def watchdog_apply(self, e: FileSystemEvent):
-        wid: Thumb | None = self.url_to_wid.get(e.src_path)
+        path = e.src_path
+        wid: Thumb | None = self.url_to_wid.get(path)
 
         if e.event_type == "deleted":
-            self.del_thumb(e.src_path)
+            self.del_thumb(path)
             if wid and wid.data_item.is_selected:
-                self.watchdog_modified_files.add(e.src_path)
+                self.watchdog_modified_files.add(path)
 
         elif e.event_type == "created":
-            self.del_thumb(e.src_path)  # защита от дубликатов
-            new_thumb = self.new_thumb(e.src_path)
-            if e.src_path in self.watchdog_modified_files:
+            self.del_thumb(path)  # защита от дубликатов
+            new_thumb = self.new_thumb(path)
+            if path in self.watchdog_modified_files:
                 self.select_multiple_thumb(new_thumb)
-                self.watchdog_modified_files.discard(e.src_path)
+                self.watchdog_modified_files.discard(path)
 
         elif e.event_type == "moved":
-            self.del_thumb(e.src_path)
-            self.del_thumb(e.dest_path)  # если dest уже был в сетке
-            new_thumb = self.new_thumb(e.dest_path)
+            dest = e.dest_path
+            self.del_thumb(path)
+            self.del_thumb(dest)  # если dest уже был в сетке
+            new_thumb = self.new_thumb(dest)
             if wid and wid.data_item.is_selected:
                 self.select_multiple_thumb(new_thumb)
 
-        if not self.url_to_wid:
-            self.no_items_label_remove()
-            self.no_items_label_create(NoItemsLabel.no_files)
-        else:
-            self.no_items_label_remove()
+        self.update_empty_label()
 
+    def update_empty_label(self):
+        self.no_items_label_remove()
+        if not self.url_to_wid:
+            self.no_items_label_create(NoItemsLabel.no_files)
+
+    def new_thumb(self, url: str) -> Thumb:
+        data = DataItem(url)
+        data.set_properties()
+        data.must_hidden = not self.passes_filter(data)
+        thumb = Thumb(data)
+        thumb.set_text_and_size(self.main_win_item.sort_item)
+        thumb.set_no_frame()
+        thumb.set_common_icon()
+        # место в сетке назначает rearrange() после sort(), здесь не трогаем cell_to_wid
+        self.url_to_wid[data.abs_path] = thumb
+        return thumb
+
+    # ------------------------------------------------------------------
+    # ленивая загрузка превью
+    # ------------------------------------------------------------------
     def get_visible_thumbs(self) -> list[Thumb]:
         top = self.verticalScrollBar().value()
         bottom = top + self.viewport().height()
@@ -119,75 +139,63 @@ class GridStandart(Grid):
         if to_load:
             self.img_loader_start(to_load)
 
-        scroll_y = self.verticalScrollBar().value()
-        viewport_h = self.viewport().height()
-        item_h = Thumb.wid_height
-        spacing = Grid.grid_spacing
-        row_h = item_h + spacing
-        columns = self.get_max_columns()
-        first_row = scroll_y // row_h
-        visible_rows = viewport_h // row_h + 1  # запас
-        start_index = first_row * columns
-        end_index = (first_row + visible_rows) * columns
-        thumbs_list = list(self.url_to_wid.values())
-        visible_thumbs = thumbs_list[start_index:end_index]
-        result = []
-        for thumb in visible_thumbs:
-            if thumb.data_item.type_ == Static.folder_type:
-                continue
-            if thumb.data_item.qimages:
-                continue
-            result.append(thumb)
-        if result:
-            self.img_loader_start(result)
-
-    def img_loader_start(self, thumbs: list[Thumb], sec = 0.004):
+    def img_loader_start(self, thumbs: list[Thumb], sec=0.004):
+        # один активный загрузчик: новый запрос заменяет предыдущий
+        self.stop_img_loader_tasks()
 
         def process_item(item: DataItem):
-            qimages = {"src": Utils.qimage_from_array(item._img_array)}
-            for x, i in enumerate(Static.thumb_widget_pixmap_size, start=0):
-                # чтобы вмещалось в квадратик
-                size = i - 5
-                qimages[i] = Utils.scaled(qimages["src"], size)
-
-            try:
-                thumb = self.url_to_wid[item.abs_path] # QLabel
-                thumb.data_item.qimages.update(qimages)
-                thumb.set_pixmap_with_actual_size()
-                thumb.data_item.qimages_loaded = True
-            except KeyError:
+            thumb = self.url_to_wid.get(item.abs_path)
+            if thumb is None or thumb.data_item.qimages:
                 return
+            src = Utils.qimage_from_array(item._img_array)
+            if src is None:
+                return
+            qimages = {"src": src}
+            for size in Static.thumb_widget_pixmap_size:
+                # чтобы вмещалось в квадратик
+                qimages[size] = Utils.scaled(src, size - 5)
+            thumb.data_item.qimages.update(qimages)
+            thumb.data_item.qimages_loaded = True
+            thumb.set_pixmap_with_actual_size()
 
         def poll_task(helper: ImgLoaderHelper):
             helper.timer.stop()
             start = perf_counter()
-            while not helper.task.queue.empty():
-                process_item(helper.task.queue.get())
-                if perf_counter() - start > sec:
-                    break
+            try:
+                while not helper.task.queue.empty():
+                    process_item(helper.task.queue.get())
+                    if perf_counter() - start > sec:
+                        break
+            except Exception:
+                # битый элемент не должен останавливать весь загрузчик
+                Utils.print_error()
             if not helper.task.is_alive() and helper.task.queue.empty():
                 helper.task.terminate_join()
                 self.helpers = [h for h in self.helpers if h is not helper]
             else:
                 helper.timer.start(0)
 
-
-        self.stop_img_loader_tasks()
         img_task = ProcessWorker(
             target=ImgLoader.start,
             args=([i.data_item for i in thumbs], self.main_win_item, )
         )
         img_timer = QTimer(self)
-        helper = ImgLoaderHelper(
-            task=img_task,
-            timer=img_timer
-        )
+        helper = ImgLoaderHelper(task=img_task, timer=img_timer)
         img_timer.setSingleShot(True)
         img_timer.timeout.connect(lambda: poll_task(helper))
         self.helpers.append(helper)
         img_task.start()
         img_timer.start(0)
-    
+
+    def stop_img_loader_tasks(self):
+        for i in self.helpers:
+            i.timer.stop()
+            QTimer.singleShot(0, i.task.terminate_join)
+        self.helpers.clear()
+
+    # ------------------------------------------------------------------
+    # сканирование папки
+    # ------------------------------------------------------------------
     def dir_scaner_start(self):
         dir_item = DirItem(
             data_items=[],
@@ -198,15 +206,14 @@ class GridStandart(Grid):
         UThreadPool.start(self.finder_task)
 
     def dir_scaner_end(self, dir_item: DirItem):
-        if len(dir_item.data_items) == 0:
+        total = len(dir_item.data_items)
+        self.bar_path_update.emit(self.main_win_item.abs_current_dir)
+        self.total_count_update.emit(
+            TotalCountItem(selected=len(self.selected_thumbs), total=total)
+        )
+        if total == 0:
             self.no_items_label_create(NoItemsLabel.no_files)
             return
-        item = TotalCountItem(
-            selected=len(self.selected_thumbs),
-            total=len(dir_item.data_items)
-        )
-        self.bar_path_update.emit(self.main_win_item.abs_current_dir)
-        self.total_count_update.emit(item)
         Thumb.calculate_size()
         self.create_thumbs(dir_item.data_items)
         self.select_thumbs()
@@ -214,11 +221,13 @@ class GridStandart(Grid):
 
     def create_thumbs(self, data_items: list[DataItem]):
         for data_item in data_items:
+            data_item.must_hidden = not self.passes_filter(data_item)
             thumb = Thumb(data_item)
             thumb.set_text_and_size(self.main_win_item.sort_item)
             thumb.set_no_frame()
             thumb.set_common_icon()
-            self.add_widget_data(thumb, 0, 0)
+            # cell_to_wid заполняет rearrange(), здесь только url_to_wid
+            self.url_to_wid[data_item.abs_path] = thumb
 
     def select_thumbs(self):
         if self.main_win_item.go_to_widget:
@@ -232,26 +241,13 @@ class GridStandart(Grid):
                 self.selected_thumbs.append(wid)
                 wid.set_frame()
 
-    def new_thumb(self, url: str):
-        data = DataItem(url)
-        data.set_properties()
-        thumb = Thumb(data)
-        thumb.set_text_and_size(self.main_win_item.sort_item)
-        thumb.set_no_frame()
-        thumb.set_common_icon()
-
-        current_count = len(self.url_to_wid) 
-        cols = self.get_max_columns()
-        row, col = divmod(current_count, cols)
-        self.add_widget_data(thumb, row, col)
-        self.grid_layout.addWidget(thumb, row, col)
-
-        return thumb
-
     def rearrange_thumbs(self):
         super().rearrange()
         self.load_visible_thumbs()
 
+    # ------------------------------------------------------------------
+    # контекстное меню
+    # ------------------------------------------------------------------
     def grid_actions(self):
         self.context_menu.add_action(
             action=self.context_actions.new_folder,
@@ -270,51 +266,6 @@ class GridStandart(Grid):
         self.context_menu.addSeparator()
         super().base_grid_actions()
 
-    def stop_img_loader_tasks(self):
-        for i in self.helpers:
-            i.timer.stop()
-            QTimer.singleShot(0, i.task.terminate_join)
-        self.helpers.clear()
-
-    def deleteLater(self):
-        self.watchdog_task.terminate_join()
-        self.stop_img_loader_tasks()
-        return super().deleteLater()
-    
-    def closeEvent(self, a0):
-        self.watchdog_task.terminate_join()
-        self.stop_img_loader_tasks()
-        return super().closeEvent(a0)
-
-    def dragEnterEvent(self, a0):
-        if a0.mimeData().hasUrls():
-            a0.acceptProposedAction()
-        return super().dragEnterEvent(a0)
-    
-    def dropEvent(self, a0):
-        if not a0.mimeData().urls():
-            return
-        urls = [
-            i.toLocalFile().rstrip(os.sep)
-            for i in a0.mimeData().urls()
-        ]
-        urls = [
-            i
-            for i in urls
-            if i.endswith(ImgUtils.ext_all)
-        ]
-        if not urls:
-            return
-        src = os.path.dirname(urls[0])
-        if src == self.main_win_item.abs_current_dir:
-            print("нельзя копировать в себя через DropEvent")
-            return
-        else:
-            ClipboardItemGlob.src_dir = src
-            ClipboardItemGlob.src_urls = urls
-            self.paste_files.emit()
-        return super().dropEvent(a0)
-    
     def contextMenuEvent(self, a0):
         super().contextMenuEvent(a0)
         if self.wid_under_mouse:
@@ -323,8 +274,55 @@ class GridStandart(Grid):
             self.grid_actions()
         self.context_menu.show_under_mouse()
 
+    # ------------------------------------------------------------------
+    # жизненный цикл
+    # ------------------------------------------------------------------
+    def deleteLater(self):
+        self.watchdog_task.terminate_join()
+        self.stop_img_loader_tasks()
+        return super().deleteLater()
+
+    def closeEvent(self, a0):
+        self.watchdog_task.terminate_join()
+        self.stop_img_loader_tasks()
+        return super().closeEvent(a0)
+
+    # ------------------------------------------------------------------
+    # drag-and-drop и клавиатура
+    # ------------------------------------------------------------------
+    def dragEnterEvent(self, a0):
+        if a0.mimeData().hasUrls():
+            a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
+
+    def dropEvent(self, a0):
+        if not a0.mimeData().hasUrls():
+            return
+        urls = [
+            i.toLocalFile().rstrip(os.sep)
+            for i in a0.mimeData().urls()
+        ]
+        urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
+        if not urls:
+            return
+        src = os.path.dirname(urls[0])
+        if src == self.main_win_item.abs_current_dir:
+            print("нельзя копировать в себя через DropEvent")
+            return
+        ClipboardItemGlob.src_dir = src
+        ClipboardItemGlob.src_urls = urls
+        # перетаскивание всегда копирует: сбрасываем залипший флаг "вырезать"
+        ClipboardItemGlob.set_is_cut(False)
+        self.paste_files.emit()
+        return super().dropEvent(a0)
+
     def keyPressEvent(self, a0):
-        if a0.key() == Qt.Key.Key_V:
+        # раньше обычный V тоже вставлял файлы: нужен именно Ctrl+V
+        if (
+            a0.key() == Qt.Key.Key_V
+            and a0.modifiers() & Qt.KeyboardModifier.ControlModifier
+        ):
             if ClipboardItemGlob.src_urls:
                 self.paste_files.emit()
+            return
         return super().keyPressEvent(a0)

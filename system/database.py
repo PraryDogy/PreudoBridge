@@ -3,13 +3,18 @@ import subprocess
 import traceback
 
 import sqlalchemy
+from sqlalchemy import event
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 from cfg import Static
-from system.shared_utils import SharedUtils
 from system.utils import Utils
 
 _METADATA = sqlalchemy.MetaData()
 _TABLE_NAME = "cache"
+
+# Версия схемы. При несовпадении с user_version в БД кэш пересоздается.
+# Увеличивайте при изменении таблицы или индексов.
+SCHEMA_VERSION = 2
 
 _CACHETABLE = sqlalchemy.Table(
     _TABLE_NAME, _METADATA,
@@ -19,7 +24,12 @@ _CACHETABLE = sqlalchemy.Table(
     sqlalchemy.Column("fs_id", sqlalchemy.Text),
     sqlalchemy.Column("thumb_path", sqlalchemy.Text),
     sqlalchemy.Column("size", sqlalchemy.Integer),
-    sqlalchemy.Column("mod", sqlalchemy.Integer)
+    sqlalchemy.Column("mod", sqlalchemy.Integer),
+    sqlalchemy.Index("ix_cache_dir", "fs_id", "rel_parent"),
+    sqlalchemy.UniqueConstraint(
+        "fs_id", "rel_parent", "filename", "mod", "size",
+        name="uq_cache_file",
+    ),
 )
 
 
@@ -34,89 +44,103 @@ class CacheTable:
     mod = _CACHETABLE.c.mod
 
 
+def _make_engine() -> sqlalchemy.Engine:
+    engine = sqlalchemy.create_engine(
+        f"sqlite:///{Static.external_db}",
+        echo=False,
+        connect_args={"check_same_thread": False, "timeout": 30},
+    )
+
+    @event.listens_for(engine, "connect")
+    def _sqlite_pragmas(dbapi_conn, _record):
+        # WAL: читатели не блокируют писателей, несколько процессов работают спокойнее
+        cur = dbapi_conn.cursor()
+        cur.execute("PRAGMA journal_mode=WAL")
+        cur.execute("PRAGMA synchronous=NORMAL")
+        cur.close()
+
+    return engine
+
+
 class Dbase:
     main_engine: sqlalchemy.Engine
-    
+
     @classmethod
     def create_engine(cls):
-        return sqlalchemy.create_engine(
-            f"sqlite:///{Static.external_db}",
-            echo=False,
-            connect_args={
-                "check_same_thread": False,
-                "timeout": 30
-            }
-        )
+        return _make_engine()
+
+    @classmethod
+    def insert_stmt(cls):
+        # дубликаты (два окна одной папки) тихо пропускаются
+        return sqlite_insert(_CACHETABLE).prefix_with("OR IGNORE")
+
+    @classmethod
+    def _migrate_if_needed(cls, engine: sqlalchemy.Engine):
+        with engine.begin() as conn:
+            version = conn.exec_driver_sql("PRAGMA user_version").scalar()
+            if version != SCHEMA_VERSION:
+                # кэш превью восстанавливаемый, можно пересоздать
+                _METADATA.drop_all(conn)
+                _METADATA.create_all(conn)
+                conn.exec_driver_sql(f"PRAGMA user_version = {SCHEMA_VERSION}")
 
     @classmethod
     def init(cls):
-        engine = sqlalchemy.create_engine(
-            f"sqlite:///{Static.external_db}",
-            echo=False,
-            connect_args={"check_same_thread": False, "timeout": 30}
-        )
-        Dbase.main_engine = engine
-
+        os.makedirs(Static.app_dir, exist_ok=True)
+        cls.main_engine = _make_engine()
         try:
-            os.makedirs(Static.app_dir, exist_ok=True)
-            _METADATA.create_all(engine)
-            conn = Dbase.main_engine.connect()
-            q = sqlalchemy.select(_CACHETABLE)
-            conn.execute(q).first()
-            conn.close()
-        except Exception as e:
-            print(f"Ошибка при открытии БД: {e}")
-            if "no such column" in str(e):
-                print("Не хватает колонок в существующей таблице, создаю новую")
-                _METADATA.drop_all(engine)
-                _METADATA.create_all(engine)
-            else:
-                log_file = os.path.join(Static.app_dir, "log.txt")
-                with open(log_file, "w", encoding="utf-8") as f:
-                    f.write(
-                        "ОТПРАВЬТЕ ЭТО РАЗРАБОТЧИКУ:\n"
-                        "tg: evlosh\n"
-                        "email: evlosh@gmail.com\n"
-                        "\n"
-                        "***************************************\n\n"
-                        f"{traceback.format_exc()}\n"
-                        "***************************************\n"
-                    )
-                try:
-                    subprocess.Popen(["open", log_file])
-                except Exception:
-                    pass
-                os._exit(1)
+            cls._migrate_if_needed(cls.main_engine)
+            with cls.main_engine.connect() as conn:
+                conn.execute(sqlalchemy.select(_CACHETABLE)).first()
+        except Exception:
+            print("Ошибка при открытии БД")
+            Utils.print_error()
+            log_file = os.path.join(Static.app_dir, "log.txt")
+            with open(log_file, "w", encoding="utf-8") as f:
+                f.write(
+                    "ОТПРАВЬТЕ ЭТО РАЗРАБОТЧИКУ:\n"
+                    "tg: evlosh\n"
+                    "email: evlosh@gmail.com\n"
+                    "\n"
+                    "***************************************\n\n"
+                    f"{traceback.format_exc()}\n"
+                    "***************************************\n"
+                )
+            try:
+                subprocess.Popen(["open", log_file])
+            except Exception:
+                pass
+            os._exit(1)
 
     @classmethod
     def commit(cls, conn: sqlalchemy.Connection) -> None:
         try:
             conn.commit()
-        except Exception as e:
+        except Exception:
             Utils.print_error()
             conn.rollback()
 
     @classmethod
-    def execute(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult:
+    def execute(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult | None:
         try:
             return conn.execute(query)
-        except Exception as e:
+        except Exception:
             Utils.print_error()
             conn.rollback()
             return None
-    
+
     @classmethod
     def get_conn(cls, engine: sqlalchemy.Engine) -> sqlalchemy.Connection | None:
         try:
             return engine.connect()
-        except Exception as e:
+        except Exception:
             Utils.print_error()
             return None
-    
+
     @classmethod
     def close_conn(cls, conn: sqlalchemy.Connection):
         try:
             conn.close()
-        except Exception as e:
+        except Exception:
             Utils.print_error()
             conn.rollback()

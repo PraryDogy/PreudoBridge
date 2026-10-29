@@ -16,6 +16,7 @@ from cfg import Static
 
 
 class Utils:
+    _fs_cache: dict[int, str] = {}
 
     @classmethod
     def write_to_clipboard(cls, text: str):
@@ -36,7 +37,7 @@ class Utils:
             subprocess.Popen(["open", path])
 
     @classmethod
-    def print_error(self):
+    def print_error(cls):
         print()
         print("Исключение обработано.")
         print(traceback.format_exc())
@@ -82,7 +83,7 @@ class Utils:
         else:
             print("pixmap from array channels trouble", image.shape)
             return None
-        return qimage
+        return qimage.copy()
     
     @classmethod
     def create_thumb_path(cls, filename: str, mod: int, rel_parent, fs_id: str):
@@ -100,21 +101,26 @@ class Utils:
 
     @classmethod
     def write_thumb(cls, thumb_path: str, thumb_array: np.ndarray) -> bool:
+        """
+        Пишет превью атомарно: сначала во временный файл, потом rename.
+        Массив ожидается в RGB (как возвращает ImgUtils).
+        """
         try:
             arr = thumb_array
             if arr.ndim == 2:
                 img = arr
             elif arr.shape[2] == 3:
                 img = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
-            elif arr.shape[2] == 4:  # JPEG без альфы, отбрасываем её
+            elif arr.shape[2] == 4:  # JPEG не хранит альфу
                 img = cv2.cvtColor(arr[:, :, :3], cv2.COLOR_RGB2BGR)
             else:
+                print(f"write_thumb: неподдерживаемое число каналов {arr.shape}")
                 return False
             base, ext = os.path.splitext(thumb_path)
             tmp_path = f"{base}.part{ext}"  # cv2 выбирает формат по расширению
             if not cv2.imwrite(tmp_path, img):
                 return False
-            os.replace(tmp_path, thumb_path)  # атомарно
+            os.replace(tmp_path, thumb_path)
             return True
         except Exception as e:
             print(f"write_thumb: ошибка записи thumb на диск: {e}")
@@ -169,18 +175,30 @@ class Utils:
 
         image = QImage(
             size,
-            QImage.Format_ARGB32_Premultiplied
+            QImage.Format.Format_ARGB32_Premultiplied
         )
         image.fill(Qt.GlobalColor.transparent)
 
         painter = QPainter(image)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         renderer.render(painter)
         painter.end()
 
         return image
     
+    @classmethod
+    def get_fs_id_cached(cls, abs_path: str) -> str:
+        """
+        То же, что get_fs_id, но результат кэшируется по st_dev:
+        папки одного тома имеют один fs_id, не нужно вызывать df/diskutil
+        на каждую подпапку.
+        """
+        dev = os.stat(abs_path).st_dev
+        if dev not in cls._fs_cache:
+            cls._fs_cache[dev] = cls.get_fs_id(abs_path)
+        return cls._fs_cache[dev]
+
     @classmethod
     def get_fs_id(cls, abs_path: str):
         """

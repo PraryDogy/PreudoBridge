@@ -37,6 +37,7 @@ class SharedUtils:
             return f"{format_size(bytes_size / pow(1024, 3))} ГБ"
         elif bytes_size < pow(1024, 5):
             return f"{format_size(bytes_size / pow(1024, 4))} ТБ"
+        return f"{format_size(bytes_size / pow(1024, 5))} ПБ"
 
     @classmethod
     def get_f_date(cls, timestamp_: int, date_only: bool = False) -> str:
@@ -163,12 +164,14 @@ class ImgUtils:
                 if img.dtype != np.uint8:
                     img = (img / 256).astype(np.uint8)
             elif img.ndim == 2:
-                img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+                img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+            if img.dtype != np.uint8:
+                img = (img / 256).astype(np.uint8)
             return img
         readers = (
             lambda path: tifffile.imread(path, is_ome=False),
             lambda path: np.array(Image.open(path).convert("RGB")),
-            lambda path: cv2.imread(path)
+            lambda path: cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)
         )
         for loader in readers:
             try:
@@ -178,7 +181,7 @@ class ImgUtils:
         return cls._get_broken_image()
 
     @classmethod
-    def _read_quicklook(cls, path: str, size: int = 5000, timeout: int = 120):
+    def _read_quicklook(cls, path: str, size: int = 2048, timeout: int = 120):
         # Создаем уникальную временную папку для конкретного вызова
         with tempfile.TemporaryDirectory() as tmp_dir_name:
             tmp_dir = Path(tmp_dir_name)
@@ -191,6 +194,7 @@ class ImgUtils:
                     timeout=timeout
                 )
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
+                # Возвращаем "пустую" картинку при ошибке или таймауте
                 return cls._get_broken_image()
 
             # Ищем файл только в нашей изолированной папке
@@ -245,9 +249,8 @@ class ImgUtils:
 
     @classmethod
     def _read_jpg(cls, path: str):
-        heics = (".heic", ".HEIC")
         try:
-            if path.endswith(heics):
+            if path.lower().endswith((".heic", ".heif")):
                 img = Image.open(path)
                 img = img.convert("RGB")
                 return np.array(img)
@@ -265,8 +268,12 @@ class ImgUtils:
             # Извлечение встроенного эскиза/превью из RAW-файла и преобразование в изображение:
             # Открываем RAW-файл с помощью rawpy
             with rawpy.imread(path) as raw:
-                # Извлекаем встроенный эскиз (thumbnail)
-                thumb = raw.extract_thumb()
+                try:
+                    # встроенный эскиз (thumbnail)
+                    thumb = raw.extract_thumb()
+                except Exception:
+                    # эскиза нет: декодируем, уменьшив в 2 раза
+                    return raw.postprocess(half_size=True, output_bps=8)
             # Проверяем формат извлечённого эскиза
             if thumb.format == rawpy.ThumbFormat.JPEG:
                 # Если это JPEG — открываем как изображение через BytesIO
@@ -303,6 +310,9 @@ class ImgUtils:
             cap = cv2.VideoCapture(path)
             cap.set(cv2.CAP_PROP_POS_MSEC, time_sec * 1000)
             success, frame = cap.read()
+            if not success:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                success, frame = cap.read()
             cap.release()
             if success:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -313,38 +323,38 @@ class ImgUtils:
             print("read movie error", e)
             return cls._get_broken_image()
 
+    _readers_cache: dict = {}
+
     @classmethod
-    def _read_any(cls, path: str) -> np.ndarray:
-        ...
+    def _get_readers(cls) -> dict:
+        if not cls._readers_cache:
+            table = {}
+            pairs = (
+                (cls.ext_psd, cls._read_quicklook),
+                (cls.ext_tiff, cls._read_tiff),
+                (cls.ext_raw, cls._read_raw),
+                (cls.ext_jpeg, cls._read_jpg),
+                (cls.ext_png, cls._read_png),
+                (cls.ext_video, cls._read_movie),
+                (cls.ext_icns, cls._read_icns),
+                (cls.ext_svg, cls._read_svg),
+            )
+            for exts, fn in pairs:
+                for e in exts:
+                    table[e.lower()] = fn
+            cls._readers_cache.update(table)
+        return cls._readers_cache
 
     @classmethod
     def read_img(cls, path: str):
         """
-        Вернет или прочитанное изображение или картинку битого изображения
-        то есть всегда возвращает изображение
+        Всегда возвращает изображение (или картинку битого файла).
         """
         _, ext = os.path.splitext(path)
-        ext = ext.lower()
-        read_any_dict: dict[str, callable] = {}
-
-        for i in cls.ext_psd:
-            read_any_dict[i] = cls._read_quicklook
-        for i in cls.ext_tiff:
-            read_any_dict[i] = cls._read_tiff
-        for i in cls.ext_raw:
-            read_any_dict[i] = cls._read_raw
-        for i in cls.ext_jpeg:
-            read_any_dict[i] = cls._read_jpg
-        for i in cls.ext_png:
-            read_any_dict[i] = cls._read_png
-        for i in cls.ext_video:
-            read_any_dict[i] = cls._read_movie
-        for i in cls.ext_icns:
-            read_any_dict[i] = cls._read_icns
-        for i in cls.ext_svg:
-            read_any_dict[i] = cls._read_svg
-        fn = read_any_dict.get(ext)
-        return fn(path) if fn else cls._get_broken_image()
+        fn = cls._get_readers().get(ext.lower())
+        if fn is None:
+            return cls._get_broken_image()
+        return fn(path)
 
     @classmethod
     def get_psd_size(cls, path):
@@ -393,7 +403,8 @@ class PathFinder:
         self.input_path: str = rf"{input_path}"
         self.mounted_disks: list[str] = self.get_mounted_disks()
         self.Macintosh_HD: str = self.get_Macintosh_HD()
-        self.mounted_disks.remove(self.Macintosh_HD)
+        if self.Macintosh_HD in self.mounted_disks:
+            self.mounted_disks.remove(self.Macintosh_HD)
 
     def get_result(self):
         bad_paths = (
@@ -402,7 +413,7 @@ class PathFinder:
         )
         fixed_path = self.input_path.strip(" \t\r\n'\"")
         fixed_path = os.sep + fixed_path.strip(os.sep)
-        if fixed_path.startswith("/Users"):
+        if fixed_path.startswith("/Users") and self.Macintosh_HD:
             fixed_path = f"{self.Macintosh_HD}{fixed_path}"
 
         if fixed_path in bad_paths:

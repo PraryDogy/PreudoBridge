@@ -136,6 +136,7 @@ class BlueTextWid(ThumbBaseLabel):
         )
 
     def set_text(self, data_item: DataItem, sort_item: SortItem):
+        row = ""
         if sort_item.item_type == sort_item.mod:
             row = f"Изм: {SharedUtils.get_f_date(data_item.mod)}"
         elif sort_item.item_type == sort_item.added:
@@ -322,23 +323,29 @@ class Grid(UScrollArea):
             self.cell_to_wid.pop(cell)
         wid.deleteLater()
 
-    def sort(self):
+    def sort(self, update_text: bool = True):
+        """
+        update_text=False: только порядок. Нужен при событиях файлов,
+        когда текст и размеры миниатюр уже актуальны и их пересчет дорог.
+        """
         data_items = [i.data_item for i in self.url_to_wid.values()]
         sorted_data_items = DataItem.sort_(data_items, self.main_win_item.sort_item)
         new_url_to_wid = {}
         for i in sorted_data_items:
             wid = self.url_to_wid.get(i.abs_path)
             new_url_to_wid[i.abs_path] = wid
-            wid.set_text_and_size(self.main_win_item.sort_item)
+            if update_text:
+                wid.set_text_and_size(self.main_win_item.sort_item)
         self.url_to_wid = new_url_to_wid
+
+    def passes_filter(self, data_item: DataItem) -> bool:
+        name = data_item.filename.lower()
+        return all(i.lower() in name for i in Dynamic.word_filters)
 
     def filter(self):
         visible_thumbs = 0
         for wid in self.url_to_wid.values():
-            show_widget = True
-            for i in Dynamic.word_filters:
-                if i.lower() not in wid.data_item.filename.lower():
-                    show_widget = False
+            show_widget = self.passes_filter(wid.data_item)
             if show_widget:
                 wid.data_item.must_hidden = False
                 wid.show()
@@ -377,6 +384,8 @@ class Grid(UScrollArea):
         self.url_to_wid[wid.data_item.abs_path] = wid
 
     def open_thumb(self):
+        if not self.selected_thumbs or self.wid_under_mouse is None:
+            return
         if len(self.selected_thumbs) == 1:
             if self.wid_under_mouse.data_item.type_ == Static.folder_type:
                 self.base_signals.history_item.emit(
@@ -477,6 +486,11 @@ class Grid(UScrollArea):
             if wid is self or wid is self.grid_wid:
                 return None
             wid = wid.parentWidget()
+        if wid is None:
+            return None
+        # миниатюра должна принадлежать именно этой сетке
+        if self.url_to_wid.get(wid.data_item.abs_path) is not wid:
+            return None
         return wid
 
     def open_img_convert_win(self, urls: list[str]):
@@ -560,7 +574,7 @@ class Grid(UScrollArea):
         )
         self.context_menu.add_action(
             action=self.context_actions.rename,
-            callback=lambda: self.rename_file_cmd(self.wid_under_mouse.data_item.abs_path)
+            callback=lambda p=self.wid_under_mouse.data_item.abs_path: self.rename_file_cmd(p)
         )
         self.context_menu.add_action(
             action=self.context_actions.reveal,
@@ -611,6 +625,23 @@ class Grid(UScrollArea):
             callback=lambda: self.base_signals.copy_names.emit(urls)
         )
 
+    def select_range_to(self, target: Thumb):
+        """Shift-клик: выделить диапазон от последней выделенной миниатюры до target."""
+        if not self.selected_thumbs:
+            self.select_multiple_thumb(target)
+            return
+        anchor = self.selected_thumbs[-1].data_item
+        keys = sorted(self.cell_to_wid)  # порядок по строкам и колонкам
+        a_key = (anchor.row, anchor.col)
+        t_key = (target.data_item.row, target.data_item.col)
+        if a_key not in self.cell_to_wid or t_key not in self.cell_to_wid:
+            return
+        lo, hi = sorted((keys.index(a_key), keys.index(t_key)))
+        for key in keys[lo:hi + 1]:
+            wid = self.cell_to_wid.get(key)
+            if wid is not None and wid not in self.selected_thumbs:
+                self.select_multiple_thumb(wid)
+
     def mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
@@ -648,28 +679,7 @@ class Grid(UScrollArea):
             self.bar_path_update_cmd(self.main_win_item.abs_current_dir)
 
         elif a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
-            # шифт клик: если не было выделенных виджетов
-            if not self.selected_thumbs:
-                self.select_multiple_thumb(self.wid_under_mouse)
-            # шифт клик: если уже был выделен один / несколько виджетов
-            else:
-                coords = list(self.cell_to_wid)
-                start_pos = (self.selected_thumbs[-1].data_item.row, self.selected_thumbs[-1].data_item.col)
-                # шифт клик: слева направо (по возрастанию)
-                if coords.index((self.wid_under_mouse.data_item.row, self.wid_under_mouse.data_item.col)) > coords.index(start_pos):
-                    start = coords.index(start_pos)
-                    end = coords.index((self.wid_under_mouse.data_item.row, self.wid_under_mouse.data_item.col))
-                    coords = coords[start : end + 1]
-                # шифт клик: справа налево (по убыванию)
-                else:
-                    start = coords.index((self.wid_under_mouse.data_item.row, self.wid_under_mouse.data_item.col))
-                    end = coords.index(start_pos)
-                    coords = coords[start : end]
-                # выделяем виджеты по срезу координат coords
-                for i in coords:
-                    wid_ = self.cell_to_wid.get(i)
-                    if wid_ not in self.selected_thumbs:
-                        self.select_multiple_thumb(wid=wid_)
+            self.select_range_to(self.wid_under_mouse)
 
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
             # комманд клик: был выделен виджет, снять выделение
@@ -745,7 +755,7 @@ class Grid(UScrollArea):
                 ClipboardItemGlob.set_is_cut(True)
                 self.setup_urls_to_copy()
 
-            if a0.key() == Qt.Key.Key_C:
+            elif a0.key() == Qt.Key.Key_C:
                 ClipboardItemGlob.set_is_cut(False)
                 self.setup_urls_to_copy()
 

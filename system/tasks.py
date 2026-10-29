@@ -46,8 +46,6 @@ class URunnable(QRunnable):
             self.task()
         finally:
             self.set_finished(True)
-            if self in UThreadPool.tasks:
-                QTimer.singleShot(5000, lambda: self.task_fin())
 
     def task(self):
         raise NotImplementedError("Переопредели метод task() в подклассе.")
@@ -145,13 +143,22 @@ class CacheCleaner(URunnable):
         self.sigs = CacheCleaner.Sigs()
 
     def task(self):
-        shutil.rmtree(Static.external_thumbs_dir)
-        os.remove(Static.external_db)
-        os.makedirs(Static.external_thumbs_dir)
-        with open(Static.external_db, "w"):
-            pass
-        Dbase.init()
-        self.sigs.finished_.emit()
+        try:
+            engine = getattr(Dbase, "main_engine", None)
+            if engine is not None:
+                engine.dispose()  # закрыть соединения до удаления файла
+            shutil.rmtree(Static.external_thumbs_dir, ignore_errors=True)
+            for suffix in ("", "-wal", "-shm"):
+                path = Static.external_db + suffix
+                if os.path.exists(path):
+                    os.remove(path)
+            os.makedirs(Static.external_thumbs_dir, exist_ok=True)
+            Dbase.init()
+        except Exception:
+            Utils.print_error()
+        finally:
+            # сигнал шлем всегда, иначе UI будет ждать вечно
+            self.sigs.finished_.emit()
 
 
 
