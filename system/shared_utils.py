@@ -72,7 +72,7 @@ class ImgUtils:
             ".gif", ".GIF",
             ".ico", ".ICO",
             ".heic", ".HEIC",
-            ".heif", "HEIF"
+            ".heif", ".HEIF"
         )
 
     ext_tiff = (
@@ -191,8 +191,7 @@ class ImgUtils:
                     timeout=timeout
                 )
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
-                # Возвращаем "пустую" картинку при ошибке или таймауте
-                return np.zeros((100, 100, 3), dtype=np.uint8)
+                return cls._get_broken_image()
 
             # Ищем файл только в нашей изолированной папке
             generated_files = list(tmp_dir.glob("*.png"))
@@ -345,11 +344,7 @@ class ImgUtils:
         for i in cls.ext_svg:
             read_any_dict[i] = cls._read_svg
         fn = read_any_dict.get(ext)
-        if fn:
-            cls._read_any = fn
-            return cls._read_any(path)
-        else:
-            return cls._get_broken_image()
+        return fn(path) if fn else cls._get_broken_image()
 
     @classmethod
     def get_psd_size(cls, path):

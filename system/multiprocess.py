@@ -272,7 +272,10 @@ class JpgConverter:
             for i in jpg_item.urls
             if i.endswith(ImgUtils.ext_all)
         ]
-        jpg_item.urls.sort(key=lambda p: os.path.getsize(p))
+        try:
+            jpg_item.urls.sort(key=lambda p: os.path.getsize(p))
+        except Exception as e:
+            print("multiprocess, JpgConverter sort error", e)
 
         filename = ""
         new_urls: list[str] = []
@@ -291,16 +294,30 @@ class JpgConverter:
         queue.put(jpg_item)
 
     @staticmethod
-    def _save_jpg(path: str) -> None:
+    def _target_path(path: str) -> str | None:
+        base, ext = os.path.splitext(path)
+        if ext.lower() in (".jpg", ".jpeg"):
+            return None  # уже JPG, не трогаем
+        save_path = f"{base}.jpg"
+        counter = 2
+        while os.path.exists(save_path):  # не перезаписываем чужие файлы
+            save_path = f"{base} ({counter}).jpg"
+            counter += 1
+        return save_path
+
+    @staticmethod
+    def _save_jpg(path: str) -> str | None:
         try:
+            save_path = JpgConverter._target_path(path)
+            if save_path is None:
+                return None
             img_array = ImgUtils.read_img(path)
             image = Image.fromarray(img_array.astype(np.uint8))
-            save_path = os.path.splitext(path)[0] + ".jpg"
             profile = ImgUtils.read_icc(path)
+            kwargs = {"quality": 100}
             if profile:
-                image.save(save_path, quality=100, icc_profile=profile)
-            else:
-                image.save(save_path, quality=100)
+                kwargs["icc_profile"] = profile
+            image.save(save_path, **kwargs)
             return save_path
         except Exception:
             Utils.print_error()
@@ -545,6 +562,10 @@ class CopyTask:
         plan: list[CopyPlanItem] = []
 
         for url in copy_item.src_urls:
+
+            if src.is_dir() and dst_dir.resolve().is_relative_to(src.resolve()):
+                raise ValueError(f"Нельзя копировать папку в её подпапку: {src}")
+
             src = Path(url)
             same_dir = src.parent.resolve() == dst_dir.resolve()
 

@@ -101,18 +101,21 @@ class Utils:
     @classmethod
     def write_thumb(cls, thumb_path: str, thumb_array: np.ndarray) -> bool:
         try:
-            if len(thumb_array.shape) == 2:  # grayscale
-                img = thumb_array
-                return cv2.imwrite(thumb_path, img)
-            elif thumb_array.shape[2] == 3:  # BGR
-                img = cv2.cvtColor(thumb_array, cv2.COLOR_BGR2RGB)
-                return cv2.imwrite(thumb_path, img)
-            elif thumb_array.shape[2] == 4:  # BGRA (с альфой)
-                img = cv2.cvtColor(thumb_array, cv2.COLOR_BGRA2RGBA)
-                return cv2.imwrite(thumb_path, img, [cv2.IMWRITE_PNG_COMPRESSION, 3])
+            arr = thumb_array
+            if arr.ndim == 2:
+                img = arr
+            elif arr.shape[2] == 3:
+                img = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
+            elif arr.shape[2] == 4:  # JPEG без альфы, отбрасываем её
+                img = cv2.cvtColor(arr[:, :, :3], cv2.COLOR_RGB2BGR)
             else:
-                print(f"write_thumb: неподдерживаемое число каналов {thumb_array.shape}")
                 return False
+            base, ext = os.path.splitext(thumb_path)
+            tmp_path = f"{base}.part{ext}"  # cv2 выбирает формат по расширению
+            if not cv2.imwrite(tmp_path, img):
+                return False
+            os.replace(tmp_path, thumb_path)  # атомарно
+            return True
         except Exception as e:
             print(f"write_thumb: ошибка записи thumb на диск: {e}")
             return False
