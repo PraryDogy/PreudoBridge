@@ -42,24 +42,23 @@ class GridStandart(Grid):
 
     def watchdog_start(self, fast_ms=300, slow_ms=1000):
 
+        # standart.py, внутри GridStandart.watchdog_start
         def poll_task():
-            # реже обновлять сетку когда идет процесс копирования
-            # иначе слишком часто будут создаваться виджеты с картинками
-            # и будет фризиться гуи 
-            if ClipboardItemGlob.src_urls:
-                ms = slow_ms
-            else:
-                ms = fast_ms
-            self.watchdog_timer.stop()
-            events: list[FileSystemEvent] = []
-            while not self.watchdog_task.queue.empty():
-                events.append(self.watchdog_task.queue.get())
-            if events:
-                for i in events:
-                    self.watchdog_apply(i)
-                self.sort()
-                self.rearrange_thumbs()
-            self.watchdog_timer.start(ms)
+            ms = slow_ms if ClipboardItemGlob.src_urls else fast_ms
+            try:
+                events: list[FileSystemEvent] = []
+                while not self.watchdog_task.queue.empty():
+                    events.append(self.watchdog_task.queue.get())
+                if events:
+                    for ev in events:
+                        try:
+                            self.watchdog_apply(ev)
+                        except Exception:
+                            Utils.print_error()
+                    self.sort()
+                    self.rearrange_thumbs()
+            finally:
+                self.watchdog_timer.start(ms)
 
         self.watchdog_task = ProcessWorker(
             target=WatchdogTask.start,
@@ -72,31 +71,53 @@ class GridStandart(Grid):
         self.watchdog_timer.start(fast_ms)
         self.watchdog_task.start()
 
+    # standart.py, GridStandart.watchdog_apply
     def watchdog_apply(self, e: FileSystemEvent):
-        wid: Thumb = self.url_to_wid.get(e.src_path, None)
+        wid: Thumb | None = self.url_to_wid.get(e.src_path)
+
         if e.event_type == "deleted":
             self.del_thumb(e.src_path)
             if wid and wid.data_item.is_selected:
                 self.watchdog_modified_files.add(e.src_path)
+
         elif e.event_type == "created":
-            new_thumb = self.new_thumb(e.src_path)            
+            self.del_thumb(e.src_path)  # защита от дубликатов
+            new_thumb = self.new_thumb(e.src_path)
             if e.src_path in self.watchdog_modified_files:
                 self.select_multiple_thumb(new_thumb)
-                self.watchdog_modified_files.remove(e.src_path)
+                self.watchdog_modified_files.discard(e.src_path)
+
         elif e.event_type == "moved":
             self.del_thumb(e.src_path)
+            self.del_thumb(e.dest_path)  # если dest уже был в сетке
             new_thumb = self.new_thumb(e.dest_path)
             if wid and wid.data_item.is_selected:
                 self.select_multiple_thumb(new_thumb)
+
         if not self.url_to_wid:
             self.no_items_label_remove()
             self.no_items_label_create(NoItemsLabel.no_files)
         else:
             self.no_items_label_remove()
 
+    def get_visible_thumbs(self) -> list[Thumb]:
+        top = self.verticalScrollBar().value()
+        bottom = top + self.viewport().height()
+        return [
+            wid for wid in self.cell_to_wid.values()
+            if not (wid.y() + wid.height() < top or wid.y() > bottom)
+        ]
+
     def load_visible_thumbs(self):
         if not self.grid_wid.isVisible():
             return
+        to_load = [
+            wid for wid in self.get_visible_thumbs()
+            if wid.data_item.type_ != Static.folder_type
+            and not wid.data_item.qimages
+        ]
+        if to_load:
+            self.img_loader_start(to_load)
 
         scroll_y = self.verticalScrollBar().value()
         viewport_h = self.viewport().height()

@@ -299,28 +299,27 @@ class Grid(UScrollArea):
         self.rubberBand.deleteLater()
         self.rubberBand = QRubberBand(QRubberBand.Shape.Rectangle, self.grid_wid)
 
-    def get_max_columns(self):
-        try:
-            # теперь виджет правильной ширины
-            # но теперь есть лишние спейсинги справа и слева в концах сетки
-            # что мы учитываем в total_w
-            thumb_w = Thumb.wid_width + self.grid_spacing
-            total_w = self.viewport().width() - (self.grid_spacing * 2)
-            return total_w // thumb_w
-        except ZeroDivisionError:
+    # grid.py, класс Grid
+    def get_max_columns(self) -> int:
+        thumb_w = Thumb.wid_width + self.grid_spacing
+        if thumb_w <= 0:
             return 1
+        total_w = self.viewport().width() - self.grid_spacing * 2
+        return max(1, total_w // thumb_w)
 
     def bar_path_update_cmd(self, src: str):
         QTimer.singleShot(0, lambda: self.bar_path_update.emit(src))
 
+    # grid.py, класс Grid
     def del_thumb(self, url: str):
-        wid = self.url_to_wid.get(url)
-        if not wid:
+        wid = self.url_to_wid.pop(url, None)
+        if wid is None:
             return
         if wid in self.selected_thumbs:
             self.selected_thumbs.remove(wid)
-        self.cell_to_wid.pop((wid.data_item.row, wid.data_item.col))
-        self.url_to_wid.pop(url)
+        cell = (wid.data_item.row, wid.data_item.col)
+        if self.cell_to_wid.get(cell) is wid:
+            self.cell_to_wid.pop(cell)
         wid.deleteLater()
 
     def sort(self):
