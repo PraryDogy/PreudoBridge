@@ -254,7 +254,7 @@ class GridSearch(Grid):
 
     def resize(self):
         self.search_task.pause = True
-        super().resize()
+        self.resize_thumbs()
         self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
