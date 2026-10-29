@@ -115,8 +115,8 @@ class WinMain(UMainWindow):
 
         )
         sort_item = SortItem(
-            item_type=SortItem.mod,
-            reversed=True
+            item_type=SortItem.filename,
+            reversed=False
         )
 
         self.main_win_item = MainWinItem(
