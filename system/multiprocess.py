@@ -468,6 +468,30 @@ class CopyCommand(Enum):
 
 
 @dataclass(slots=True)
+class CopyTaskItem:
+    dst_dir: str
+    src_urls: list[str]
+    current_percent: int
+    copied_bytes: int
+    total_bytes: int
+    current_file_count: int
+    total_file_count: int
+    dst_urls: list[str]
+    msg: Literal["none", "error", "need_replace", "finished"]
+    error_traceback: str = ""
+    is_cut: bool = False
+
+
+class CopyCommand(Enum):
+    REPLACE_ONE = auto()
+    REPLACE_ALL = auto()
+    SKIP = auto()
+    CANCEL = auto()
+    KEEP_BOTH = auto()
+    KEEP_ALL = auto()
+
+
+@dataclass(slots=True)
 class CopyPlanItem:
     top_dest: Path
     src_dirs: list[Path]
@@ -502,19 +526,6 @@ class CopyTaskWorker(BaseProcessWorker):
 
 # Совместимость: если где-то импортируется старое имя
 CopyWorker = CopyTaskWorker
-
-
-def copy_xattrs(src, dest):
-    """Переносит расширенные атрибуты (теги Finder, рейтинги, kMDItem*)."""
-    try:
-        names = os.listxattr(src)
-    except OSError:
-        return
-    for name in names:
-        try:
-            os.setxattr(dest, name, os.getxattr(src, name))
-        except OSError:
-            pass
 
 
 class CopyTask:
@@ -679,14 +690,11 @@ class CopyTask:
         dest: Path,
     ):
         block = 4 * 1024 * 1024
-        backup = None
+        # временный файл в той же папке: os.replace атомарен только в пределах одного тома
+        tmp = dest.with_name(f".{dest.name}.part")
 
         try:
-            if dest.exists():
-                backup = CopyTask.set_count_name(dest)
-                dest.rename(backup)
-
-            with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
+            with open(src, "rb") as fsrc, open(tmp, "wb") as fdst:
                 while True:
                     command = CopyTask.check_command(gui_queue)
                     if command == CopyCommand.CANCEL:
@@ -711,36 +719,27 @@ class CopyTask:
                 fdst.flush()
                 os.fsync(fdst.fileno())
 
+            # Временные метки переносим на временный файл до замены
             stat = src.stat()
-            os.utime(dest, ns=(stat.st_atime_ns, stat.st_mtime_ns))
-            copy_xattrs(src, dest)
+            os.utime(tmp, ns=(stat.st_atime_ns, stat.st_mtime_ns))
 
-            if backup is not None:
-                backup.unlink()
-                backup = None
-
+            # Замена целевого файла только после полностью записанной копии.
+            # Если замена не удалась, старый dest остаётся нетронутым.
+            os.replace(tmp, dest)
             return None
 
         except Exception:
             error = traceback.format_exc()
 
+            # Удаляем только временный файл, целевой не трогаем
             try:
-                if dest.exists():
-                    dest.unlink()
+                if tmp.exists():
+                    tmp.unlink()
             except OSError:
                 error += (
-                    "\nОшибка удаления частичного файла:\n"
+                    "\nОшибка удаления временного файла:\n"
                     + traceback.format_exc()
                 )
-
-            if backup is not None and backup.exists():
-                try:
-                    backup.rename(dest)
-                except OSError:
-                    error += (
-                        "\nОшибка восстановления резервной копии:\n"
-                        + traceback.format_exc()
-                    )
 
             copy_item.msg = "error"
             copy_item.error_traceback = error
